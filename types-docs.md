@@ -1,0 +1,2 @@
+company_documents (bisa lebih dari satu untuk masing masing company)
+company data [company_name, tax_id, email, phone, type(vendor or buyer), region, provincy/country, regency, city, zip_code, address, bank_name, bank_account, bank_account_name]
