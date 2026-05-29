@@ -99,7 +99,7 @@ export default function CompanyDetails() {
   const fetchCatalogues = async (companyId: number) => {
     setCataloguesLoading(true);
     try {
-      const res = await getCatalogues(companyId);
+      const res = await getCatalogues({ company_id: companyId });
       setCatalogues(res.data || res);
     } catch (err) {
       console.error("Failed to fetch catalogues", err);
@@ -357,7 +357,7 @@ export default function CompanyDetails() {
               )}
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 20 }}>
               {companies.map(c => {
                 const active = selectedWorkspace?.id === c.id;
                 return (
@@ -365,25 +365,70 @@ export default function CompanyDetails() {
                     key={c.id}
                     onClick={() => openCompanyWorkspace(c)}
                     style={{
-                      textAlign: "left", borderRadius: 18, padding: "18px 20px", border: active ? "1.5px solid rgba(99,102,241,0.45)" : "1px solid rgba(255,255,255,0.08)",
-                      background: active ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.02)", cursor: "pointer",
-                      display: "flex", flexDirection: "column", gap: 10,
+                      textAlign: "left",
+                      borderRadius: 28,
+                      padding: "24px",
+                      border: active ? "1px solid rgba(99,102,241,0.35)" : "1px solid rgba(255,255,255,0.10)",
+                      background: active
+                        ? "linear-gradient(180deg, rgba(79,70,229,0.16), rgba(63,63,70,0.72))"
+                        : "rgba(15,23,42,0.72)",
+                      boxShadow: active ? "0 24px 60px rgba(99,102,241,0.18)" : "0 16px 35px rgba(0,0,0,0.08)",
+                      cursor: "pointer",
+                      display: "grid",
+                      gap: 18,
+                      alignItems: "start",
+                      transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
+                    onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0px)")}
                   >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: "#f3f4f6" }}>{c.name}</div>
-                        <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>{c.type?.toUpperCase()} workspace</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ width: 58, height: 58, borderRadius: 20, overflow: "hidden", background: "rgba(255,255,255,0.06)", display: "grid", placeItems: "center" }}>
+                        {getLogoUrl(c.logo) ? (
+                          <img src={getLogoUrl(c.logo)!} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: 34, height: 34, borderRadius: 12, background: "rgba(99,102,241,0.15)", display: "grid", placeItems: "center" }}>
+                            <Building2 size={18} color="#a5b4fc" />
+                          </div>
+                        )}
                       </div>
-                      <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Building2 size={18} color={active ? "#a855f7" : "#9ca3af"} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc", lineHeight: 1.1 }}>{c.name}</div>
+                        <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, letterSpacing: "0.12em", color: "#c7d2fe", background: "rgba(99,102,241,0.12)", padding: "4px 10px", borderRadius: 999, textTransform: "uppercase" }}>
+                            {c.type?.toUpperCase() || "WORKSPACE"}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#d1d5db", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: 999 }}>
+                            ID #{c.id}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 11, color: "#6b7280" }}>ID #{c.id}</span>
-                      <span style={{ fontSize: 11, color: "#9ca3af", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: 999 }}>
-                        {c.status?.toUpperCase() || "PENDING"}
-                      </span>
+
+                    <div style={{ display: "grid", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: active ? "#8b5cf6" : "#22c55e" }} />
+                          <span style={{ fontSize: 12, color: active ? "#c7d2fe" : "#9ca3af" }}>
+                            {active ? "Selected workspace" : "Tap to open workspace"}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 11, color: "#f8fafc", background: c.status === "approved" ? "rgba(52,211,153,0.14)" : c.status === "pending" ? "rgba(251,191,36,0.14)" : "rgba(248,113,113,0.14)", padding: "6px 12px", borderRadius: 999, border: c.status === "approved" ? "1px solid rgba(52,211,153,0.24)" : c.status === "pending" ? "1px solid rgba(251,191,36,0.24)" : "1px solid rgba(248,113,113,0.24)" }}>
+                          {c.status?.toUpperCase() || "PENDING"}
+                        </span>
+                      </div>
+                      <div style={{ display: "grid", gap: 8, color: "#cbd5e1" }}>
+                        <div style={{ fontSize: 13, color: "#e2e8f0" }}>{c.tax_id ? `NPWP: ${c.tax_id}` : "Tax ID belum tersedia"}</div>
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", color: "#9ca3af", fontSize: 12 }}>
+                          {c.email && <span>{c.email}</span>}
+                          {c.phone && <span>{c.phone}</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 12, color: "#9ca3af" }}>Workspace opened {c.updated_at ? `• ${new Date(c.updated_at).toLocaleDateString()}` : "recently"}</span>
+                      <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 700 }}>Manage</span>
                     </div>
                   </button>
                 );

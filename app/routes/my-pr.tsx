@@ -91,54 +91,59 @@ export default function MyPurchaseRequisitions() {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {filteredRequests.map(req => {
-              const status = getStatusStyle(req.status);
-              const StatusIcon = status.icon;
-              return (
-                <div key={req.id} style={{
-                  background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
-                  padding: "24px 32px", display: "flex", alignItems: "center", gap: 24, transition: "all 0.2s",
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
-                        <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f3f4f6" }}>{req.title}</h3>
-                    <p style={{ margin: "6px 0 0", fontSize: 13, color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
-                      {req.description || "No description provided."}
-                    </p>
-                  </div>
-
-                  <div style={{ width: 180 }}>
-                    <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <Package size={14} color="#9ca3af" />
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{req.items?.length || 0} products</span>
-                    </div>
-                  </div>
-
-                  <div style={{ width: 160 }}>
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 12,
-                      background: status.bg, color: status.color, fontSize: 12, fontWeight: 700,
+                {filteredRequests.map(req => {
+                  const status = getStatusStyle(req.status);
+                  const StatusIcon = status.icon;
+                  return (
+                    <div key={req.id} style={{
+                      background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
+                      padding: "24px 32px", display: "flex", alignItems: "center", gap: 24, transition: "all 0.2s",
+                      position: "relative",
+                      cursor: "pointer",
                     }}>
-                      <StatusIcon size={14} /> {status.label}
-                    </div>
-                  </div>
+                      <div onClick={() => navigate(`/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
+                      <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
+                            <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f3f4f6" }}>{req.title}</h3>
+                        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
+                          {req.description || "No description provided."}
+                        </p>
+                      </div>
 
-                  <button style={{
-                    width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.08)", color: "#9ca3af", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
-              );
-            })}
+                      <div style={{ width: 180, position: "relative", zIndex: 1 }}>
+                        <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Package size={14} color="#9ca3af" />
+                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{req.items?.length || 0} products</span>
+                        </div>
+                      </div>
+
+                      <div style={{ width: 160, position: "relative", zIndex: 1 }}>
+                        <div style={{
+                          display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 12,
+                          background: status.bg, color: status.color, fontSize: 12, fontWeight: 700,
+                        }}>
+                          <StatusIcon size={14} /> {status.label}
+                        </div>
+                      </div>
+
+                      <button onClick={() => navigate(`/my-pr/${req.id}`)} style={{
+                        width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.08)", color: "#9ca3af", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        position: "relative",
+                        zIndex: 1,
+                      }}>
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+                  );
+                })}
           </div>
         )}
       </div>

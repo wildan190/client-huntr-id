@@ -13,6 +13,35 @@ export default function Marketplace() {
   const [showCart, setShowCart] = useState(false);
   const [activeCompany, setActiveCompany] = useState<any>(null);
 
+  const CACHE_KEY = "huntr_marketplace_cache";
+  const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+  const loadCachedItems = () => {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return false;
+
+    try {
+      const parsed = JSON.parse(cached);
+      if (!parsed?.items) return false;
+
+      const age = Date.now() - (parsed.timestamp || 0);
+      if (age > CACHE_TTL) return false;
+
+      setItems(parsed.items);
+      setLoading(false);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const saveItemsToCache = (items: any[]) => {
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({ items, timestamp: Date.now() })
+    );
+  };
+
   useEffect(() => {
     const companySession = localStorage.getItem("active_company");
     if (companySession) {
@@ -23,7 +52,14 @@ export default function Marketplace() {
       }
     }
 
-    fetchItems();
+    const hasCache = loadCachedItems();
+    if (!hasCache) {
+      fetchItems();
+    } else {
+      // Reload in the background if we have a cache to keep data fresh
+      fetchItems(false);
+    }
+
     const savedCart = localStorage.getItem("huntr_cart");
     if (savedCart) setCart(JSON.parse(savedCart));
   }, []);
@@ -32,15 +68,16 @@ export default function Marketplace() {
     localStorage.setItem("huntr_cart", JSON.stringify(cart));
   }, [cart]);
 
-  const fetchItems = async () => {
+  const fetchItems = async (showLoader = true) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       const res = await getCatalogues({ search: searchTerm });
       setItems(res.data || []);
+      saveItemsToCache(res.data || []);
     } catch (err) {
       console.error("Failed to fetch marketplace items", err);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
@@ -128,19 +165,40 @@ export default function Marketplace() {
                     <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f3f4f6", margin: "4px 0" }}>{item.name}</h3>
                     <div style={{ fontSize: 12, color: "#9ca3af" }}>Vendor: <span style={{ color: "#d1d5db" }}>{item.company?.name}</span></div>
                   </div>
-                  <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ fontWeight: 800, color: "#fff", fontSize: 16 }}>
-                      IDR {Number(item.price).toLocaleString()}
+                  <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ fontWeight: 800, color: "#fff", fontSize: 16 }}>
+                        IDR {Number(item.price).toLocaleString()}
+                      </div>
+                      <button 
+                        type="button"
+                        aria-label="Tambah ke keranjang"
+                        onClick={() => addToCart(item)}
+                        style={{
+                          width: 36, height: 36, borderRadius: 10, background: "rgba(99,102,241,0.15)",
+                          border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}
+                      >
+                        <Plus size={18} />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => addToCart(item)}
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/marketplace/${item.id}`)}
                       style={{
-                        width: 36, height: 36, borderRadius: 10, background: "rgba(99,102,241,0.15)",
-                        border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: 12,
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "#9ca3af",
+                        cursor: "pointer",
+                        fontSize: 13,
+                        fontWeight: 700,
                       }}
                     >
-                      <Plus size={18} />
+                      View Details
                     </button>
                   </div>
                 </div>
@@ -181,10 +239,10 @@ export default function Marketplace() {
                       <div style={{ fontSize: 11, color: "#6b7280" }}>IDR {Number(item.price).toLocaleString()}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Minus size={12} /></button>
+                      <button type="button" aria-label="Kurangi jumlah" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Minus size={12} /></button>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", minWidth: 20, textAlign: "center" }}>{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Plus size={12} /></button>
-                      <button onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
+                      <button type="button" aria-label="Tambah jumlah" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Plus size={12} /></button>
+                      <button type="button" aria-label="Hapus item dari keranjang" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 ))

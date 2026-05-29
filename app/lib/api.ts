@@ -132,6 +132,31 @@ export const createCatalogue = (payload: {
   price: number;
 }) => apiPost("/api/catalogues", payload);
 
+export const updateCatalogue = (id: number, payload: {
+  company_id: number;
+  item_code: string;
+  name: string;
+  category?: string;
+  specifications?: string;
+  uom: string;
+  price: number;
+}) =>
+  fetch(`${BASE_URL}/api/catalogues/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  }).then(async (res) => {
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data?.message || (data?.errors ? Object.values(data.errors).flat().join(", ") : "Server error");
+      throw new Error(msg as string);
+    }
+    return data as any;
+  });
+
 export const importCatalogue = (formData: FormData) =>
   apiPostForm("/api/catalogues/import", formData);
 
@@ -145,6 +170,9 @@ export const getCatalogues = (params?: { company_id?: number; search?: string; c
   if (params?.category) url += `&category=${encodeURIComponent(params.category)}`;
   return apiGet(url);
 };
+
+export const getCatalogue = (id: number) =>
+  apiGet(`/api/catalogues/${id}`);
 
 export const getHistoricalPos = (companyId: number) =>
   apiGet(`/api/orders/historical?company_id=${companyId}`);
@@ -162,6 +190,9 @@ export const createRfq = (payload: {
   description: string;
   items: { catalogue_id: number; qty: number; expected_date: string }[];
 }) => apiPost("/api/rfqs", payload);
+
+export const getRfq = (id: number) => apiGet(`/api/rfqs/${id}`);
+export const approveRfq = (rfqId: number, managerId: number) => apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: managerId });
 
 // ── Proposal ──────────────────────────────────────────────────────────────────
 export const submitProposal = (payload: {

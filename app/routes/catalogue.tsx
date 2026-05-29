@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { importCatalogue, getCatalogues, createCatalogue } from "../lib/api";
+import { importCatalogue, getCatalogues, createCatalogue, updateCatalogue } from "../lib/api";
 import { 
   Plus, Check, Loader2, Package, Search, UploadCloud, FileText, 
   ChevronRight, X, LayoutGrid, List
@@ -29,6 +29,7 @@ export default function Catalogue() {
     uom: "Pc",
     price: "",
   });
+  const [editingItem, setEditingItem] = useState<any | null>(null);
 
   useEffect(() => {
     const activeComp = localStorage.getItem("active_company");
@@ -54,17 +55,25 @@ export default function Catalogue() {
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!company) return;
-    
     setLoading(true);
     setError(null);
     try {
-      await createCatalogue({
-        ...formData,
-        company_id: company.id,
-        price: Number(formData.price),
-      });
+      if (editingItem) {
+        await updateCatalogue(editingItem.id, {
+          ...formData,
+          company_id: company.id,
+          price: Number(formData.price),
+        });
+      } else {
+        await createCatalogue({
+          ...formData,
+          company_id: company.id,
+          price: Number(formData.price),
+        });
+      }
       setShowForm(false);
       setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc", price: "" });
+      setEditingItem(null);
       fetchItems(company.id);
     } catch (err: any) {
       setError(err.message);
@@ -108,8 +117,12 @@ export default function Catalogue() {
         {/* Action Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div style={{ display: "flex", gap: 12 }}>
-            <button 
-              onClick={() => setShowForm(!showForm)}
+                  <button 
+                    onClick={() => {
+                      setEditingItem(null);
+                      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc", price: "" });
+                      setShowForm(!showForm);
+                    }}
               style={{
                 padding: "12px 24px", borderRadius: 14, border: "none",
                 background: showForm ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg,#a855f7,#6366f1)",
@@ -236,7 +249,18 @@ export default function Catalogue() {
                   </div>
                   <div style={{ marginTop: "auto", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 12, color: "#4b5563" }}>UOM: <strong style={{ color: "#9ca3af" }}>{item.uom}</strong></span>
-                    <button style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                        <button type="button" onClick={() => {
+                          setEditingItem(item);
+                          setShowForm(true);
+                          setFormData({
+                            item_code: item.item_code || "",
+                            name: item.name || "",
+                            category: item.category || "",
+                            specifications: item.specifications || "",
+                            uom: item.uom || "Pc",
+                            price: String(item.price || ""),
+                          });
+                        }} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       Edit <ChevronRight size={14} />
                     </button>
                   </div>
@@ -270,7 +294,18 @@ export default function Catalogue() {
                       </td>
                       <td style={{ padding: "20px 24px", color: "#9ca3af", fontSize: 13 }}>{item.uom}</td>
                       <td style={{ padding: "20px 24px", textAlign: "right" }}>
-                        <button style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", padding: "8px 16px", borderRadius: 10, color: "#fff", fontSize: 12, cursor: "pointer" }}>Edit</button>
+                        <button type="button" onClick={() => {
+                          setEditingItem(item);
+                          setShowForm(true);
+                          setFormData({
+                            item_code: item.item_code || "",
+                            name: item.name || "",
+                            category: item.category || "",
+                            specifications: item.specifications || "",
+                            uom: item.uom || "Pc",
+                            price: String(item.price || ""),
+                          });
+                        }} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", padding: "8px 16px", borderRadius: 10, color: "#fff", fontSize: 12, cursor: "pointer" }}>Edit</button>
                       </td>
                     </tr>
                   ))}
