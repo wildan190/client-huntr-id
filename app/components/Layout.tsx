@@ -366,7 +366,68 @@ export default function Layout({ children, title, subtitle }: Props) {
 
         {/* Page content */}
         <div style={{ flex: 1, padding: "28px 32px" }}>
-          {children}
+          {activeCompany && activeCompany.status === 'pending' && pathname !== '/company' ? (
+            <div style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              minHeight: "60vh", padding: "40px", textAlign: "center",
+              background: "rgba(255, 255, 255, 0.02)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: "32px",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
+              maxWidth: "600px", margin: "40px auto",
+              gap: "24px"
+            }}>
+              <div style={{
+                width: 80, height: 80, borderRadius: "24px",
+                background: "rgba(251, 191, 36, 0.1)",
+                border: "1px solid rgba(251, 191, 36, 0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 10px 30px rgba(251,191,36,0.1)",
+                color: "#fbbf24"
+              }}>
+                <Building2 size={42} style={{ animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite" }} />
+              </div>
+              
+              <div>
+                <h2 style={{ fontSize: "24px", fontWeight: 900, color: "#f3f4f6", margin: "0 0 10px", letterSpacing: "-0.5px" }}>
+                  Verifikasi Perusahaan Pending
+                </h2>
+                <p style={{ fontSize: "14px", color: "#9ca3af", lineHeight: "1.6", margin: 0 }}>
+                  Workspace perusahaan <strong>{activeCompany.name}</strong> saat ini masih dalam proses peninjauan oleh tim admin.
+                  Semua transaksi, pembuatan RFQ, pengunggahan dokumen, dan katalog dinonaktifkan sementara hingga akun Anda disetujui.
+                </p>
+              </div>
+
+              <div style={{
+                display: "flex", gap: "14px", width: "100%", justifyContent: "center"
+              }}>
+                <button
+                  onClick={() => navigate("/company")}
+                  style={{
+                    padding: "12px 24px", borderRadius: "14px",
+                    background: "linear-gradient(135deg, #a855f7, #6366f1)",
+                    border: "none", color: "#fff", fontWeight: 700, fontSize: "13px",
+                    cursor: "pointer", boxShadow: "0 10px 25px rgba(99,102,241,0.25)"
+                  }}
+                >
+                  Lihat Status Verifikasi
+                </button>
+                <button
+                  onClick={handleSwitchCompany}
+                  style={{
+                    padding: "12px 24px", borderRadius: "14px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "#f3f4f6", fontWeight: 700, fontSize: "13px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Ganti Perusahaan
+                </button>
+              </div>
+            </div>
+          ) : children}
         </div>
       </div>
     </div>
