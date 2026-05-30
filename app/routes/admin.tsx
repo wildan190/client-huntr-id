@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { adminLogin, adminGetCompanies, adminAuditCompany } from "../lib/api";
 
+const BASE_URL_IMAGE = import.meta.env.VITE_BASE_URL_IMAGE || `${import.meta.env.VITE_API_URL}/storage`;
+
 /* ─────────────────────────────────────────────────────────────────── */
 /*  Types                                                              */
 /* ─────────────────────────────────────────────────────────────────── */
@@ -625,9 +627,9 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                                   </div>
                                   <div style={{ fontSize: 10, color: "#6b7280", marginTop: 2 }}>{doc.type}</div>
                                 </div>
-                                {doc.url && (
+                                {doc.file_path && (
                                   <a
-                                    href={doc.url} target="_blank" rel="noopener noreferrer"
+                                    href={`${BASE_URL_IMAGE}/${doc.file_path}`} target="_blank" rel="noopener noreferrer"
                                     onClick={e => e.stopPropagation()}
                                     style={{
                                       display: "flex", alignItems: "center", gap: 4,

@@ -123,7 +123,8 @@ export default function CompanyDetails() {
   const getLogoUrl = (logoPath?: string) => {
     if (!logoPath) return null;
     if (logoPath.startsWith("http")) return logoPath;
-    return `${import.meta.env.VITE_API_URL}/storage/${logoPath}`;
+    const base = import.meta.env.VITE_BASE_URL_IMAGE || `${import.meta.env.VITE_API_URL}/storage`;
+    return `${base}/${logoPath}`;
   };
 
   const fetchCompanyList = async (userId: number, activeId?: number) => {
