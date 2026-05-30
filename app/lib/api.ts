@@ -1,4 +1,4 @@
-import { normalizeOtp, normalizeWhatsapp } from "./whatsapp";
+import { normalizeOtp, normalizeWhatsapp, isValidWhatsapp } from "./whatsapp";
 
 let BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 if (BASE_URL.includes(":8443") && BASE_URL.startsWith("http://")) {
@@ -170,10 +170,17 @@ export const getAuthenticatedUser = () => apiGet("/api/user");
 export const sendOtp = async (payload: { whatsapp: string }) => {
   await ensureCsrfCookie();
   const whatsapp = normalizeWhatsapp(payload.whatsapp);
-  const res = await apiPost<{ message: string; otp?: string; whatsapp?: string; expires_in?: number }>(
-    "/api/auth/otp/send",
-    { whatsapp }
-  );
+  if (!isValidWhatsapp(payload.whatsapp)) {
+    throw new Error("Format nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx (contoh: 085156334793).");
+  }
+  const res = await apiPost<{
+    message: string;
+    otp?: string;
+    whatsapp?: string;
+    expires_in?: number;
+    whatsapp_sent?: boolean;
+    delivery_error?: string;
+  }>("/api/auth/otp/send", { whatsapp });
   return { ...res, whatsapp: res.whatsapp || whatsapp };
 };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
 import { register, sendOtp, verifyOtp } from "../lib/api";
+import { isValidWhatsapp } from "../lib/whatsapp";
 import AuthLayout from "../components/AuthLayout";
 
 export default function Register() {
@@ -54,6 +55,10 @@ export default function Register() {
       setError("Please fill in Name, WhatsApp Number, and Password first.");
       return;
     }
+    if (!isValidWhatsapp(form.whatsapp)) {
+      setError("Invalid WhatsApp format. Use 08xxxxxxxxxx (e.g. 085156334793).");
+      return;
+    }
     setSendingOtp(true);
     setLoading(true);
     setError(null);
@@ -63,7 +68,10 @@ export default function Register() {
       setOtpSent(true);
       setCanonicalWhatsapp(res.whatsapp || form.whatsapp);
       setResendCooldown(60);
-      setSuccessMsg("OTP sent to WhatsApp. Use the latest code received.");
+      const sentNote = res.whatsapp_sent === false
+        ? " WhatsApp delivery failed — use Debug OTP below."
+        : "";
+      setSuccessMsg(`OTP ready.${sentNote} Number: ${res.whatsapp || form.whatsapp}`);
       if (res.otp) setDebugOtp(String(res.otp));
     } catch (err: any) {
       setError(err.message || "Failed to send OTP code. Please try again.");
@@ -158,7 +166,8 @@ export default function Register() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="e.g. 085156334793"
+                    placeholder="e.g. 085156334793"
+                    autoComplete="tel"
                 required
                 disabled={otpSent}
                 className="auth-input"
