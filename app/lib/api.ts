@@ -6,10 +6,14 @@ if (BASE_URL.includes(":8443") && BASE_URL.startsWith("http://")) {
 export async function apiGet<T = any>(path: string): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
-    headers: { Accept: "application/json" },
+    headers: { 
+      Accept: "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
+    },
     credentials: "include",
   });
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
     const msg = data?.message || "Server error";
     throw new Error(msg as string);
@@ -26,12 +30,14 @@ export async function apiPost<T = any>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
     },
     body: JSON.stringify(body),
     credentials: "include",
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
 
   if (!res.ok) {
     const msg =
@@ -52,12 +58,14 @@ export async function apiPut<T = any>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
     },
     body: JSON.stringify(body),
     credentials: "include",
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
 
   if (!res.ok) {
     const msg =
@@ -72,10 +80,14 @@ export async function apiPut<T = any>(
 export async function apiDelete<T = any>(path: string): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "DELETE",
-    headers: { Accept: "application/json" },
+    headers: { 
+      Accept: "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
+    },
     credentials: "include",
   });
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
     const msg = data?.message || "Server error";
     throw new Error(msg as string);
@@ -89,12 +101,16 @@ export async function apiPostForm<T = any>(
 ): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
-    headers: { Accept: "application/json" },
+    headers: { 
+      Accept: "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
+    },
     body: formData,
     credentials: "include",
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
 
   if (!res.ok) {
     const msg =
@@ -106,13 +122,37 @@ export async function apiPostForm<T = any>(
   return data as T;
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-export const register = (payload: {
-  name: string; whatsapp: string; password: string; email?: string;
-}) => apiPost("/api/auth/register", payload);
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(";").shift() || "");
+  return null;
+}
 
-export const login = (payload: { email: string; password: string }) =>
-  apiPost("/api/auth/login", payload);
+// ── Auth ──────────────────────────────────────────────────────────────────────
+export const getCsrfCookie = () => apiGet("/sanctum/csrf-cookie");
+
+export const register = async (payload: {
+  name: string; whatsapp: string; password: string; email?: string;
+}) => {
+  await getCsrfCookie();
+  await apiPost("/register", payload);
+  return getAuthenticatedUser();
+};
+
+export const login = async (payload: { email: string; password: string }) => {
+  await getCsrfCookie();
+  const res = await apiPost("/login", { ...payload, login: payload.email });
+  if (res.two_factor) {
+    return { two_factor: true };
+  }
+  return getAuthenticatedUser();
+};
+
+export const logout = () => apiPost("/logout", {});
+
+export const getAuthenticatedUser = () => apiGet("/api/user");
 
 export const sendOtp = (payload: { whatsapp: string }) =>
   apiPost("/api/auth/otp/send", payload);
@@ -130,6 +170,15 @@ export const updateWhatsapp = (payload: { whatsapp: string }) =>
 export const getSessions = () => apiGet("/api/account/sessions");
 
 export const logoutSession = (id: string) => apiDelete(`/api/account/sessions/${id}`);
+
+// ── 2FA (Fortify) ────────────────────────────────────────────────────────────
+export const enable2FA = () => apiPost("/user/two-factor-authentication", {});
+export const disable2FA = () => apiDelete("/user/two-factor-authentication");
+export const get2FAQRCode = () => apiGet("/user/two-factor-qr-code");
+export const get2FARecoveryCodes = () => apiGet("/user/two-factor-recovery-codes");
+export const confirm2FA = (code: string) => apiPost("/user/confirmed-two-factor-authentication", { code });
+export const verify2FACode = (code: string) => apiPost("/two-factor-challenge", { code });
+export const verify2FARecovery = (recovery_code: string) => apiPost("/two-factor-challenge", { recovery_code });
 
 // ── Admin Auth & Audit ────────────────────────────────────────────────────────
 export const adminLogin = (payload: Record<string, any>) =>

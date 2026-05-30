@@ -102,12 +102,11 @@ function GuestMarketplaceView() {
         backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: "linear-gradient(135deg,#a855f7,#6366f1)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 800, fontSize: 18, color: "#fff",
-          }}>H</div>
+          <img 
+            src="/assets/img/logo/emblem.jpg" 
+            alt="Huntr Logo" 
+            style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover" }} 
+          />
           <div>
             <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px" }}>Huntr.id</div>
             <div style={{ fontSize: 9, color: "#6366f1", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
@@ -250,7 +249,11 @@ function GuestMarketplaceView() {
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>H</div>
+              <img 
+                src="/assets/img/logo/emblem.jpg" 
+                alt="Huntr Logo" 
+                style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} 
+              />
               <span style={{ fontWeight: 800, fontSize: 16 }}>Huntr.id</span>
             </div>
             <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>

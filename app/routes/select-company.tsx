@@ -69,13 +69,11 @@ export default function SelectCompany() {
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 28px" }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: "linear-gradient(135deg,#a855f7,#6366f1)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 900, fontSize: 16, color: "#fff",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
-          }}>H</div>
+          <img 
+            src="/assets/img/logo/emblem.jpg" 
+            alt="Huntr Logo" 
+            style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }} 
+          />
           <div>
             <div style={{ fontWeight: 800, fontSize: 14, color: "#f3f4f6", letterSpacing: "-0.3px" }}>Huntr.id</div>
             <div style={{ fontSize: 8, color: "#6366f1", letterSpacing: "0.12em", fontWeight: 700 }}>WORKSPACE</div>

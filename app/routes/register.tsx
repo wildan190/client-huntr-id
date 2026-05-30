@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { UserPlus, Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
+import { UserPlus, Loader2, Eye, EyeOff, MessageSquareCode, ShieldCheck } from "lucide-react";
 import { register, sendOtp, verifyOtp } from "../lib/api";
 
 export default function Register() {
@@ -82,8 +82,7 @@ export default function Register() {
         email: form.email || undefined,
       };
 
-      const data = await register(registerPayload);
-      const userPayload = data.user || data;
+      const userPayload = await register(registerPayload);
       const user = {
         id: userPayload.id,
         name: userPayload.name || form.name,
@@ -104,179 +103,414 @@ export default function Register() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 24,
-      boxSizing: "border-box" as const,
-      position: "relative",
-      overflow: "hidden",
-    }}>
-      {/* Ambient blobs */}
-      <div style={{ position: "absolute", top: "-15%", right: "-5%", width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "-15%", left: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+    <div style={containerStyle}>
+      {/* Ambient background effects */}
+      <div style={ambientBlob1} />
+      <div style={ambientBlob2} />
 
-      <div style={{ width: "100%", maxWidth: 440 }}>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            background: "rgba(15,15,30,0.85)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 24,
-            backdropFilter: "blur(24px)",
-            padding: "36px 36px",
-            display: "flex", flexDirection: "column", gap: 18,
-            boxShadow: "0 24px 48px rgba(0,0,0,0.4)",
-          }}
-        >
-          {/* Logo + Heading */}
-          <div style={{ textAlign: "center", marginBottom: 4 }}>
-            <div style={{
-              width: 52, height: 52, borderRadius: 14,
-              background: "linear-gradient(135deg,#a855f7,#6366f1)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 16px",
-            }}>
-              <UserPlus size={24} color="#fff" />
+      <div className="glass-panel" style={authWrapper}>
+        {/* Left Section: Visual */}
+        <div style={visualSection}>
+          <img 
+            src="/assets/img/auth-assets/enterprise-building.jpg" 
+            alt="Enterprise Building" 
+            style={visualImage}
+          />
+          <div style={visualOverlay}>
+            <div style={visualContent}>
+              <h2 style={visualTitle}>Join the Ecosystem</h2>
+              <p style={visualText}>Connect with verified business partners and expand your procurement reach.</p>
+              <div style={visualFeatures}>
+                <div style={featureTag}>✓ Seamless Onboarding</div>
+                <div style={featureTag}>✓ High-Fidelity UX</div>
+                <div style={featureTag}>✓ Secure Protocol</div>
+              </div>
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: "#f3f4f6", margin: 0 }}>Create Account</h1>
-            <p style={{ fontSize: 13, color: "#6b7280", margin: "6px 0 0" }}>
-              Register and verify WhatsApp number
-            </p>
           </div>
+        </div>
 
-          {/* Name */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={lbl}>Full Name</label>
-            <input value={form.name} onChange={e => set("name", e.target.value)} type="text"
-              placeholder="e.g. Budi Santoso" required disabled={otpSent} style={inp} />
-          </div>
-
-          {/* WhatsApp */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={lbl}>WhatsApp Number</label>
-            <input value={form.whatsapp} onChange={e => set("whatsapp", e.target.value)} type="tel"
-              placeholder="e.g. 085156334793" required disabled={otpSent} style={inp} />
-            {otpSent && (
-              <span onClick={() => setOtpSent(false)} style={{ fontSize: 11, color: "#818cf8", cursor: "pointer", textDecoration: "underline", marginTop: 2, alignSelf: "flex-start" }}>
-                Change WhatsApp number
-              </span>
-            )}
-          </div>
-
-          {/* Email (Optional) */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={lbl}>Work Email (Optional)</label>
-            <input value={form.email} onChange={e => set("email", e.target.value)} type="email"
-              placeholder="budi@company.com" disabled={otpSent} style={inp} />
-          </div>
-
-          {/* Password */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={lbl}>Password</label>
-            <div style={{ position: "relative" }}>
-              <input
-                value={form.password} onChange={e => set("password", e.target.value)}
-                type={showPw ? "text" : "password"}
-                placeholder="min. 8 characters" required disabled={otpSent} style={{ ...inp, paddingRight: 42 }}
+        {/* Right Section: Form */}
+        <div style={formSection}>
+          <form onSubmit={handleSubmit} style={formStyle}>
+            <div style={{ marginBottom: 24 }}>
+              <img 
+                src="/assets/img/logo/emblem.jpg" 
+                alt="Huntr Logo" 
+                style={logoStyle} 
               />
-              <button type="button" onClick={() => setShowPw(p => !p)} disabled={otpSent} style={{
-                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                background: "none", border: "none", cursor: "pointer", color: "#6b7280", padding: 0,
-              }}>
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
+              <h1 style={headingStyle}>Create Account</h1>
+              <p style={subHeadingStyle}>Register and verify your workspace identity</p>
             </div>
-          </div>
 
-          {/* OTP Code */}
-          {otpSent && (
-            <div style={{
-              display: "flex", flexDirection: "column", gap: 6,
-              background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.15)",
-              borderRadius: 14, padding: 14, marginTop: 4,
-            }}>
-              <label style={{ ...lbl, color: "#a5b4fc", display: "flex", alignItems: "center", gap: 6 }}>
-                <MessageSquareCode size={14} /> Enter Verification Code (OTP)
-              </label>
-              <input value={otp} onChange={e => setOtp(e.target.value)} type="text"
-                placeholder="Enter 6-digit OTP code" required maxLength={6} style={inp} />
-              {debugOtp && (
-                <div style={{ fontSize: 11, color: "#34d399", marginTop: 4, fontWeight: 600 }}>
-                  🔧 Debug OTP: {debugOtp}
+            <div style={scrollArea}>
+              <div style={inputGroup}>
+                <label style={lbl}>Full Name</label>
+                <input 
+                  value={form.name} 
+                  onChange={e => set("name", e.target.value)} 
+                  type="text"
+                  placeholder="e.g. Budi Santoso" 
+                  required 
+                  disabled={otpSent} 
+                  style={inp} 
+                />
+              </div>
+
+              <div style={inputGroup}>
+                <label style={lbl}>WhatsApp Number</label>
+                <div style={{ position: "relative" }}>
+                  <input 
+                    value={form.whatsapp} 
+                    onChange={e => set("whatsapp", e.target.value)} 
+                    type="tel"
+                    placeholder="e.g. 085156334793" 
+                    required 
+                    disabled={otpSent} 
+                    style={inp} 
+                  />
+                  {otpSent && (
+                    <span 
+                      onClick={() => setOtpSent(false)} 
+                      style={changeNumLink}
+                    >
+                      Change
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div style={inputGroup}>
+                <label style={lbl}>Work Email (Optional)</label>
+                <input 
+                  value={form.email} 
+                  onChange={e => set("email", e.target.value)} 
+                  type="email"
+                  placeholder="budi@company.com" 
+                  disabled={otpSent} 
+                  style={inp} 
+                />
+              </div>
+
+              <div style={inputGroup}>
+                <label style={lbl}>Password</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    value={form.password} 
+                    onChange={e => set("password", e.target.value)}
+                    type={showPw ? "text" : "password"}
+                    placeholder="min. 8 characters" 
+                    required 
+                    disabled={otpSent} 
+                    style={{ ...inp, paddingRight: 42 }}
+                  />
+                  <button type="button" onClick={() => setShowPw(p => !p)} disabled={otpSent} style={eyeBtnStyle}>
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* OTP Code */}
+              {otpSent && (
+                <div style={otpContainer}>
+                  <label style={{ ...lbl, color: "#a5b4fc", display: "flex", alignItems: "center", gap: 6 }}>
+                    <MessageSquareCode size={14} /> Verification Code
+                  </label>
+                  <input 
+                    value={otp} 
+                    onChange={e => setOtp(e.target.value)} 
+                    type="text"
+                    placeholder="6-digit OTP" 
+                    required 
+                    maxLength={6} 
+                    style={inp} 
+                  />
+                  {debugOtp && (
+                    <div style={debugOtpStyle}>
+                      🔧 Debug OTP: {debugOtp}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
 
-          {error && (
-            <div style={{
-              background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)",
-              borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#f87171",
-            }}>
-              ⚠ {error}
-            </div>
-          )}
+            {error && <div style={errorStyle}>⚠ {error}</div>}
+            {successMsg && <div style={successStyle}>✓ {successMsg}</div>}
 
-          {successMsg && (
-            <div style={{
-              background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.3)",
-              borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#34d399",
-            }}>
-              ✓ {successMsg}
-            </div>
-          )}
+            {!otpSent ? (
+              <button type="button" onClick={handleSendOtp} disabled={loading} style={btnStyle}>
+                {loading
+                  ? <><Loader2 size={18} className="animate-spin" /> Sending...</>
+                  : "Request OTP Code"
+                }
+              </button>
+            ) : (
+              <button type="submit" disabled={loading} style={{ ...btnStyle, background: "linear-gradient(135deg,#34d399,#10b981)" }}>
+                {loading
+                  ? <><Loader2 size={18} className="animate-spin" /> Verifying...</>
+                  : "Verify & Create Account"
+                }
+              </button>
+            )}
 
-          {!otpSent ? (
-            <button type="button" onClick={handleSendOtp} disabled={loading} style={{
-              padding: "13px 20px", borderRadius: 11, fontWeight: 700, fontSize: 14,
-              cursor: loading ? "not-allowed" : "pointer", border: "none",
-              background: "linear-gradient(135deg,#a855f7,#6366f1)",
-              color: "#fff", opacity: loading ? 0.7 : 1,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              marginTop: 4,
-            }}>
-              {loading
-                ? <><Loader2 size={15} className="animate-spin" /> Requesting OTP...</>
-                : "Send OTP Verification Code →"
-              }
-            </button>
-          ) : (
-            <button type="submit" disabled={loading} style={{
-              padding: "13px 20px", borderRadius: 11, fontWeight: 700, fontSize: 14,
-              cursor: loading ? "not-allowed" : "pointer", border: "none",
-              background: "linear-gradient(135deg,#34d399,#10b981)",
-              color: "#fff", opacity: loading ? 0.7 : 1,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              marginTop: 4,
-            }}>
-              {loading
-                ? <><Loader2 size={15} className="animate-spin" /> Verifying & Registering...</>
-                : "Verify & Create Account →"
-              }
-            </button>
-          )}
-
-          <p style={{ fontSize: 12, color: "#6b7280", textAlign: "center", margin: 0 }}>
-            Already have an account?{" "}
-            <Link to="/login" style={{ color: "#818cf8", textDecoration: "none", fontWeight: 600 }}>
-              Sign in
-            </Link>
-          </p>
-        </form>
+            <p style={footerTextStyle}>
+              Already have an account?{" "}
+              <Link to="/login" style={linkStyle}>Sign in</Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
 
-const lbl: React.CSSProperties = {
-  fontSize: 11, color: "#9ca3af", fontWeight: 600,
-  textTransform: "uppercase", letterSpacing: "0.04em",
+// ── Styles ──────────────────────────────────────────────────────────────────
+
+const containerStyle: React.CSSProperties = {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 24,
+  position: "relative",
+  overflow: "hidden",
 };
+
+const ambientBlob1: React.CSSProperties = {
+  position: "absolute", top: "-10%", right: "-5%", width: 600, height: 600,
+  borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%)",
+  pointerEvents: "none", zIndex: 0
+};
+
+const ambientBlob2: React.CSSProperties = {
+  position: "absolute", bottom: "-10%", left: "-5%", width: 700, height: 700,
+  borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)",
+  pointerEvents: "none", zIndex: 0
+};
+
+const authWrapper: React.CSSProperties = {
+  width: "100%",
+  maxWidth: 1000,
+  display: "flex",
+  minHeight: 680,
+  position: "relative",
+  zIndex: 1,
+  overflow: "hidden",
+  borderRadius: 32,
+};
+
+const formSection: React.CSSProperties = {
+  flex: 1,
+  padding: "48px 60px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  background: "rgba(10, 10, 26, 0.4)",
+};
+
+const visualSection: React.CSSProperties = {
+  flex: 1.2,
+  position: "relative",
+  display: "block",
+};
+
+// if (typeof window !== "undefined" && window.innerWidth > 768) {
+//   visualSection.display = "block";
+// }
+
+const visualImage: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+};
+
+const visualOverlay: React.CSSProperties = {
+  position: "absolute",
+  top: 0, left: 0, right: 0, bottom: 0,
+  background: "linear-gradient(to bottom, rgba(15, 15, 30, 0.2), rgba(15, 15, 30, 0.9))",
+  display: "flex",
+  alignItems: "flex-end",
+  padding: 48,
+};
+
+const visualContent: React.CSSProperties = {
+  maxWidth: 400,
+};
+
+const visualTitle: React.CSSProperties = {
+  fontSize: 32,
+  fontWeight: 800,
+  color: "#fff",
+  marginBottom: 12,
+  letterSpacing: "-0.5px",
+};
+
+const visualText: React.CSSProperties = {
+  fontSize: 16,
+  color: "#9ca3af",
+  lineHeight: 1.6,
+  marginBottom: 24,
+};
+
+const visualFeatures: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 12,
+};
+
+const featureTag: React.CSSProperties = {
+  padding: "6px 14px",
+  borderRadius: 20,
+  background: "rgba(168, 85, 247, 0.2)",
+  border: "1px solid rgba(168, 85, 247, 0.3)",
+  color: "#d8b4fe",
+  fontSize: 12,
+  fontWeight: 600,
+};
+
+const formStyle: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+};
+
+const scrollArea: React.CSSProperties = {
+  maxHeight: "60vh",
+  overflowY: "auto",
+  paddingRight: 10,
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+};
+
+const logoStyle: React.CSSProperties = {
+  width: 56,
+  height: 56,
+  borderRadius: 14,
+  marginBottom: 20,
+  objectFit: "cover",
+};
+
+const headingStyle: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 800,
+  color: "#f3f4f6",
+  margin: "0 0 6px",
+  letterSpacing: "-0.5px",
+};
+
+const subHeadingStyle: React.CSSProperties = {
+  fontSize: 14,
+  color: "#6b7280",
+  margin: 0,
+};
+
+const inputGroup: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+};
+
+const lbl: React.CSSProperties = {
+  fontSize: 11,
+  color: "#9ca3af",
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+};
+
 const inp: React.CSSProperties = {
-  background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)",
-  borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#fff",
-  outline: "none", width: "100%", boxSizing: "border-box",
+  background: "rgba(255, 255, 255, 0.03)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+  borderRadius: 12,
+  padding: "12px 14px",
+  fontSize: 13,
+  color: "#fff",
+  outline: "none",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+const changeNumLink: React.CSSProperties = {
+  position: "absolute",
+  right: 12,
+  top: "50%",
+  transform: "translateY(-50%)",
+  fontSize: 11,
+  color: "#818cf8",
+  cursor: "pointer",
+  textDecoration: "underline",
+  fontWeight: 600,
+};
+
+const eyeBtnStyle: React.CSSProperties = {
+  position: "absolute",
+  right: 12,
+  top: "50%",
+  transform: "translateY(-50%)",
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  color: "#6b7280",
+  padding: 4,
+};
+
+const otpContainer: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  background: "rgba(99, 102, 241, 0.05)",
+  border: "1px solid rgba(99, 102, 241, 0.15)",
+  borderRadius: 14,
+  padding: "14px",
+};
+
+const debugOtpStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: "#34d399",
+  marginTop: 4,
+  fontWeight: 600,
+};
+
+const errorStyle: React.CSSProperties = {
+  background: "rgba(239, 68, 68, 0.1)",
+  border: "1px solid rgba(239, 68, 68, 0.2)",
+  borderRadius: 12,
+  padding: "10px 14px",
+  fontSize: 12,
+  color: "#f87171",
+};
+
+const successStyle: React.CSSProperties = {
+  background: "rgba(16, 185, 129, 0.1)",
+  border: "1px solid rgba(16, 185, 129, 0.2)",
+  borderRadius: 12,
+  padding: "10px 14px",
+  fontSize: 12,
+  color: "#34d399",
+};
+
+const btnStyle: React.CSSProperties = {
+  padding: "14px",
+  borderRadius: 12,
+  fontWeight: 700,
+  fontSize: 14,
+  cursor: "pointer",
+  border: "none",
+  background: "linear-gradient(135deg, #a855f7, #6366f1)",
+  color: "#fff",
+  marginTop: 4,
+};
+
+const footerTextStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: "#6b7280",
+  textAlign: "center",
+  margin: "8px 0 0",
+};
+
+const linkStyle: React.CSSProperties = {
+  color: "#818cf8",
+  textDecoration: "none",
+  fontWeight: 600,
 };

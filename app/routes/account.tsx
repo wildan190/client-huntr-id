@@ -20,7 +20,12 @@ import {
   getSessions, 
   logoutSession,
   sendOtp,
-  verifyOtp
+  verifyOtp,
+  enable2FA,
+  disable2FA,
+  get2FAQRCode,
+  get2FARecoveryCodes,
+  confirm2FA
 } from "../lib/api";
 
 export default function AccountSettings() {
@@ -29,6 +34,13 @@ export default function AccountSettings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // 2FA state
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [confirming2FA, setConfirming2FA] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
 
   // Password state
   const [passwordForm, setPasswordForm] = useState({
@@ -53,9 +65,73 @@ export default function AccountSettings() {
       const u = JSON.parse(session);
       setUser(u);
       setNewWhatsapp(u.whatsapp || "");
+      setTwoFactorEnabled(!!u.two_factor_confirmed_at);
     }
     fetchSessions();
   }, []);
+
+  const handleEnable2FA = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await enable2FA();
+      const qrRes = await get2FAQRCode();
+      setQrCode(qrRes.svg);
+      setConfirming2FA(true);
+      setSuccess("2FA sedang diaktifkan. Silakan pindai kode QR.");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirm2FA = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await confirm2FA(twoFactorCode);
+      const codesRes = await get2FARecoveryCodes();
+      setRecoveryCodes(codesRes);
+      setTwoFactorEnabled(true);
+      setConfirming2FA(false);
+      setQrCode(null);
+      setTwoFactorCode("");
+      
+      // Update local storage user object
+      const updatedUser = { ...user, two_factor_confirmed_at: new Date().toISOString() };
+      localStorage.setItem("user_session", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      setSuccess("2FA Berhasil diaktifkan!");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!confirm("Apakah Anda yakin ingin menonaktifkan 2FA?")) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await disable2FA();
+      setTwoFactorEnabled(false);
+      setRecoveryCodes([]);
+      
+      // Update local storage
+      const updatedUser = { ...user, two_factor_confirmed_at: null };
+      localStorage.setItem("user_session", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      setSuccess("2FA dinonaktifkan.");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchSessions = async () => {
     try {
@@ -168,51 +244,114 @@ export default function AccountSettings() {
           
           {/* Security Tab */}
           {activeTab === "security" && (
-            <form onSubmit={handleUpdatePassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 8px" }}>Ganti Password</h2>
-              
-              <div style={inputGroup}>
-                <label style={labelStyle}>Password Saat Ini</label>
-                <input 
-                  type="password" 
-                  value={passwordForm.current_password} 
-                  onChange={e => setPasswordForm(p => ({ ...p, current_password: e.target.value }))}
-                  required 
-                  style={inputStyle} 
-                />
-              </div>
-
-              <div style={inputGroup}>
-                <label style={labelStyle}>Password Baru</label>
-                <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              <form onSubmit={handleUpdatePassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 8px" }}>Ganti Password</h2>
+                
+                <div style={inputGroup}>
+                  <label style={labelStyle}>Password Saat Ini</label>
                   <input 
-                    type={showPw ? "text" : "password"} 
-                    value={passwordForm.password} 
-                    onChange={e => setPasswordForm(p => ({ ...p, password: e.target.value }))}
+                    type="password" 
+                    value={passwordForm.current_password} 
+                    onChange={e => setPasswordForm(p => ({ ...p, current_password: e.target.value }))}
                     required 
-                    style={{ ...inputStyle, paddingRight: 45 }} 
+                    style={inputStyle} 
                   />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={eyeBtn}>
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
                 </div>
-              </div>
 
-              <div style={inputGroup}>
-                <label style={labelStyle}>Konfirmasi Password Baru</label>
-                <input 
-                  type="password" 
-                  value={passwordForm.password_confirmation} 
-                  onChange={e => setPasswordForm(p => ({ ...p, password_confirmation: e.target.value }))}
-                  required 
-                  style={inputStyle} 
-                />
-              </div>
+                <div style={inputGroup}>
+                  <label style={labelStyle}>Password Baru</label>
+                  <div style={{ position: "relative" }}>
+                    <input 
+                      type={showPw ? "text" : "password"} 
+                      value={passwordForm.password} 
+                      onChange={e => setPasswordForm(p => ({ ...p, password: e.target.value }))}
+                      required 
+                      style={{ ...inputStyle, paddingRight: 45 }} 
+                    />
+                    <button type="button" onClick={() => setShowPw(!showPw)} style={eyeBtn}>
+                      {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
 
-              <button type="submit" disabled={loading} style={primaryBtn}>
-                {loading ? <Loader2 size={18} className="animate-spin" /> : "Simpan Perubahan"}
-              </button>
-            </form>
+                <div style={inputGroup}>
+                  <label style={labelStyle}>Konfirmasi Password Baru</label>
+                  <input 
+                    type="password" 
+                    value={passwordForm.password_confirmation} 
+                    onChange={e => setPasswordForm(p => ({ ...p, password_confirmation: e.target.value }))}
+                    required 
+                    style={inputStyle} 
+                  />
+                </div>
+
+                <button type="submit" disabled={loading} style={primaryBtn}>
+                  {loading ? <Loader2 size={18} className="animate-spin" /> : "Simpan Perubahan"}
+                </button>
+              </form>
+
+              <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 16px" }}>Autentikasi Dua Faktor (2FA)</h2>
+                
+                {!twoFactorEnabled && !confirming2FA && (
+                  <div style={{ padding: 20, background: "rgba(99,102,241,0.05)", borderRadius: 16, border: "1px solid rgba(99,102,241,0.1)" }}>
+                    <p style={{ fontSize: 14, color: "#9ca3af", marginBottom: 20 }}>Tingkatkan keamanan akun Anda dengan mengaktifkan autentikasi dua faktor.</p>
+                    <button onClick={handleEnable2FA} disabled={loading} style={{ ...secondaryBtn, height: 44 }}>
+                      Aktifkan 2FA
+                    </button>
+                  </div>
+                )}
+
+                {confirming2FA && qrCode && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: 20, background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <p style={{ fontSize: 14, color: "#fff" }}>Pindai kode QR berikut menggunakan aplikasi autentikator Anda (seperti Google Authenticator):</p>
+                    <div dangerouslySetInnerHTML={{ __html: qrCode }} style={{ background: "#fff", padding: 12, borderRadius: 12, width: "fit-content" }} />
+                    
+                    <div style={inputGroup}>
+                      <label style={labelStyle}>Masukkan Kode Konfirmasi</label>
+                      <input 
+                        type="text" 
+                        value={twoFactorCode} 
+                        onChange={e => setTwoFactorCode(e.target.value)}
+                        placeholder="6 digit kode"
+                        style={inputStyle} 
+                      />
+                    </div>
+                    
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <button onClick={handleConfirm2FA} disabled={loading} style={{ ...primaryBtn, flex: 1, marginTop: 0 }}>Konfirmasi</button>
+                      <button onClick={() => { setConfirming2FA(false); setQrCode(null); }} style={{ ...secondaryBtn, flex: 1 }}>Batal</button>
+                    </div>
+                  </div>
+                )}
+
+                {twoFactorEnabled && (
+                  <div style={{ padding: 20, background: "rgba(16,185,129,0.05)", borderRadius: 16, border: "1px solid rgba(16,185,129,0.1)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#34d399", marginBottom: 12 }}>
+                      <CheckCircle2 size={18} />
+                      <span style={{ fontWeight: 700, fontSize: 14 }}>2FA Aktif</span>
+                    </div>
+                    <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 20 }}>Akun Anda sekarang lebih aman. Gunakan kode dari aplikasi autentikator Anda saat login.</p>
+                    
+                    {recoveryCodes.length > 0 && (
+                      <div style={{ marginBottom: 20, padding: 16, background: "rgba(0,0,0,0.3)", borderRadius: 12 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Simpan kode pemulihan ini di tempat yang aman:</p>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                          {recoveryCodes.map(code => <code key={code} style={{ fontSize: 11, color: "#a5b4fc" }}>{code}</code>)}
+                        </div>
+                      </div>
+                    )}
+
+                    <button onClick={handleDisable2FA} disabled={loading} style={{ ...secondaryBtn, borderColor: "rgba(239,68,68,0.3)", color: "#f87171", background: "rgba(239,68,68,0.05)" }}>
+                      Nonaktifkan 2FA
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Profile Tab */}

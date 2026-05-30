@@ -156,12 +156,11 @@ export default function Layout({ children, title, subtitle }: Props) {
         {/* Logo */}
         <div style={{ padding: "0 18px 24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 9,
-              background: "linear-gradient(135deg,#a855f7,#6366f1)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontWeight: 800, fontSize: 15, color: "#fff", flexShrink: 0,
-            }}>H</div>
+            <img 
+              src="/assets/img/logo/emblem.jpg" 
+              alt="Huntr Logo" 
+              style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover" }} 
+            />
             <div>
               <div style={{ fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "-0.3px" }}>Huntr.id</div>
               <div style={{ fontSize: 8, color: "#6366f1", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
