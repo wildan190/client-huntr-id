@@ -54,7 +54,18 @@ export default function AccountSettings() {
   const [newWhatsapp, setNewWhatsapp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
+  const [canonicalWhatsapp, setCanonicalWhatsapp] = useState("");
   const [debugOtp, setDebugOtp] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [sendingOtp, setSendingOtp] = useState(false);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setInterval(() => {
+      setResendCooldown(prev => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldown]);
 
   // Sessions state
   const [sessions, setSessions] = useState<any[]>([]);
@@ -163,42 +174,52 @@ export default function AccountSettings() {
   };
 
   const handleSendOtp = async () => {
+    if (sendingOtp || (resendCooldown > 0 && otpSent)) return;
     if (!newWhatsapp) {
       setError("Silakan masukkan nomor WhatsApp baru.");
       return;
     }
+    setSendingOtp(true);
     setLoading(true);
     setError(null);
     setSuccess(null);
     try {
       const res = await sendOtp({ whatsapp: newWhatsapp });
       setOtpSent(true);
-      setSuccess("Kode OTP telah dikirim ke nomor WhatsApp baru.");
-      if (res.otp) setDebugOtp(res.otp);
+      setCanonicalWhatsapp(res.whatsapp || newWhatsapp);
+      setResendCooldown(60);
+      setSuccess("Kode OTP telah dikirim. Gunakan kode terbaru dari WhatsApp.");
+      if (res.otp) setDebugOtp(String(res.otp));
     } catch (err: any) {
       setError(err.message);
     } finally {
+      setSendingOtp(false);
       setLoading(false);
     }
   };
 
   const handleUpdateWhatsapp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (otp.length !== 6) {
+      setError("Masukkan kode OTP 6 digit.");
+      return;
+    }
     setLoading(true);
     setError(null);
     setSuccess(null);
     try {
-      await verifyOtp({ whatsapp: newWhatsapp, otp });
-      const data = await updateWhatsapp({ whatsapp: newWhatsapp });
-      
-      // Update local storage
-      const updatedUser = { ...user, whatsapp: newWhatsapp };
+      const phone = canonicalWhatsapp || newWhatsapp;
+      await verifyOtp({ whatsapp: phone, otp });
+      const data = await updateWhatsapp({ whatsapp: phone });
+
+      const updatedUser = { ...user, whatsapp: data.user?.whatsapp || phone };
       localStorage.setItem("user_session", JSON.stringify(updatedUser));
       setUser(updatedUser);
       
       setSuccess("Nomor WhatsApp berhasil diperbarui!");
       setOtpSent(false);
       setOtp("");
+      setCanonicalWhatsapp("");
       setDebugOtp(null);
     } catch (err: any) {
       setError(err.message);
@@ -367,7 +388,10 @@ export default function AccountSettings() {
                     value={newWhatsapp} 
                     onChange={e => {
                       setNewWhatsapp(e.target.value);
-                      if (otpSent) setOtpSent(false);
+                      if (otpSent) {
+                        setOtpSent(false);
+                        setCanonicalWhatsapp("");
+                      }
                     }}
                     required 
                     disabled={otpSent}
@@ -392,7 +416,8 @@ export default function AccountSettings() {
                   <input 
                     type="text" 
                     value={otp} 
-                    onChange={e => setOtp(e.target.value)}
+                    onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    inputMode="numeric"
                     placeholder="6 digit kode"
                     required 
                     maxLength={6}
@@ -400,9 +425,22 @@ export default function AccountSettings() {
                   />
                   {debugOtp && (
                     <div style={{ fontSize: 11, color: "#34d399", marginTop: 8, fontWeight: 600 }}>
-                      🔧 Debug OTP: {debugOtp}
+                      Debug OTP (local): {debugOtp}
                     </div>
                   )}
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={loading || sendingOtp || resendCooldown > 0}
+                    style={{ background: "none", border: "none", color: "#818cf8", fontSize: 12, cursor: "pointer", marginTop: 8, textDecoration: "underline", alignSelf: "flex-start" }}
+                  >
+                    {resendCooldown > 0
+                      ? `Kirim ulang OTP (${resendCooldown}s)`
+                      : sendingOtp
+                        ? "Mengirim..."
+                        : "Kirim ulang OTP"
+                    }
+                  </button>
                   <button type="submit" disabled={loading} style={{ ...primaryBtn, marginTop: 16, background: "linear-gradient(135deg,#34d399,#10b981)" }}>
                     {loading ? <Loader2 size={18} className="animate-spin" /> : "Konfirmasi & Perbarui"}
                   </button>

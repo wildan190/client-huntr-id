@@ -1,3 +1,5 @@
+import { normalizeOtp, normalizeWhatsapp } from "./whatsapp";
+
 let BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 if (BASE_URL.includes(":8443") && BASE_URL.startsWith("http://")) {
   BASE_URL = BASE_URL.replace("http://", "https://");
@@ -130,14 +132,25 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-export const getCsrfCookie = () => apiGet("/sanctum/csrf-cookie");
+let csrfInitialized = false;
+
+async function ensureCsrfCookie(): Promise<void> {
+  if (csrfInitialized && getCookie("XSRF-TOKEN")) return;
+  await apiGet("/sanctum/csrf-cookie");
+  csrfInitialized = true;
+}
+
+export const getCsrfCookie = () => ensureCsrfCookie();
 
 export const register = async (payload: {
   name: string; whatsapp: string; password: string; email?: string;
 }) => {
   await getCsrfCookie();
-  await apiPost("/register", payload);
+  const normalized = {
+    ...payload,
+    whatsapp: normalizeWhatsapp(payload.whatsapp),
+  };
+  await apiPost("/register", normalized);
   return getAuthenticatedUser();
 };
 
@@ -154,18 +167,36 @@ export const logout = () => apiPost("/logout", {});
 
 export const getAuthenticatedUser = () => apiGet("/api/user");
 
-export const sendOtp = (payload: { whatsapp: string }) =>
-  apiPost("/api/auth/otp/send", payload);
+export const sendOtp = async (payload: { whatsapp: string }) => {
+  await ensureCsrfCookie();
+  const whatsapp = normalizeWhatsapp(payload.whatsapp);
+  const res = await apiPost<{ message: string; otp?: string; whatsapp?: string; expires_in?: number }>(
+    "/api/auth/otp/send",
+    { whatsapp }
+  );
+  return { ...res, whatsapp: res.whatsapp || whatsapp };
+};
 
-export const verifyOtp = (payload: { whatsapp: string; otp: string }) =>
-  apiPost("/api/auth/otp/verify", payload);
+export const verifyOtp = async (payload: { whatsapp: string; otp: string }) => {
+  await ensureCsrfCookie();
+  const whatsapp = normalizeWhatsapp(payload.whatsapp);
+  const otp = normalizeOtp(payload.otp);
+  if (otp.length !== 6) {
+    throw new Error("Kode OTP harus 6 digit.");
+  }
+  return apiPost("/api/auth/otp/verify", { whatsapp, otp });
+};
 
 // ── Account ──────────────────────────────────────────────────────────────────
 export const updatePassword = (payload: Record<string, any>) =>
   apiPut("/api/account/password", payload);
 
-export const updateWhatsapp = (payload: { whatsapp: string }) =>
-  apiPut("/api/account/whatsapp", payload);
+export const updateWhatsapp = async (payload: { whatsapp: string }) => {
+  await getCsrfCookie();
+  return apiPut("/api/account/whatsapp", {
+    whatsapp: normalizeWhatsapp(payload.whatsapp),
+  });
+};
 
 export const getSessions = () => apiGet("/api/account/sessions");
 
