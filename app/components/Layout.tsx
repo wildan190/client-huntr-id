@@ -49,11 +49,21 @@ export default function Layout({ children, title, subtitle }: Props) {
 
   // ── Double-auth guard ────────────────────────────────────────────────────────
   useEffect(() => {
-    const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/marketplace/");
-    if (isPublic) return; // Let standalone pages handle themselves
-
     const userSession = localStorage.getItem("user_session");
     const companySession = localStorage.getItem("active_company");
+
+    if (userSession) {
+      const u = JSON.parse(userSession);
+      setUser(u);
+      fetchUnreadCount(u.id);
+    }
+
+    if (companySession) {
+      setActiveCompany(JSON.parse(companySession));
+    }
+
+    const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/marketplace/");
+    if (isPublic) return; // Let standalone pages handle themselves
 
     if (!userSession) {
       // No user at all → login
@@ -67,15 +77,8 @@ export default function Layout({ children, title, subtitle }: Props) {
       return;
     }
 
-    const u = JSON.parse(userSession);
-    setUser(u);
-    setActiveCompany(JSON.parse(companySession));
-
-    // Fetch unread count
-    fetchUnreadCount(u.id);
-
     // Listen for real-time notification events
-    const handleNewNotif = () => fetchUnreadCount(u.id);
+    const handleNewNotif = () => userSession && fetchUnreadCount(JSON.parse(userSession).id);
     window.addEventListener('huntr:notification_received', handleNewNotif);
 
     return () => {
