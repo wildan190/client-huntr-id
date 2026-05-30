@@ -27,8 +27,12 @@ export default function MarketplaceDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
+    const userSession = localStorage.getItem("user_session");
+    setIsGuest(!userSession);
+
     if (!id) {
       setError("Produk tidak ditemukan.");
       setLoading(false);
@@ -71,7 +75,7 @@ export default function MarketplaceDetail() {
       <div style={{ padding: 24, maxWidth: 980, margin: "0 auto" }}>
         <button
           type="button"
-          onClick={() => navigate("/marketplace")}
+          onClick={() => isGuest ? navigate("/") : navigate("/marketplace")}
           style={{
             marginBottom: 24,
             padding: "10px 16px",
@@ -83,7 +87,7 @@ export default function MarketplaceDetail() {
             fontWeight: 700,
           }}
         >
-          ← Kembali ke Marketplace
+          ← {isGuest ? "Kembali ke Beranda" : "Kembali ke Marketplace"}
         </button>
 
         {loading && <div style={{ color: "#d1d5db" }}>Memuat detail produk...</div>}
@@ -115,7 +119,6 @@ export default function MarketplaceDetail() {
                     <span style={{ color: "#94a3b8", textTransform: "uppercase", fontSize: 12, letterSpacing: 1.2 }}>
                       Detail Produk
                     </span>
-                    <span style={{ fontSize: 14, color: "#cbd5e1" }}>Vendor: {item.company?.name || "-"}</span>
                   </div>
 
                   <div style={{ display: "grid", gap: 12 }}>
@@ -130,10 +133,6 @@ export default function MarketplaceDetail() {
                     <div style={{ display: "flex", justifyContent: "space-between", color: "#e2e8f0" }}>
                       <span>Satuan</span>
                       <span>{item.uom}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "#e2e8f0", fontSize: 18, fontWeight: 800 }}>
-                      <span>Harga</span>
-                      <span>IDR {Number(item.price).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -151,26 +150,46 @@ export default function MarketplaceDetail() {
                   </div>
                 ) : null}
 
-                <button
-                  type="button"
-                  onClick={() => addToCart(item)}
-                  style={{
-                    width: "100%",
-                    padding: "16px 18px",
-                    borderRadius: 16,
-                    background: "#10b981",
-                    border: "none",
-                    color: "#ffffff",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Tambah ke Keranjang
-                </button>
+                {isGuest ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/login")}
+                    style={{
+                      width: "100%",
+                      padding: "16px 18px",
+                      borderRadius: 16,
+                      background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                      border: "none",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      boxShadow: "0 10px 20px rgba(99,102,241,0.2)",
+                    }}
+                  >
+                    Login untuk Membuat PR
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => addToCart(item)}
+                    style={{
+                      width: "100%",
+                      padding: "16px 18px",
+                      borderRadius: 16,
+                      background: "#10b981",
+                      border: "none",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Tambah ke Keranjang
+                  </button>
+                )}
 
                 <button
                   type="button"
-                  onClick={() => navigate(`/marketplace`)}
+                  onClick={() => isGuest ? navigate("/") : navigate(`/marketplace`)}
                   style={{
                     width: "100%",
                     padding: "14px 16px",
@@ -182,7 +201,7 @@ export default function MarketplaceDetail() {
                     fontWeight: 700,
                   }}
                 >
-                  Kembali ke Marketplace
+                  {isGuest ? "Kembali ke Beranda" : "Kembali ke Marketplace"}
                 </button>
               </div>
             </div>

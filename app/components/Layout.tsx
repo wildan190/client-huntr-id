@@ -14,6 +14,7 @@ import {
   ArrowLeftRight,
   List,
   Bell,
+  Settings,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -22,7 +23,7 @@ import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } 
 interface Props { children: React.ReactNode; title: string; subtitle?: string; }
 
 // Routes that don't require auth (standalone pages)
-const PUBLIC_ROUTES = ["/login", "/register", "/onboarding", "/select-company"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/onboarding", "/select-company"];
 
 export default function Layout({ children, title, subtitle }: Props) {
   const { pathname } = useLocation();
@@ -43,11 +44,12 @@ export default function Layout({ children, title, subtitle }: Props) {
     { to: "/company",   label: "Company",    Icon: Building2 },
     { to: "/purchase_orders",    label: "Purchase Order",   Icon: ReceiptText },
     { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
+    { to: "/account",   label: "Settings",   Icon: Settings },
   ];
 
   // ── Double-auth guard ────────────────────────────────────────────────────────
   useEffect(() => {
-    const isPublic = PUBLIC_ROUTES.includes(pathname);
+    const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/marketplace/");
     if (isPublic) return; // Let standalone pages handle themselves
 
     const userSession = localStorage.getItem("user_session");
@@ -129,9 +131,9 @@ export default function Layout({ children, title, subtitle }: Props) {
     navigate("/select-company");
   };
 
-  // Public/standalone routes render nothing (they handle their own layout)
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
-  if (isPublic) {
+  // Public/standalone routes render nothing if no session (they handle their own layout)
+  const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/marketplace/");
+  if (isPublic && !user && !activeCompany) {
     return <>{children}</>;
   }
 

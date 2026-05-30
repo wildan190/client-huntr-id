@@ -43,6 +43,46 @@ export async function apiPost<T = any>(
   return data as T;
 }
 
+export async function apiPut<T = any>(
+  path: string,
+  body: Record<string, any>
+): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    const msg =
+      data?.message ||
+      (data?.errors ? Object.values(data.errors).flat().join(", ") : "Server error");
+    throw new Error(msg as string);
+  }
+
+  return data as T;
+}
+
+export async function apiDelete<T = any>(path: string): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: { Accept: "application/json" },
+    credentials: "include",
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    const msg = data?.message || "Server error";
+    throw new Error(msg as string);
+  }
+  return data as T;
+}
+
 export async function apiPostForm<T = any>(
   path: string,
   formData: FormData
@@ -79,6 +119,17 @@ export const sendOtp = (payload: { whatsapp: string }) =>
 
 export const verifyOtp = (payload: { whatsapp: string; otp: string }) =>
   apiPost("/api/auth/otp/verify", payload);
+
+// ── Account ──────────────────────────────────────────────────────────────────
+export const updatePassword = (payload: Record<string, any>) =>
+  apiPut("/api/account/password", payload);
+
+export const updateWhatsapp = (payload: { whatsapp: string }) =>
+  apiPut("/api/account/whatsapp", payload);
+
+export const getSessions = () => apiGet("/api/account/sessions");
+
+export const logoutSession = (id: string) => apiDelete(`/api/account/sessions/${id}`);
 
 // ── Admin Auth & Audit ────────────────────────────────────────────────────────
 export const adminLogin = (payload: Record<string, any>) =>

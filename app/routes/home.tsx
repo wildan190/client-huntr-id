@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import Layout from "../components/Layout";
+import { getCatalogues } from "../lib/api";
 import { 
   Activity, 
   ArrowRight, 
@@ -12,7 +13,14 @@ import {
   Play, 
   RefreshCw, 
   ShieldAlert, 
-  TrendingUp 
+  TrendingUp,
+  Search,
+  Filter,
+  Package,
+  Loader2,
+  ChevronRight,
+  ArrowRightCircle,
+  ShoppingBag
 } from "lucide-react";
 
 // Mock initial data matching the workflow
@@ -22,7 +30,257 @@ const INITIAL_CATALOGUE = [
   { id: 3, item_code: "CAT-003", name: "4K IPS Design Monitor", category: "Hardware", uom: "unit", price: 6000000 },
 ];
 
+const CATEGORIES = ["All", "Hardware", "Furniture", "Software", "Office Supplies", "Services"];
+
 export default function Home() {
+  const [user, setUser] = useState<any>(null);
+  const [activeCompany, setActiveCompany] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const userSession = localStorage.getItem("user_session");
+    const companySession = localStorage.getItem("active_company");
+    if (userSession) setUser(JSON.parse(userSession));
+    if (companySession) setActiveCompany(JSON.parse(companySession));
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Loader2 className="animate-spin" size={32} color="#6366f1" />
+      </div>
+    );
+  }
+
+  if (user && activeCompany) {
+    return <DashboardSimulation user={user} activeCompany={activeCompany} />;
+  }
+
+  return <GuestMarketplaceView />;
+}
+
+function GuestMarketplaceView() {
+  const navigate = useNavigate();
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  useEffect(() => {
+    fetchItems();
+  }, [activeCategory]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchItems();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const res = await getCatalogues({ 
+        search: searchTerm, 
+        category: activeCategory === "All" ? undefined : activeCategory 
+      });
+      setItems(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch guest items", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0a0a1c", color: "#fff" }}>
+      {/* ── Guest Header ────────────────────────────────────────────────── */}
+      <header style={{
+        padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,10,28,0.8)",
+        backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10,
+            background: "linear-gradient(135deg,#a855f7,#6366f1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 800, fontSize: 18, color: "#fff",
+          }}>H</div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px" }}>Huntr.id</div>
+            <div style={{ fontSize: 9, color: "#6366f1", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          <Link to="/login" style={{
+            padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
+            color: "#9ca3af", textDecoration: "none", transition: "all 0.2s"
+          }}>Sign In</Link>
+          <Link to="/register" style={{
+            padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700,
+            background: "linear-gradient(135deg,#a855f7,#6366f1)",
+            color: "#fff", textDecoration: "none", boxShadow: "0 10px 20px rgba(99,102,241,0.2)",
+          }}>Get Started</Link>
+        </div>
+      </header>
+
+      {/* ── Hero Section ────────────────────────────────────────────────── */}
+      <section style={{
+        padding: "80px 40px 60px", textAlign: "center", maxWidth: 900, margin: "0 auto",
+        position: "relative",
+      }}>
+        <div style={{
+          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+          width: 600, height: 400, background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)",
+          pointerEvents: "none", zIndex: -1
+        }} />
+        <h1 style={{ fontSize: 52, fontWeight: 900, marginBottom: 20, letterSpacing: "-1.5px", lineHeight: 1.1 }}>
+          The Future of <span style={{ color: "#818cf8" }}>B2B Procurement</span>
+        </h1>
+        <p style={{ fontSize: 18, color: "#9ca3af", marginBottom: 40, lineHeight: 1.6 }}>
+          Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem.
+        </p>
+
+        {/* Search Bar */}
+        <div style={{ 
+          maxWidth: 600, margin: "0 auto", position: "relative",
+          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 20, padding: 6, display: "flex", gap: 8,
+          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+        }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <Search size={20} color="#6366f1" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <input 
+              type="text" 
+              placeholder="What are you looking for today?"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{
+                width: "100%", padding: "14px 14px 14px 50px", borderRadius: 16,
+                background: "transparent", border: "none", color: "#fff", outline: "none", fontSize: 16,
+              }}
+            />
+          </div>
+          <button style={{
+            padding: "0 24px", borderRadius: 14, background: "#6366f1", color: "#fff",
+            border: "none", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
+          }}>
+            Search <ArrowRight size={16} />
+          </button>
+        </div>
+      </section>
+
+      {/* ── Content Section ─────────────────────────────────────────────── */}
+      <section style={{ padding: "40px", maxWidth: 1200, margin: "0 auto" }}>
+        {/* Categories */}
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 24, scrollbarWidth: "none" }}>
+          {CATEGORIES.map(cat => (
+            <button 
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
+                background: activeCategory === cat ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.03)",
+                border: "1px solid",
+                borderColor: activeCategory === cat ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.08)",
+                color: activeCategory === cat ? "#818cf8" : "#9ca3af",
+                cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s"
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Item Grid */}
+        {loading ? (
+          <div style={{ padding: "80px 0", textAlign: "center" }}>
+            <Loader2 className="animate-spin" size={40} color="#6366f1" style={{ margin: "0 auto" }} />
+          </div>
+        ) : items.length === 0 ? (
+          <div style={{ padding: "80px 0", textAlign: "center", color: "#6b7280" }}>
+            <Package size={64} style={{ opacity: 0.1, margin: "0 auto 20px" }} />
+            <p style={{ fontSize: 18 }}>No items found matching your search.</p>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+            {items.map(item => (
+              <div key={item.id} style={{
+                background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
+                padding: 20, display: "flex", flexDirection: "column", gap: 16, transition: "all 0.3s",
+                position: "relative", overflow: "hidden", cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-5px)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.borderColor = "rgba(99,102,241,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+              }}
+              onClick={() => navigate(`/marketplace/${item.id}`)}
+              >
+                <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 16, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Package size={64} color="rgba(255,255,255,0.05)" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "#f3f4f6", margin: 0 }}>{item.name}</h3>
+                </div>
+                <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#818cf8" }}>
+                    <ChevronRight size={20} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      <footer style={{ 
+        padding: "80px 40px 40px", marginTop: 80, 
+        borderTop: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.01)" 
+      }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>H</div>
+              <span style={{ fontWeight: 800, fontSize: 16 }}>Huntr.id</span>
+            </div>
+            <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
+          </div>
+          <div>
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Platform</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              <li><Link to="/marketplace" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Marketplace</Link></li>
+              <li><Link to="/register" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Vendor Registration</Link></li>
+              <li><Link to="/login" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Buyer Portal</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Company</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>About Us</a></li>
+              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Privacy Policy</a></li>
+              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+        <div style={{ textAlign: "center", marginTop: 60, fontSize: 12, color: "#4b5563" }}>
+          © 2026 Huntr.id - Enterprise Procurement Ecosystem. All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany: any }) {
   const [activeStep, setActiveStep] = useState(1);
   const [rfqTitle, setRfqTitle] = useState("Enterprise Workplace Hardware Provisioning");
   const [rfqDesc, setRfqDesc] = useState("Acquisition of premium development laptops and monitors for new engineers.");
@@ -297,45 +555,45 @@ export default function Home() {
 
         {/* Right column: Notification Log & SAW weight configurations */}
         <section className="flex flex-col gap-6">
-          {/* Real-time system log */}
-          <div className="glass-panel p-6 flex-1 flex flex-col" style={{ minHeight: 320 }}>
-            <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
-              <span>System Event Logger</span>
-              <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold">LIVE SYNC</span>
+          <div className="glass-panel p-6">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-indigo-400">
+              <Database size={18} /> System Event Log
             </h3>
-            <div className="flex-1 overflow-y-auto max-h-[300px] flex flex-col gap-3 pr-1">
+            <div className="flex flex-col gap-3">
               {notifications.map(n => (
-                <div key={n.id} className="p-3 rounded-lg bg-black/30 border border-white/5 text-xs flex gap-2.5 items-start">
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                    n.type === "success" ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.5)]" :
-                    n.type === "warning" ? "bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.5)]" :
-                    "bg-indigo-400 shadow-[0_0_6px_rgba(99,102,241,0.5)]"
-                  }`} />
-                  <div className="flex-1">
-                    <p className="text-gray-300 font-medium leading-relaxed">{n.text}</p>
-                    <span className="text-[10px] text-gray-500 mt-1 block">{n.time}</span>
+                <div key={n.id} className="bg-black/20 p-3 rounded-lg border-l-2 border-indigo-500 flex flex-col gap-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] uppercase font-bold text-indigo-400">{n.type}</span>
+                    <span className="text-[10px] text-gray-500">{n.time}</span>
                   </div>
+                  <p className="text-xs text-gray-300">{n.text}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Domain statistics card */}
           <div className="glass-panel p-6">
-            <h3 className="text-lg font-bold mb-3 flex items-center gap-2"><Database size={16} className="text-indigo-400" /> Domain Model Diagnostics</h3>
-            <p className="text-xs text-gray-400 mb-4">Active instances loaded in IoC Context.</p>
-            <div className="flex flex-col gap-3 text-xs">
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-gray-400">Company Registrations</span>
-                <span className="font-semibold text-white">4 Domains</span>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-400">
+              <ShieldAlert size={18} /> Security & Audits
+            </h3>
+            <div className="bg-purple-500/5 border border-purple-500/10 p-4 rounded-xl flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                  <CheckCircle size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">Encryption Active</p>
+                  <p className="text-[10px] text-gray-500">AES-256 for all PO documents</p>
+                </div>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-gray-400">Total Purchase Orders</span>
-                <span className="font-semibold text-white">12 Records</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-gray-400">Goods Receipt Status</span>
-                <span className="text-green-400 font-semibold">100% Verified</span>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                  <CheckCircle size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">OTP Verification</p>
+                  <p className="text-[10px] text-gray-500">MANDATORY for new vendors</p>
+                </div>
               </div>
             </div>
           </div>

@@ -163,13 +163,9 @@ export default function Marketplace() {
                   <div>
                     <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
                     <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f3f4f6", margin: "4px 0" }}>{item.name}</h3>
-                    <div style={{ fontSize: 12, color: "#9ca3af" }}>Vendor: <span style={{ color: "#d1d5db" }}>{item.company?.name}</span></div>
                   </div>
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ fontWeight: 800, color: "#fff", fontSize: 16 }}>
-                        IDR {Number(item.price).toLocaleString()}
-                      </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                       <button 
                         type="button"
                         aria-label="Tambah ke keranjang"
@@ -236,7 +232,6 @@ export default function Marketplace() {
                   <div key={item.id} style={{ display: "flex", gap: 12 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#f3f4f6" }}>{item.name}</div>
-                      <div style={{ fontSize: 11, color: "#6b7280" }}>IDR {Number(item.price).toLocaleString()}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <button type="button" aria-label="Kurangi jumlah" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Minus size={12} /></button>
@@ -250,11 +245,7 @@ export default function Marketplace() {
             </div>
 
             {cart.length > 0 && (
-              <div style={{ marginTop: 8, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
-                  <span style={{ color: "#9ca3af", fontSize: 14 }}>Total Estimated</span>
-                  <span style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>IDR {cartTotal.toLocaleString()}</span>
-                </div>
+              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
                 <button 
                   onClick={() => navigate("/checkout")}
                   style={{
@@ -265,7 +256,7 @@ export default function Marketplace() {
                     boxShadow: "0 8px 20px rgba(99,102,241,0.3)",
                   }}
                 >
-                  Checkout PR <CheckCircle2 size={18} />
+                  Create PR <CheckCircle2 size={18} />
                 </button>
               </div>
             )}

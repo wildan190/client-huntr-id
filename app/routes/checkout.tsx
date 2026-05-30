@@ -17,7 +17,13 @@ export default function Checkout() {
 
   useEffect(() => {
     const savedCart = localStorage.getItem("huntr_cart");
-    if (savedCart) setCart(JSON.parse(savedCart));
+    if (savedCart) {
+      const items = JSON.parse(savedCart).map((i: any) => ({
+        ...i,
+        estimated_price: i.estimated_price || 0
+      }));
+      setCart(items);
+    }
 
     const userSession = localStorage.getItem("user_session");
     if (userSession) setUser(JSON.parse(userSession));
@@ -33,7 +39,13 @@ export default function Checkout() {
     }
   }, []);
 
-  const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price) * item.qty), 0);
+  const cartTotal = cart.reduce((sum, item) => sum + (Number(item.estimated_price || 0) * item.qty), 0);
+
+  const updateEstimatedPrice = (id: string, price: number) => {
+    const newCart = cart.map(i => i.id === id ? { ...i, estimated_price: price } : i);
+    setCart(newCart);
+    localStorage.setItem("huntr_cart", JSON.stringify(newCart));
+  };
 
   const handleSubmitPR = async () => {
     if (!activeCompany || !user) return;
@@ -55,6 +67,7 @@ export default function Checkout() {
         items: cart.map(i => ({
           catalogue_id: i.id,
           qty: i.qty,
+          estimated_price: i.estimated_price,
           expected_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 7 days from now
         }))
       };
@@ -152,11 +165,29 @@ export default function Checkout() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#f3f4f6" }}>{item.name}</div>
-                    <div style={{ fontSize: 12, color: "#6b7280" }}>{item.item_code} · {item.company?.name}</div>
+                    <div style={{ fontSize: 12, color: "#6b7280" }}>{item.item_code}</div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>IDR {(Number(item.price) * item.qty).toLocaleString()}</div>
-                    <div style={{ fontSize: 12, color: "#9ca3af" }}>{item.qty} x IDR {Number(item.price).toLocaleString()}</div>
+                  <div style={{ display: "flex", flex: 1, gap: 16, alignItems: "center", justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 140 }}>
+                      <label style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>Estimated Price</label>
+                      <div style={{ position: "relative" }}>
+                        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#4b5563" }}>IDR</span>
+                        <input 
+                          type="number"
+                          value={item.estimated_price}
+                          onChange={(e) => updateEstimatedPrice(item.id, Number(e.target.value))}
+                          style={{
+                            width: "100%", padding: "8px 8px 8px 34px", borderRadius: 8,
+                            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)",
+                            color: "#fff", fontSize: 12, outline: "none"
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", minWidth: 100 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
+                      <div style={{ fontSize: 11, color: "#9ca3af" }}>Qty: {item.qty}</div>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -27,7 +27,6 @@ export default function Catalogue() {
     category: "",
     specifications: "",
     uom: "Pc",
-    price: "",
   });
   const [editingItem, setEditingItem] = useState<any | null>(null);
 
@@ -62,17 +61,17 @@ export default function Catalogue() {
         await updateCatalogue(editingItem.id, {
           ...formData,
           company_id: company.id,
-          price: Number(formData.price),
+          price: 0,
         });
       } else {
         await createCatalogue({
           ...formData,
           company_id: company.id,
-          price: Number(formData.price),
+          price: 0,
         });
       }
       setShowForm(false);
-      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc", price: "" });
+      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
       setEditingItem(null);
       fetchItems(company.id);
     } catch (err: any) {
@@ -120,7 +119,7 @@ export default function Catalogue() {
                   <button 
                     onClick={() => {
                       setEditingItem(null);
-                      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc", price: "" });
+                      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
                       setShowForm(!showForm);
                     }}
               style={{
@@ -165,7 +164,6 @@ export default function Catalogue() {
               <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
               <Field label="Category" value={formData.category} onChange={(v:any) => setFormData({...formData, category: v})} placeholder="e.g. Spareparts" />
               <Field label="UOM" value={formData.uom} onChange={(v:any) => setFormData({...formData, uom: v})} placeholder="e.g. Pc, Box" required />
-              <Field label="Price (IDR)" value={formData.price} onChange={(v:any) => setFormData({...formData, price: v})} type="number" placeholder="0" required />
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={lbl}>Specifications</label>
                 <textarea 
@@ -236,9 +234,6 @@ export default function Catalogue() {
                     <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", background: "rgba(129,140,248,0.1)", padding: "4px 10px", borderRadius: 6, letterSpacing: "0.05em" }}>
                       {item.item_code}
                     </div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: "#fff" }}>
-                      IDR {Number(item.price).toLocaleString()}
-                    </div>
                   </div>
                   <div>
                     <h4 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0 }}>{item.name}</h4>
@@ -258,7 +253,6 @@ export default function Catalogue() {
                             category: item.category || "",
                             specifications: item.specifications || "",
                             uom: item.uom || "Pc",
-                            price: String(item.price || ""),
                           });
                         }} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       Edit <ChevronRight size={14} />
@@ -274,7 +268,6 @@ export default function Catalogue() {
                   <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                     <th style={{ padding: "16px 24px", color: "#6b7280", fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>Item Info</th>
                     <th style={{ padding: "16px 24px", color: "#6b7280", fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>Category</th>
-                    <th style={{ padding: "16px 24px", color: "#6b7280", fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>Price</th>
                     <th style={{ padding: "16px 24px", color: "#6b7280", fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>UOM</th>
                     <th style={{ padding: "16px 24px", color: "#6b7280", fontSize: 11, fontWeight: 800, textTransform: "uppercase", textAlign: "right" }}>Actions</th>
                   </tr>
@@ -289,22 +282,18 @@ export default function Catalogue() {
                       <td style={{ padding: "20px 24px" }}>
                         <span style={{ color: "#a5b4fc", fontSize: 13 }}>{item.category || "General"}</span>
                       </td>
-                      <td style={{ padding: "20px 24px" }}>
-                        <div style={{ color: "#fff", fontWeight: 800 }}>IDR {Number(item.price).toLocaleString()}</div>
-                      </td>
                       <td style={{ padding: "20px 24px", color: "#9ca3af", fontSize: 13 }}>{item.uom}</td>
                       <td style={{ padding: "20px 24px", textAlign: "right" }}>
                         <button type="button" onClick={() => {
                           setEditingItem(item);
                           setShowForm(true);
                           setFormData({
-                            item_code: item.item_code || "",
-                            name: item.name || "",
-                            category: item.category || "",
-                            specifications: item.specifications || "",
-                            uom: item.uom || "Pc",
-                            price: String(item.price || ""),
-                          });
+                              item_code: item.item_code || "",
+                              name: item.name || "",
+                              category: item.category || "",
+                              specifications: item.specifications || "",
+                              uom: item.uom || "Pc",
+                            });
                         }} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", padding: "8px 16px", borderRadius: 10, color: "#fff", fontSize: 12, cursor: "pointer" }}>Edit</button>
                       </td>
                     </tr>
