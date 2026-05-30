@@ -118,7 +118,7 @@ export default function Marketplace() {
 
   return (
     <Layout title="Marketplace" subtitle="Discover items and services from our trusted vendors.">
-      <div style={{ padding: "0 32px 40px", display: "flex", gap: 24 }}>
+      <div style={{ padding: "0 32px 40px", display: "flex", gap: 24, maxWidth: 1400, margin: "0 auto" }}>
         
         {/* Main Grid */}
         <div style={{ flex: 1 }}>

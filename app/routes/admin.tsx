@@ -247,12 +247,31 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [auditModal, setAuditModal] = useState<{ company: Company; action: "approve" | "decline" } | null>(null);
 
-  const fetchCompanies = async () => {
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [perPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
+
+  const fetchCompanies = async (page = currentPage, s = search, status = filterStatus) => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const res = await adminGetCompanies();
-      setCompanies(res.companies || []);
+      const res = await adminGetCompanies({
+        page,
+        per_page: perPage,
+        search: s,
+        status: status,
+      });
+      setCompanies(res.data || []);
+      setCurrentPage(res.current_page || 1);
+      setTotalPages(res.last_page || 1);
+      setTotal(res.total || 0);
+      
+      if (res.stats) {
+          setStats(res.stats);
+      }
     } catch (err: any) {
       setFetchError(err.message || "Failed to load companies.");
     } finally {
@@ -260,21 +279,19 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
     }
   };
 
-  useEffect(() => { fetchCompanies(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCompanies(1, search, filterStatus);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search, filterStatus]);
 
-  // Stats
-  const total = companies.length;
-  const pending = companies.filter(c => c.status === "pending").length;
-  const approved = companies.filter(c => c.status === "approved").length;
-  const rejected = companies.filter(c => c.status === "rejected").length;
-
-  // Filtered list
-  const filtered = companies.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email?.toLowerCase().includes(search.toLowerCase()) || false;
-    const matchStatus = filterStatus === "all" || c.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      fetchCompanies(newPage);
+    }
+  };
 
   const statusMeta = {
     pending:  { color: "#fbbf24", bg: "rgba(251,191,36,0.1)",  border: "rgba(251,191,36,0.25)",  icon: <Clock size={13} />,        label: "Pending" },
@@ -338,9 +355,9 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
           {[
             { label: "Total Companies", value: total, icon: <Building2 size={22} />, color: "#6366f1", gradient: "linear-gradient(135deg,#6366f1,#4f46e5)" },
-            { label: "Pending Review",  value: pending,  icon: <Clock size={22} />,       color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#d97706)" },
-            { label: "Approved",        value: approved, icon: <CheckCircle2 size={22} />, color: "#10b981", gradient: "linear-gradient(135deg,#10b981,#059669)" },
-            { label: "Rejected",        value: rejected, icon: <XCircle size={22} />,      color: "#ef4444", gradient: "linear-gradient(135deg,#ef4444,#dc2626)" },
+            { label: "Pending Review",  value: stats.pending,  icon: <Clock size={22} />,       color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#d97706)" },
+            { label: "Approved",        value: stats.approved, icon: <CheckCircle2 size={22} />, color: "#10b981", gradient: "linear-gradient(135deg,#10b981,#059669)" },
+            { label: "Rejected",        value: stats.rejected, icon: <XCircle size={22} />,      color: "#ef4444", gradient: "linear-gradient(135deg,#ef4444,#dc2626)" },
           ].map(stat => (
             <div key={stat.label} style={{
               background: "rgba(14,14,30,0.8)", border: "1px solid rgba(255,255,255,0.07)",
@@ -413,14 +430,14 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                   marginLeft: 6, fontSize: 10, padding: "1px 6px", borderRadius: 99,
                   background: "rgba(255,255,255,0.15)", color: "#fff",
                 }}>
-                  {s === "pending" ? pending : s === "approved" ? approved : rejected}
+                  {s === "pending" ? stats.pending : s === "approved" ? stats.approved : stats.rejected}
                 </span>
               )}
             </button>
           ))}
 
           <button
-            onClick={fetchCompanies}
+            onClick={() => fetchCompanies(1)}
             style={{
               padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700,
               cursor: "pointer", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
@@ -447,7 +464,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
             <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", display: "block", color: "#6366f1" }} />
             Loading companies…
           </div>
-        ) : filtered.length === 0 ? (
+        ) : companies.length === 0 ? (
           <div style={{
             background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: 20, padding: "60px 24px", textAlign: "center", color: "#4b5563",
@@ -457,7 +474,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {filtered.map(company => {
+            {companies.map((company: Company) => {
               const sm = statusMeta[company.status] || statusMeta.pending;
               const isExpanded = expandedId === company.id;
 
@@ -608,7 +625,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                           </div>
                         ) : (
                           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            {company.documents.map((doc, i) => (
+                            {company.documents.map((doc: CompanyDoc, i: number) => (
                               <div key={i} style={{
                                 display: "flex", alignItems: "center", gap: 10,
                                 background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
@@ -652,6 +669,41 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                 </div>
               );
             })}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{
+                marginTop: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1 || isLoading}
+                  style={{
+                    padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                    color: currentPage === 1 ? "#374151" : "#e5e7eb",
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Previous
+                </button>
+                <div style={{ fontSize: 13, color: "#6b7280", margin: "0 12px" }}>
+                  Page <span style={{ color: "#f3f4f6", fontWeight: 700 }}>{currentPage}</span> of {totalPages}
+                </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages || isLoading}
+                  style={{
+                    padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                    color: currentPage === totalPages ? "#374151" : "#e5e7eb",
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

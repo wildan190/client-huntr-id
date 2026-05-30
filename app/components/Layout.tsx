@@ -39,7 +39,7 @@ export default function Layout({ children, title, subtitle }: Props) {
     ...(activeCompany?.type === 'vendor' ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
     ...(activeCompany?.type === 'buyer' ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
     { to: "/all-requests", label: "All Requests", Icon: Lightbulb },
-    ...(user?.role === 'manager' && activeCompany?.type === 'buyer' ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
+    ...( (user?.role === 'manager' || activeCompany?.owner_id === user?.id) && activeCompany?.type === 'buyer' ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
     { to: "/company",   label: "Company",    Icon: Building2 },
     { to: "/purchase_orders",    label: "Purchase Order",   Icon: ReceiptText },
     { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },

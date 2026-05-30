@@ -20,7 +20,8 @@ export default function Approvals() {
       const c = JSON.parse(companySession);
       setUser(u);
       
-      if (u.role !== 'manager' || c.type !== 'buyer') {
+      const isOwner = c.owner_id === u.id;
+      if (u.role !== 'manager' && !isOwner || c.type !== 'buyer') {
         navigate("/");
         return;
       }
@@ -56,7 +57,7 @@ export default function Approvals() {
 
   return (
     <Layout title="Manager Approvals" subtitle="Review and approve purchase requisitions before they are published.">
-      <div style={{ padding: "0 32px 40px" }}>
+      <div style={{ padding: "0 32px 40px", maxWidth: 1200, margin: "0 auto" }}>
         
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
