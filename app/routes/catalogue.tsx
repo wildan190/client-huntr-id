@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { importCatalogue, getCatalogues, createCatalogue, updateCatalogue } from "../lib/api";
+import { importCatalogue, getCatalogues, createCatalogue, updateCatalogue, getCsrfCookie } from "../lib/api";
 import { 
   Plus, Check, Loader2, Package, Search, UploadCloud, FileText, 
   ChevronRight, X, LayoutGrid, List
@@ -37,6 +37,11 @@ export default function Catalogue() {
       setCompany(ac);
       fetchItems(ac.id);
     }
+    
+    // Initialize CSRF cookie
+    getCsrfCookie().catch(err => {
+      console.warn("Failed to initialize CSRF cookie:", err);
+    });
   }, []);
 
   const fetchItems = async (cid: number) => {

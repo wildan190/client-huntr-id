@@ -5,7 +5,7 @@ import {
   Building2, MapPin, CreditCard, UploadCloud, CheckCircle2,
   AlertCircle, FileSpreadsheet, Loader2, RefreshCw, FileText, Plus, ChevronDown, ChevronLeft, ChevronRight
 } from "lucide-react";
-import { getMyCompanies, importCatalogue, importHistoricalPo, getCatalogues, getHistoricalPos, updateCompany, uploadCompanyDocument, uploadCompanyLogo } from "../lib/api";
+import { getMyCompanies, importCatalogue, importHistoricalPo, getCatalogues, getHistoricalPos, updateCompany, uploadCompanyDocument, uploadCompanyLogo, getCsrfCookie } from "../lib/api";
 
 export default function CompanyDetails() {
   const navigate = useNavigate();
@@ -215,6 +215,11 @@ export default function CompanyDetails() {
         industry_type: ac.industry_type || "",
       });
     }
+
+    // Initialize CSRF cookie
+    getCsrfCookie().catch(err => {
+      console.warn("Failed to initialize CSRF cookie:", err);
+    });
 
     fetchCompanyList(u.id, ac?.id).finally(() => setLoading(false));
     if (ac) fetchCompanyData(u.id, ac.id, ac.type);

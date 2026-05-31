@@ -14,14 +14,34 @@ function resolveBaseUrl(): string {
 
 const BASE_URL = resolveBaseUrl();
 
+function getAuthToken(): string | null {
+  if (typeof localStorage === "undefined") return null;
+  const session = localStorage.getItem("user_session");
+  if (!session) return null;
+  try {
+    const user = JSON.parse(session);
+    return user.token || null;
+  } catch {
+    return null;
+  }
+}
+
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
+  const token = getAuthToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export async function apiGet<T = any>(path: string): Promise<T> {
   console.log(`[API] GET ${path}`);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
-    headers: { 
-      Accept: "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
-    },
+    headers: getAuthHeaders(),
     credentials: "include",
   });
   const text = await res.text();
@@ -37,7 +57,6 @@ export async function apiGet<T = any>(path: string): Promise<T> {
   }
   
   if (!res.ok) {
-    // Handle 401 Unauthenticated - clear session
     if (res.status === 401) {
       clearAuthSession();
     }
@@ -53,17 +72,17 @@ export async function apiPost<T = any>(
 ): Promise<T> {
   console.log(`[API] POST ${path}`, body);
   console.log(`[API] Full URL: ${BASE_URL}${path}`);
+  
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(body),
     credentials: "include",
   });
-  console.log(`[API] Response status: ${res.status}, method was POST`);
+  console.log(`[API] Response status: ${res.status}`);
 
   const text = await res.text();
   let data: any = {};
@@ -78,7 +97,6 @@ export async function apiPost<T = any>(
   }
 
   if (!res.ok) {
-    // Handle 401 Unauthenticated - clear session
     if (res.status === 401) {
       clearAuthSession();
     }
@@ -99,8 +117,7 @@ export async function apiPut<T = any>(
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(body),
     credentials: "include",
@@ -119,7 +136,6 @@ export async function apiPut<T = any>(
   }
 
   if (!res.ok) {
-    // Handle 401 Unauthenticated - clear session
     if (res.status === 401) {
       clearAuthSession();
     }
@@ -135,10 +151,7 @@ export async function apiPut<T = any>(
 export async function apiDelete<T = any>(path: string): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "DELETE",
-    headers: { 
-      Accept: "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
-    },
+    headers: getAuthHeaders(),
     credentials: "include",
   });
   const text = await res.text();
@@ -154,7 +167,6 @@ export async function apiDelete<T = any>(path: string): Promise<T> {
   }
   
   if (!res.ok) {
-    // Handle 401 Unauthenticated - clear session
     if (res.status === 401) {
       clearAuthSession();
     }
@@ -168,12 +180,12 @@ export async function apiPostForm<T = any>(
   path: string,
   formData: FormData
 ): Promise<T> {
+  console.log(`[API] POST Form ${path}`);
+  console.log(`[API] Full URL: ${BASE_URL}${path}`);
+  
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
-    headers: { 
-      Accept: "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN") || "",
-    },
+    headers: getAuthHeaders(),
     body: formData,
     credentials: "include",
   });
@@ -191,7 +203,6 @@ export async function apiPostForm<T = any>(
   }
 
   if (!res.ok) {
-    // Handle 401 Unauthenticated - clear session
     if (res.status === 401) {
       clearAuthSession();
     }
@@ -204,31 +215,14 @@ export async function apiPostForm<T = any>(
   return data as T;
 }
 
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(";").shift() || "");
-  return null;
-}
-
 function clearAuthSession(): void {
   if (typeof localStorage === "undefined") return;
   console.log("[API] Clearing auth session due to 401 response");
   localStorage.removeItem("user_session");
   localStorage.removeItem("active_company");
-  // Optionally redirect to login
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
-}
-
-let csrfInitialized = false;
-
-async function ensureCsrfCookie(): Promise<void> {
-  if (csrfInitialized) return;
-  await apiGet("/sanctum/csrf-cookie");
-  csrfInitialized = true;
 }
 
 const OTP_SESSION_KEY = "huntr_otp_session";
@@ -265,12 +259,14 @@ export function clearOtpSession(): void {
   sessionStorage.removeItem(OTP_SESSION_KEY);
 }
 
-export const getCsrfCookie = () => ensureCsrfCookie();
+// No more CSRF cookie needed - using bearer tokens
+export const getCsrfCookie = async () => {
+  console.log("[API] CSRF cookie not needed - using bearer tokens");
+};
 
 export const register = async (payload: {
   name: string; whatsapp: string; password: string; email?: string;
 }) => {
-  await getCsrfCookie();
   const normalized = {
     ...payload,
     whatsapp: normalizeWhatsapp(payload.whatsapp),
@@ -278,23 +274,18 @@ export const register = async (payload: {
   await apiPost("/api/auth/register", normalized);
   // Auto-login after registration
   const user = await login({ email: payload.email || payload.whatsapp, password: payload.password });
-  // Return the authenticated user data
   return user;
 };
 
 export const login = async (payload: { email: string; password: string }) => {
-  await getCsrfCookie();
   const res = await apiPost("/api/auth/login", { ...payload, login: payload.email });
   if (res.two_factor) {
     return { two_factor: true };
   }
-  // The login endpoint returns {user: {...}}, so extract it
   const user = res.user || res;
-  // Try to get the authenticated user to ensure session is set up
   try {
     return await getAuthenticatedUser();
   } catch (err) {
-    // If getAuthenticatedUser fails, return the user from login response
     console.warn("[login] getAuthenticatedUser failed, using login response:", err);
     return user;
   }
@@ -335,11 +326,9 @@ export const sendOtp = async (payload: { whatsapp: string }) => {
 
     return { ...res, whatsapp: canonical };
   } catch (error: any) {
-    // If token expired error, try to refresh and retry once
     if (error.message && error.message.includes("token") && error.message.includes("expired")) {
       try {
         await refreshWhatsAppToken();
-        // Retry the OTP send after token refresh
         const res = await apiPost<{
           message: string;
           otp?: string;
@@ -361,7 +350,7 @@ export const sendOtp = async (payload: { whatsapp: string }) => {
 
         return { ...res, whatsapp: canonical };
       } catch (retryError) {
-        throw error; // Throw original error if retry fails
+        throw error;
       }
     }
     throw error;
@@ -390,7 +379,6 @@ export const updatePassword = (payload: Record<string, any>) =>
   apiPut("/api/account/password", payload);
 
 export const updateWhatsapp = async (payload: { whatsapp: string }) => {
-  await getCsrfCookie();
   return apiPut("/api/account/whatsapp", {
     whatsapp: normalizeWhatsapp(payload.whatsapp),
   });
@@ -436,7 +424,7 @@ export const updateCompany = (id: number, payload: Record<string, any>) =>
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
   }).then(async (res) => {
@@ -488,7 +476,7 @@ export const updateCatalogue = (id: number, payload: {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
   }).then(async (res) => {
@@ -563,7 +551,7 @@ export const createReceipt = (payload: {
 // ── My Companies ──────────────────────────────────────────────────────────────
 export const getMyCompanies = (userId: number | string) =>
   fetch(`${BASE_URL}/api/companies/my?user_id=${userId}`, {
-    headers: { Accept: "application/json" },
+    headers: getAuthHeaders(),
   }).then(async (res) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data?.message || "Failed to fetch companies");

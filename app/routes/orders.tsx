@@ -5,7 +5,7 @@ import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
   Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search
 } from "lucide-react";
-import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue } from "../lib/api";
+import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie } from "../lib/api";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -44,6 +44,11 @@ export default function Orders() {
     setUser(u);
     setCompany(ac);
     setLoading(false);
+    
+    // Initialize CSRF cookie
+    getCsrfCookie().catch(err => {
+      console.warn("Failed to initialize CSRF cookie:", err);
+    });
   }, [navigate]);
 
   useEffect(() => {
