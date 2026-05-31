@@ -67,6 +67,7 @@ function GuestMarketplaceView() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -98,58 +99,231 @@ function GuestMarketplaceView() {
     <div style={{ minHeight: "100vh", background: "var(--ui-bg-page-grad)", color: "var(--ui-text-primary)" }}>
       {/* ── Guest Header ────────────────────────────────────────────────── */}
       <header style={{
-        padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: "1px solid var(--ui-border)", background: "var(--ui-bg-header)",
-        backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 100,
+        padding: "clamp(12px, 4vw, 20px) clamp(16px, 5vw, 40px)", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "space-between",
+        borderBottom: "1px solid var(--ui-border)", 
+        background: "var(--ui-bg-header)",
+        backdropFilter: "blur(20px)", 
+        position: "sticky", 
+        top: 0, 
+        zIndex: 100,
+        flexWrap: "wrap",
+        gap: "clamp(8px, 2vw, 12px)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 2vw, 12px)" }}>
           <img 
             src="/assets/img/logo/emblem.jpg" 
             alt="Huntr Logo" 
-            style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover" }} 
+            style={{ width: "clamp(32px, 8vw, 40px)", height: "clamp(32px, 8vw, 40px)", borderRadius: 10, objectFit: "cover" }} 
           />
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px", color: "var(--ui-text-logo)" }}>Huntr.id</div>
-            <div style={{ fontSize: 9, color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
+            <div style={{ fontWeight: 800, fontSize: "clamp(14px, 4vw, 16px)", letterSpacing: "-0.5px", color: "var(--ui-text-logo)" }}>Huntr.id</div>
+            <div style={{ fontSize: "clamp(7px, 2vw, 9px)", color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <ThemeToggle />
-          <Link to="/login" style={{
-            padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
-            color: "var(--ui-text-secondary)", textDecoration: "none", transition: "all 0.2s"
-          }}>Sign In</Link>
+        <div style={{ display: "flex", gap: "clamp(8px, 2vw, 12px)", alignItems: "center" }}>
           <Link to="/register" style={{
-            padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700,
+            padding: "clamp(8px, 2vw, 10px) clamp(14px, 3vw, 24px)", 
+            borderRadius: 12, 
+            fontSize: "clamp(12px, 2.5vw, 14px)", 
+            fontWeight: 700,
             background: "linear-gradient(135deg,#f97316,#f59e0b)",
-            color: "#fff", textDecoration: "none", boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
+            color: "#fff", 
+            textDecoration: "none", 
+            boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
+            whiteSpace: "nowrap"
           }}>Get Started</Link>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: "var(--ui-bg-card)",
+              border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-primary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s"
+            }}
+          >
+            ☰
+          </button>
         </div>
       </header>
 
+      {/* ── Sidebar Overlay ─────────────────────────────────────────────── */}
+      {isSidebarOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 200,
+            backdropFilter: "blur(4px)"
+          }}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        right: 0,
+        width: "clamp(250px, 80vw, 350px)",
+        height: "100vh",
+        background: "var(--ui-bg-page)",
+        borderLeft: "1px solid var(--ui-border)",
+        zIndex: 201,
+        transform: isSidebarOpen ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s ease",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "auto"
+      }}>
+        {/* Sidebar Header */}
+        <div style={{
+          padding: "clamp(16px, 4vw, 20px)",
+          borderBottom: "1px solid var(--ui-border)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}>
+          <h3 style={{ margin: 0, fontSize: "clamp(14px, 3vw, 16px)", fontWeight: 700 }}>Menu</h3>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--ui-text-primary)",
+              cursor: "pointer",
+              fontSize: 24,
+              padding: 0,
+              width: 32,
+              height: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Sidebar Content */}
+        <div style={{ flex: 1, padding: "clamp(16px, 4vw, 20px)", display: "flex", flexDirection: "column", gap: "clamp(12px, 3vw, 16px)" }}>
+          {/* Theme Toggle */}
+          <div style={{
+            padding: "clamp(12px, 3vw, 16px)",
+            borderRadius: 12,
+            background: "var(--ui-bg-card)",
+            border: "1px solid var(--ui-border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}>
+            <span style={{ fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 600 }}>Theme</span>
+            <ThemeToggle />
+          </div>
+
+          {/* Sign In Link */}
+          <Link to="/login" style={{
+            padding: "clamp(12px, 3vw, 16px)",
+            borderRadius: 12,
+            fontSize: "clamp(12px, 2.5vw, 14px)",
+            fontWeight: 600,
+            color: "var(--ui-text-primary)",
+            textDecoration: "none",
+            transition: "all 0.2s",
+            background: "var(--ui-bg-card)",
+            border: "1px solid var(--ui-border)",
+            textAlign: "center",
+            cursor: "pointer"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(249,115,22,0.1)";
+            e.currentTarget.style.borderColor = "rgba(249,115,22,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "var(--ui-bg-card)";
+            e.currentTarget.style.borderColor = "var(--ui-border)";
+          }}
+          >
+            Sign In
+          </Link>
+        </div>
+
+        {/* Sidebar Footer */}
+        <div style={{
+          padding: "clamp(16px, 4vw, 20px)",
+          borderTop: "1px solid var(--ui-border)",
+          fontSize: "clamp(10px, 2vw, 12px)",
+          color: "var(--ui-text-muted)",
+          textAlign: "center"
+        }}>
+          <p style={{ margin: 0 }}>Huntr.id © 2026</p>
+        </div>
+      </div>
+
       {/* ── Hero Section ────────────────────────────────────────────────── */}
       <section style={{
-        padding: "80px 40px 60px", textAlign: "center", maxWidth: 900, margin: "0 auto",
+        padding: "clamp(40px, 10vw, 80px) clamp(16px, 5vw, 40px) clamp(30px, 8vw, 60px)", 
+        textAlign: "center", 
+        maxWidth: 900, 
+        margin: "0 auto",
         position: "relative",
       }}>
         <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-          width: 600, height: 400, background: "radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)",
-          pointerEvents: "none", zIndex: -1
+          position: "absolute", 
+          top: "50%", 
+          left: "50%", 
+          transform: "translate(-50%, -50%)",
+          width: "clamp(300px, 80vw, 600px)", 
+          height: "clamp(200px, 50vw, 400px)", 
+          background: "radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)",
+          pointerEvents: "none", 
+          zIndex: -1
         }} />
-        <h1 style={{ fontSize: 52, fontWeight: 900, marginBottom: 20, letterSpacing: "-1.5px", lineHeight: 1.1, color: "var(--ui-text-primary)" }}>
+        <h1 style={{ 
+          fontSize: "clamp(28px, 7vw, 52px)", 
+          fontWeight: 900, 
+          marginBottom: "clamp(12px, 3vw, 20px)", 
+          letterSpacing: "-1.5px", 
+          lineHeight: 1.1, 
+          color: "var(--ui-text-primary)" 
+        }}>
           The Future of <span style={{ color: "#fb923c" }}>B2B Procurement</span>
         </h1>
-        <p style={{ fontSize: 18, color: "var(--ui-text-secondary)", marginBottom: 40, lineHeight: 1.6 }}>
+        <p style={{ 
+          fontSize: "clamp(14px, 3.5vw, 18px)", 
+          color: "var(--ui-text-secondary)", 
+          marginBottom: "clamp(24px, 5vw, 40px)", 
+          lineHeight: 1.6 
+        }}>
           Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem.
         </p>
 
         {/* Search Bar */}
         <div style={{ 
-          maxWidth: 600, margin: "0 auto", position: "relative",
-          background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-          borderRadius: 20, padding: 6, display: "flex", gap: 8,
+          maxWidth: 600, 
+          margin: "0 auto", 
+          position: "relative",
+          background: "var(--ui-bg-card)", 
+          border: "1px solid var(--ui-border)",
+          borderRadius: 20, 
+          padding: 6, 
+          display: "flex", 
+          gap: 8,
           boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+          flexDirection: "column",
         }}>
           <div style={{ flex: 1, position: "relative" }}>
             <Search size={20} color="#f59e0b" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
@@ -159,14 +333,31 @@ function GuestMarketplaceView() {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               style={{
-                width: "100%", padding: "14px 14px 14px 50px", borderRadius: 16,
-                background: "transparent", border: "none", color: "var(--ui-text-primary)", outline: "none", fontSize: 16,
+                width: "100%", 
+                padding: "clamp(10px, 2vw, 14px) clamp(10px, 2vw, 14px) clamp(10px, 2vw, 14px) 50px", 
+                borderRadius: 16,
+                background: "transparent", 
+                border: "none", 
+                color: "var(--ui-text-primary)", 
+                outline: "none", 
+                fontSize: "clamp(12px, 2.5vw, 16px)",
               }}
             />
           </div>
           <button style={{
-            padding: "0 24px", borderRadius: 14, background: "#f59e0b", color: "#fff",
-            border: "none", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
+            padding: "clamp(8px, 2vw, 12px) clamp(12px, 3vw, 24px)", 
+            borderRadius: 14, 
+            background: "#f59e0b", 
+            color: "#fff",
+            border: "none", 
+            fontWeight: 700, 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            gap: 8,
+            fontSize: "clamp(12px, 2.5vw, 14px)",
+            whiteSpace: "nowrap"
           }}>
             Search <ArrowRight size={16} />
           </button>
@@ -174,20 +365,25 @@ function GuestMarketplaceView() {
       </section>
 
       {/* ── Content Section ─────────────────────────────────────────────── */}
-      <section style={{ padding: "40px", maxWidth: 1200, margin: "0 auto" }}>
+      <section style={{ padding: "clamp(20px, 5vw, 40px) clamp(16px, 5vw, 40px)", maxWidth: 1200, margin: "0 auto" }}>
         {/* Categories */}
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 24, scrollbarWidth: "none" }}>
+        <div style={{ display: "flex", gap: "clamp(6px, 2vw, 10px)", overflowX: "auto", paddingBottom: 24, scrollbarWidth: "none" }}>
           {CATEGORIES.map(cat => (
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat)}
               style={{
-                padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
+                padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2.5vw, 20px)", 
+                borderRadius: 12, 
+                fontSize: "clamp(12px, 2vw, 14px)", 
+                fontWeight: 600,
                 background: activeCategory === cat ? "rgba(249,115,22,0.15)" : "var(--ui-bg-card)",
                 border: "1px solid",
                 borderColor: activeCategory === cat ? "rgba(249,115,22,0.3)" : "var(--ui-border)",
                 color: activeCategory === cat ? "#fb923c" : "var(--ui-text-secondary)",
-                cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s"
+                cursor: "pointer", 
+                whiteSpace: "nowrap", 
+                transition: "all 0.2s"
               }}
             >
               {cat}
@@ -197,21 +393,33 @@ function GuestMarketplaceView() {
 
         {/* Item Grid */}
         {loading ? (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
+          <div style={{ padding: "clamp(40px, 10vw, 80px) 0", textAlign: "center" }}>
             <Loader2 className="animate-spin" size={40} color="#f59e0b" style={{ margin: "0 auto" }} />
           </div>
         ) : items.length === 0 ? (
-          <div style={{ padding: "80px 0", textAlign: "center", color: "var(--ui-text-muted)" }}>
+          <div style={{ padding: "clamp(40px, 10vw, 80px) 0", textAlign: "center", color: "var(--ui-text-muted)" }}>
             <Package size={64} style={{ opacity: 0.1, margin: "0 auto 20px" }} />
-            <p style={{ fontSize: 18 }}>No items found matching your search.</p>
+            <p style={{ fontSize: "clamp(14px, 3vw, 18px)" }}>No items found matching your search.</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(auto-fill, minmax(clamp(160px, 40vw, 280px), 1fr))", 
+            gap: "clamp(12px, 3vw, 24px)" 
+          }}>
             {items.map(item => (
               <div key={item.id} style={{
-                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                padding: 20, display: "flex", flexDirection: "column", gap: 16, transition: "all 0.3s",
-                position: "relative", overflow: "hidden", cursor: "pointer",
+                background: "var(--ui-bg-card)", 
+                borderRadius: 24, 
+                border: "1px solid var(--ui-border)",
+                padding: "clamp(12px, 3vw, 20px)", 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: "clamp(8px, 2vw, 16px)", 
+                transition: "all 0.3s",
+                position: "relative", 
+                overflow: "hidden", 
+                cursor: "pointer",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
@@ -229,8 +437,8 @@ function GuestMarketplaceView() {
                   <Package size={64} color="rgba(255,255,255,0.05)" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: 0 }}>{item.name}</h3>
+                  <div style={{ fontSize: "clamp(10px, 2vw, 12px)", color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
+                  <h3 style={{ fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 700, color: "var(--ui-text-primary)", margin: 0 }}>{item.name}</h3>
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fb923c" }}>
@@ -245,10 +453,12 @@ function GuestMarketplaceView() {
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer style={{ 
-        padding: "80px 40px 40px", marginTop: 80, 
-        borderTop: "1px solid var(--ui-border)", background: "var(--ui-bg-page)" 
+        padding: "clamp(40px, 8vw, 80px) clamp(16px, 5vw, 40px) clamp(20px, 5vw, 40px)", 
+        marginTop: "clamp(40px, 10vw, 80px)", 
+        borderTop: "1px solid var(--ui-border)", 
+        background: "var(--ui-bg-page)" 
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(clamp(150px, 40vw, 200px), 1fr))", gap: "clamp(20px, 5vw, 40px)" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
               <img 
@@ -256,28 +466,28 @@ function GuestMarketplaceView() {
                 alt="Huntr Logo" 
                 style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} 
               />
-              <span style={{ fontWeight: 800, fontSize: 16, color: "var(--ui-text-logo)" }}>Huntr.id</span>
+              <span style={{ fontWeight: 800, fontSize: "clamp(14px, 3vw, 16px)", color: "var(--ui-text-logo)" }}>Huntr.id</span>
             </div>
-            <p style={{ fontSize: 13, color: "var(--ui-text-muted)", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
+            <p style={{ fontSize: "clamp(12px, 2vw, 13px)", color: "var(--ui-text-muted)", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
           </div>
           <div>
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Platform</h4>
+            <h4 style={{ fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Platform</h4>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li><Link to="/marketplace" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Marketplace</Link></li>
-              <li><Link to="/register" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Vendor Registration</Link></li>
-              <li><Link to="/login" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Buyer Portal</Link></li>
+              <li><Link to="/marketplace" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Marketplace</Link></li>
+              <li><Link to="/register" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Vendor Registration</Link></li>
+              <li><Link to="/login" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Buyer Portal</Link></li>
             </ul>
           </div>
           <div>
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Company</h4>
+            <h4 style={{ fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Company</h4>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>About Us</a></li>
-              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Privacy Policy</a></li>
-              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Terms of Service</a></li>
+              <li><a href="#" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>About Us</a></li>
+              <li><a href="#" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Privacy Policy</a></li>
+              <li><a href="#" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Terms of Service</a></li>
             </ul>
           </div>
         </div>
-        <div style={{ textAlign: "center", marginTop: 60, fontSize: 12, color: "var(--ui-text-muted)" }}>
+        <div style={{ textAlign: "center", marginTop: "clamp(30px, 5vw, 60px)", fontSize: "clamp(10px, 2vw, 12px)", color: "var(--ui-text-muted)" }}>
           © 2026 Huntr.id - Enterprise Procurement Ecosystem. All rights reserved.
         </div>
       </footer>
