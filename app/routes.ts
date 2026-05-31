@@ -22,4 +22,6 @@ export default [
   route("notifications", "routes/notifications.tsx"),
   route("account", "routes/account.tsx"),
   route("admin", "routes/admin.tsx"),
+  // Catch-all for well-known and other non-route paths
+  route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;

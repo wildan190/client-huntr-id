@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Loader2, Eye, EyeOff, ShieldCheck, Key } from "lucide-react";
-import { login, verify2FACode, verify2FARecovery, getAuthenticatedUser } from "../lib/api";
+import { login, verify2FACode, verify2FARecovery, getAuthenticatedUser, getCsrfCookie } from "../lib/api";
 import AuthLayout from "../components/AuthLayout";
 
 export default function Login() {
@@ -22,6 +22,11 @@ export default function Login() {
       const company = localStorage.getItem("active_company");
       navigate(company ? "/" : "/select-company", { replace: true });
     }
+    
+    // Initialize CSRF cookie on component mount
+    getCsrfCookie().catch(err => {
+      console.warn("Failed to initialize CSRF cookie:", err);
+    });
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {

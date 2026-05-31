@@ -15,6 +15,7 @@ function resolveBaseUrl(): string {
 const BASE_URL = resolveBaseUrl();
 
 export async function apiGet<T = any>(path: string): Promise<T> {
+  console.log(`[API] GET ${path}`);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
     headers: { 
@@ -24,8 +25,22 @@ export async function apiGet<T = any>(path: string): Promise<T> {
     credentials: "include",
   });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.error(`[API] Failed to parse JSON response:`, text);
+    if (!res.ok) {
+      throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+    }
+  }
+  
   if (!res.ok) {
+    // Handle 401 Unauthenticated - clear session
+    if (res.status === 401) {
+      clearAuthSession();
+    }
     const msg = data?.message || "Server error";
     throw new Error(msg as string);
   }
@@ -36,6 +51,8 @@ export async function apiPost<T = any>(
   path: string,
   body: Record<string, any>
 ): Promise<T> {
+  console.log(`[API] POST ${path}`, body);
+  console.log(`[API] Full URL: ${BASE_URL}${path}`);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
     headers: {
@@ -46,11 +63,25 @@ export async function apiPost<T = any>(
     body: JSON.stringify(body),
     credentials: "include",
   });
+  console.log(`[API] Response status: ${res.status}, method was POST`);
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.error(`[API] Failed to parse JSON response:`, text);
+    if (!res.ok) {
+      throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+    }
+  }
 
   if (!res.ok) {
+    // Handle 401 Unauthenticated - clear session
+    if (res.status === 401) {
+      clearAuthSession();
+    }
     const msg =
       data?.message ||
       (data?.errors ? Object.values(data.errors).flat().join(", ") : "Server error");
@@ -76,9 +107,22 @@ export async function apiPut<T = any>(
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.error(`[API] Failed to parse JSON response:`, text);
+    if (!res.ok) {
+      throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+    }
+  }
 
   if (!res.ok) {
+    // Handle 401 Unauthenticated - clear session
+    if (res.status === 401) {
+      clearAuthSession();
+    }
     const msg =
       data?.message ||
       (data?.errors ? Object.values(data.errors).flat().join(", ") : "Server error");
@@ -98,8 +142,22 @@ export async function apiDelete<T = any>(path: string): Promise<T> {
     credentials: "include",
   });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.error(`[API] Failed to parse JSON response:`, text);
+    if (!res.ok) {
+      throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+    }
+  }
+  
   if (!res.ok) {
+    // Handle 401 Unauthenticated - clear session
+    if (res.status === 401) {
+      clearAuthSession();
+    }
     const msg = data?.message || "Server error";
     throw new Error(msg as string);
   }
@@ -121,9 +179,22 @@ export async function apiPostForm<T = any>(
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.error(`[API] Failed to parse JSON response:`, text);
+    if (!res.ok) {
+      throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+    }
+  }
 
   if (!res.ok) {
+    // Handle 401 Unauthenticated - clear session
+    if (res.status === 401) {
+      clearAuthSession();
+    }
     const msg =
       data?.message ||
       (data?.errors ? Object.values(data.errors).flat().join(", ") : "Server error");
@@ -139,6 +210,17 @@ function getCookie(name: string): string | null {
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(";").shift() || "");
   return null;
+}
+
+function clearAuthSession(): void {
+  if (typeof localStorage === "undefined") return;
+  console.log("[API] Clearing auth session due to 401 response");
+  localStorage.removeItem("user_session");
+  localStorage.removeItem("active_company");
+  // Optionally redirect to login
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
 }
 
 let csrfInitialized = false;
@@ -193,48 +275,97 @@ export const register = async (payload: {
     ...payload,
     whatsapp: normalizeWhatsapp(payload.whatsapp),
   };
-  await apiPost("/register", normalized);
-  return getAuthenticatedUser();
+  await apiPost("/api/auth/register", normalized);
+  // Auto-login after registration
+  const user = await login({ email: payload.email || payload.whatsapp, password: payload.password });
+  // Return the authenticated user data
+  return user;
 };
 
 export const login = async (payload: { email: string; password: string }) => {
   await getCsrfCookie();
-  const res = await apiPost("/login", { ...payload, login: payload.email });
+  const res = await apiPost("/api/auth/login", { ...payload, login: payload.email });
   if (res.two_factor) {
     return { two_factor: true };
   }
-  return getAuthenticatedUser();
+  // The login endpoint returns {user: {...}}, so extract it
+  const user = res.user || res;
+  // Try to get the authenticated user to ensure session is set up
+  try {
+    return await getAuthenticatedUser();
+  } catch (err) {
+    // If getAuthenticatedUser fails, return the user from login response
+    console.warn("[login] getAuthenticatedUser failed, using login response:", err);
+    return user;
+  }
 };
 
-export const logout = () => apiPost("/logout", {});
+export const logout = () => apiPost("/api/auth/logout", {});
 
 export const getAuthenticatedUser = () => apiGet("/api/user");
 
 export const sendOtp = async (payload: { whatsapp: string }) => {
   const whatsapp = normalizeWhatsapp(payload.whatsapp);
+  console.log(`[sendOtp] Starting with whatsapp: ${whatsapp}`);
   if (!isValidWhatsapp(payload.whatsapp)) {
     throw new Error("Format nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx (contoh: 085156334793).");
   }
-  const res = await apiPost<{
-    message: string;
-    otp?: string;
-    whatsapp?: string;
-    otp_token?: string;
-    expires_in?: number;
-    whatsapp_sent?: boolean;
-    delivery_error?: string;
-  }>("/api/auth/otp/send", { whatsapp });
+  
+  try {
+    console.log(`[sendOtp] Calling apiPost with whatsapp: ${whatsapp}`);
+    const res = await apiPost<{
+      message: string;
+      otp?: string;
+      whatsapp?: string;
+      otp_token?: string;
+      expires_in?: number;
+      whatsapp_sent?: boolean;
+      delivery_error?: string;
+    }>("/api/auth/otp/send", { whatsapp });
+    console.log(`[sendOtp] Response received:`, res);
 
-  const canonical = res.whatsapp || whatsapp;
-  if (res.otp_token) {
-    saveOtpSession({
-      otp_token: res.otp_token,
-      whatsapp: canonical,
-      expires_at: Date.now() + (res.expires_in ?? 600) * 1000,
-    });
+    const canonical = res.whatsapp || whatsapp;
+    if (res.otp_token) {
+      saveOtpSession({
+        otp_token: res.otp_token,
+        whatsapp: canonical,
+        expires_at: Date.now() + (res.expires_in ?? 600) * 1000,
+      });
+    }
+
+    return { ...res, whatsapp: canonical };
+  } catch (error: any) {
+    // If token expired error, try to refresh and retry once
+    if (error.message && error.message.includes("token") && error.message.includes("expired")) {
+      try {
+        await refreshWhatsAppToken();
+        // Retry the OTP send after token refresh
+        const res = await apiPost<{
+          message: string;
+          otp?: string;
+          whatsapp?: string;
+          otp_token?: string;
+          expires_in?: number;
+          whatsapp_sent?: boolean;
+          delivery_error?: string;
+        }>("/api/auth/otp/send", { whatsapp });
+
+        const canonical = res.whatsapp || whatsapp;
+        if (res.otp_token) {
+          saveOtpSession({
+            otp_token: res.otp_token,
+            whatsapp: canonical,
+            expires_at: Date.now() + (res.expires_in ?? 600) * 1000,
+          });
+        }
+
+        return { ...res, whatsapp: canonical };
+      } catch (retryError) {
+        throw error; // Throw original error if retry fails
+      }
+    }
+    throw error;
   }
-
-  return { ...res, whatsapp: canonical };
 };
 
 export const verifyOtp = async (payload: { whatsapp?: string; otp: string; otp_token?: string }) => {
@@ -438,3 +569,7 @@ export const getMyCompanies = (userId: number | string) =>
     if (!res.ok) throw new Error(data?.message || "Failed to fetch companies");
     return data as { companies: any[] };
   });
+
+// ── WhatsApp Communication ─────────────────────────────────────────────────────
+export const refreshWhatsAppToken = () =>
+  apiPost("/api/communication/whatsapp/refresh-token", {});

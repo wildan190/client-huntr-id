@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
-import { register, sendOtp, verifyOtp, loadOtpSession, clearOtpSession } from "../lib/api";
+import { register, sendOtp, verifyOtp, loadOtpSession, clearOtpSession, getCsrfCookie } from "../lib/api";
 import { isValidWhatsapp } from "../lib/whatsapp";
 import AuthLayout from "../components/AuthLayout";
 
@@ -49,10 +49,16 @@ export default function Register() {
       const company = localStorage.getItem("active_company");
       navigate(company ? "/" : "/select-company");
     }
+    
+    // Initialize CSRF cookie on component mount
+    getCsrfCookie().catch(err => {
+      console.warn("Failed to initialize CSRF cookie:", err);
+    });
   }, [navigate]);
 
   const handleSendOtp = async (e?: React.MouseEvent) => {
     e?.preventDefault();
+    console.log(`[handleSendOtp] Button clicked, sendingOtp: ${sendingOtp}, resendCooldown: ${resendCooldown}`);
     if (sendingOtp || (resendCooldown > 0 && otpSent)) return;
     if (!form.name || !form.whatsapp || !form.password) {
       setError("Please fill in Name, WhatsApp Number, and Password first.");
@@ -67,7 +73,9 @@ export default function Register() {
     setError(null);
     setSuccessMsg(null);
     try {
+      console.log(`[handleSendOtp] Calling sendOtp with whatsapp: ${form.whatsapp}`);
       const res = await sendOtp({ whatsapp: form.whatsapp });
+      console.log(`[handleSendOtp] sendOtp response:`, res);
       setOtpSent(true);
       setCanonicalWhatsapp(res.whatsapp || form.whatsapp);
       setOtpToken(res.otp_token || "");
@@ -85,8 +93,7 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!otpSent) return;
     if (!otp) {
       setError("Please enter the OTP verification code.");
@@ -114,14 +121,17 @@ export default function Register() {
       };
 
       const userPayload = await register(registerPayload);
+      console.log("[handleSubmit] User payload after register:", userPayload);
+      
       const user = {
-        id: userPayload.id,
-        name: userPayload.name || form.name,
-        email: userPayload.email || form.email,
-        whatsapp: userPayload.whatsapp || form.whatsapp,
-        role: userPayload.role || "buyer",
+        id: userPayload?.id,
+        name: userPayload?.name || form.name,
+        email: userPayload?.email || form.email,
+        whatsapp: userPayload?.whatsapp || phone,
+        role: userPayload?.role || "buyer",
       };
 
+      console.log("[handleSubmit] Saving user session:", user);
       localStorage.setItem("user_session", JSON.stringify(user));
       localStorage.removeItem("active_company");
       navigate("/onboarding");
@@ -140,7 +150,7 @@ export default function Register() {
       features={["✓ Seamless Onboarding", "✓ High-Fidelity UX", "✓ Secure Protocol"]}
       featureVariant="amber"
     >
-      <form onSubmit={handleSubmit} className="auth-form">
+      <form className="auth-form">
         <div className="auth-form__header">
           <img src="/assets/img/logo/emblem.jpg" alt="Huntr Logo" className="auth-logo" />
           <h1 className="auth-heading">Create Account</h1>
@@ -173,8 +183,7 @@ export default function Register() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                    placeholder="e.g. 085156334793"
-                    autoComplete="tel"
+                placeholder="e.g. 085156334793"
                 required
                 disabled={otpSent}
                 className="auth-input"
@@ -296,7 +305,8 @@ export default function Register() {
           </button>
         ) : (
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={loading}
             className="auth-btn auth-btn--success"
           >
