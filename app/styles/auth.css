@@ -10,7 +10,7 @@
     max(16px, env(safe-area-inset-bottom))
     max(16px, env(safe-area-inset-left));
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--ui-bg-page-grad);
   transition: background 0.3s ease;
 }
