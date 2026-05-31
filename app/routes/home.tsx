@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Layout from "../components/Layout";
+import ThemeToggle from "../components/ThemeToggle";
 import { getCatalogues } from "../lib/api";
 import { 
   Activity, 
@@ -94,11 +95,11 @@ function GuestMarketplaceView() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#141008", color: "#fff" }}>
+    <div style={{ minHeight: "100vh", background: "var(--ui-bg-page-grad)", color: "var(--ui-text-primary)" }}>
       {/* ── Guest Header ────────────────────────────────────────────────── */}
       <header style={{
         padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(15,10,6,0.8)",
+        borderBottom: "1px solid var(--ui-border)", background: "var(--ui-bg-header)",
         backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -108,14 +109,15 @@ function GuestMarketplaceView() {
             style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover" }} 
           />
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px" }}>Huntr.id</div>
+            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px", color: "var(--ui-text-logo)" }}>Huntr.id</div>
             <div style={{ fontSize: 9, color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <ThemeToggle />
           <Link to="/login" style={{
             padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
-            color: "#9ca3af", textDecoration: "none", transition: "all 0.2s"
+            color: "var(--ui-text-secondary)", textDecoration: "none", transition: "all 0.2s"
           }}>Sign In</Link>
           <Link to="/register" style={{
             padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700,
@@ -135,19 +137,19 @@ function GuestMarketplaceView() {
           width: 600, height: 400, background: "radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)",
           pointerEvents: "none", zIndex: -1
         }} />
-        <h1 style={{ fontSize: 52, fontWeight: 900, marginBottom: 20, letterSpacing: "-1.5px", lineHeight: 1.1 }}>
+        <h1 style={{ fontSize: 52, fontWeight: 900, marginBottom: 20, letterSpacing: "-1.5px", lineHeight: 1.1, color: "var(--ui-text-primary)" }}>
           The Future of <span style={{ color: "#fb923c" }}>B2B Procurement</span>
         </h1>
-        <p style={{ fontSize: 18, color: "#9ca3af", marginBottom: 40, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 18, color: "var(--ui-text-secondary)", marginBottom: 40, lineHeight: 1.6 }}>
           Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem.
         </p>
 
         {/* Search Bar */}
         <div style={{ 
           maxWidth: 600, margin: "0 auto", position: "relative",
-          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
           borderRadius: 20, padding: 6, display: "flex", gap: 8,
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
         }}>
           <div style={{ flex: 1, position: "relative" }}>
             <Search size={20} color="#f59e0b" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
@@ -158,7 +160,7 @@ function GuestMarketplaceView() {
               onChange={e => setSearchTerm(e.target.value)}
               style={{
                 width: "100%", padding: "14px 14px 14px 50px", borderRadius: 16,
-                background: "transparent", border: "none", color: "#fff", outline: "none", fontSize: 16,
+                background: "transparent", border: "none", color: "var(--ui-text-primary)", outline: "none", fontSize: 16,
               }}
             />
           </div>
@@ -181,10 +183,10 @@ function GuestMarketplaceView() {
               onClick={() => setActiveCategory(cat)}
               style={{
                 padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
-                background: activeCategory === cat ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.03)",
+                background: activeCategory === cat ? "rgba(249,115,22,0.15)" : "var(--ui-bg-card)",
                 border: "1px solid",
-                borderColor: activeCategory === cat ? "rgba(249,115,22,0.3)" : "rgba(255,255,255,0.08)",
-                color: activeCategory === cat ? "#fb923c" : "#9ca3af",
+                borderColor: activeCategory === cat ? "rgba(249,115,22,0.3)" : "var(--ui-border)",
+                color: activeCategory === cat ? "#fb923c" : "var(--ui-text-secondary)",
                 cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s"
               }}
             >
@@ -199,7 +201,7 @@ function GuestMarketplaceView() {
             <Loader2 className="animate-spin" size={40} color="#f59e0b" style={{ margin: "0 auto" }} />
           </div>
         ) : items.length === 0 ? (
-          <div style={{ padding: "80px 0", textAlign: "center", color: "#6b7280" }}>
+          <div style={{ padding: "80px 0", textAlign: "center", color: "var(--ui-text-muted)" }}>
             <Package size={64} style={{ opacity: 0.1, margin: "0 auto 20px" }} />
             <p style={{ fontSize: 18 }}>No items found matching your search.</p>
           </div>
@@ -207,28 +209,28 @@ function GuestMarketplaceView() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
             {items.map(item => (
               <div key={item.id} style={{
-                background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
                 padding: 20, display: "flex", flexDirection: "column", gap: 16, transition: "all 0.3s",
                 position: "relative", overflow: "hidden", cursor: "pointer",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.background = "var(--ui-bg-card-hover)";
                 e.currentTarget.style.borderColor = "rgba(249,115,22,0.3)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.background = "var(--ui-bg-card)";
+                e.currentTarget.style.borderColor = "var(--ui-border)";
               }}
               onClick={() => navigate(`/marketplace/${item.id}`)}
               >
-                <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 16, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 16, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Package size={64} color="rgba(255,255,255,0.05)" />
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "#f3f4f6", margin: 0 }}>{item.name}</h3>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: 0 }}>{item.name}</h3>
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fb923c" }}>
@@ -244,7 +246,7 @@ function GuestMarketplaceView() {
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer style={{ 
         padding: "80px 40px 40px", marginTop: 80, 
-        borderTop: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.01)" 
+        borderTop: "1px solid var(--ui-border)", background: "var(--ui-bg-page)" 
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40 }}>
           <div>
@@ -254,28 +256,28 @@ function GuestMarketplaceView() {
                 alt="Huntr Logo" 
                 style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} 
               />
-              <span style={{ fontWeight: 800, fontSize: 16 }}>Huntr.id</span>
+              <span style={{ fontWeight: 800, fontSize: 16, color: "var(--ui-text-logo)" }}>Huntr.id</span>
             </div>
-            <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
+            <p style={{ fontSize: 13, color: "var(--ui-text-muted)", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
           </div>
           <div>
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Platform</h4>
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Platform</h4>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li><Link to="/marketplace" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Marketplace</Link></li>
-              <li><Link to="/register" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Vendor Registration</Link></li>
-              <li><Link to="/login" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Buyer Portal</Link></li>
+              <li><Link to="/marketplace" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Marketplace</Link></li>
+              <li><Link to="/register" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Vendor Registration</Link></li>
+              <li><Link to="/login" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Buyer Portal</Link></li>
             </ul>
           </div>
           <div>
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 20 }}>Company</h4>
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Company</h4>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>About Us</a></li>
-              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Privacy Policy</a></li>
-              <li><a href="#" style={{ fontSize: 13, color: "#6b7280", textDecoration: "none" }}>Terms of Service</a></li>
+              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>About Us</a></li>
+              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Privacy Policy</a></li>
+              <li><a href="#" style={{ fontSize: 13, color: "var(--ui-text-muted)", textDecoration: "none" }}>Terms of Service</a></li>
             </ul>
           </div>
         </div>
-        <div style={{ textAlign: "center", marginTop: 60, fontSize: 12, color: "#4b5563" }}>
+        <div style={{ textAlign: "center", marginTop: 60, fontSize: 12, color: "var(--ui-text-muted)" }}>
           © 2026 Huntr.id - Enterprise Procurement Ecosystem. All rights reserved.
         </div>
       </footer>

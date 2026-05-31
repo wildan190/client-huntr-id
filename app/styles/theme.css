@@ -1,6 +1,9 @@
 /**
  * Huntr.id brand theme — orange & yellow (logo colors)
+ * Supports dark (default) and light modes via [data-theme] attribute on <html>
  */
+
+/* ── Brand colors (always the same) ─────────────────────────────────────── */
 :root {
   --huntr-orange: #f97316;
   --huntr-orange-light: #fb923c;
@@ -15,12 +18,147 @@
   --huntr-gradient-wide: linear-gradient(90deg, #f97316, #f59e0b, #fbbf24);
   --huntr-gradient-soft: linear-gradient(135deg, #fb923c, #f59e0b);
 
-  --huntr-bg-deep: #0f0a06;
-  --huntr-bg-mid: #1a1008;
-  --huntr-bg-warm: #2d1a0a;
-  --huntr-surface: rgba(15, 10, 6, 0.97);
-  --huntr-surface-alt: rgba(15, 10, 6, 0.4);
-
   --huntr-brand-rgb: 249, 115, 22;
   --huntr-amber-rgb: 251, 191, 36;
+}
+
+/* ── Dark mode (default) ─────────────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --ui-bg-page:      #0f0a06;
+  --ui-bg-page-grad: radial-gradient(125% 125% at 50% 10%, #0f0a06 40%, #1a1008 80%, #0f0a06 100%);
+  --ui-bg-sidebar:   rgba(15, 10, 6, 0.97);
+  --ui-bg-header:    rgba(15, 10, 6, 0.85);
+  --ui-bg-card:      rgba(255, 255, 255, 0.02);
+  --ui-bg-card-hover:rgba(255, 255, 255, 0.04);
+  --ui-bg-input:     rgba(255, 255, 255, 0.03);
+  --ui-bg-input-focus: rgba(255, 255, 255, 0.05);
+  --ui-bg-badge:     rgba(249, 115, 22, 0.08);
+  --ui-bg-notif:     rgba(15, 10, 6, 0.95);
+  --ui-bg-overlay:   rgba(255, 255, 255, 0.02);
+  --ui-bg-switch-btn: rgba(255, 255, 255, 0.05);
+  --ui-bg-pending-card: rgba(255, 255, 255, 0.02);
+
+  /* Borders */
+  --ui-border:       rgba(255, 255, 255, 0.06);
+  --ui-border-subtle:rgba(255, 255, 255, 0.05);
+  --ui-border-input: rgba(255, 255, 255, 0.10);
+  --ui-border-badge: rgba(249, 115, 22, 0.20);
+  --ui-border-notif: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --ui-text-primary: #f3f4f6;
+  --ui-text-secondary:#9ca3af;
+  --ui-text-muted:   #6b7280;
+  --ui-text-brand:   #fb923c;
+  --ui-text-logo:    #ffffff;
+  --ui-text-nav-active: #fdba74;
+  --ui-text-nav-idle:   #9ca3af;
+
+  /* Scrollbar */
+  --ui-scrollbar-track: #141008;
+  --ui-scrollbar-thumb: #3d2814;
+
+  /* Notification badge border */
+  --ui-notif-badge-border: #141008;
+
+  /* Nav active bg */
+  --ui-nav-active-bg:     rgba(249, 115, 22, 0.15);
+  --ui-nav-active-border: rgba(249, 115, 22, 0.25);
+
+  /* Glass panel */
+  --ui-glass-bg:     rgba(255, 255, 255, 0.03);
+  --ui-glass-bg-hover: rgba(255, 255, 255, 0.05);
+  --ui-glass-border: rgba(255, 255, 255, 0.08);
+  --ui-glass-border-hover: rgba(255, 255, 255, 0.12);
+  --ui-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --ui-glass-shadow-hover: 0 12px 40px 0 rgba(249, 115, 22, 0.2);
+
+  /* Logout button */
+  --ui-logout-bg:    rgba(239, 68, 68, 0.08);
+  --ui-logout-border:rgba(239, 68, 68, 0.18);
+  --ui-logout-text:  #f87171;
+
+  /* Switch company button */
+  --ui-switch-bg:    rgba(249, 115, 22, 0.12);
+  --ui-switch-border:rgba(249, 115, 22, 0.20);
+  --ui-switch-text:  #fb923c;
+
+  /* Theme toggle */
+  --ui-toggle-bg:    rgba(255, 255, 255, 0.03);
+  --ui-toggle-border:rgba(255, 255, 255, 0.08);
+  --ui-toggle-text:  #9ca3af;
+}
+
+/* ── Light mode ──────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --ui-bg-page:      #f5f3ef;
+  --ui-bg-page-grad: radial-gradient(125% 125% at 50% 10%, #faf8f5 40%, #f0ece4 80%, #faf8f5 100%);
+  --ui-bg-sidebar:   rgba(255, 252, 248, 0.98);
+  --ui-bg-header:    rgba(255, 252, 248, 0.92);
+  --ui-bg-card:      rgba(255, 255, 255, 0.80);
+  --ui-bg-card-hover:rgba(255, 255, 255, 0.95);
+  --ui-bg-input:     rgba(0, 0, 0, 0.04);
+  --ui-bg-input-focus: rgba(0, 0, 0, 0.06);
+  --ui-bg-badge:     rgba(249, 115, 22, 0.08);
+  --ui-bg-notif:     rgba(255, 252, 248, 0.98);
+  --ui-bg-overlay:   rgba(255, 255, 255, 0.70);
+  --ui-bg-switch-btn: rgba(0, 0, 0, 0.04);
+  --ui-bg-pending-card: rgba(255, 255, 255, 0.70);
+
+  /* Borders */
+  --ui-border:       rgba(0, 0, 0, 0.08);
+  --ui-border-subtle:rgba(0, 0, 0, 0.06);
+  --ui-border-input: rgba(0, 0, 0, 0.12);
+  --ui-border-badge: rgba(249, 115, 22, 0.25);
+  --ui-border-notif: rgba(0, 0, 0, 0.08);
+
+  /* Text */
+  --ui-text-primary: #111827;
+  --ui-text-secondary:#4b5563;
+  --ui-text-muted:   #6b7280;
+  --ui-text-brand:   #ea580c;
+  --ui-text-logo:    #111827;
+  --ui-text-nav-active: #ea580c;
+  --ui-text-nav-idle:   #6b7280;
+
+  /* Scrollbar */
+  --ui-scrollbar-track: #e5e0d8;
+  --ui-scrollbar-thumb: #c4b8a8;
+
+  /* Notification badge border */
+  --ui-notif-badge-border: #f5f3ef;
+
+  /* Nav active bg */
+  --ui-nav-active-bg:     rgba(249, 115, 22, 0.10);
+  --ui-nav-active-border: rgba(249, 115, 22, 0.25);
+
+  /* Glass panel */
+  --ui-glass-bg:     rgba(255, 255, 255, 0.70);
+  --ui-glass-bg-hover: rgba(255, 255, 255, 0.90);
+  --ui-glass-border: rgba(0, 0, 0, 0.08);
+  --ui-glass-border-hover: rgba(249, 115, 22, 0.25);
+  --ui-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.10);
+  --ui-glass-shadow-hover: 0 12px 40px 0 rgba(249, 115, 22, 0.15);
+
+  /* Logout button */
+  --ui-logout-bg:    rgba(239, 68, 68, 0.06);
+  --ui-logout-border:rgba(239, 68, 68, 0.20);
+  --ui-logout-text:  #dc2626;
+
+  /* Switch company button */
+  --ui-switch-bg:    rgba(249, 115, 22, 0.08);
+  --ui-switch-border:rgba(249, 115, 22, 0.20);
+  --ui-switch-text:  #ea580c;
+
+  /* Theme toggle */
+  --ui-toggle-bg:    rgba(0, 0, 0, 0.04);
+  --ui-toggle-border:rgba(0, 0, 0, 0.10);
+  --ui-toggle-text:  #6b7280;
 }

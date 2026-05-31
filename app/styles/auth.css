@@ -11,6 +11,8 @@
     max(16px, env(safe-area-inset-left));
   position: relative;
   overflow-x: hidden;
+  background: var(--ui-bg-page-grad);
+  transition: background 0.3s ease;
 }
 
 @media (max-width: 767px) {
@@ -56,6 +58,10 @@
   overflow: hidden;
   border-radius: 20px;
   min-height: unset;
+  background: var(--ui-glass-bg);
+  border: 1px solid var(--ui-glass-border);
+  box-shadow: var(--ui-glass-shadow);
+  transition: all 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -247,8 +253,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: rgba(15, 10, 6, 0.4);
+  background: var(--ui-bg-input);
   min-width: 0;
+  transition: background 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -296,7 +303,6 @@
   border-radius: 12px;
   margin-bottom: 16px;
   object-fit: cover;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 768px) {
@@ -311,17 +317,19 @@
 .auth-heading {
   font-size: clamp(1.375rem, 5vw, 1.75rem);
   font-weight: 800;
-  color: #f3f4f6;
+  color: var(--ui-text-primary);
   margin: 0 0 6px;
   letter-spacing: -0.5px;
   line-height: 1.2;
+  transition: color 0.3s ease;
 }
 
 .auth-subheading {
   font-size: clamp(0.8125rem, 2.5vw, 0.875rem);
-  color: #6b7280;
+  color: var(--ui-text-muted);
   margin: 0;
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 .auth-scroll-area {
@@ -353,19 +361,20 @@
 
 .auth-label {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--ui-text-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: color 0.3s ease;
 }
 
 .auth-input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ui-bg-input);
+  border: 1px solid var(--ui-border-input);
   border-radius: 12px;
   padding: 14px 16px;
   font-size: 16px; /* prevents iOS zoom on focus */
-  color: #fff;
+  color: var(--ui-text-primary);
   outline: none;
   width: 100%;
   box-sizing: border-box;
@@ -377,7 +386,7 @@
 
 .auth-input:focus {
   border-color: rgba(249, 115, 22, 0.5);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--ui-bg-input-focus);
 }
 
 .auth-input:disabled {
@@ -401,13 +410,14 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--ui-text-muted);
   padding: 10px;
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.2s ease;
 }
 
 .auth-change-link {
@@ -448,6 +458,7 @@
   padding: 12px 14px;
   font-size: 13px;
   line-height: 1.4;
+  transition: all 0.3s ease;
 }
 
 .auth-alert--error {
@@ -520,10 +531,11 @@
 
 .auth-footer {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--ui-text-muted);
   text-align: center;
   margin: 8px 0 0;
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 @media (min-width: 768px) {

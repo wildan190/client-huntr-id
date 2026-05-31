@@ -15,10 +15,14 @@ import {
   List,
   Bell,
   Settings,
+  Sun,
+  Moon,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
+import ThemeToggle from "./ThemeToggle";
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/api";
+import { useTheme } from "../context/ThemeContext";
 
 interface Props { children: React.ReactNode; title: string; subtitle?: string; }
 
@@ -28,6 +32,7 @@ const PUBLIC_ROUTES = ["/", "/login", "/register", "/onboarding", "/select-compa
 export default function Layout({ children, title, subtitle }: Props) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { theme, toggleTheme, isDark, isAuto, resetToAuto } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -146,12 +151,13 @@ export default function Layout({ children, title, subtitle }: Props) {
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside style={{
         width: 224, flexShrink: 0,
-        background: "rgba(15,10,6,0.97)",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--ui-bg-sidebar)",
+        borderRight: "1px solid var(--ui-border)",
         backdropFilter: "blur(20px)",
         display: "flex", flexDirection: "column",
         padding: "22px 0", height: "100%",
         boxSizing: "border-box",
+        transition: "background 0.3s ease, border-color 0.3s ease",
       }}>
         {/* Logo */}
         <div style={{ padding: "0 18px 24px" }}>
@@ -162,7 +168,7 @@ export default function Layout({ children, title, subtitle }: Props) {
               style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover" }} 
             />
             <div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "-0.3px" }}>Huntr.id</div>
+              <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-logo)", letterSpacing: "-0.3px" }}>Huntr.id</div>
               <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
             </div>
           </div>
@@ -172,8 +178,8 @@ export default function Layout({ children, title, subtitle }: Props) {
         {activeCompany && (
           <div style={{
             margin: "0 10px 16px",
-            background: "rgba(249,115,22,0.08)",
-            border: "1px solid rgba(249,115,22,0.2)",
+            background: "var(--ui-bg-badge)",
+            border: "1px solid var(--ui-border-badge)",
             borderRadius: 10, padding: "10px 12px",
           }}>
             <div style={{ fontSize: 9, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 5 }}>ACTIVE WORKSPACE</div>
@@ -182,10 +188,10 @@ export default function Layout({ children, title, subtitle }: Props) {
                 <Building2 size={14} color="#fff" />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#f3f4f6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {activeCompany.name}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280", textTransform: "uppercase" }}>{activeCompany.type}</div>
+                <div style={{ fontSize: 10, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>{activeCompany.type}</div>
               </div>
             </div>
             <button
@@ -193,8 +199,8 @@ export default function Layout({ children, title, subtitle }: Props) {
               style={{
                 width: "100%", marginTop: 8, padding: "5px 8px", borderRadius: 6,
                 fontSize: 10, fontWeight: 600, cursor: "pointer",
-                background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.2)",
-                color: "#fb923c", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                background: "var(--ui-switch-bg)", border: "1px solid var(--ui-switch-border)",
+                color: "var(--ui-switch-text)", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
               }}
             >
               <ArrowLeftRight size={10} /> Switch Company
@@ -210,9 +216,9 @@ export default function Layout({ children, title, subtitle }: Props) {
               <Link key={to} to={to} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 12px", borderRadius: 10,
-                background: active ? "rgba(249,115,22,0.15)" : "transparent",
-                border: active ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
-                color: active ? "#fdba74" : "#9ca3af",
+                background: active ? "var(--ui-nav-active-bg)" : "transparent",
+                border: active ? "1px solid var(--ui-nav-active-border)" : "1px solid transparent",
+                color: active ? "var(--ui-text-nav-active)" : "var(--ui-text-nav-idle)",
                 fontWeight: active ? 600 : 400, fontSize: 13,
                 textDecoration: "none", transition: "all 0.15s",
               }}>
@@ -226,13 +232,20 @@ export default function Layout({ children, title, subtitle }: Props) {
 
         {/* User panel */}
         {user && (
-          <div style={{ padding: "14px 18px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ padding: "14px 18px", borderTop: "1px solid var(--ui-border-subtle)", display: "flex", flexDirection: "column", gap: 8 }}>
+            {/* Theme toggle with status */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Theme: {isAuto ? "🔄 Auto" : isDark ? "🌙 Dark" : "☀️ Light"}
+              </div>
+              <ThemeToggle />
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#ea580c,#f97316)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
                 {user.name?.[0]?.toUpperCase() || "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
                 <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>{user.role}</div>
               </div>
             </div>
@@ -241,8 +254,8 @@ export default function Layout({ children, title, subtitle }: Props) {
               style={{
                 width: "100%", padding: "6px 10px", borderRadius: 6,
                 fontSize: 11, fontWeight: 600,
-                background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.18)",
-                color: "#f87171", cursor: "pointer",
+                background: "var(--ui-logout-bg)", border: "1px solid var(--ui-logout-border)",
+                color: "var(--ui-logout-text)", cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
               }}
             >
@@ -257,14 +270,16 @@ export default function Layout({ children, title, subtitle }: Props) {
         {/* Page header */}
         <div style={{
           padding: "26px 32px 18px",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          borderBottom: "1px solid var(--ui-border-subtle)",
+          background: "var(--ui-bg-header)",
+          backdropFilter: "blur(20px)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           position: "relative",
         }}>
           <div>
             <Breadcrumb />
-            <h1 style={{ fontSize: 21, fontWeight: 800, color: "#f3f4f6", margin: 0, letterSpacing: "-0.4px" }}>{title}</h1>
-            {subtitle && <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>{subtitle}</p>}
+            <h1 style={{ fontSize: 21, fontWeight: 800, color: "var(--ui-text-primary)", margin: 0, letterSpacing: "-0.4px" }}>{title}</h1>
+            {subtitle && <p style={{ fontSize: 13, color: "var(--ui-text-muted)", margin: "4px 0 0" }}>{subtitle}</p>}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -274,8 +289,8 @@ export default function Layout({ children, title, subtitle }: Props) {
                 onClick={() => setShowNotifications(!showNotifications)}
                 style={{
                   position: "relative", width: 40, height: 40, borderRadius: 12,
-                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                  color: unreadCount > 0 ? "#fb923c" : "#9ca3af", cursor: "pointer",
+                  background: "var(--ui-toggle-bg)", border: "1px solid var(--ui-toggle-border)",
+                  color: unreadCount > 0 ? "#fb923c" : "var(--ui-text-muted)", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   transition: "all 0.2s",
                 }}
@@ -285,7 +300,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                   <span style={{
                     position: "absolute", top: -4, right: -4,
                     minWidth: 18, height: 18, borderRadius: 9,
-                    background: "#f59e0b", border: "2px solid #141008",
+                    background: "#f59e0b", border: "2px solid var(--ui-notif-badge-border)",
                     color: "#fff", fontSize: 9, fontWeight: 800,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     padding: "0 4px",
@@ -303,46 +318,46 @@ export default function Layout({ children, title, subtitle }: Props) {
                   />
                   <div style={{
                     position: "absolute", top: "calc(100% + 12px)", right: 0,
-                    width: 320, background: "rgba(15,10,6,0.95)", backdropFilter: "blur(20px)",
-                    borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.5)", zIndex: 100,
+                    width: 320, background: "var(--ui-bg-notif)", backdropFilter: "blur(20px)",
+                    borderRadius: 20, border: "1px solid var(--ui-border-notif)",
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.2)", zIndex: 100,
                     overflow: "hidden",
                   }}>
-                    <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Notifications</span>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Notifications</span>
                         {unreadCount > 0 && <span style={{ fontSize: 10, background: "rgba(249,115,22,0.2)", color: "#fb923c", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>{unreadCount} NEW</span>}
                       </div>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }}
-                        style={{ background: "none", border: "none", color: "#6b7280", fontSize: 11, fontWeight: 600, cursor: "pointer", padding: 0 }}
+                        style={{ background: "none", border: "none", color: "var(--ui-text-muted)", fontSize: 11, fontWeight: 600, cursor: "pointer", padding: 0 }}
                       >
                         Mark all as read
                       </button>
                     </div>
                     <div style={{ maxHeight: 350, overflowY: "auto" }}>
                       {recentNotifications.length === 0 ? (
-                        <div style={{ padding: 40, textAlign: "center", color: "#6b7280", fontSize: 13 }}>No recent activity</div>
+                        <div style={{ padding: 40, textAlign: "center", color: "var(--ui-text-muted)", fontSize: 13 }}>No recent activity</div>
                       ) : (
                         recentNotifications.map((n: any) => (
                           <div 
                             key={n.id} 
                             onClick={() => handleNotificationClick(n)}
                             style={{
-                              padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.03)",
+                              padding: "14px 20px", borderBottom: "1px solid var(--ui-border-subtle)",
                               cursor: "pointer", background: n.read_at ? "transparent" : "rgba(249,115,22,0.04)",
                               transition: "background 0.2s",
                             }}
                           >
-                            <div style={{ fontSize: 13, fontWeight: 700, color: n.read_at ? "#9ca3af" : "#f3f4f6", marginBottom: 2 }}>{n.data?.title}</div>
-                            <div style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.data?.body}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: n.read_at ? "var(--ui-text-muted)" : "var(--ui-text-primary)", marginBottom: 2 }}>{n.data?.title}</div>
+                            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.data?.body}</div>
                           </div>
                         ))
                       )}
                     </div>
                     <button 
                       onClick={() => { navigate("/notifications"); setShowNotifications(false); }}
-                      style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.02)", border: "none", color: "#f59e0b", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ width: "100%", padding: "12px", background: "var(--ui-bg-overlay)", border: "none", color: "#f59e0b", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                     >
                       View All Notifications
                     </button>
@@ -354,9 +369,9 @@ export default function Layout({ children, title, subtitle }: Props) {
             {activeCompany && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 6,
-                background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
+                background: "var(--ui-bg-badge)", border: "1px solid var(--ui-border-badge)",
                 borderRadius: 20, padding: "5px 12px",
-                fontSize: 11, color: "#fb923c", fontWeight: 600,
+                fontSize: 11, color: "var(--ui-text-brand)", fontWeight: 600,
               }}>
                 <Building2 size={11} />
                 {activeCompany.name}
@@ -374,11 +389,11 @@ export default function Layout({ children, title, subtitle }: Props) {
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
               minHeight: "60vh", padding: "40px", textAlign: "center",
-              background: "rgba(255, 255, 255, 0.02)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
+              background: "var(--ui-bg-pending-card)",
+              border: "1px solid var(--ui-border)",
               borderRadius: "32px",
               backdropFilter: "blur(20px)",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.15)",
               maxWidth: "600px", margin: "40px auto",
               gap: "24px"
             }}>
@@ -394,10 +409,10 @@ export default function Layout({ children, title, subtitle }: Props) {
               </div>
               
               <div>
-                <h2 style={{ fontSize: "24px", fontWeight: 900, color: "#f3f4f6", margin: "0 0 10px", letterSpacing: "-0.5px" }}>
+                <h2 style={{ fontSize: "24px", fontWeight: 900, color: "var(--ui-text-primary)", margin: "0 0 10px", letterSpacing: "-0.5px" }}>
                   Verifikasi Perusahaan Pending
                 </h2>
-                <p style={{ fontSize: "14px", color: "#9ca3af", lineHeight: "1.6", margin: 0 }}>
+                <p style={{ fontSize: "14px", color: "var(--ui-text-secondary)", lineHeight: "1.6", margin: 0 }}>
                   Workspace perusahaan <strong>{activeCompany.name}</strong> saat ini masih dalam proses peninjauan oleh tim admin.
                   Semua transaksi, pembuatan RFQ, pengunggahan dokumen, dan katalog dinonaktifkan sementara hingga akun Anda disetujui.
                 </p>
@@ -421,9 +436,9 @@ export default function Layout({ children, title, subtitle }: Props) {
                   onClick={handleSwitchCompany}
                   style={{
                     padding: "12px 24px", borderRadius: "14px",
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#f3f4f6", fontWeight: 700, fontSize: "13px",
+                    background: "var(--ui-bg-switch-btn)",
+                    border: "1px solid var(--ui-border)",
+                    color: "var(--ui-text-primary)", fontWeight: 700, fontSize: "13px",
                     cursor: "pointer"
                   }}
                 >
