@@ -60,8 +60,8 @@ export default function SelectCompany() {
 
       {/* Background */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-10%", right: "-8%", width: 550, height: 550, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.11) 0%, transparent 65%)" }} />
-        <div style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 650, height: 650, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.09) 0%, transparent 65%)" }} />
+        <div style={{ position: "absolute", top: "-10%", right: "-8%", width: 550, height: 550, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,0.11) 0%, transparent 65%)" }} />
+        <div style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 650, height: 650, borderRadius: "50%", background: "radial-gradient(circle, rgba(251,146,60,0.09) 0%, transparent 65%)" }} />
         <div style={{ position: "absolute", top: "50%", left: "30%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)" }} />
       </div>
 
@@ -72,11 +72,11 @@ export default function SelectCompany() {
           <img 
             src="/assets/img/logo/emblem.jpg" 
             alt="Huntr Logo" 
-            style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }} 
+            style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(249,115,22,0.35)" }} 
           />
           <div>
             <div style={{ fontWeight: 800, fontSize: 14, color: "#f3f4f6", letterSpacing: "-0.3px" }}>Huntr.id</div>
-            <div style={{ fontSize: 8, color: "#6366f1", letterSpacing: "0.12em", fontWeight: 700 }}>WORKSPACE</div>
+            <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.12em", fontWeight: 700 }}>WORKSPACE</div>
           </div>
         </div>
 
@@ -107,17 +107,17 @@ export default function SelectCompany() {
           overflow: "hidden",
         }}>
           {/* Top accent */}
-          <div style={{ height: 3, background: "linear-gradient(90deg,#a855f7,#6366f1,#3b82f6)" }} />
+          <div style={{ height: 3, background: "linear-gradient(90deg,#f97316,#f59e0b,#fbbf24)" }} />
 
           <div style={{ padding: "36px 40px 40px" }}>
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <div style={{
                 width: 60, height: 60, borderRadius: 16,
-                background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                background: "linear-gradient(135deg,#f97316,#f59e0b)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 18px",
-                boxShadow: "0 8px 24px rgba(99,102,241,0.35)",
+                boxShadow: "0 8px 24px rgba(249,115,22,0.35)",
               }}>
                 <LayoutGrid size={28} color="#fff" />
               </div>
@@ -127,7 +127,7 @@ export default function SelectCompany() {
               {user && (
                 <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
                   Welcome back,{" "}
-                  <span style={{ color: "#a5b4fc", fontWeight: 600 }}>
+                  <span style={{ color: "#fdba74", fontWeight: 600 }}>
                     {user.name}
                   </span>
                 </p>
@@ -137,7 +137,7 @@ export default function SelectCompany() {
             {/* Body */}
             {isLoading ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "32px 0" }}>
-                <Loader2 size={28} color="#6366f1" className="animate-spin" />
+                <Loader2 size={28} color="#f59e0b" className="animate-spin" />
                 <span style={{ fontSize: 13, color: "#4b5563" }}>Loading workspaces...</span>
               </div>
             ) : companies.length === 0 ? (
@@ -158,10 +158,10 @@ export default function SelectCompany() {
                   style={{
                     width: "100%", padding: "14px 20px", borderRadius: 14,
                     fontWeight: 700, fontSize: 14, border: "none",
-                    background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                    background: "linear-gradient(135deg,#f97316,#f59e0b)",
                     color: "#fff", cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    boxShadow: "0 6px 20px rgba(99,102,241,0.3)",
+                    boxShadow: "0 6px 20px rgba(249,115,22,0.3)",
                   }}
                 >
                   <Plus size={16} /> Register a Company
@@ -181,24 +181,24 @@ export default function SelectCompany() {
                         onClick={() => setSelected(c)}
                         style={{
                           padding: "16px 18px", borderRadius: 14, cursor: "pointer",
-                          background: isSelected ? "rgba(99,102,241,0.09)" : "rgba(255,255,255,0.025)",
+                          background: isSelected ? "rgba(249,115,22,0.09)" : "rgba(255,255,255,0.025)",
                           border: isSelected
-                            ? "1.5px solid rgba(99,102,241,0.45)"
+                            ? "1.5px solid rgba(249,115,22,0.45)"
                             : "1.5px solid rgba(255,255,255,0.07)",
                           display: "flex", alignItems: "center", gap: 14,
                           transition: "all 0.2s", textAlign: "left",
-                          boxShadow: isSelected ? "0 0 24px rgba(99,102,241,0.12)" : "none",
+                          boxShadow: isSelected ? "0 0 24px rgba(249,115,22,0.12)" : "none",
                         }}
                       >
                         {/* Avatar */}
                         <div style={{
                           width: 46, height: 46, borderRadius: 12, flexShrink: 0,
                           background: isSelected
-                            ? "linear-gradient(135deg,#a855f7,#6366f1)"
+                            ? "linear-gradient(135deg,#f97316,#f59e0b)"
                             : "rgba(255,255,255,0.07)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           transition: "all 0.2s",
-                          boxShadow: isSelected ? "0 4px 16px rgba(99,102,241,0.3)" : "none",
+                          boxShadow: isSelected ? "0 4px 16px rgba(249,115,22,0.3)" : "none",
                         }}>
                           <Building2 size={21} color={isSelected ? "#fff" : "#4b5563"} />
                         </div>
@@ -225,7 +225,7 @@ export default function SelectCompany() {
                           </div>
                         </div>
 
-                        {isSelected && <CheckCircle2 size={20} color="#818cf8" />}
+                        {isSelected && <CheckCircle2 size={20} color="#fb923c" />}
                       </button>
                     );
                   })}
@@ -240,12 +240,12 @@ export default function SelectCompany() {
                     fontWeight: 800, fontSize: 14, border: "none",
                     cursor: selected ? "pointer" : "not-allowed",
                     background: selected
-                      ? "linear-gradient(135deg,#a855f7,#6366f1)"
+                      ? "linear-gradient(135deg,#f97316,#f59e0b)"
                       : "rgba(255,255,255,0.04)",
                     color: selected ? "#fff" : "#374151",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                     transition: "all 0.25s",
-                    boxShadow: selected ? "0 8px 24px rgba(99,102,241,0.3)" : "none",
+                    boxShadow: selected ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                     letterSpacing: "-0.2px",
                   }}
                 >
@@ -260,7 +260,7 @@ export default function SelectCompany() {
                     <button
                       onClick={handleRegisterNew}
                       style={{
-                        fontSize: 12, color: "#6366f1", background: "none",
+                        fontSize: 12, color: "#f59e0b", background: "none",
                         border: "none", cursor: "pointer",
                         display: "inline-flex", alignItems: "center", gap: 5,
                         fontWeight: 600, textDecoration: "none",

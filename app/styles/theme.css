@@ -1,0 +1,26 @@
+/**
+ * Huntr.id brand theme — orange & yellow (logo colors)
+ */
+:root {
+  --huntr-orange: #f97316;
+  --huntr-orange-light: #fb923c;
+  --huntr-orange-dark: #ea580c;
+  --huntr-amber: #f59e0b;
+  --huntr-yellow: #fbbf24;
+  --huntr-yellow-light: #fde68a;
+  --huntr-accent: #fdba74;
+  --huntr-accent-muted: #fed7aa;
+
+  --huntr-gradient: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  --huntr-gradient-wide: linear-gradient(90deg, #f97316, #f59e0b, #fbbf24);
+  --huntr-gradient-soft: linear-gradient(135deg, #fb923c, #f59e0b);
+
+  --huntr-bg-deep: #0f0a06;
+  --huntr-bg-mid: #1a1008;
+  --huntr-bg-warm: #2d1a0a;
+  --huntr-surface: rgba(15, 10, 6, 0.97);
+  --huntr-surface-alt: rgba(15, 10, 6, 0.4);
+
+  --huntr-brand-rgb: 249, 115, 22;
+  --huntr-amber-rgb: 251, 191, 36;
+}

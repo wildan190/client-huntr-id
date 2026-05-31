@@ -112,13 +112,13 @@ export default function Checkout() {
         
         {/* Form Area */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
-          <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "#6366f1", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 700, padding: 0 }}>
+          <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "#f59e0b", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 700, padding: 0 }}>
             <ArrowLeft size={16} /> Back to Marketplace
           </button>
 
           <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
             <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
-              <ClipboardList size={20} color="#a855f7" /> Request Details
+              <ClipboardList size={20} color="#f97316" /> Request Details
             </h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -154,7 +154,7 @@ export default function Checkout() {
 
           <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
             <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
-              <Package size={20} color="#6366f1" /> Item Summary
+              <Package size={20} color="#f59e0b" /> Item Summary
             </h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -199,7 +199,7 @@ export default function Checkout() {
         <div style={{ width: 340, flexShrink: 0 }}>
           <div style={{
             position: "sticky", top: 24,
-            background: "rgba(10,10,28,0.4)", backdropFilter: "blur(10px)",
+            background: "rgba(15,10,6,0.4)", backdropFilter: "blur(10px)",
             borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
             padding: 32, display: "flex", flexDirection: "column", gap: 24,
           }}>
@@ -216,7 +216,7 @@ export default function Checkout() {
               </div>
               <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "#fff", fontWeight: 700 }}>Total</span>
-                <span style={{ color: "#6366f1", fontSize: 20, fontWeight: 900 }}>IDR {cartTotal.toLocaleString()}</span>
+                <span style={{ color: "#f59e0b", fontSize: 20, fontWeight: 900 }}>IDR {cartTotal.toLocaleString()}</span>
               </div>
             </div>
 
@@ -231,10 +231,10 @@ export default function Checkout() {
               disabled={loading || cart.length === 0}
               style={{
                 width: "100%", padding: "16px", borderRadius: 16,
-                background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                background: "linear-gradient(135deg,#f97316,#f59e0b)",
                 color: "#fff", fontWeight: 700, border: "none", cursor: (loading || cart.length === 0) ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+                boxShadow: "0 8px 24px rgba(249,115,22,0.3)",
                 opacity: loading ? 0.7 : 1,
               }}
             >

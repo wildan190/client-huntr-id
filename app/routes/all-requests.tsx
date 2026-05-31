@@ -42,11 +42,11 @@ export default function AllRequests() {
         {activeCompany?.type === 'buyer' && (
           <div style={{
             marginBottom: 32, padding: "24px 32px", borderRadius: 24,
-            background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1))",
-            border: "1px solid rgba(99,102,241,0.2)", display: "flex", alignItems: "center", gap: 24,
+            background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(251,146,60,0.1))",
+            border: "1px solid rgba(249,115,22,0.2)", display: "flex", alignItems: "center", gap: 24,
           }}>
-            <div style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(99,102,241,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Lightbulb size={24} color="#818cf8" />
+            <div style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Lightbulb size={24} color="#fb923c" />
             </div>
             <div style={{ flex: 1 }}>
               <h4 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#fff" }}>How to create a request?</h4>
@@ -58,7 +58,7 @@ export default function AllRequests() {
             <button 
               onClick={() => navigate("/marketplace")}
               style={{
-                padding: "10px 20px", borderRadius: 12, background: "#6366f1", border: "none", color: "#fff",
+                padding: "10px 20px", borderRadius: 12, background: "#f59e0b", border: "none", color: "#fff",
                 fontWeight: 700, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap"
               }}
             >
@@ -94,7 +94,7 @@ export default function AllRequests() {
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#6366f1" />
+            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : filteredRequests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: "#6b7280" }}>
@@ -127,13 +127,13 @@ export default function AllRequests() {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Items</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#fff", fontWeight: 600 }}>
-                      <Package size={14} color="#6366f1" /> {req.items?.length || 0} Categories
+                      <Package size={14} color="#f59e0b" /> {req.items?.length || 0} Categories
                     </div>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Posted On</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#fff", fontWeight: 600 }}>
-                      <Calendar size={14} color="#6366f1" /> {new Date(req.created_at).toLocaleDateString()}
+                      <Calendar size={14} color="#f59e0b" /> {new Date(req.created_at).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -141,8 +141,8 @@ export default function AllRequests() {
                 <button 
                   onClick={() => navigate(`/rfq/${req.id}`)}
                   style={{
-                    width: "100%", padding: "12px", borderRadius: 12, background: "rgba(99,102,241,0.1)",
-                    border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", fontWeight: 700, fontSize: 13,
+                    width: "100%", padding: "12px", borderRadius: 12, background: "rgba(249,115,22,0.1)",
+                    border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", fontWeight: 700, fontSize: 13,
                     cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8
                   }}
                 >

@@ -1,9 +1,18 @@
 import { normalizeOtp, normalizeWhatsapp, isValidWhatsapp } from "./whatsapp";
 
-let BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-if (BASE_URL.includes(":8443") && BASE_URL.startsWith("http://")) {
-  BASE_URL = BASE_URL.replace("http://", "https://");
+/** Same-origin in dev (Vite proxy). Absolute URL in production build. */
+function resolveBaseUrl(): string {
+  if (import.meta.env.DEV) {
+    return "";
+  }
+  let url = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  if (url.includes(":8443") && url.startsWith("http://")) {
+    url = url.replace("http://", "https://");
+  }
+  return url.replace(/\/$/, "");
 }
+
+const BASE_URL = resolveBaseUrl();
 
 export async function apiGet<T = any>(path: string): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -135,9 +144,43 @@ function getCookie(name: string): string | null {
 let csrfInitialized = false;
 
 async function ensureCsrfCookie(): Promise<void> {
-  if (csrfInitialized && getCookie("XSRF-TOKEN")) return;
+  if (csrfInitialized) return;
   await apiGet("/sanctum/csrf-cookie");
   csrfInitialized = true;
+}
+
+const OTP_SESSION_KEY = "huntr_otp_session";
+
+export type OtpSession = {
+  otp_token: string;
+  whatsapp: string;
+  expires_at: number;
+};
+
+export function saveOtpSession(session: OtpSession): void {
+  if (typeof sessionStorage === "undefined") return;
+  sessionStorage.setItem(OTP_SESSION_KEY, JSON.stringify(session));
+}
+
+export function loadOtpSession(): OtpSession | null {
+  if (typeof sessionStorage === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(OTP_SESSION_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as OtpSession;
+    if (!data?.otp_token || Date.now() > data.expires_at) {
+      sessionStorage.removeItem(OTP_SESSION_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export function clearOtpSession(): void {
+  if (typeof sessionStorage === "undefined") return;
+  sessionStorage.removeItem(OTP_SESSION_KEY);
 }
 
 export const getCsrfCookie = () => ensureCsrfCookie();
@@ -168,7 +211,6 @@ export const logout = () => apiPost("/logout", {});
 export const getAuthenticatedUser = () => apiGet("/api/user");
 
 export const sendOtp = async (payload: { whatsapp: string }) => {
-  await ensureCsrfCookie();
   const whatsapp = normalizeWhatsapp(payload.whatsapp);
   if (!isValidWhatsapp(payload.whatsapp)) {
     throw new Error("Format nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx (contoh: 085156334793).");
@@ -177,20 +219,38 @@ export const sendOtp = async (payload: { whatsapp: string }) => {
     message: string;
     otp?: string;
     whatsapp?: string;
+    otp_token?: string;
     expires_in?: number;
     whatsapp_sent?: boolean;
     delivery_error?: string;
   }>("/api/auth/otp/send", { whatsapp });
-  return { ...res, whatsapp: res.whatsapp || whatsapp };
+
+  const canonical = res.whatsapp || whatsapp;
+  if (res.otp_token) {
+    saveOtpSession({
+      otp_token: res.otp_token,
+      whatsapp: canonical,
+      expires_at: Date.now() + (res.expires_in ?? 600) * 1000,
+    });
+  }
+
+  return { ...res, whatsapp: canonical };
 };
 
-export const verifyOtp = async (payload: { whatsapp: string; otp: string }) => {
-  await ensureCsrfCookie();
-  const whatsapp = normalizeWhatsapp(payload.whatsapp);
+export const verifyOtp = async (payload: { whatsapp?: string; otp: string; otp_token?: string }) => {
   const otp = normalizeOtp(payload.otp);
   if (otp.length !== 6) {
     throw new Error("Kode OTP harus 6 digit.");
   }
+
+  const session = loadOtpSession();
+  const otp_token = payload.otp_token || session?.otp_token;
+
+  if (otp_token) {
+    return apiPost("/api/auth/otp/verify", { otp_token, otp });
+  }
+
+  const whatsapp = normalizeWhatsapp(payload.whatsapp || session?.whatsapp || "");
   return apiPost("/api/auth/otp/verify", { whatsapp, otp });
 };
 

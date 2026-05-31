@@ -1,6 +1,6 @@
 import React from "react";
 
-type FeatureVariant = "indigo" | "purple";
+type FeatureVariant = "orange" | "amber" | "indigo" | "purple";
 
 interface AuthLayoutProps {
   variant?: "login" | "register";
@@ -16,7 +16,7 @@ export default function AuthLayout({
   visualTitle,
   visualText,
   features,
-  featureVariant = "indigo",
+  featureVariant = "orange",
   children,
 }: AuthLayoutProps) {
   const blob1Class =

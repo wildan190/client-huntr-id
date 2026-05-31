@@ -102,9 +102,9 @@ export default function Proposals() {
               style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "12px 20px",
                 background: "none", border: "none", cursor: "pointer",
-                color: activeTab === tab.id ? "#a5b4fc" : "#6b7280",
+                color: activeTab === tab.id ? "#fdba74" : "#6b7280",
                 fontWeight: activeTab === tab.id ? 700 : 500, fontSize: 13,
-                borderBottom: activeTab === tab.id ? "2px solid #6366f1" : "2px solid transparent",
+                borderBottom: activeTab === tab.id ? "2px solid #f59e0b" : "2px solid transparent",
                 marginBottom: -1, transition: "all 0.2s"
               }}
             >
@@ -120,11 +120,11 @@ export default function Proposals() {
             <div className="glass-panel" style={{ padding: 28 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                 <SectionTitle>Available Open Tenders</SectionTitle>
-                <button onClick={fetchOpenTenders} style={{ background: "none", border: "none", color: "#818cf8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Refresh</button>
+                <button onClick={fetchOpenTenders} style={{ background: "none", border: "none", color: "#fb923c", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Refresh</button>
               </div>
 
               {rfqsLoading ? (
-                <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#6366f1" /></div>
+                <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#f59e0b" /></div>
               ) : openRfqs.length === 0 ? (
                 <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.01)", borderRadius: 20, border: "1px dashed rgba(255,255,255,0.05)" }}>
                   <Briefcase size={32} color="#374151" style={{ marginBottom: 16 }} />
@@ -139,7 +139,7 @@ export default function Proposals() {
                       transition: "all 0.2s", cursor: "pointer",
                     }} onClick={() => setSelectedRfq(rfq)}>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", marginBottom: 6 }}>ID #{rfq.id} · {rfq.company?.name}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#fb923c", marginBottom: 6 }}>ID #{rfq.id} · {rfq.company?.name}</div>
                         <h4 style={{ fontSize: 17, fontWeight: 800, color: "#f3f4f6", margin: 0 }}>{rfq.title}</h4>
                         <div style={{ fontSize: 12, color: "#6b7280", marginTop: 8, display: "flex", gap: 16 }}>
                           <span style={{ display: "flex", alignItems: "center", gap: 4 }}><FileText size={14} /> {rfq.items?.length || 0} items</span>
@@ -147,8 +147,8 @@ export default function Proposals() {
                         </div>
                       </div>
                       <button style={{
-                        background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)",
-                        borderRadius: 12, padding: "10px 18px", color: "#a5b4fc",
+                        background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)",
+                        borderRadius: 12, padding: "10px 18px", color: "#fdba74",
                         fontSize: 13, fontWeight: 700, cursor: "pointer"
                       }}>
                         Submit Proposal
@@ -167,8 +167,8 @@ export default function Proposals() {
                   <button onClick={() => setSelectedRfq(null)} style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer" }}>×</button>
                 </div>
                 
-                <div style={{ background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 14, padding: 16, marginBottom: 24 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", textTransform: "uppercase" }}>Target RFQ</div>
+                <div style={{ background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: 14, padding: 16, marginBottom: 24 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#fb923c", textTransform: "uppercase" }}>Target RFQ</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#f3f4f6", marginTop: 4 }}>{selectedRfq.title}</div>
                 </div>
 
@@ -229,9 +229,9 @@ export default function Proposals() {
                     onClick={() => fetchRankings(rfq.id)}
                     style={{
                       padding: "10px 16px", borderRadius: 10, cursor: "pointer",
-                      background: rankingRfqId === rfq.id ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.03)",
-                      border: rankingRfqId === rfq.id ? "1.5px solid #6366f1" : "1.5px solid rgba(255,255,255,0.06)",
-                      color: rankingRfqId === rfq.id ? "#a5b4fc" : "#9ca3af",
+                      background: rankingRfqId === rfq.id ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.03)",
+                      border: rankingRfqId === rfq.id ? "1.5px solid #f59e0b" : "1.5px solid rgba(255,255,255,0.06)",
+                      color: rankingRfqId === rfq.id ? "#fdba74" : "#9ca3af",
                       fontSize: 12, fontWeight: 700, transition: "all 0.2s"
                     }}
                   >
@@ -249,11 +249,11 @@ export default function Proposals() {
                     <SectionTitle>My Rank (SAW Score)</SectionTitle>
                     <p style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>Scoring based on Price (50%), Delivery (30%), and Warranty (20%)</p>
                   </div>
-                  <button onClick={() => fetchRankings(rankingRfqId)} style={{ background: "none", border: "none", color: "#818cf8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Recalculate</button>
+                  <button onClick={() => fetchRankings(rankingRfqId)} style={{ background: "none", border: "none", color: "#fb923c", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Recalculate</button>
                 </div>
 
                 {rankingsLoading ? (
-                  <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#6366f1" /></div>
+                  <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#f59e0b" /></div>
                 ) : rankings.length === 0 ? (
                   <div style={{ textAlign: "center", padding: 40, color: "#4b5563" }}>No proposals submitted for this RFQ yet.</div>
                 ) : (
@@ -275,7 +275,7 @@ export default function Proposals() {
                           return (
                             <tr key={r.proposal.id} style={{
                               borderBottom: "1px solid rgba(255,255,255,0.03)",
-                              background: isMe ? "rgba(99,102,241,0.06)" : "transparent"
+                              background: isMe ? "rgba(249,115,22,0.06)" : "transparent"
                             }}>
                               <td style={{ padding: "16px" }}>
                                 <div style={{
@@ -287,7 +287,7 @@ export default function Proposals() {
                                   {idx + 1}
                                 </div>
                               </td>
-                              <td style={{ padding: "16px", fontSize: 13, fontWeight: 700, color: isMe ? "#a5b4fc" : "#f3f4f6" }}>
+                              <td style={{ padding: "16px", fontSize: 13, fontWeight: 700, color: isMe ? "#fdba74" : "#f3f4f6" }}>
                                 Vendor #{r.proposal.company_id} {isMe && "(YOU)"}
                               </td>
                               <td style={{ padding: "16px", fontSize: 13, color: "#e5e7eb" }}>
@@ -321,7 +321,7 @@ export default function Proposals() {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 13, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.04em", textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 13, fontWeight: 700, color: "#fdba74", letterSpacing: "0.04em", textTransform: "uppercase" }}>{children}</div>;
 }
 
 function KV({ label, value }: { label: string; value: any }) {
@@ -333,11 +333,11 @@ function KV({ label, value }: { label: string; value: any }) {
   );
 }
 function Tag({ color, children }: { color: string; children: React.ReactNode }) {
-  const c: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", indigo: "#a5b4fc" };
+  const c: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", indigo: "#fdba74" };
   return <span style={{ background: `${c[color]}20`, color: c[color], border: `1px solid ${c[color]}40`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{children}</span>;
 }
 function Section({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
 }
 const lbl: React.CSSProperties = { fontSize: 12, color: "#9ca3af", fontWeight: 500 };
 const inputStyle: React.CSSProperties = {
@@ -347,7 +347,7 @@ const inputStyle: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
-  border: "none", background: "linear-gradient(135deg,#a855f7,#6366f1)", color: "#fff",
+  border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff",
 };
 interface FieldProps {
   label: string;

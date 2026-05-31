@@ -5,7 +5,7 @@ export const SlideSection = ({ title, subtitle, icon, children, accentColor }: a
     <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
       <div style={{
         width: 48, height: 48, borderRadius: 16,
-        background: `rgba(${accentColor === '#a855f7' ? '168,85,247' : accentColor === '#6366f1' ? '99,102,241' : '59,130,246'}, 0.1)`,
+        background: `rgba(${accentColor === '#f97316' ? '249,115,22' : accentColor === '#f59e0b' ? '245,158,11' : '251,191,36'}, 0.12)`,
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>{icon}</div>
       <div>

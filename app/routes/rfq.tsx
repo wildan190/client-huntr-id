@@ -127,7 +127,7 @@ export default function Rfq() {
             ) : (
               <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                  <ClipboardList size={20} color="#6366f1" />
+                  <ClipboardList size={20} color="#f59e0b" />
                   <Section>Create New Purchase Request</Section>
                 </div>
 
@@ -151,7 +151,7 @@ export default function Rfq() {
                     <div style={{ padding: 30, textAlign: "center", background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.1)", borderRadius: 12 }}>
                       <ShoppingCart size={24} color="#374151" style={{ marginBottom: 10 }} />
                       <div style={{ fontSize: 12, color: "#6b7280" }}>Your cart is empty.</div>
-                      <button type="button" onClick={() => window.location.href="/catalogue"} style={{ marginTop: 12, color: "#818cf8", background: "none", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Browse Catalogue</button>
+                      <button type="button" onClick={() => window.location.href="/catalogue"} style={{ marginTop: 12, color: "#fb923c", background: "none", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Browse Catalogue</button>
                     </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -184,15 +184,15 @@ export default function Rfq() {
           <div className="glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <ClipboardList size={20} color="#a855f7" />
+                <ClipboardList size={20} color="#f97316" />
                 <Section>Your RFQs & Tenders</Section>
               </div>
-              <button onClick={() => activeCompany && fetchRfqs(activeCompany.id)} style={{ background: "none", border: "none", color: "#818cf8", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Refresh</button>
+              <button onClick={() => activeCompany && fetchRfqs(activeCompany.id)} style={{ background: "none", border: "none", color: "#fb923c", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Refresh</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, overflowY: "auto", maxHeight: 600 }}>
               {rfqsLoading ? (
-                <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#6366f1" /></div>
+                <div style={{ textAlign: "center", padding: 40 }}><Loader2 className="animate-spin" color="#f59e0b" /></div>
               ) : rfqs.length === 0 ? (
                 <div style={{ textAlign: "center", padding: 40, color: "#4b5563", fontSize: 13 }}>No RFQs found.</div>
               ) : (
@@ -229,7 +229,7 @@ export default function Rfq() {
                       )}
 
                       {rfq.status === 'active' && (
-                        <div style={{ fontSize: 11, color: "#a855f7", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ fontSize: 11, color: "#f97316", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
                           Tender Open <ArrowRight size={12} />
                         </div>
                       )}
@@ -250,7 +250,7 @@ function StatusTag({ status }: { status: string }) {
     draft: { bg: "rgba(156,163,175,0.1)", text: "#9ca3af", label: "DRAFT" },
     active: { bg: "rgba(52,211,153,0.1)", text: "#34d399", label: "OPEN TENDER" },
     closed: { bg: "rgba(239,68,68,0.1)", text: "#f87171", label: "CLOSED" },
-    awarded: { bg: "rgba(168,85,247,0.1)", text: "#a855f7", label: "AWARDED" },
+    awarded: { bg: "rgba(251,146,60,0.1)", text: "#f97316", label: "AWARDED" },
   };
   const s = colors[status] || colors.draft;
   return (
@@ -272,11 +272,11 @@ function KV({ label, value }: { label: string; value: any }) {
   );
 }
 function Tag({ color, children }: { color: string; children: React.ReactNode }) {
-  const colors: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", red: "#f87171", indigo: "#a5b4fc" };
+  const colors: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", red: "#f87171", indigo: "#fdba74" };
   return <span style={{ background: `${colors[color]}20`, color: colors[color], border: `1px solid ${colors[color]}40`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{children}</span>;
 }
 function Section({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
 }
 const lbl: React.CSSProperties = { fontSize: 12, color: "#9ca3af", fontWeight: 500 };
 const inputStyle: React.CSSProperties = {
@@ -286,7 +286,7 @@ const inputStyle: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
-  border: "none", background: "linear-gradient(135deg,#a855f7,#6366f1)", color: "#fff",
+  border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff",
 };
 const ghostBtn: React.CSSProperties = {
   padding: "7px 14px", borderRadius: 8, fontWeight: 600, cursor: "pointer",

@@ -21,6 +21,8 @@ import {
   logoutSession,
   sendOtp,
   verifyOtp,
+  loadOtpSession,
+  clearOtpSession,
   enable2FA,
   disable2FA,
   get2FAQRCode,
@@ -55,6 +57,7 @@ export default function AccountSettings() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [canonicalWhatsapp, setCanonicalWhatsapp] = useState("");
+  const [otpToken, setOtpToken] = useState("");
   const [debugOtp, setDebugOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -187,6 +190,7 @@ export default function AccountSettings() {
       const res = await sendOtp({ whatsapp: newWhatsapp });
       setOtpSent(true);
       setCanonicalWhatsapp(res.whatsapp || newWhatsapp);
+      setOtpToken(res.otp_token || "");
       setResendCooldown(60);
       setSuccess("Kode OTP telah dikirim. Gunakan kode terbaru dari WhatsApp.");
       if (res.otp) setDebugOtp(String(res.otp));
@@ -208,8 +212,10 @@ export default function AccountSettings() {
     setError(null);
     setSuccess(null);
     try {
-      const phone = canonicalWhatsapp || newWhatsapp;
-      await verifyOtp({ whatsapp: phone, otp });
+      const session = loadOtpSession();
+      const phone = session?.whatsapp || canonicalWhatsapp || newWhatsapp;
+      await verifyOtp({ whatsapp: phone, otp, otp_token: otpToken || session?.otp_token });
+      clearOtpSession();
       const data = await updateWhatsapp({ whatsapp: phone });
 
       const updatedUser = { ...user, whatsapp: data.user?.whatsapp || phone };
@@ -220,6 +226,8 @@ export default function AccountSettings() {
       setOtpSent(false);
       setOtp("");
       setCanonicalWhatsapp("");
+      setOtpToken("");
+      clearOtpSession();
       setDebugOtp(null);
     } catch (err: any) {
       setError(err.message);
@@ -318,7 +326,7 @@ export default function AccountSettings() {
                 <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 16px" }}>Autentikasi Dua Faktor (2FA)</h2>
                 
                 {!twoFactorEnabled && !confirming2FA && (
-                  <div style={{ padding: 20, background: "rgba(99,102,241,0.05)", borderRadius: 16, border: "1px solid rgba(99,102,241,0.1)" }}>
+                  <div style={{ padding: 20, background: "rgba(249,115,22,0.05)", borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)" }}>
                     <p style={{ fontSize: 14, color: "#9ca3af", marginBottom: 20 }}>Tingkatkan keamanan akun Anda dengan mengaktifkan autentikasi dua faktor.</p>
                     <button onClick={handleEnable2FA} disabled={loading} style={{ ...secondaryBtn, height: 44 }}>
                       Aktifkan 2FA
@@ -361,7 +369,7 @@ export default function AccountSettings() {
                       <div style={{ marginBottom: 20, padding: 16, background: "rgba(0,0,0,0.3)", borderRadius: 12 }}>
                         <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Simpan kode pemulihan ini di tempat yang aman:</p>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                          {recoveryCodes.map(code => <code key={code} style={{ fontSize: 11, color: "#a5b4fc" }}>{code}</code>)}
+                          {recoveryCodes.map(code => <code key={code} style={{ fontSize: 11, color: "#fdba74" }}>{code}</code>)}
                         </div>
                       </div>
                     )}
@@ -391,6 +399,8 @@ export default function AccountSettings() {
                       if (otpSent) {
                         setOtpSent(false);
                         setCanonicalWhatsapp("");
+                        setOtpToken("");
+                        clearOtpSession();
                       }
                     }}
                     required 
@@ -410,7 +420,7 @@ export default function AccountSettings() {
 
               {otpSent && (
                 <div style={otpSection}>
-                  <label style={{ ...labelStyle, color: "#a5b4fc" }}>
+                  <label style={{ ...labelStyle, color: "#fdba74" }}>
                     <MessageSquareCode size={14} style={{ marginRight: 6 }} /> Masukkan Kode OTP
                   </label>
                   <input 
@@ -432,7 +442,7 @@ export default function AccountSettings() {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={loading || sendingOtp || resendCooldown > 0}
-                    style={{ background: "none", border: "none", color: "#818cf8", fontSize: 12, cursor: "pointer", marginTop: 8, textDecoration: "underline", alignSelf: "flex-start" }}
+                    style={{ background: "none", border: "none", color: "#fb923c", fontSize: 12, cursor: "pointer", marginTop: 8, textDecoration: "underline", alignSelf: "flex-start" }}
                   >
                     {resendCooldown > 0
                       ? `Kirim ulang OTP (${resendCooldown}s)`
@@ -457,7 +467,7 @@ export default function AccountSettings() {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: 0 }}>Sesi Aktif</h2>
-                <button onClick={fetchSessions} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Refresh</button>
+                <button onClick={fetchSessions} style={{ background: "none", border: "none", color: "#f59e0b", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Refresh</button>
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -479,9 +489,9 @@ export default function AccountSettings() {
                     }}>
                       <div style={{ 
                         width: 40, height: 40, borderRadius: 10, 
-                        background: session.is_current_device ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.05)",
+                        background: session.is_current_device ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.05)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        color: session.is_current_device ? "#818cf8" : "#9ca3af"
+                        color: session.is_current_device ? "#fb923c" : "#9ca3af"
                       }}>
                         <Monitor size={20} />
                       </div>
@@ -521,7 +531,7 @@ export default function AccountSettings() {
                 )}
               </div>
               
-              <div style={{ marginTop: 10, padding: 16, background: "rgba(99,102,241,0.05)", borderRadius: 14, border: "1px solid rgba(99,102,241,0.1)" }}>
+              <div style={{ marginTop: 10, padding: 16, background: "rgba(249,115,22,0.05)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.1)" }}>
                 <p style={{ fontSize: 12, color: "#9ca3af", margin: 0, lineHeight: 1.5 }}>
                   <strong>Catatan:</strong> Jika Anda melihat aktivitas yang mencurigakan, segera ganti password Anda dan hentikan semua sesi aktif lainnya.
                 </p>
@@ -539,8 +549,8 @@ function TabBtn({ active, onClick, Icon, label }: any) {
     <button onClick={onClick} style={{
       flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
       padding: "10px 16px", borderRadius: 10, cursor: "pointer",
-      background: active ? "rgba(99,102,241,0.1)" : "transparent",
-      border: "none", color: active ? "#a5b4fc" : "#9ca3af",
+      background: active ? "rgba(249,115,22,0.1)" : "transparent",
+      border: "none", color: active ? "#fdba74" : "#9ca3af",
       fontWeight: active ? 700 : 500, fontSize: 13, transition: "all 0.2s",
     }}>
       <Icon size={16} /> {label}
@@ -565,16 +575,16 @@ const eyeBtn: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: "14px", borderRadius: 12, border: "none",
-  background: "linear-gradient(135deg,#a855f7,#6366f1)",
+  background: "linear-gradient(135deg,#f97316,#f59e0b)",
   color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer",
   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
   marginTop: 10
 };
 const secondaryBtn: React.CSSProperties = {
-  padding: "0 20px", borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)",
-  background: "rgba(99,102,241,0.1)", color: "#818cf8", fontWeight: 600, fontSize: 13, cursor: "pointer"
+  padding: "0 20px", borderRadius: 12, border: "1px solid rgba(249,115,22,0.3)",
+  background: "rgba(249,115,22,0.1)", color: "#fb923c", fontWeight: 600, fontSize: 13, cursor: "pointer"
 };
 const otpSection: React.CSSProperties = {
-  marginTop: 10, padding: 20, background: "rgba(99,102,241,0.03)", border: "1px solid rgba(99,102,241,0.1)",
+  marginTop: 10, padding: 20, background: "rgba(249,115,22,0.03)", border: "1px solid rgba(249,115,22,0.1)",
   borderRadius: 16, display: "flex", flexDirection: "column", gap: 8
 };

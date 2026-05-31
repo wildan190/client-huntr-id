@@ -35,7 +35,7 @@ export default function Receipts() {
         <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 18 }}>
           <Section>Goods Receipt Form</Section>
           <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 4px" }}>
-            Buyer confirms physical delivery and submits handover document. The Delivery Order must already be in <code style={{ color: "#a5b4fc" }}>delivered</code> status.
+            Buyer confirms physical delivery and submits handover document. The Delivery Order must already be in <code style={{ color: "#fdba74" }}>delivered</code> status.
           </p>
 
           <Field label="Purchase Order ID (PO ID)" value={form.po_id} onChange={v => set("po_id", v)}
@@ -116,11 +116,11 @@ function KV({ label, value }: { label: string; value: any }) {
   );
 }
 function Tag({ color, children }: { color: string; children: React.ReactNode }) {
-  const c: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", indigo: "#a5b4fc" };
+  const c: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", indigo: "#fdba74" };
   return <span style={{ background: `${c[color]}20`, color: c[color], border: `1px solid ${c[color]}40`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{children}</span>;
 }
 function Section({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
 }
 const lbl: React.CSSProperties = { fontSize: 12, color: "#9ca3af", fontWeight: 500 };
 const inputStyle: React.CSSProperties = {
@@ -130,7 +130,7 @@ const inputStyle: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
-  border: "none", background: "linear-gradient(135deg,#a855f7,#6366f1)", color: "#fff",
+  border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff",
 };
 interface FieldProps {
   label: string;

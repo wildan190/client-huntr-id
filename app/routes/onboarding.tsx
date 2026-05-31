@@ -12,12 +12,12 @@ import { SlideSection, Field } from "../features/onboarding/components/Onboardin
 const TOTAL_SLIDES = 6;
 
 const STEP_META = [
-  { id: 1, icon: Building2, label: "Company Profile", color: "#a855f7", desc: "Basic info & identity" },
-  { id: 2, icon: MapPin,     label: "Location",        color: "#6366f1", desc: "Address & region" },
-  { id: 3, icon: CreditCard, label: "Banking",          color: "#3b82f6", desc: "Settlement details" },
+  { id: 1, icon: Building2, label: "Company Profile", color: "#f97316", desc: "Basic info & identity" },
+  { id: 2, icon: MapPin,     label: "Location",        color: "#f59e0b", desc: "Address & region" },
+  { id: 3, icon: CreditCard, label: "Banking",          color: "#fbbf24", desc: "Settlement details" },
   { id: 4, icon: FileText,   label: "Documents",        color: "#f59e0b", desc: "Legal docs (mandatory)" },
   { id: 5, icon: UploadCloud,label: "Upload Data",      color: "#10b981", desc: "PO / Catalogue CSV" },
-  { id: 6, icon: LogIn,      label: "Enter Workspace",  color: "#ec4899", desc: "Select & activate" },
+  { id: 6, icon: LogIn,      label: "Enter Workspace",  color: "#fb923c", desc: "Select & activate" },
 ];
 
 export default function Onboarding() {
@@ -73,8 +73,8 @@ export default function Onboarding() {
     }}>
       {/* Background blobs */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-15%", left: "-8%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%)" }} />
-        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.10) 0%, transparent 65%)" }} />
+        <div style={{ position: "absolute", top: "-15%", left: "-8%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 65%)" }} />
+        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(251,146,60,0.10) 0%, transparent 65%)" }} />
       </div>
 
       {/* Branding */}
@@ -82,11 +82,11 @@ export default function Onboarding() {
         <img 
           src="/assets/img/logo/emblem.jpg" 
           alt="Huntr Logo" 
-          style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }} 
+          style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(249,115,22,0.35)" }} 
         />
         <div>
           <div style={{ fontWeight: 800, fontSize: 14, color: "#f3f4f6", letterSpacing: "-0.3px" }}>Huntr.id</div>
-          <div style={{ fontSize: 8, color: "#6366f1", letterSpacing: "0.12em", fontWeight: 700 }}>COMPANY ONBOARDING</div>
+          <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.12em", fontWeight: 700 }}>COMPANY ONBOARDING</div>
         </div>
       </div>
 
@@ -135,12 +135,12 @@ export default function Onboarding() {
             )}
 
             {vm.slide === 1 && (
-              <SlideSection title="Company Profile" subtitle="Basic info & identity" icon={<Building2 size={22} color="#a855f7" />} accentColor="#a855f7">
+              <SlideSection title="Company Profile" subtitle="Basic info & identity" icon={<Building2 size={22} color="#f97316" />} accentColor="#f97316">
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <label style={lbl}>Tax ID (NPWP) *</label>
                   <div style={{ display: "flex", gap: 10 }}>
                     <input type="text" placeholder="01.234.567.8-901.000" value={vm.formData.tax_id} onChange={e => vm.updateField("tax_id", e.target.value)} style={inputStyle} />
-                    <button onClick={vm.handleVerifyNpwp} disabled={vm.isVerifyingNpwp || !vm.formData.tax_id} style={{ padding: "0 20px", borderRadius: 12, background: vm.npwpVerifiedData ? "rgba(34,197,94,0.15)" : "rgba(99,102,241,0.1)", border: vm.npwpVerifiedData ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(99,102,241,0.2)", color: vm.npwpVerifiedData ? "#4ade80" : "#818cf8", cursor: "pointer", fontWeight: 700 }}>
+                    <button onClick={vm.handleVerifyNpwp} disabled={vm.isVerifyingNpwp || !vm.formData.tax_id} style={{ padding: "0 20px", borderRadius: 12, background: vm.npwpVerifiedData ? "rgba(34,197,94,0.15)" : "rgba(249,115,22,0.1)", border: vm.npwpVerifiedData ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(249,115,22,0.2)", color: vm.npwpVerifiedData ? "#4ade80" : "#fb923c", cursor: "pointer", fontWeight: 700 }}>
                       {vm.isVerifyingNpwp ? <Loader2 size={16} className="animate-spin" /> : vm.npwpVerifiedData ? <CheckCircle2 size={16} /> : "Verify"}
                     </button>
                   </div>
@@ -184,7 +184,7 @@ export default function Onboarding() {
                   <label style={lbl}>Business Type *</label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     {[{ v: "buyer", l: "Buyer" }, { v: "vendor", l: "Vendor" }].map(opt => (
-                      <button key={opt.v} type="button" onClick={() => vm.updateField("type", opt.v)} style={{ padding: "14px", borderRadius: 12, background: vm.formData.type === opt.v ? "rgba(99,102,241,0.12)" : "rgba(255,255,255,0.03)", border: vm.formData.type === opt.v ? "1.5px solid rgba(99,102,241,0.5)" : "1.5px solid rgba(255,255,255,0.07)", cursor: "pointer", color: vm.formData.type === opt.v ? "#a5b4fc" : "#9ca3af" }}>{opt.l}</button>
+                      <button key={opt.v} type="button" onClick={() => vm.updateField("type", opt.v)} style={{ padding: "14px", borderRadius: 12, background: vm.formData.type === opt.v ? "rgba(249,115,22,0.12)" : "rgba(255,255,255,0.03)", border: vm.formData.type === opt.v ? "1.5px solid rgba(249,115,22,0.5)" : "1.5px solid rgba(255,255,255,0.07)", cursor: "pointer", color: vm.formData.type === opt.v ? "#fdba74" : "#9ca3af" }}>{opt.l}</button>
                     ))}
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function Onboarding() {
             )}
 
             {vm.slide === 2 && (
-              <SlideSection title="Location" subtitle="Business address" icon={<MapPin size={22} color="#6366f1" />} accentColor="#6366f1">
+              <SlideSection title="Location" subtitle="Business address" icon={<MapPin size={22} color="#f59e0b" />} accentColor="#f59e0b">
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                   <Field label="Province" value={vm.formData.provincy_country} onChange={(v:any) => vm.updateField("provincy_country", v)} placeholder="e.g. Jawa Barat" />
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -230,7 +230,7 @@ export default function Onboarding() {
             )}
 
             {vm.slide === 3 && (
-              <SlideSection title="Banking" subtitle="Payment details" icon={<CreditCard size={22} color="#3b82f6" />} accentColor="#3b82f6">
+              <SlideSection title="Banking" subtitle="Payment details" icon={<CreditCard size={22} color="#fbbf24" />} accentColor="#fbbf24">
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={lbl}>Bank Name</label>
                   <select
@@ -256,7 +256,7 @@ export default function Onboarding() {
                   <select value={docType} onChange={e => setDocType(e.target.value)} style={{ ...inputStyle, flex: 1 }}>
                     {["NPWP", "SIUP", "NIB"].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
-                  <button onClick={() => docInputRef.current?.click()} style={{ padding: "0 20px", borderRadius: 12, background: "#6366f1", color: "#fff", cursor: "pointer", border: "none" }}>
+                  <button onClick={() => docInputRef.current?.click()} style={{ padding: "0 20px", borderRadius: 12, background: "#f59e0b", color: "#fff", cursor: "pointer", border: "none" }}>
                     {vm.isUploadingDoc ? <Loader2 className="animate-spin" /> : <Plus />}
                   </button>
                 </div>
@@ -286,11 +286,11 @@ export default function Onboarding() {
               <SlideSection title="Success" subtitle="Workspace ready" icon={<LogIn size={22} color="#ec4899" />} accentColor="#ec4899">
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {vm.companies.map(c => (
-                    <button key={c.id} onClick={() => vm.setSelectedCompany(c)} style={{ padding: 16, borderRadius: 16, background: vm.selectedCompany?.id === c.id ? "rgba(99,102,241,0.1)" : "rgba(255,255,255,0.02)", border: vm.selectedCompany?.id === c.id ? "1.5px solid #6366f1" : "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left" }}>
+                    <button key={c.id} onClick={() => vm.setSelectedCompany(c)} style={{ padding: 16, borderRadius: 16, background: vm.selectedCompany?.id === c.id ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.02)", border: vm.selectedCompany?.id === c.id ? "1.5px solid #f59e0b" : "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left" }}>
                       <div style={{ color: "#fff", fontWeight: 700 }}>{c.name}</div>
                     </button>
                   ))}
-                  <button onClick={handleLoginAsCompany} style={{ padding: 16, background: "#6366f1", borderRadius: 12, color: "#fff", fontWeight: 700, border: "none", cursor: "pointer", marginTop: 12 }}>Enter Workspace</button>
+                  <button onClick={handleLoginAsCompany} style={{ padding: 16, background: "#f59e0b", borderRadius: 12, color: "#fff", fontWeight: 700, border: "none", cursor: "pointer", marginTop: 12 }}>Enter Workspace</button>
                 </div>
               </SlideSection>
             )}
@@ -299,7 +299,7 @@ export default function Onboarding() {
               {vm.slide > 1 && vm.slide < 6 && <button onClick={() => vm.setSlide(vm.slide - 1)} style={{ padding: "12px 24px", background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: 12, cursor: "pointer" }}>Back</button>}
               <div style={{ flex: 1 }} />
               {vm.slide < 6 && (
-                <button onClick={nextSlide} disabled={vm.isLoading} style={{ padding: "12px 32px", background: "#6366f1", color: "#fff", borderRadius: 12, border: "none", cursor: "pointer", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+                <button onClick={nextSlide} disabled={vm.isLoading} style={{ padding: "12px 32px", background: "#f59e0b", color: "#fff", borderRadius: 12, border: "none", cursor: "pointer", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
                   {vm.isLoading ? <Loader2 className="animate-spin" size={18} /> : vm.slide === 5 ? "Finish" : "Next"} <ChevronRight size={18} />
                 </button>
               )}

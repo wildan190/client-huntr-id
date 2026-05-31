@@ -48,7 +48,7 @@ export default function Home() {
   if (loading) {
     return (
       <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Loader2 className="animate-spin" size={32} color="#6366f1" />
+        <Loader2 className="animate-spin" size={32} color="#f59e0b" />
       </div>
     );
   }
@@ -94,11 +94,11 @@ function GuestMarketplaceView() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a1c", color: "#fff" }}>
+    <div style={{ minHeight: "100vh", background: "#141008", color: "#fff" }}>
       {/* ── Guest Header ────────────────────────────────────────────────── */}
       <header style={{
         padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,10,28,0.8)",
+        borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(15,10,6,0.8)",
         backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -109,7 +109,7 @@ function GuestMarketplaceView() {
           />
           <div>
             <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.5px" }}>Huntr.id</div>
-            <div style={{ fontSize: 9, color: "#6366f1", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
+            <div style={{ fontSize: 9, color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 12 }}>
@@ -119,8 +119,8 @@ function GuestMarketplaceView() {
           }}>Sign In</Link>
           <Link to="/register" style={{
             padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700,
-            background: "linear-gradient(135deg,#a855f7,#6366f1)",
-            color: "#fff", textDecoration: "none", boxShadow: "0 10px 20px rgba(99,102,241,0.2)",
+            background: "linear-gradient(135deg,#f97316,#f59e0b)",
+            color: "#fff", textDecoration: "none", boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
           }}>Get Started</Link>
         </div>
       </header>
@@ -132,11 +132,11 @@ function GuestMarketplaceView() {
       }}>
         <div style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-          width: 600, height: 400, background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)",
+          width: 600, height: 400, background: "radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)",
           pointerEvents: "none", zIndex: -1
         }} />
         <h1 style={{ fontSize: 52, fontWeight: 900, marginBottom: 20, letterSpacing: "-1.5px", lineHeight: 1.1 }}>
-          The Future of <span style={{ color: "#818cf8" }}>B2B Procurement</span>
+          The Future of <span style={{ color: "#fb923c" }}>B2B Procurement</span>
         </h1>
         <p style={{ fontSize: 18, color: "#9ca3af", marginBottom: 40, lineHeight: 1.6 }}>
           Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem.
@@ -150,7 +150,7 @@ function GuestMarketplaceView() {
           boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
         }}>
           <div style={{ flex: 1, position: "relative" }}>
-            <Search size={20} color="#6366f1" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <Search size={20} color="#f59e0b" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
             <input 
               type="text" 
               placeholder="What are you looking for today?"
@@ -163,7 +163,7 @@ function GuestMarketplaceView() {
             />
           </div>
           <button style={{
-            padding: "0 24px", borderRadius: 14, background: "#6366f1", color: "#fff",
+            padding: "0 24px", borderRadius: 14, background: "#f59e0b", color: "#fff",
             border: "none", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
           }}>
             Search <ArrowRight size={16} />
@@ -181,10 +181,10 @@ function GuestMarketplaceView() {
               onClick={() => setActiveCategory(cat)}
               style={{
                 padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600,
-                background: activeCategory === cat ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.03)",
+                background: activeCategory === cat ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.03)",
                 border: "1px solid",
-                borderColor: activeCategory === cat ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.08)",
-                color: activeCategory === cat ? "#818cf8" : "#9ca3af",
+                borderColor: activeCategory === cat ? "rgba(249,115,22,0.3)" : "rgba(255,255,255,0.08)",
+                color: activeCategory === cat ? "#fb923c" : "#9ca3af",
                 cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s"
               }}
             >
@@ -196,7 +196,7 @@ function GuestMarketplaceView() {
         {/* Item Grid */}
         {loading ? (
           <div style={{ padding: "80px 0", textAlign: "center" }}>
-            <Loader2 className="animate-spin" size={40} color="#6366f1" style={{ margin: "0 auto" }} />
+            <Loader2 className="animate-spin" size={40} color="#f59e0b" style={{ margin: "0 auto" }} />
           </div>
         ) : items.length === 0 ? (
           <div style={{ padding: "80px 0", textAlign: "center", color: "#6b7280" }}>
@@ -214,7 +214,7 @@ function GuestMarketplaceView() {
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
                 e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                e.currentTarget.style.borderColor = "rgba(99,102,241,0.3)";
+                e.currentTarget.style.borderColor = "rgba(249,115,22,0.3)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -227,11 +227,11 @@ function GuestMarketplaceView() {
                   <Package size={64} color="rgba(255,255,255,0.05)" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
+                  <div style={{ fontSize: 12, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "#f3f4f6", margin: 0 }}>{item.name}</h3>
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#818cf8" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fb923c" }}>
                     <ChevronRight size={20} />
                   </div>
                 </div>
@@ -362,11 +362,11 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
         {/* Left column: Active Procurement & Step Simulator */}
         <section className="lg:col-span-2 flex flex-col gap-6">
           <div className="glass-panel p-6 flex flex-col justify-between relative overflow-hidden" style={{ minHeight: 400 }}>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl -z-10" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/5 rounded-full blur-3xl -z-10" />
             <div>
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-semibold uppercase tracking-widest text-indigo-400">Step {activeStep} of 9</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 font-medium flex items-center gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-widest text-orange-400">Step {activeStep} of 9</span>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium flex items-center gap-1.5">
                   <Activity size={12} className="animate-pulse" />
                   {activeStep === 9 ? "Workflow Completed" : "Simulation In Progress"}
                 </span>
@@ -382,7 +382,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                   <div
                     key={step}
                     className={`h-2.5 rounded-full transition-all duration-500 ${
-                      activeStep >= step ? "bg-gradient-to-r from-purple-500 to-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" : "bg-gray-800"
+                      activeStep >= step ? "bg-gradient-to-r from-orange-500 to-amber-400 shadow-[0_0_8px_rgba(249,115,22,0.5)]" : "bg-gray-800"
                     }`}
                   />
                 ))}
@@ -392,7 +392,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
               <div className="bg-white/5 border border-white/10 rounded-xl p-5 mb-6">
                 {activeStep === 1 && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><FileText size={18} className="text-indigo-400" /> Step 1: Draft RFQ Creation</h3>
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><FileText size={18} className="text-orange-400" /> Step 1: Draft RFQ Creation</h3>
                     <p className="text-gray-300 text-sm mb-4">Buyer creates a Request for Quotation (RFQ) detailing catalog items, descriptions, and expected delivery dates.</p>
                     <div className="flex flex-col gap-2 bg-black/20 p-3 rounded-lg text-xs">
                       <p><strong>Title:</strong> {rfqTitle}</p>
@@ -413,7 +413,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                 )}
                 {activeStep === 3 && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><FileText size={18} className="text-purple-400" /> Step 3: Vendor Proposal Submission</h3>
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><FileText size={18} className="text-amber-400" /> Step 3: Vendor Proposal Submission</h3>
                     <p className="text-gray-300 text-sm mb-4">Registered vendors analyze requirements and submit binding price offers, delivery dates, and warranty guarantees.</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {proposals.map(p => (
@@ -435,7 +435,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                         <div key={p.id} className="flex justify-between items-center bg-black/20 p-2.5 rounded-lg text-xs">
                           <span className="font-medium text-white">{idx+1}. {p.company}</span>
                           <div className="flex items-center gap-3">
-                            <span className="text-indigo-400 font-bold">Score: {p.score}</span>
+                            <span className="text-orange-400 font-bold">Score: {p.score}</span>
                             {idx === 0 && <span className="bg-green-500/10 text-green-400 text-[10px] px-2 py-0.5 rounded-full border border-green-500/20 font-bold">WINNER</span>}
                           </div>
                         </div>
@@ -445,7 +445,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                 )}
                 {activeStep === 5 && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><CheckCircle size={18} className="text-indigo-400" /> Step 5: Awarding Vendor & PO Generation</h3>
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><CheckCircle size={18} className="text-orange-400" /> Step 5: Awarding Vendor & PO Generation</h3>
                     <p className="text-gray-300 text-sm mb-4">The winning proposal is officially accepted, transitioning others to rejected. A formal Purchase Order (PO) is automatically drafted.</p>
                     <div className="bg-black/30 p-3 rounded-lg text-xs border border-white/5 flex justify-between items-center">
                       <div>
@@ -470,17 +470,17 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                 )}
                 {activeStep === 7 && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><ArrowRight size={18} className="text-indigo-400" /> Step 7: Delivery Order released</h3>
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><ArrowRight size={18} className="text-orange-400" /> Step 7: Delivery Order released</h3>
                     <p className="text-gray-300 text-sm mb-4">Vendor ships the items and releases the Delivery Order (DO) with a trackable shipment number.</p>
                     <div className="bg-black/20 p-3 rounded-lg text-xs border border-white/5">
                       <p><strong>DO Number:</strong> DO-9811</p>
-                      <p><strong>Shipment Status:</strong> <span className="text-indigo-400 font-bold">SHIPPED</span></p>
+                      <p><strong>Shipment Status:</strong> <span className="text-orange-400 font-bold">SHIPPED</span></p>
                     </div>
                   </div>
                 )}
                 {activeStep === 8 && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><CheckCircle size={18} className="text-indigo-400" /> Step 8: Confirm Delivery & Goods Receipt</h3>
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><CheckCircle size={18} className="text-orange-400" /> Step 8: Confirm Delivery & Goods Receipt</h3>
                     <p className="text-gray-300 text-sm mb-4">Buyer checks physical delivery, signs the handover document, and submits the Goods Receipt. Final Invoice is triggered automatically.</p>
                     <div className="bg-black/20 p-3 rounded-lg text-xs border border-white/5 flex justify-between items-center">
                       <div>
@@ -508,7 +508,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
               {activeStep < 9 ? (
                 <button
                   onClick={advanceStep}
-                  className="flex-1 py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-2"
+                  className="flex-1 py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-600/20 hover:shadow-orange-600/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-2"
                 >
                   <Play size={16} /> Advance to Next Action
                 </button>
@@ -526,7 +526,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
           {/* Historical catalog reference */}
           <div className="glass-panel p-6">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-purple-500" />
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
               Department Reference Catalogues
             </h3>
             <div className="overflow-x-auto">
@@ -543,7 +543,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                 <tbody>
                   {INITIAL_CATALOGUE.map(item => (
                     <tr key={item.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="py-3 font-semibold text-indigo-400">{item.item_code}</td>
+                      <td className="py-3 font-semibold text-orange-400">{item.item_code}</td>
                       <td className="py-3 text-white font-medium">{item.name}</td>
                       <td className="py-3 text-gray-400">{item.category}</td>
                       <td className="py-3 text-gray-400">{item.uom}</td>
@@ -559,14 +559,14 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
         {/* Right column: Notification Log & SAW weight configurations */}
         <section className="flex flex-col gap-6">
           <div className="glass-panel p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-indigo-400">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-orange-400">
               <Database size={18} /> System Event Log
             </h3>
             <div className="flex flex-col gap-3">
               {notifications.map(n => (
-                <div key={n.id} className="bg-black/20 p-3 rounded-lg border-l-2 border-indigo-500 flex flex-col gap-1">
+                <div key={n.id} className="bg-black/20 p-3 rounded-lg border-l-2 border-orange-500 flex flex-col gap-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] uppercase font-bold text-indigo-400">{n.type}</span>
+                    <span className="text-[10px] uppercase font-bold text-orange-400">{n.type}</span>
                     <span className="text-[10px] text-gray-500">{n.time}</span>
                   </div>
                   <p className="text-xs text-gray-300">{n.text}</p>
@@ -576,12 +576,12 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
           </div>
 
           <div className="glass-panel p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-400">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-amber-400">
               <ShieldAlert size={18} /> Security & Audits
             </h3>
-            <div className="bg-purple-500/5 border border-purple-500/10 p-4 rounded-xl flex flex-col gap-3">
+            <div className="bg-amber-500/5 border border-amber-500/10 p-4 rounded-xl flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -590,7 +590,7 @@ function DashboardSimulation({ user, activeCompany }: { user: any, activeCompany
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
                   <CheckCircle size={16} />
                 </div>
                 <div>

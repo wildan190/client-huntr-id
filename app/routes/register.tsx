@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
-import { register, sendOtp, verifyOtp } from "../lib/api";
+import { register, sendOtp, verifyOtp, loadOtpSession, clearOtpSession } from "../lib/api";
 import { isValidWhatsapp } from "../lib/whatsapp";
 import AuthLayout from "../components/AuthLayout";
 
@@ -16,6 +16,7 @@ export default function Register() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [canonicalWhatsapp, setCanonicalWhatsapp] = useState("");
+  const [otpToken, setOtpToken] = useState("");
   const [debugOtp, setDebugOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -34,6 +35,8 @@ export default function Register() {
       setOtpSent(false);
       setOtp("");
       setCanonicalWhatsapp("");
+      setOtpToken("");
+      clearOtpSession();
       setDebugOtp(null);
       setError(null);
       setSuccessMsg(null);
@@ -67,6 +70,7 @@ export default function Register() {
       const res = await sendOtp({ whatsapp: form.whatsapp });
       setOtpSent(true);
       setCanonicalWhatsapp(res.whatsapp || form.whatsapp);
+      setOtpToken(res.otp_token || "");
       setResendCooldown(60);
       const sentNote = res.whatsapp_sent === false
         ? " WhatsApp delivery failed — use Debug OTP below."
@@ -96,8 +100,11 @@ export default function Register() {
     setError(null);
     setSuccessMsg(null);
     try {
-      const phone = canonicalWhatsapp || form.whatsapp;
-      await verifyOtp({ whatsapp: phone, otp });
+      const session = loadOtpSession();
+      const phone = session?.whatsapp || canonicalWhatsapp || form.whatsapp;
+      await verifyOtp({ whatsapp: phone, otp, otp_token: otpToken || session?.otp_token });
+
+      clearOtpSession();
 
       const registerPayload = {
         name: form.name,
@@ -131,7 +138,7 @@ export default function Register() {
       visualTitle="Join the Ecosystem"
       visualText="Connect with verified business partners and expand your procurement reach."
       features={["✓ Seamless Onboarding", "✓ High-Fidelity UX", "✓ Secure Protocol"]}
-      featureVariant="purple"
+      featureVariant="amber"
     >
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="auth-form__header">
@@ -233,7 +240,7 @@ export default function Register() {
               <label
                 className="auth-label"
                 htmlFor="register-otp"
-                style={{ color: "#a5b4fc", display: "flex", alignItems: "center", gap: 6, textTransform: "none", letterSpacing: 0 }}
+                style={{ color: "#fdba74", display: "flex", alignItems: "center", gap: 6, textTransform: "none", letterSpacing: 0 }}
               >
                 <MessageSquareCode size={14} /> Verification Code
               </label>

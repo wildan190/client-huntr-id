@@ -132,8 +132,8 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
     }}>
       {/* Background */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
-        <div style={{ position: "absolute", top: "-20%", left: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%)" }} />
-        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", top: "-20%", left: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,0.10) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 70%)" }} />
         {/* Grid pattern */}
         <div style={{
           position: "absolute", inset: 0,
@@ -147,9 +147,9 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
             width: 72, height: 72, borderRadius: 22, margin: "0 auto 20px",
-            background: "linear-gradient(135deg,#6366f1,#a855f7)",
+            background: "linear-gradient(135deg,#f59e0b,#f97316)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 12px 40px rgba(99,102,241,0.35), 0 0 0 1px rgba(99,102,241,0.2)",
+            boxShadow: "0 12px 40px rgba(249,115,22,0.35), 0 0 0 1px rgba(249,115,22,0.2)",
           }}>
             <ShieldCheck size={36} color="#fff" />
           </div>
@@ -176,7 +176,7 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
           {/* Accent top bar */}
           <div style={{
             position: "absolute", top: 0, left: 0, right: 0, height: 3, borderRadius: "24px 24px 0 0",
-            background: "linear-gradient(90deg,#6366f1,#a855f7,#ec4899)",
+            background: "linear-gradient(90deg,#f59e0b,#f97316,#ec4899)",
           }} />
 
           {error && (
@@ -214,11 +214,11 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
             disabled={isLoading}
             style={{
               marginTop: 8, padding: "14px 20px", borderRadius: 12,
-              background: isLoading ? "rgba(99,102,241,0.5)" : "linear-gradient(135deg,#6366f1,#a855f7)",
+              background: isLoading ? "rgba(249,115,22,0.5)" : "linear-gradient(135deg,#f59e0b,#f97316)",
               border: "none", color: "#fff", fontSize: 14, fontWeight: 800,
               cursor: isLoading ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              boxShadow: isLoading ? "none" : "0 8px 28px rgba(99,102,241,0.35)",
+              boxShadow: isLoading ? "none" : "0 8px 28px rgba(249,115,22,0.35)",
               letterSpacing: "-0.2px", transition: "all 0.2s",
             }}
           >
@@ -313,9 +313,9 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: "linear-gradient(135deg,#6366f1,#a855f7)",
+            background: "linear-gradient(135deg,#f59e0b,#f97316)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+            boxShadow: "0 4px 16px rgba(249,115,22,0.3)",
           }}>
             <ShieldCheck size={18} color="#fff" />
           </div>
@@ -323,7 +323,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
             <div style={{ fontWeight: 800, fontSize: 15, color: "#f3f4f6", letterSpacing: "-0.3px" }}>
               Huntr.id Admin
             </div>
-            <div style={{ fontSize: 10, color: "#6366f1", letterSpacing: "0.1em", fontWeight: 700 }}>
+            <div style={{ fontSize: 10, color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>
               GLOBAL OPERATIONS
             </div>
           </div>
@@ -354,7 +354,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
         {/* ── Stats cards ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
           {[
-            { label: "Total Companies", value: total, icon: <Building2 size={22} />, color: "#6366f1", gradient: "linear-gradient(135deg,#6366f1,#4f46e5)" },
+            { label: "Total Companies", value: total, icon: <Building2 size={22} />, color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#ea580c)" },
             { label: "Pending Review",  value: stats.pending,  icon: <Clock size={22} />,       color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#d97706)" },
             { label: "Approved",        value: stats.approved, icon: <CheckCircle2 size={22} />, color: "#10b981", gradient: "linear-gradient(135deg,#10b981,#059669)" },
             { label: "Rejected",        value: stats.rejected, icon: <XCircle size={22} />,      color: "#ef4444", gradient: "linear-gradient(135deg,#ef4444,#dc2626)" },
@@ -417,7 +417,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                 padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700,
                 cursor: "pointer", transition: "all 0.2s",
                 background: filterStatus === s
-                  ? (s === "all" ? "linear-gradient(135deg,#6366f1,#a855f7)" : s === "pending" ? "linear-gradient(135deg,#f59e0b,#d97706)" : s === "approved" ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)")
+                  ? (s === "all" ? "linear-gradient(135deg,#f59e0b,#f97316)" : s === "pending" ? "linear-gradient(135deg,#f59e0b,#d97706)" : s === "approved" ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)")
                   : "rgba(255,255,255,0.04)",
                 border: filterStatus === s ? "none" : "1px solid rgba(255,255,255,0.08)",
                 color: filterStatus === s ? "#fff" : "#6b7280",
@@ -440,8 +440,8 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
             onClick={() => fetchCompanies(1)}
             style={{
               padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700,
-              cursor: "pointer", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
-              color: "#818cf8", display: "flex", alignItems: "center", gap: 6,
+              cursor: "pointer", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
+              color: "#fb923c", display: "flex", alignItems: "center", gap: 6,
               transition: "all 0.2s",
             }}
           >
@@ -461,7 +461,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
           </div>
         ) : isLoading ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: "#6b7280" }}>
-            <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", display: "block", color: "#6366f1" }} />
+            <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", display: "block", color: "#f59e0b" }} />
             Loading companies…
           </div>
         ) : companies.length === 0 ? (
@@ -499,10 +499,10 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                     <div style={{
                       width: 52, height: 52, borderRadius: 14, flexShrink: 0,
                       background: company.type === "buyer"
-                        ? "linear-gradient(135deg,#6366f1,#4f46e5)"
+                        ? "linear-gradient(135deg,#f59e0b,#ea580c)"
                         : "linear-gradient(135deg,#10b981,#059669)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      boxShadow: `0 4px 14px ${company.type === "buyer" ? "rgba(99,102,241,0.3)" : "rgba(16,185,129,0.3)"}`,
+                      boxShadow: `0 4px 14px ${company.type === "buyer" ? "rgba(249,115,22,0.3)" : "rgba(16,185,129,0.3)"}`,
                     }}>
                       <Building2 size={24} color="#fff" />
                     </div>
@@ -513,8 +513,8 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                         <span style={{ fontSize: 15, fontWeight: 800, color: "#f3f4f6" }}>{company.name}</span>
                         <span style={{
                           fontSize: 10, fontWeight: 700, padding: "2px 10px", borderRadius: 99,
-                          background: company.type === "buyer" ? "rgba(99,102,241,0.15)" : "rgba(16,185,129,0.15)",
-                          color: company.type === "buyer" ? "#a5b4fc" : "#34d399",
+                          background: company.type === "buyer" ? "rgba(249,115,22,0.15)" : "rgba(16,185,129,0.15)",
+                          color: company.type === "buyer" ? "#fdba74" : "#34d399",
                           letterSpacing: "0.05em", textTransform: "uppercase",
                         }}>
                           {company.type}
@@ -582,7 +582,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                     }}>
                       {/* Company details */}
                       <div>
-                        <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
+                        <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
                           Company Details
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -612,7 +612,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
 
                       {/* Documents */}
                       <div>
-                        <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
+                        <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
                           Legal Documents ({company.documents?.length || 0})
                         </div>
                         {!company.documents?.length ? (
@@ -633,10 +633,10 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                               }}>
                                 <div style={{
                                   width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                                  background: "rgba(99,102,241,0.15)",
+                                  background: "rgba(249,115,22,0.15)",
                                   display: "flex", alignItems: "center", justifyContent: "center",
                                 }}>
-                                  <FileText size={16} color="#818cf8" />
+                                  <FileText size={16} color="#fb923c" />
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div style={{ fontSize: 12, fontWeight: 700, color: "#e5e7eb", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -650,9 +650,9 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                                     onClick={e => e.stopPropagation()}
                                     style={{
                                       display: "flex", alignItems: "center", gap: 4,
-                                      fontSize: 11, color: "#818cf8", textDecoration: "none",
+                                      fontSize: 11, color: "#fb923c", textDecoration: "none",
                                       padding: "5px 10px", borderRadius: 8,
-                                      background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
+                                      background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
                                       flexShrink: 0, fontWeight: 600,
                                     }}
                                   >

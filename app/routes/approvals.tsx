@@ -61,7 +61,7 @@ export default function Approvals() {
         
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#6366f1" />
+            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : requests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
@@ -78,7 +78,7 @@ export default function Approvals() {
               }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "#a855f7", background: "rgba(168,85,247,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "#f97316", background: "rgba(251,146,60,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
                       <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                     </div>

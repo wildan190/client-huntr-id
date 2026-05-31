@@ -146,7 +146,7 @@ export default function Layout({ children, title, subtitle }: Props) {
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside style={{
         width: 224, flexShrink: 0,
-        background: "rgba(10,10,28,0.97)",
+        background: "rgba(15,10,6,0.97)",
         borderRight: "1px solid rgba(255,255,255,0.06)",
         backdropFilter: "blur(20px)",
         display: "flex", flexDirection: "column",
@@ -163,7 +163,7 @@ export default function Layout({ children, title, subtitle }: Props) {
             />
             <div>
               <div style={{ fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "-0.3px" }}>Huntr.id</div>
-              <div style={{ fontSize: 8, color: "#6366f1", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
+              <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
             </div>
           </div>
         </div>
@@ -172,13 +172,13 @@ export default function Layout({ children, title, subtitle }: Props) {
         {activeCompany && (
           <div style={{
             margin: "0 10px 16px",
-            background: "rgba(99,102,241,0.08)",
-            border: "1px solid rgba(99,102,241,0.2)",
+            background: "rgba(249,115,22,0.08)",
+            border: "1px solid rgba(249,115,22,0.2)",
             borderRadius: 10, padding: "10px 12px",
           }}>
-            <div style={{ fontSize: 9, color: "#6366f1", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 5 }}>ACTIVE WORKSPACE</div>
+            <div style={{ fontSize: 9, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 5 }}>ACTIVE WORKSPACE</div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#a855f7,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f97316,#f59e0b)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Building2 size={14} color="#fff" />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -193,8 +193,8 @@ export default function Layout({ children, title, subtitle }: Props) {
               style={{
                 width: "100%", marginTop: 8, padding: "5px 8px", borderRadius: 6,
                 fontSize: 10, fontWeight: 600, cursor: "pointer",
-                background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)",
-                color: "#818cf8", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.2)",
+                color: "#fb923c", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
               }}
             >
               <ArrowLeftRight size={10} /> Switch Company
@@ -210,15 +210,15 @@ export default function Layout({ children, title, subtitle }: Props) {
               <Link key={to} to={to} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 12px", borderRadius: 10,
-                background: active ? "rgba(99,102,241,0.15)" : "transparent",
-                border: active ? "1px solid rgba(99,102,241,0.25)" : "1px solid transparent",
-                color: active ? "#a5b4fc" : "#9ca3af",
+                background: active ? "rgba(249,115,22,0.15)" : "transparent",
+                border: active ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
+                color: active ? "#fdba74" : "#9ca3af",
                 fontWeight: active ? 600 : 400, fontSize: 13,
                 textDecoration: "none", transition: "all 0.15s",
               }}>
                 <Icon size={16} />
                 {label}
-                {active && <span style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#6366f1" }} />}
+                {active && <span style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />}
               </Link>
             );
           })}
@@ -228,12 +228,12 @@ export default function Layout({ children, title, subtitle }: Props) {
         {user && (
           <div style={{ padding: "14px 18px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#ea580c,#f97316)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
                 {user.name?.[0]?.toUpperCase() || "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
-                <div style={{ fontSize: 10, color: "#a855f7", fontWeight: 600, textTransform: "uppercase" }}>{user.role}</div>
+                <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>{user.role}</div>
               </div>
             </div>
             <button
@@ -275,17 +275,17 @@ export default function Layout({ children, title, subtitle }: Props) {
                 style={{
                   position: "relative", width: 40, height: 40, borderRadius: 12,
                   background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                  color: unreadCount > 0 ? "#818cf8" : "#9ca3af", cursor: "pointer",
+                  color: unreadCount > 0 ? "#fb923c" : "#9ca3af", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   transition: "all 0.2s",
                 }}
               >
-                <Bell size={18} fill={unreadCount > 0 ? "rgba(99,102,241,0.2)" : "none"} />
+                <Bell size={18} fill={unreadCount > 0 ? "rgba(249,115,22,0.2)" : "none"} />
                 {unreadCount > 0 && (
                   <span style={{
                     position: "absolute", top: -4, right: -4,
                     minWidth: 18, height: 18, borderRadius: 9,
-                    background: "#6366f1", border: "2px solid #0a0a1c",
+                    background: "#f59e0b", border: "2px solid #141008",
                     color: "#fff", fontSize: 9, fontWeight: 800,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     padding: "0 4px",
@@ -303,7 +303,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                   />
                   <div style={{
                     position: "absolute", top: "calc(100% + 12px)", right: 0,
-                    width: 320, background: "rgba(10,10,28,0.95)", backdropFilter: "blur(20px)",
+                    width: 320, background: "rgba(15,10,6,0.95)", backdropFilter: "blur(20px)",
                     borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)",
                     boxShadow: "0 10px 40px rgba(0,0,0,0.5)", zIndex: 100,
                     overflow: "hidden",
@@ -311,7 +311,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Notifications</span>
-                        {unreadCount > 0 && <span style={{ fontSize: 10, background: "rgba(99,102,241,0.2)", color: "#818cf8", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>{unreadCount} NEW</span>}
+                        {unreadCount > 0 && <span style={{ fontSize: 10, background: "rgba(249,115,22,0.2)", color: "#fb923c", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>{unreadCount} NEW</span>}
                       </div>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }}
@@ -330,7 +330,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                             onClick={() => handleNotificationClick(n)}
                             style={{
                               padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.03)",
-                              cursor: "pointer", background: n.read_at ? "transparent" : "rgba(99,102,241,0.04)",
+                              cursor: "pointer", background: n.read_at ? "transparent" : "rgba(249,115,22,0.04)",
                               transition: "background 0.2s",
                             }}
                           >
@@ -342,7 +342,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                     </div>
                     <button 
                       onClick={() => { navigate("/notifications"); setShowNotifications(false); }}
-                      style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.02)", border: "none", color: "#6366f1", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.02)", border: "none", color: "#f59e0b", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                     >
                       View All Notifications
                     </button>
@@ -354,13 +354,13 @@ export default function Layout({ children, title, subtitle }: Props) {
             {activeCompany && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 6,
-                background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
+                background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
                 borderRadius: 20, padding: "5px 12px",
-                fontSize: 11, color: "#818cf8", fontWeight: 600,
+                fontSize: 11, color: "#fb923c", fontWeight: 600,
               }}>
                 <Building2 size={11} />
                 {activeCompany.name}
-                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(99,102,241,0.2)", fontSize: 10, color: "#a5b4fc" }}>
+                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(249,115,22,0.2)", fontSize: 10, color: "#fdba74" }}>
                   {activeCompany.status || "pending"}
                 </span>
               </div>
@@ -410,9 +410,9 @@ export default function Layout({ children, title, subtitle }: Props) {
                   onClick={() => navigate("/company")}
                   style={{
                     padding: "12px 24px", borderRadius: "14px",
-                    background: "linear-gradient(135deg, #a855f7, #6366f1)",
+                    background: "linear-gradient(135deg, #f97316, #f59e0b)",
                     border: "none", color: "#fff", fontWeight: 700, fontSize: "13px",
-                    cursor: "pointer", boxShadow: "0 10px 25px rgba(99,102,241,0.25)"
+                    cursor: "pointer", boxShadow: "0 10px 25px rgba(249,115,22,0.25)"
                   }}
                 >
                   Lihat Status Verifikasi

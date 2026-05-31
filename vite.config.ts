@@ -7,4 +7,33 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://localhost:8443",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/sanctum": {
+        target: "https://localhost:8443",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/register": {
+        target: "https://localhost:8443",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/login": {
+        target: "https://localhost:8443",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/logout": {
+        target: "https://localhost:8443",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

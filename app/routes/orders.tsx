@@ -108,7 +108,7 @@ export default function Orders() {
     return (
       <Layout title="Purchase Order" subtitle="Loading your Purchase Orders...">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "50vh", gap: 14 }}>
-          <Loader2 size={32} className="animate-spin" color="#6366f1" />
+          <Loader2 size={32} className="animate-spin" color="#f59e0b" />
           <span style={{ fontSize: 13, color: "#6b7280" }}>Fetching PO data...</span>
         </div>
       </Layout>
@@ -144,9 +144,9 @@ export default function Orders() {
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div style={{
               width: 56, height: 56, borderRadius: 16,
-              background: "linear-gradient(135deg,#a855f7,#6366f1)",
+              background: "linear-gradient(135deg,#f97316,#f59e0b)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 8px 20px rgba(99,102,241,0.25)",
+              boxShadow: "0 8px 20px rgba(249,115,22,0.25)",
             }}>
               <FileText size={28} color="#fff" />
             </div>
@@ -155,7 +155,7 @@ export default function Orders() {
                 List of {company.type === "buyer" ? "Purchase Orders" : "Catalogue Items"} ({totalOrders})
               </h2>
               <p style={{ fontSize: 13, color: "#9ca3af", margin: "6px 0 0" }}>
-                Active Workspace: <strong style={{ color: "#a5b4fc" }}>{company.name}</strong>
+                Active Workspace: <strong style={{ color: "#fdba74" }}>{company.name}</strong>
               </p>
             </div>
           </div>
@@ -164,9 +164,9 @@ export default function Orders() {
             <button
               onClick={() => setShowImportModal(true)}
               style={{
-                background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
+                background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
                 borderRadius: 14, padding: "0 20px", display: "flex", alignItems: "center", gap: 10,
-                cursor: "pointer", color: "#818cf8", fontWeight: 700, fontSize: 13,
+                cursor: "pointer", color: "#fb923c", fontWeight: 700, fontSize: 13,
               }}
             >
               <UploadCloud size={18} /> Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
@@ -193,7 +193,7 @@ export default function Orders() {
             display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20,
           }}>
             <div style={{
-              background: "#0a0a1c", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 28,
+              background: "#141008", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 28,
               width: "100%", maxWidth: 500, padding: 32, display: "flex", flexDirection: "column", gap: 24,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -207,7 +207,7 @@ export default function Orders() {
                 padding: 40, border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 20, textAlign: "center",
                 background: "rgba(255,255,255,0.02)", cursor: "pointer",
               }} onClick={() => document.getElementById("csv-input")?.click()}>
-                <FileSpreadsheet size={48} color={importFile ? "#6366f1" : "rgba(255,255,255,0.1)"} style={{ marginBottom: 16 }} />
+                <FileSpreadsheet size={48} color={importFile ? "#f59e0b" : "rgba(255,255,255,0.1)"} style={{ marginBottom: 16 }} />
                 <p style={{ color: importFile ? "#fff" : "#9ca3af", margin: 0, fontSize: 14, fontWeight: 600 }}>
                   {importFile ? importFile.name : "Click to select CSV file"}
                 </p>
@@ -231,10 +231,10 @@ export default function Orders() {
                 onClick={handleImport}
                 disabled={!importFile || isImporting || importSuccess}
                 style={{
-                  width: "100%", padding: 16, borderRadius: 16, background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                  width: "100%", padding: 16, borderRadius: 16, background: "linear-gradient(135deg,#f97316,#f59e0b)",
                   color: "#fff", fontWeight: 700, border: "none", cursor: (isImporting || !importFile) ? "not-allowed" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  boxShadow: "0 8px 20px rgba(99,102,241,0.2)", opacity: (isImporting || !importFile) ? 0.6 : 1,
+                  boxShadow: "0 8px 20px rgba(249,115,22,0.2)", opacity: (isImporting || !importFile) ? 0.6 : 1,
                 }}
               >
                 {isImporting ? <Loader2 size={20} className="animate-spin" /> : "Start Import"}
@@ -256,8 +256,8 @@ export default function Orders() {
                 onClick={() => setActiveTab(tab.id as any)}
                 style={{
                   padding: "10px 20px", borderRadius: 12, border: "none",
-                  background: activeTab === tab.id ? "rgba(99,102,241,0.15)" : "transparent",
-                  color: activeTab === tab.id ? "#a5b4fc" : "#6b7280",
+                  background: activeTab === tab.id ? "rgba(249,115,22,0.15)" : "transparent",
+                  color: activeTab === tab.id ? "#fdba74" : "#6b7280",
                   fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all 0.2s"
                 }}
               >
@@ -299,7 +299,7 @@ export default function Orders() {
                 <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6 }}>
                         {po.po_number}
                       </span>
                       {po.is_historical && (
@@ -363,8 +363,8 @@ export default function Orders() {
                           <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Metadata & Identity</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "#e5e7eb" }}>
-                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <User size={14} color="#818cf8" />
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <User size={14} color="#fb923c" />
                               </div>
                               <span>Issued by: <strong style={{ color: "#fff" }}>{po.created_by || "System"}</strong></span>
                             </div>
@@ -398,7 +398,7 @@ export default function Orders() {
                       <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "rgba(255,255,255,0.02)", padding: 20, borderRadius: 16, border: "1px solid rgba(255,255,255,0.04)" }}>
                         <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total Financial Summary</div>
                         <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
-                          <span style={{ fontSize: 14, color: "#818cf8", marginRight: 6 }}>{po.currency || "IDR"}</span>
+                          <span style={{ fontSize: 14, color: "#fb923c", marginRight: 6 }}>{po.currency || "IDR"}</span>
                           {Number(po.total_amount || 0).toLocaleString()}
                         </div>
                         <div style={{ fontSize: 12, color: "#6b7280", display: "flex", alignItems: "center", gap: 6 }}>
@@ -433,7 +433,7 @@ export default function Orders() {
                                   <div style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>{item.inventory_code || "NO-CODE"} • {item.pr_reference_number || "NO-PR"}</div>
                                 </td>
                                 <td style={{ padding: "16px 20px", color: "#e5e7eb" }}>
-                                  <strong style={{ color: "#a5b4fc" }}>{item.qty}</strong> <span style={{ fontSize: 11, color: "#6b7280" }}>{item.uom}</span>
+                                  <strong style={{ color: "#fdba74" }}>{item.qty}</strong> <span style={{ fontSize: 11, color: "#6b7280" }}>{item.uom}</span>
                                 </td>
                                 <td style={{ padding: "16px 20px", color: "#e5e7eb" }}>
                                   {Number(item.unit_price).toLocaleString()}

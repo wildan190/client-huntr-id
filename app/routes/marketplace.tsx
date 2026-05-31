@@ -148,7 +148,7 @@ export default function Marketplace() {
 
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-              <Loader2 className="animate-spin" size={32} color="#6366f1" />
+              <Loader2 className="animate-spin" size={32} color="#f59e0b" />
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
@@ -161,7 +161,7 @@ export default function Marketplace() {
                     <Package size={48} color="rgba(255,255,255,0.1)" />
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
+                    <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
                     <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f3f4f6", margin: "4px 0" }}>{item.name}</h3>
                   </div>
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
@@ -171,8 +171,8 @@ export default function Marketplace() {
                         aria-label="Tambah ke keranjang"
                         onClick={() => addToCart(item)}
                         style={{
-                          width: 36, height: 36, borderRadius: 10, background: "rgba(99,102,241,0.15)",
-                          border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", cursor: "pointer",
+                          width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.15)",
+                          border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", cursor: "pointer",
                           display: "flex", alignItems: "center", justifyContent: "center",
                         }}
                       >
@@ -207,16 +207,16 @@ export default function Marketplace() {
         <div style={{ width: 320, flexShrink: 0 }}>
           <div style={{
             position: "sticky", top: 24,
-            background: "rgba(10,10,28,0.4)", backdropFilter: "blur(10px)",
+            background: "rgba(15,10,6,0.4)", backdropFilter: "blur(10px)",
             borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
             padding: 24, display: "flex", flexDirection: "column", gap: 20,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#a855f7,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#f97316,#f59e0b)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <ShoppingCart size={20} color="#fff" />
               </div>
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#fff" }}>Your Cart</h3>
-              <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "4px 8px", borderRadius: 8 }}>
+              <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "4px 8px", borderRadius: 8 }}>
                 {cart.length} items
               </span>
             </div>
@@ -250,10 +250,10 @@ export default function Marketplace() {
                   onClick={() => navigate("/checkout")}
                   style={{
                     width: "100%", padding: "14px", borderRadius: 14,
-                    background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                    background: "linear-gradient(135deg,#f97316,#f59e0b)",
                     color: "#fff", fontWeight: 700, border: "none", cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                    boxShadow: "0 8px 20px rgba(99,102,241,0.3)",
+                    boxShadow: "0 8px 20px rgba(249,115,22,0.3)",
                   }}
                 >
                   Create PR <CheckCircle2 size={18} />

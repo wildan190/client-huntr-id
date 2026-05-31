@@ -95,7 +95,7 @@ export default function MarketplaceDetail() {
         {!loading && !error && item ? (
           <div style={{ display: "grid", gap: 24 }}>
             <div style={{ display: "grid", gap: 10 }}>
-              <div style={{ color: "#a5b4fc", fontSize: 13, fontWeight: 700 }}>
+              <div style={{ color: "#fdba74", fontSize: 13, fontWeight: 700 }}>
                 Marketplace Product
               </div>
               <h1 style={{ margin: 0, fontSize: 34, color: "#f8fafc" }}>{item.name}</h1>
@@ -158,12 +158,12 @@ export default function MarketplaceDetail() {
                       width: "100%",
                       padding: "16px 18px",
                       borderRadius: 16,
-                      background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                      background: "linear-gradient(135deg,#f97316,#f59e0b)",
                       border: "none",
                       color: "#ffffff",
                       fontWeight: 700,
                       cursor: "pointer",
-                      boxShadow: "0 10px 20px rgba(99,102,241,0.2)",
+                      boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
                     }}
                   >
                     Login untuk Membuat PR

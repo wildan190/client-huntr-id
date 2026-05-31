@@ -8,7 +8,7 @@ function getStatusStyle(status: string) {
   switch (status) {
     case "pending_approval": return { bg: "rgba(249,115,22,0.1)", color: "#f97316", label: "Pending Approval", icon: Clock };
     case "approved": return { bg: "rgba(34,197,94,0.1)", color: "#22c55e", label: "Approved", icon: CheckCircle2 };
-    case "active": return { bg: "rgba(99,102,241,0.1)", color: "#818cf8", label: "Open Tender", icon: Package };
+    case "active": return { bg: "rgba(249,115,22,0.1)", color: "#fb923c", label: "Open Tender", icon: Package };
     case "rejected": return { bg: "rgba(239,68,68,0.1)", color: "#f87171", label: "Rejected", icon: Clock };
     default: return { bg: "rgba(107,114,128,0.1)", color: "#9ca3af", label: status, icon: Clock };
   }
@@ -72,7 +72,7 @@ export default function MyPurchaseRequisitionDetail() {
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#6366f1" />
+            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : error ? (
           <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 20, padding: 28, color: "#fca5a5" }}>
@@ -83,7 +83,7 @@ export default function MyPurchaseRequisitionDetail() {
             <div style={{ display: "grid", gap: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
                 <div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: 1.1 }}>PR #{request.id}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 1.1 }}>PR #{request.id}</span>
                   <h1 style={{ margin: "12px 0 0", fontSize: 32, color: "#f8fafc" }}>{request.title}</h1>
                   <p style={{ margin: "10px 0 0", color: "#9ca3af", maxWidth: 720, lineHeight: 1.7 }}>{request.description || "No description provided."}</p>
                 </div>
@@ -175,7 +175,7 @@ export default function MyPurchaseRequisitionDetail() {
 function MetaCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div style={{ padding: 20, borderRadius: 24, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 14 }}>
-      <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(99,102,241,0.16)", display: "grid", placeItems: "center", color: "#8b5cf6" }}>{icon}</div>
+      <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(249,115,22,0.16)", display: "grid", placeItems: "center", color: "#8b5cf6" }}>{icon}</div>
       <div>
         <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
         <div style={{ marginTop: 4, color: "#f8fafc", fontWeight: 700 }}>{value}</div>

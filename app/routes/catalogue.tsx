@@ -124,7 +124,7 @@ export default function Catalogue() {
                     }}
               style={{
                 padding: "12px 24px", borderRadius: 14, border: "none",
-                background: showForm ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg,#a855f7,#6366f1)",
+                background: showForm ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg,#f97316,#f59e0b)",
                 color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 10, transition: "all 0.2s"
               }}
@@ -157,7 +157,7 @@ export default function Catalogue() {
 
         {/* Manual Entry Form */}
         {showForm && (
-          <div className="glass-panel" style={{ padding: 32, borderRadius: 24, border: "1px solid rgba(99,102,241,0.2)", background: "rgba(99,102,241,0.02)" }}>
+          <div className="glass-panel" style={{ padding: 32, borderRadius: 24, border: "1px solid rgba(249,115,22,0.2)", background: "rgba(249,115,22,0.02)" }}>
             <h3 style={{ margin: "0 0 24px 0", fontSize: 18, fontWeight: 800, color: "#fff" }}>Add New Product</h3>
             <form onSubmit={handleManualSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
               <Field label="Item Code" value={formData.item_code} onChange={(v:any) => setFormData({...formData, item_code: v})} placeholder="e.g. SKA-001" required />
@@ -217,7 +217,7 @@ export default function Catalogue() {
         <div style={{ minHeight: 400 }}>
           {itemsLoading ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "100px 0" }}>
-              <Loader2 className="animate-spin" color="#6366f1" size={32} />
+              <Loader2 className="animate-spin" color="#f59e0b" size={32} />
               <span style={{ fontSize: 14, color: "#6b7280" }}>Fetching your products...</span>
             </div>
           ) : filteredItems.length === 0 ? (
@@ -231,13 +231,13 @@ export default function Catalogue() {
               {filteredItems.map(item => (
                 <div key={item.id} className="glass-panel" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16, transition: "all 0.2s" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", background: "rgba(129,140,248,0.1)", padding: "4px 10px", borderRadius: 6, letterSpacing: "0.05em" }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#fb923c", background: "rgba(251,146,60,0.1)", padding: "4px 10px", borderRadius: 6, letterSpacing: "0.05em" }}>
                       {item.item_code}
                     </div>
                   </div>
                   <div>
                     <h4 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0 }}>{item.name}</h4>
-                    <div style={{ fontSize: 12, color: "#6366f1", marginTop: 4 }}>{item.category || "General"}</div>
+                    <div style={{ fontSize: 12, color: "#f59e0b", marginTop: 4 }}>{item.category || "General"}</div>
                     <p style={{ fontSize: 13, color: "#6b7280", margin: "12px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {item.specifications || "No detailed specifications provided."}
                     </p>
@@ -254,7 +254,7 @@ export default function Catalogue() {
                             specifications: item.specifications || "",
                             uom: item.uom || "Pc",
                           });
-                        }} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                        }} style={{ background: "none", border: "none", color: "#f59e0b", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       Edit <ChevronRight size={14} />
                     </button>
                   </div>
@@ -280,7 +280,7 @@ export default function Catalogue() {
                         <div style={{ color: "#6b7280", fontSize: 11, marginTop: 2, fontFamily: "monospace" }}>{item.item_code}</div>
                       </td>
                       <td style={{ padding: "20px 24px" }}>
-                        <span style={{ color: "#a5b4fc", fontSize: 13 }}>{item.category || "General"}</span>
+                        <span style={{ color: "#fdba74", fontSize: 13 }}>{item.category || "General"}</span>
                       </td>
                       <td style={{ padding: "20px 24px", color: "#9ca3af", fontSize: 13 }}>{item.uom}</td>
                       <td style={{ padding: "20px 24px", textAlign: "right" }}>
@@ -316,7 +316,7 @@ const inputStyle: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: "12px 24px", borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer",
-  border: "none", background: "linear-gradient(135deg,#a855f7,#6366f1)", color: "#fff",
+  border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff",
   display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s"
 };
 

@@ -44,7 +44,7 @@ export default function MyPurchaseRequisitions() {
     switch (status) {
       case "pending_approval": return { bg: "rgba(245,158,11,0.1)", color: "#f59e0b", icon: Clock, label: "Pending Approval" };
       case "approved": return { bg: "rgba(34,197,94,0.1)", color: "#22c55e", icon: CheckCircle2, label: "Approved" };
-      case "active": return { bg: "rgba(99,102,241,0.1)", color: "#818cf8", icon: Package, label: "Open (Global RFQ)" };
+      case "active": return { bg: "rgba(249,115,22,0.1)", color: "#fb923c", icon: Package, label: "Open (Global RFQ)" };
       case "rejected": return { bg: "rgba(239,68,68,0.1)", color: "#f87171", icon: XCircle, label: "Rejected" };
       default: return { bg: "rgba(107,114,128,0.1)", color: "#9ca3af", icon: Clock, label: status };
     }
@@ -79,13 +79,13 @@ export default function MyPurchaseRequisitions() {
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#6366f1" />
+            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : filteredRequests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
             <ClipboardList size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
             <h3 style={{ color: "#9ca3af", margin: 0, fontSize: 16 }}>No purchase requests found</h3>
-            <button onClick={() => navigate("/marketplace")} style={{ marginTop: 24, padding: "12px 24px", borderRadius: 12, background: "#6366f1", border: "none", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+            <button onClick={() => navigate("/marketplace")} style={{ marginTop: 24, padding: "12px 24px", borderRadius: 12, background: "#f59e0b", border: "none", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
               Go to Marketplace
             </button>
           </div>
@@ -104,7 +104,7 @@ export default function MyPurchaseRequisitions() {
                       <div onClick={() => navigate(`/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
                       <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
                             <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                           </div>

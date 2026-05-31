@@ -309,7 +309,7 @@ export default function CompanyDetails() {
     return (
       <Layout title="Company" subtitle="Loading company workspace details...">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "50vh", gap: 14 }}>
-          <Loader2 size={32} className="animate-spin" color="#6366f1" />
+          <Loader2 size={32} className="animate-spin" color="#f59e0b" />
           <span style={{ fontSize: 13, color: "#6b7280" }}>Fetching workspace settings...</span>
         </div>
       </Layout>
@@ -343,7 +343,7 @@ export default function CompanyDetails() {
 
           {companyListLoading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-              <Loader2 size={32} className="animate-spin" color="#6366f1" />
+              <Loader2 size={32} className="animate-spin" color="#f59e0b" />
             </div>
           ) : companies.length === 0 ? (
             <div style={{ textAlign: "center", padding: 40, borderRadius: 20, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -351,7 +351,7 @@ export default function CompanyDetails() {
               {user?.role === "owner" && (
                 <button
                   onClick={() => navigate("/onboarding")}
-                  style={{ marginTop: 16, padding: "10px 18px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#a855f7,#6366f1)", color: "#fff", fontWeight: 700, cursor: "pointer" }}
+                  style={{ marginTop: 16, padding: "10px 18px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff", fontWeight: 700, cursor: "pointer" }}
                 >
                   Register a Company
                 </button>
@@ -369,11 +369,11 @@ export default function CompanyDetails() {
                       textAlign: "left",
                       borderRadius: 28,
                       padding: "24px",
-                      border: active ? "1px solid rgba(99,102,241,0.35)" : "1px solid rgba(255,255,255,0.10)",
+                      border: active ? "1px solid rgba(249,115,22,0.35)" : "1px solid rgba(255,255,255,0.10)",
                       background: active
                         ? "linear-gradient(180deg, rgba(79,70,229,0.16), rgba(63,63,70,0.72))"
                         : "rgba(15,23,42,0.72)",
-                      boxShadow: active ? "0 24px 60px rgba(99,102,241,0.18)" : "0 16px 35px rgba(0,0,0,0.08)",
+                      boxShadow: active ? "0 24px 60px rgba(249,115,22,0.18)" : "0 16px 35px rgba(0,0,0,0.08)",
                       cursor: "pointer",
                       display: "grid",
                       gap: 18,
@@ -388,15 +388,15 @@ export default function CompanyDetails() {
                         {getLogoUrl(c.logo) ? (
                           <img src={getLogoUrl(c.logo)!} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
-                          <div style={{ width: 34, height: 34, borderRadius: 12, background: "rgba(99,102,241,0.15)", display: "grid", placeItems: "center" }}>
-                            <Building2 size={18} color="#a5b4fc" />
+                          <div style={{ width: 34, height: 34, borderRadius: 12, background: "rgba(249,115,22,0.15)", display: "grid", placeItems: "center" }}>
+                            <Building2 size={18} color="#fdba74" />
                           </div>
                         )}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc", lineHeight: 1.1 }}>{c.name}</div>
                         <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, letterSpacing: "0.12em", color: "#c7d2fe", background: "rgba(99,102,241,0.12)", padding: "4px 10px", borderRadius: 999, textTransform: "uppercase" }}>
+                          <span style={{ fontSize: 11, letterSpacing: "0.12em", color: "#c7d2fe", background: "rgba(249,115,22,0.12)", padding: "4px 10px", borderRadius: 999, textTransform: "uppercase" }}>
                             {c.type?.toUpperCase() || "WORKSPACE"}
                           </span>
                           <span style={{ fontSize: 11, color: "#d1d5db", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: 999 }}>
@@ -429,7 +429,7 @@ export default function CompanyDetails() {
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 12, color: "#9ca3af" }}>Workspace opened {c.updated_at ? `• ${new Date(c.updated_at).toLocaleDateString()}` : "recently"}</span>
-                      <span style={{ fontSize: 12, color: "#a5b4fc", fontWeight: 700 }}>Manage</span>
+                      <span style={{ fontSize: 12, color: "#fdba74", fontWeight: 700 }}>Manage</span>
                     </div>
                   </button>
                 );
@@ -480,9 +480,9 @@ export default function CompanyDetails() {
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <div style={{
               width: 56, height: 56, borderRadius: 14,
-              background: "linear-gradient(135deg,#a855f7,#6366f1)",
+              background: "linear-gradient(135deg,#f97316,#f59e0b)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 6px 20px rgba(99,102,241,0.25)",
+              boxShadow: "0 6px 20px rgba(249,115,22,0.25)",
             }}>
               <Building2 size={26} color="#fff" />
             </div>
@@ -493,7 +493,7 @@ export default function CompanyDetails() {
                 </h2>
                 <span style={{
                   fontSize: 10, fontWeight: 700, textTransform: "uppercase",
-                  background: company.type === "buyer" ? "rgba(59,130,246,0.12)" : "rgba(168,85,247,0.12)",
+                  background: company.type === "buyer" ? "rgba(59,130,246,0.12)" : "rgba(251,146,60,0.12)",
                   color: company.type === "buyer" ? "#60a5fa" : "#c084fc",
                   padding: "3px 8px", borderRadius: 6, letterSpacing: "0.06em",
                 }}>
@@ -521,8 +521,8 @@ export default function CompanyDetails() {
             <button
               onClick={() => navigate("/onboarding")}
               style={{
-                background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)",
-                borderRadius: 10, padding: "8px 14px", color: "#a5b4fc",
+                background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)",
+                borderRadius: 10, padding: "8px 14px", color: "#fdba74",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex",
                 alignItems: "center", gap: 8,
               }}
@@ -575,8 +575,8 @@ export default function CompanyDetails() {
                     style={{
                       display: "flex", alignItems: "center", gap: 8,
                       padding: "12px 18px", background: "none", border: "none",
-                      borderBottom: active ? "2px solid #6366f1" : "2px solid transparent",
-                      color: active ? "#a5b4fc" : "#6b7280",
+                      borderBottom: active ? "2px solid #f59e0b" : "2px solid transparent",
+                      color: active ? "#fdba74" : "#6b7280",
                       fontWeight: active ? 700 : 500, fontSize: 13,
                       cursor: "pointer", transition: "all 0.2s",
                       marginBottom: -1,
@@ -616,9 +616,9 @@ export default function CompanyDetails() {
                       setUpdateError(null);
                     }}
                     style={{
-                      background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)",
+                      background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.25)",
                       borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700,
-                      color: "#a5b4fc", cursor: "pointer", transition: "all 0.2s",
+                      color: "#fdba74", cursor: "pointer", transition: "all 0.2s",
                     }}
                   >
                     Edit Data Perusahaan
@@ -640,10 +640,10 @@ export default function CompanyDetails() {
                       onClick={handleSaveCompany}
                       disabled={updatingCompany}
                       style={{
-                        background: "linear-gradient(135deg,#a855f7,#6366f1)", border: "none",
+                        background: "linear-gradient(135deg,#f97316,#f59e0b)", border: "none",
                         borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 800,
                         color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-                        boxShadow: "0 4px 12px rgba(99,102,241,0.2)", transition: "all 0.2s",
+                        boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s",
                       }}
                     >
                       {updatingCompany ? <><Loader2 size={12} className="animate-spin" /> Menyimpan...</> : "Simpan Perubahan"}
@@ -736,7 +736,7 @@ export default function CompanyDetails() {
                       <EditItem label="Primary Contact Email" type="email" value={editForm.email} onChange={v => setEditForm({ ...editForm, email: v })} />
                       <EditItem label="Contact Phone / Whatsapp" value={editForm.phone} onChange={v => setEditForm({ ...editForm, phone: v })} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Industry Type
                         </span>
                         <select
@@ -744,7 +744,7 @@ export default function CompanyDetails() {
                           onChange={e => setEditForm({ ...editForm, industry_type: e.target.value })}
                           style={{
                             background: "rgba(255,255,255,0.03)",
-                            border: "1px solid rgba(99,102,241,0.25)",
+                            border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
@@ -816,7 +816,7 @@ export default function CompanyDetails() {
                     <>
                       <EditItem label="Province / Country" value={editForm.provincy_country} onChange={v => setEditForm({ ...editForm, provincy_country: v })} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Region / State
                         </span>
                         <select
@@ -824,7 +824,7 @@ export default function CompanyDetails() {
                           onChange={e => setEditForm({ ...editForm, region: e.target.value })}
                           style={{
                             background: "rgba(255,255,255,0.03)",
-                            border: "1px solid rgba(99,102,241,0.25)",
+                            border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
@@ -872,7 +872,7 @@ export default function CompanyDetails() {
                   {isEditing ? (
                     <>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Settlement Bank Name
                         </span>
                         <select
@@ -880,7 +880,7 @@ export default function CompanyDetails() {
                           onChange={e => setEditForm({ ...editForm, bank_name: e.target.value })}
                           style={{
                             background: "rgba(255,255,255,0.03)",
-                            border: "1px solid rgba(99,102,241,0.25)",
+                            border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
@@ -1099,12 +1099,12 @@ export default function CompanyDetails() {
                   border: "2px dashed rgba(255,255,255,0.08)",
                   borderRadius: 14, padding: "24px 20px",
                   textAlign: "center", cursor: "pointer",
-                  background: selectedFile ? "rgba(99,102,241,0.05)" : "rgba(0,0,0,0.15)",
+                  background: selectedFile ? "rgba(249,115,22,0.05)" : "rgba(0,0,0,0.15)",
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
                   transition: "all 0.2s",
                 }}>
-                  <FileSpreadsheet size={28} color={selectedFile ? "#818cf8" : "#4b5563"} />
-                  <span style={{ fontSize: 12, color: selectedFile ? "#a5b4fc" : "#9ca3af", fontWeight: 600 }}>
+                  <FileSpreadsheet size={28} color={selectedFile ? "#fb923c" : "#4b5563"} />
+                  <span style={{ fontSize: 12, color: selectedFile ? "#fdba74" : "#9ca3af", fontWeight: 600 }}>
                     {selectedFile ? selectedFile.name : "Pilih file CSV atau Excel (.xlsx / .xls)"}
                   </span>
                   <input
@@ -1130,7 +1130,7 @@ export default function CompanyDetails() {
                 {selectedFile && (
                   <button type="submit" disabled={uploading} style={{
                     padding: "10px 16px", borderRadius: 10, border: "none",
-                    background: "linear-gradient(135deg,#a855f7,#6366f1)",
+                    background: "linear-gradient(135deg,#f97316,#f59e0b)",
                     color: "#fff", fontWeight: 700, cursor: "pointer",
                     fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     alignSelf: "flex-end",
@@ -1149,7 +1149,7 @@ export default function CompanyDetails() {
                   <button
                     onClick={handleRefresh}
                     disabled={refreshing || posLoading || cataloguesLoading}
-                    style={{ background: "none", border: "none", color: "#6366f1", fontSize: 12, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}
+                    style={{ background: "none", border: "none", color: "#f59e0b", fontSize: 12, cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}
                   >
                     <RefreshCw size={12} className={(posLoading || cataloguesLoading) ? "animate-spin" : ""} /> Refresh Data
                   </button>
@@ -1178,7 +1178,7 @@ export default function CompanyDetails() {
                         <tbody>
                           {catalogues.slice(0, 50).map((item: any, idx: number) => (
                             <tr key={item.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
-                              <td style={{ padding: "10px", color: "#818cf8" }}>{item.item_code || (idx + 1)}</td>
+                              <td style={{ padding: "10px", color: "#fb923c" }}>{item.item_code || (idx + 1)}</td>
                               <td style={{ padding: "10px", color: "#e5e7eb", fontWeight: 500 }}>{item.name}</td>
                               <td style={{ padding: "10px", color: "#9ca3af" }}>{item.category || "—"}</td>
                               <td style={{ padding: "10px", color: "#9ca3af" }}>{item.specifications || "—"}</td>
@@ -1238,7 +1238,7 @@ interface EditItemProps {
 function EditItem({ label, value, onChange, type = "text", textarea = false, placeholder }: EditItemProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
         {label}
       </span>
       {textarea ? (
@@ -1249,7 +1249,7 @@ function EditItem({ label, value, onChange, type = "text", textarea = false, pla
           rows={3}
           style={{
             background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(99,102,241,0.25)",
+            border: "1px solid rgba(249,115,22,0.25)",
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
@@ -1269,7 +1269,7 @@ function EditItem({ label, value, onChange, type = "text", textarea = false, pla
           placeholder={placeholder}
           style={{
             background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(99,102,241,0.25)",
+            border: "1px solid rgba(249,115,22,0.25)",
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,

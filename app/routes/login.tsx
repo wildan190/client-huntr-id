@@ -93,7 +93,7 @@ export default function Login() {
       visualTitle="Enterprise Procurement"
       visualText="Streamline your business operations with our advanced B2B ecosystem."
       features={["✓ Verified Vendors", "✓ Automated RFQ", "✓ Secure PO"]}
-      featureVariant="indigo"
+      featureVariant="orange"
     >
       {!show2FA ? (
         <form onSubmit={handleSubmit} className="auth-form">
