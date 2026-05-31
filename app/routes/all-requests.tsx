@@ -36,7 +36,8 @@ export default function AllRequests() {
 
   return (
     <Layout title="All Requests" subtitle="Browse active global RFQs and tenders published by organizations.">
-      <div style={{ padding: "0 32px 40px" }}>
+      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         
         {/* Info Banner: How to create request? */}
         {activeCompany?.type === 'buyer' && (
@@ -152,6 +153,7 @@ export default function AllRequests() {
             ))}
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );

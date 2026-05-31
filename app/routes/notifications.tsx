@@ -56,7 +56,8 @@ export default function Notifications() {
 
   return (
     <Layout title="Notifications" subtitle="Stay updated with your latest activities and requests.">
-      <div style={{ padding: "0 32px 40px", maxWidth: 800, margin: "0 auto" }}>
+      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         
         {/* Header Actions */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
@@ -137,6 +138,7 @@ export default function Notifications() {
             })}
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );

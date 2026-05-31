@@ -248,7 +248,7 @@ export default function AccountSettings() {
 
   return (
     <Layout title="Pengaturan Akun" subtitle="Kelola keamanan dan profil Anda">
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "20px 0" }}>
+      <div style={{ maxWidth: "100%", width: "100%", padding: "20px clamp(16px, 5vw, 40px)" }}>
         
         {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "rgba(255,255,255,0.03)", padding: 6, borderRadius: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -281,6 +281,7 @@ export default function AccountSettings() {
                   <label style={labelStyle}>Password Saat Ini</label>
                   <input 
                     type="password" 
+                    placeholder="Masukkan password saat ini"
                     value={passwordForm.current_password} 
                     onChange={e => setPasswordForm(p => ({ ...p, current_password: e.target.value }))}
                     required 
@@ -293,6 +294,7 @@ export default function AccountSettings() {
                   <div style={{ position: "relative" }}>
                     <input 
                       type={showPw ? "text" : "password"} 
+                      placeholder="Masukkan password baru"
                       value={passwordForm.password} 
                       onChange={e => setPasswordForm(p => ({ ...p, password: e.target.value }))}
                       required 
@@ -308,6 +310,7 @@ export default function AccountSettings() {
                   <label style={labelStyle}>Konfirmasi Password Baru</label>
                   <input 
                     type="password" 
+                    placeholder="Konfirmasi password baru"
                     value={passwordForm.password_confirmation} 
                     onChange={e => setPasswordForm(p => ({ ...p, password_confirmation: e.target.value }))}
                     required 
@@ -345,7 +348,7 @@ export default function AccountSettings() {
                         type="text" 
                         value={twoFactorCode} 
                         onChange={e => setTwoFactorCode(e.target.value)}
-                        placeholder="6 digit kode"
+                        placeholder="Masukkan 6 digit kode dari aplikasi autentikator"
                         style={inputStyle} 
                       />
                     </div>
@@ -393,6 +396,7 @@ export default function AccountSettings() {
                 <div style={{ display: "flex", gap: 10 }}>
                   <input 
                     type="tel" 
+                    placeholder="Contoh: +62812345678"
                     value={newWhatsapp} 
                     onChange={e => {
                       setNewWhatsapp(e.target.value);
@@ -428,7 +432,7 @@ export default function AccountSettings() {
                     value={otp} 
                     onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     inputMode="numeric"
-                    placeholder="6 digit kode"
+                    placeholder="Masukkan 6 digit kode OTP dari WhatsApp"
                     required 
                     maxLength={6}
                     style={inputStyle} 

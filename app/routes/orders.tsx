@@ -128,7 +128,8 @@ export default function Orders() {
       title="Purchase Order"
       subtitle="View and manage all purchase order documents."
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%", padding: "0 32px 40px" }}>
+      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
         
         {/* Header Summary Card */}
         <div style={{
@@ -485,6 +486,7 @@ export default function Orders() {
             </button>
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );
