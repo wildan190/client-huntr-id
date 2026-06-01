@@ -61,7 +61,7 @@ export default function Notifications() {
         
         {/* Header Actions */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10, transition: "color 0.3s ease" }}>
             <Bell size={20} color="#f59e0b" /> Recent Activity
           </h3>
           <button 
@@ -71,7 +71,7 @@ export default function Notifications() {
               padding: "8px 16px", borderRadius: 10, background: "rgba(249,115,22,0.1)",
               border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", fontSize: 13,
               fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-              opacity: notifications.every(n => n.read_at) ? 0.5 : 1
+              opacity: notifications.every(n => n.read_at) ? 0.5 : 1, transition: "all 0.3s ease"
             }}
           >
             <MailOpen size={14} /> Mark all as read
@@ -83,9 +83,9 @@ export default function Notifications() {
             <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : notifications.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
+          <div style={{ textAlign: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
             <Bell size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-            <h3 style={{ color: "#9ca3af", margin: 0, fontSize: 16 }}>No notifications yet</h3>
+            <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No notifications yet</h3>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -96,35 +96,35 @@ export default function Notifications() {
                   key={n.id} 
                   onClick={() => handleMarkAsRead(n.id, n.data?.url)}
                   style={{
-                    background: isRead ? "rgba(255,255,255,0.01)" : "rgba(249,115,22,0.05)",
+                    background: isRead ? "var(--ui-bg-input)" : "rgba(249,115,22,0.05)",
                     borderRadius: 20, border: "1px solid",
-                    borderColor: isRead ? "rgba(255,255,255,0.04)" : "rgba(249,115,22,0.2)",
+                    borderColor: isRead ? "var(--ui-border-input)" : "rgba(249,115,22,0.2)",
                     padding: "20px 24px", display: "flex", alignItems: "flex-start", gap: 20,
-                    cursor: "pointer", transition: "all 0.2s",
+                    cursor: "pointer", transition: "all 0.3s ease",
                   }}
                 >
                   <div style={{ 
                     width: 44, height: 44, borderRadius: 14, 
-                    background: isRead ? "rgba(255,255,255,0.03)" : "rgba(249,115,22,0.15)",
-                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+                    background: isRead ? "var(--ui-bg-card)" : "rgba(249,115,22,0.15)",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.3s ease"
                   }}>
-                    {isRead ? <MailOpen size={20} color="#6b7280" /> : <Mail size={20} color="#fb923c" />}
+                    {isRead ? <MailOpen size={20} color="var(--ui-text-muted)" /> : <Mail size={20} color="#fb923c" />}
                   </div>
 
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: isRead ? "#9ca3af" : "#f3f4f6" }}>
+                      <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: isRead ? "var(--ui-text-secondary)" : "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                         {n.data?.title || "Notification"}
                       </h4>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#6b7280" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                         <Clock size={12} /> {new Date(n.created_at).toLocaleString()}
                       </div>
                     </div>
-                    <p style={{ margin: 0, fontSize: 13, color: isRead ? "#6b7280" : "#9ca3af", lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: 13, color: isRead ? "var(--ui-text-muted)" : "var(--ui-text-secondary)", lineHeight: 1.5, transition: "color 0.3s ease" }}>
                       {n.data?.body}
                     </p>
                     {n.data?.url && (
-                      <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#f59e0b", fontWeight: 700 }}>
+                      <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#f59e0b", fontWeight: 700, transition: "color 0.3s ease" }}>
                         View Details <ExternalLink size={12} />
                       </div>
                     )}

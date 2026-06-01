@@ -88,6 +88,7 @@ export default function Rfq() {
           catalogue_id: it.catalogue_id,
           qty: it.qty,
           expected_date: it.expected_date,
+          estimated_price: it.price || 0, // Capture price at creation time
         })),
       });
       setResult(data.rfq);

@@ -138,14 +138,15 @@ export default function Orders() {
         
         {/* Header Summary Card */}
         <div style={{
-          background: "linear-gradient(135deg, rgba(15,15,35,0.7), rgba(30,20,50,0.5))",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--ui-bg-card)",
+          border: "1px solid var(--ui-border)",
           borderRadius: 24,
           padding: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           backdropFilter: "blur(20px)",
+          transition: "all 0.3s ease",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div style={{
@@ -157,10 +158,10 @@ export default function Orders() {
               <FileText size={28} color="#fff" />
             </div>
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "#f3f4f6", margin: 0 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", margin: 0, transition: "color 0.3s ease" }}>
                 List of {company.type === "buyer" ? "Purchase Orders" : "Catalogue Items"} ({totalOrders})
               </h2>
-              <p style={{ fontSize: 13, color: "#9ca3af", margin: "6px 0 0" }}>
+              <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", margin: "6px 0 0", transition: "color 0.3s ease" }}>
                 Active Workspace: <strong style={{ color: "#fdba74" }}>{company.name}</strong>
               </p>
             </div>
@@ -172,7 +173,7 @@ export default function Orders() {
               style={{
                 background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
                 borderRadius: 14, padding: "0 20px", display: "flex", alignItems: "center", gap: 10,
-                cursor: "pointer", color: "#fb923c", fontWeight: 700, fontSize: 13,
+                cursor: "pointer", color: "#fb923c", fontWeight: 700, fontSize: 13, transition: "all 0.3s ease"
               }}
             >
               <UploadCloud size={18} /> Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
@@ -182,9 +183,9 @@ export default function Orders() {
               onClick={() => fetchOrders(company.id, currentPage)}
               disabled={refreshing}
               style={{
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
                 borderRadius: 14, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "#9ca3af", transition: "all 0.2s",
+                cursor: "pointer", color: "var(--ui-text-secondary)", transition: "all 0.3s ease",
               }}
             >
               <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
@@ -199,36 +200,37 @@ export default function Orders() {
             display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20,
           }}>
             <div style={{
-              background: "#141008", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 28,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 28,
               width: "100%", maxWidth: 500, padding: 32, display: "flex", flexDirection: "column", gap: 24,
+              transition: "all 0.3s ease",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#fff" }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                   Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
                 </h3>
-                <button onClick={() => setShowImportModal(false)} style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer" }}><X size={20} /></button>
+                <button onClick={() => setShowImportModal(false)} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", transition: "color 0.3s ease" }}><X size={20} /></button>
               </div>
 
               <div style={{ 
                 padding: 40, border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 20, textAlign: "center",
-                background: "rgba(255,255,255,0.02)", cursor: "pointer",
+                background: "var(--ui-bg-input)", cursor: "pointer", transition: "all 0.3s ease",
               }} onClick={() => document.getElementById("csv-input")?.click()}>
-                <FileSpreadsheet size={48} color={importFile ? "#f59e0b" : "rgba(255,255,255,0.1)"} style={{ marginBottom: 16 }} />
-                <p style={{ color: importFile ? "#fff" : "#9ca3af", margin: 0, fontSize: 14, fontWeight: 600 }}>
+                <FileSpreadsheet size={48} color={importFile ? "#f59e0b" : "var(--ui-text-muted)"} style={{ marginBottom: 16, transition: "color 0.3s ease" }} />
+                <p style={{ color: importFile ? "var(--ui-text-primary)" : "var(--ui-text-secondary)", margin: 0, fontSize: 14, fontWeight: 600, transition: "color 0.3s ease" }}>
                   {importFile ? importFile.name : "Click to select CSV file"}
                 </p>
-                <p style={{ color: "#6b7280", fontSize: 12, marginTop: 8 }}>Format must match user_story.md headers</p>
+                <p style={{ color: "var(--ui-text-muted)", fontSize: 12, marginTop: 8, transition: "color 0.3s ease" }}>Format must match user_story.md headers</p>
                 <input id="csv-input" type="file" accept=".csv" style={{ display: "none" }} onChange={e => setImportFile(e.target.files?.[0] || null)} />
               </div>
 
               {importError && (
-                <div style={{ padding: 12, borderRadius: 12, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 13 }}>
+                <div style={{ padding: 12, borderRadius: 12, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 13, transition: "all 0.3s ease" }}>
                   {importError}
                 </div>
               )}
 
               {importSuccess && (
-                <div style={{ padding: 12, borderRadius: 12, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 13 }}>
+                <div style={{ padding: 12, borderRadius: 12, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 13, transition: "all 0.3s ease" }}>
                   Import successful! Processing in background...
                 </div>
               )}
@@ -240,7 +242,7 @@ export default function Orders() {
                   width: "100%", padding: 16, borderRadius: 16, background: "linear-gradient(135deg,#f97316,#f59e0b)",
                   color: "#fff", fontWeight: 700, border: "none", cursor: (isImporting || !importFile) ? "not-allowed" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  boxShadow: "0 8px 20px rgba(249,115,22,0.2)", opacity: (isImporting || !importFile) ? 0.6 : 1,
+                  boxShadow: "0 8px 20px rgba(249,115,22,0.2)", opacity: (isImporting || !importFile) ? 0.6 : 1, transition: "all 0.3s ease"
                 }}
               >
                 {isImporting ? <Loader2 size={20} className="animate-spin" /> : "Start Import"}
@@ -251,7 +253,7 @@ export default function Orders() {
 
         {/* Tab Selection & Search */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", gap: 8, background: "rgba(255,255,255,0.02)", padding: 6, borderRadius: 16, width: "fit-content" }}>
+          <div style={{ display: "flex", gap: 8, background: "var(--ui-bg-input)", padding: 6, borderRadius: 16, width: "fit-content", transition: "all 0.3s ease" }}>
             {[
               { id: "all", label: "All POs" },
               { id: "operational", label: "Operational" },
@@ -263,8 +265,8 @@ export default function Orders() {
                 style={{
                   padding: "10px 20px", borderRadius: 12, border: "none",
                   background: activeTab === tab.id ? "rgba(249,115,22,0.15)" : "transparent",
-                  color: activeTab === tab.id ? "#fdba74" : "#6b7280",
-                  fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all 0.2s"
+                  color: activeTab === tab.id ? "#fdba74" : "var(--ui-text-muted)",
+                  fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all 0.3s ease"
                 }}
               >
                 {tab.label}
@@ -273,7 +275,7 @@ export default function Orders() {
           </div>
 
           <div style={{ position: "relative", flex: 1, maxWidth: 400 }}>
-            <Search size={18} color="#6b7280" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <Search size={18} color="var(--ui-text-muted)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", transition: "color 0.3s ease" }} />
             <input 
               type="text" 
               placeholder="Search by PO number, vendor, or user..." 
@@ -281,8 +283,8 @@ export default function Orders() {
               onChange={e => setSearchQuery(e.target.value)}
               style={{
                 width: "100%", padding: "12px 16px 12px 48px", borderRadius: 16,
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                color: "#fff", outline: "none", fontSize: 14, transition: "all 0.2s",
+                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
+                color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
                 boxSizing: "border-box"
               }}
             />
@@ -292,52 +294,52 @@ export default function Orders() {
         {/* PO Table/List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {filteredOrders.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "80px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
+            <div style={{ textAlign: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
               <FileText size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-              <h3 style={{ color: "#9ca3af", margin: 0, fontSize: 16 }}>No purchase orders found</h3>
+              <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase orders found</h3>
             </div>
           ) : (
             filteredOrders.map(po => (
               <div key={po.id} style={{
-                background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
-                padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, transition: "all 0.2s",
+                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
+                padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>
                         {po.po_number}
                       </span>
                       {po.is_historical && (
-                        <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "2px 8px", borderRadius: 6, textTransform: "uppercase" }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "2px 8px", borderRadius: 6, textTransform: "uppercase", transition: "all 0.3s ease" }}>
                           Historical
                         </span>
                       )}
                     </div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f3f4f6" }}>{po.rfq?.title || "Purchase Order Document"}</h3>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.rfq?.title || "Purchase Order Document"}</h3>
                   </div>
 
                   <div style={{ width: 200 }}>
-                    <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Vendor</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Vendor</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Building size={14} color="#9ca3af" />
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{po.vendor_name || "N/A"}</span>
+                      <Building size={14} color="var(--ui-text-secondary)" />
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.vendor_name || "N/A"}</span>
                     </div>
                   </div>
 
                   <div style={{ width: 160 }}>
-                    <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Date</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Calendar size={14} color="#9ca3af" />
-                      <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>{po.order_date || new Date(po.created_at).toLocaleDateString()}</span>
+                      <Calendar size={14} color="var(--ui-text-secondary)" />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.order_date || new Date(po.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
 
                   <div style={{ width: 140 }}>
-                    <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Status</div>
                     <div style={{
                       display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 10,
-                      background: "rgba(34,197,94,0.1)", color: "#22c55e", fontSize: 12, fontWeight: 700,
+                      background: "rgba(34,197,94,0.1)", color: "#22c55e", fontSize: 12, fontWeight: 700, transition: "all 0.3s ease"
                     }}>
                       <CheckCircle2 size={14} /> Issued
                     </div>
@@ -346,9 +348,9 @@ export default function Orders() {
                   <button 
                     onClick={() => setExpandedPo(expandedPo === po.id ? null : po.id)}
                     style={{
-                      width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.08)", color: "#9ca3af", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
+                      width: 40, height: 40, borderRadius: 12, background: "var(--ui-bg-input)",
+                      border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease"
                     }}
                   >
                     {expandedPo === po.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
@@ -357,57 +359,57 @@ export default function Orders() {
 
                 {expandedPo === po.id && (
                   <div style={{ 
-                    padding: "32px", borderRadius: 20, background: "rgba(0,0,0,0.3)", 
-                    border: "1px solid rgba(255,255,255,0.06)", marginTop: 8,
+                    padding: "32px", borderRadius: 20, background: "var(--ui-bg-input)", 
+                    border: "1px solid var(--ui-border-input)", marginTop: 8,
                     display: "flex", flexDirection: "column", gap: 32,
-                    boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)"
+                    boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)", transition: "all 0.3s ease"
                   }}>
                     {/* Upper Detail Grid */}
                     <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 40 }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                         <div>
-                          <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Metadata & Identity</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Metadata & Identity</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "#e5e7eb" }}>
-                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
                                 <User size={14} color="#fb923c" />
                               </div>
-                              <span>Issued by: <strong style={{ color: "#fff" }}>{po.created_by || "System"}</strong></span>
+                              <span>Issued by: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.created_by || "System"}</strong></span>
                             </div>
                             {po.approved_by && (
-                              <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "#e5e7eb" }}>
-                                <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
                                   <CheckCircle2 size={14} color="#4ade80" />
                                 </div>
-                                <span>Approved by: <strong style={{ color: "#fff" }}>{po.approved_by}</strong></span>
+                                <span>Approved by: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.approved_by}</strong></span>
                               </div>
                             )}
-                            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "#e5e7eb" }}>
-                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <Clock size={14} color="#9ca3af" />
+                            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--ui-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                                <Clock size={14} color="var(--ui-text-secondary)" />
                               </div>
-                              <span>Last Update: <strong style={{ color: "#fff" }}>{new Date(po.updated_at).toLocaleString()}</strong></span>
+                              <span>Last Update: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{new Date(po.updated_at).toLocaleString()}</strong></span>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                        <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Classification</div>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Classification</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                          <div style={{ fontSize: 13, color: "#9ca3af" }}>Category: <strong style={{ color: "#e5e7eb" }}>{po.purchase_category || "N/A"}</strong></div>
-                          <div style={{ fontSize: 13, color: "#9ca3af" }}>Type: <strong style={{ color: "#e5e7eb" }}>{po.purchase_type || "N/A"}</strong></div>
-                          <div style={{ fontSize: 13, color: "#9ca3af" }}>Department: <strong style={{ color: "#e5e7eb" }}>{po.department || "N/A"}</strong></div>
+                          <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Category: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_category || "N/A"}</strong></div>
+                          <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Type: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_type || "N/A"}</strong></div>
+                          <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Department: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.department || "N/A"}</strong></div>
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "rgba(255,255,255,0.02)", padding: 20, borderRadius: 16, border: "1px solid rgba(255,255,255,0.04)" }}>
-                        <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total Financial Summary</div>
-                        <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "var(--ui-bg-card)", padding: 20, borderRadius: 16, border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, transition: "color 0.3s ease" }}>Total Financial Summary</div>
+                        <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)", letterSpacing: "-0.5px", transition: "color 0.3s ease" }}>
                           <span style={{ fontSize: 14, color: "#fb923c", marginRight: 6 }}>{po.currency || "IDR"}</span>
                           {Number(po.total_amount || 0).toLocaleString()}
                         </div>
-                        <div style={{ fontSize: 12, color: "#6b7280", display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", display: "flex", alignItems: "center", gap: 6, transition: "color 0.3s ease" }}>
                           <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} /> All taxes included
                         </div>
                       </div>
@@ -416,38 +418,38 @@ export default function Orders() {
                     {/* Item Breakdown Table */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h4 style={{ fontSize: 12, fontWeight: 800, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>Item Breakdown</h4>
-                        <span style={{ fontSize: 11, color: "#4b5563", fontWeight: 600 }}>{po.items?.length || 0} line items</span>
+                        <h4 style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0, transition: "color 0.3s ease" }}>Item Breakdown</h4>
+                        <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, transition: "color 0.3s ease" }}>{po.items?.length || 0} line items</span>
                       </div>
                       
-                      <div style={{ overflow: "hidden", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div style={{ overflow: "hidden", borderRadius: 16, border: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
                           <thead>
-                            <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                              <th style={{ padding: "14px 20px", color: "#6b7280", fontWeight: 700, fontSize: 11 }}>ITEM NAME & CODE</th>
-                              <th style={{ padding: "14px 20px", color: "#6b7280", fontWeight: 700, fontSize: 11 }}>QTY</th>
-                              <th style={{ padding: "14px 20px", color: "#6b7280", fontWeight: 700, fontSize: 11 }}>UNIT PRICE</th>
-                              <th style={{ padding: "14px 20px", color: "#6b7280", fontWeight: 700, fontSize: 11 }}>TAX</th>
-                              <th style={{ padding: "14px 20px", color: "#6b7280", fontWeight: 700, fontSize: 11, textAlign: "right" }}>SUBTOTAL</th>
+                            <tr style={{ background: "var(--ui-bg-card)", borderBottom: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
+                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>ITEM NAME & CODE</th>
+                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>QTY</th>
+                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>UNIT PRICE</th>
+                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>TAX</th>
+                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textAlign: "right", transition: "color 0.3s ease" }}>SUBTOTAL</th>
                             </tr>
                           </thead>
                           <tbody>
                             {po.items?.map((item: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: idx === (po.items?.length - 1) ? "none" : "1px solid rgba(255,255,255,0.03)" }}>
+                              <tr key={idx} style={{ borderBottom: idx === (po.items?.length - 1) ? "none" : "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
                                 <td style={{ padding: "16px 20px" }}>
-                                  <div style={{ color: "#fff", fontWeight: 700, marginBottom: 4 }}>{item.inventory_name}</div>
-                                  <div style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>{item.inventory_code || "NO-CODE"} • {item.pr_reference_number || "NO-PR"}</div>
+                                  <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, marginBottom: 4, transition: "color 0.3s ease" }}>{item.inventory_name}</div>
+                                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontFamily: "monospace", transition: "color 0.3s ease" }}>{item.inventory_code || "NO-CODE"} • {item.pr_reference_number || "NO-PR"}</div>
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "#e5e7eb" }}>
-                                  <strong style={{ color: "#fdba74" }}>{item.qty}</strong> <span style={{ fontSize: 11, color: "#6b7280" }}>{item.uom}</span>
+                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                                  <strong style={{ color: "#fdba74" }}>{item.qty}</strong> <span style={{ fontSize: 11, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>{item.uom}</span>
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "#e5e7eb" }}>
+                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                                   {Number(item.unit_price).toLocaleString()}
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "#f87171", fontSize: 12 }}>
+                                <td style={{ padding: "16px 20px", color: "#f87171", fontSize: 12, transition: "color 0.3s ease" }}>
                                   {Number(item.tax_amount) > 0 ? `+${Number(item.tax_amount).toLocaleString()}` : "—"}
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "#fff", fontWeight: 800, textAlign: "right" }}>
+                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", fontWeight: 800, textAlign: "right", transition: "color 0.3s ease" }}>
                                   {Number(item.total_amount).toLocaleString()}
                                 </td>
                               </tr>
@@ -470,21 +472,21 @@ export default function Orders() {
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               style={{
-                width: 40, height: 40, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)", color: "#9ca3af", cursor: currentPage === 1 ? "not-allowed" : "pointer"
+                width: 40, height: 40, borderRadius: 12, border: "1px solid var(--ui-border-input)",
+                background: "var(--ui-bg-input)", color: "var(--ui-text-secondary)", cursor: currentPage === 1 ? "not-allowed" : "pointer", transition: "all 0.3s ease"
               }}
             >
               <ChevronLeft size={20} />
             </button>
-            <span style={{ fontSize: 14, color: "#9ca3af", fontWeight: 600 }}>
+            <span style={{ fontSize: 14, color: "var(--ui-text-secondary)", fontWeight: 600, transition: "color 0.3s ease" }}>
               Page {currentPage} of {lastPage}
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === lastPage}
               style={{
-                width: 40, height: 40, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)", color: "#9ca3af", cursor: currentPage === lastPage ? "not-allowed" : "pointer"
+                width: 40, height: 40, borderRadius: 12, border: "1px solid var(--ui-border-input)",
+                background: "var(--ui-bg-input)", color: "var(--ui-text-secondary)", cursor: currentPage === lastPage ? "not-allowed" : "pointer", transition: "all 0.3s ease"
               }}
             >
               <ChevronRight size={20} />

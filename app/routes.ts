@@ -11,6 +11,7 @@ export default [
   route("my-pr", "routes/my-pr.tsx"),
   route("my-pr/:id", "routes/my-pr-detail.tsx"),
   route("all-requests", "routes/all-requests.tsx"),
+  route("rfq/:id", "routes/rfq-detail.tsx"),
   route("checkout", "routes/checkout.tsx"),
   route("approvals", "routes/approvals.tsx"),
   route("company", "routes/company.tsx"),

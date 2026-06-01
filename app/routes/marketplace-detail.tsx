@@ -11,7 +11,6 @@ interface CatalogueItem {
   specifications?: string;
   image?: string;
   uom: string;
-  price: number;
   company_id: number;
   company?: {
     id: number;
@@ -59,7 +58,7 @@ export default function MarketplaceDetail() {
       const existing = currentCart.find((i: any) => i.id === catalogueItem.id);
       const nextCart = existing
         ? currentCart.map((i: any) => i.id === catalogueItem.id ? { ...i, qty: i.qty + 1 } : i)
-        : [...currentCart, { ...catalogueItem, qty: 1 }];
+        : [...currentCart, { ...catalogueItem, qty: 1, estimated_price: 0 }];
 
       localStorage.setItem("huntr_cart", JSON.stringify(nextCart));
       setCartMessage("Produk berhasil ditambahkan ke keranjang.");

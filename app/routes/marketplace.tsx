@@ -94,7 +94,7 @@ export default function Marketplace() {
       if (existing) {
         return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
       }
-      return [...prev, { ...item, qty: 1 }];
+      return [...prev, { ...item, qty: 1, estimated_price: 0 }];
     });
   };
 

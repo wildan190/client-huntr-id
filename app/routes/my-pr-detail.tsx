@@ -43,7 +43,7 @@ export default function MyPurchaseRequisitionDetail() {
   }, [id]);
 
   const totalItems = request?.items?.reduce((sum: number, item: any) => {
-    const price = item?.catalogue?.price || 0;
+    const price = item?.estimated_price || 0;
     return sum + price * (item.qty || 1);
   }, 0);
 
@@ -138,8 +138,8 @@ export default function MyPurchaseRequisitionDetail() {
                         <div style={{ color: "#cbd5e1", fontSize: 12, marginTop: 8 }}>Qty: {item.qty} · Expected {item.expected_date}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontWeight: 700, color: "#f8fafc" }}>IDR {Number(item.catalogue?.price || 0).toLocaleString()}</div>
-                        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>Subtotal</div>
+                        <div style={{ fontWeight: 700, color: "#f8fafc" }}>IDR {Number(item.estimated_price || 0).toLocaleString()}</div>
+                        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>Unit Price</div>
                       </div>
                     </div>
                   ))}
@@ -147,6 +147,17 @@ export default function MyPurchaseRequisitionDetail() {
               </section>
 
               <aside className="pr-detail-aside" style={{ display: "grid", gap: 20 }}>
+                <div className="pr-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Delivery Address</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <DetailRow label="Address" value={request.company?.address || "Not specified"} />
+                    <DetailRow label="City" value={request.company?.city || "Not specified"} />
+                    <DetailRow label="Regency" value={request.company?.regency || "Not specified"} />
+                    <DetailRow label="Province" value={request.company?.provincy_country || "Not specified"} />
+                    <DetailRow label="Zip Code" value={request.company?.zip_code || "Not specified"} />
+                  </div>
+                </div>
+
                 <div className="pr-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
                   <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Approval Detail</div>
                   <DetailRow label="Approver" value={request.approved_by || "Not yet approved"} />
