@@ -159,6 +159,34 @@
   }
 }
 
+[data-theme="light"] .auth-visual__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(111, 66, 193, 0.15) 0%,
+    rgba(111, 66, 193, 0.08) 45%,
+    rgba(111, 66, 193, 0.25) 100%
+  );
+}
+
+[data-theme="light"] .auth-visual__overlay::before {
+  background: rgba(111, 66, 193, 0.12);
+}
+
+@media (max-width: 767px) {
+  [data-theme="light"] .auth-visual__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(111, 66, 193, 0.18) 0%,
+      rgba(111, 66, 193, 0.12) 35%,
+      rgba(111, 66, 193, 0.22) 100%
+    );
+  }
+
+  [data-theme="light"] .auth-visual__overlay::before {
+    background: rgba(111, 66, 193, 0.15);
+  }
+}
+
 @media (min-width: 768px) {
   .auth-visual__overlay {
     background: linear-gradient(
@@ -198,6 +226,14 @@
   line-height: 1.5;
   margin: 0 0 12px;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .auth-visual__title {
+  color: #fff;
+}
+
+[data-theme="light"] .auth-visual__text {
+  color: #e5e7eb;
 }
 
 @media (min-width: 768px) {
@@ -426,7 +462,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 12px;
-  color: #fb923c;
+  color: var(--ui-text-brand);
   cursor: pointer;
   text-decoration: underline;
   font-weight: 600;
@@ -434,6 +470,7 @@
   min-height: 44px;
   display: flex;
   align-items: center;
+  transition: color 0.2s ease;
 }
 
 .auth-otp-box {
@@ -522,11 +559,17 @@
 .auth-btn--ghost {
   background: rgba(249, 115, 22, 0.08);
   border: 1px solid rgba(249, 115, 22, 0.25);
-  color: #fdba74;
+  color: var(--ui-text-brand);
   font-size: 13px;
   min-height: 40px;
   width: auto;
   align-self: flex-start;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .auth-btn--ghost {
+  background: rgba(249, 115, 22, 0.06);
+  border: 1px solid rgba(249, 115, 22, 0.20);
 }
 
 .auth-footer {
@@ -546,9 +589,10 @@
 }
 
 .auth-link {
-  color: #fb923c;
+  color: var(--ui-text-brand);
   text-decoration: none;
   font-weight: 600;
+  transition: opacity 0.2s ease;
 }
 
 .auth-link:active {
@@ -587,7 +631,7 @@
 }
 
 .auth-text-btn--link {
-  color: #fb923c;
+  color: var(--ui-text-brand);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -595,12 +639,18 @@
   gap: 8px;
   width: 100%;
   margin-top: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.auth-text-btn--link:active {
+  opacity: 0.8;
 }
 
 .auth-text-btn--muted {
-  color: #6b7280;
+  color: var(--ui-text-muted);
   width: 100%;
   margin-top: 4px;
+  transition: color 0.2s ease;
 }
 
 .auth-debug-otp {

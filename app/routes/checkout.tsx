@@ -91,13 +91,13 @@ export default function Checkout() {
           <div style={{ width: 80, height: 80, borderRadius: 30, background: "rgba(34,197,94,0.1)", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
             <CheckCircle2 size={40} />
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>PR Successfully Submitted!</h2>
-          <p style={{ color: "#9ca3af", maxWidth: 400, lineHeight: 1.6 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)", margin: "0 0 12px" }}>PR Successfully Submitted!</h2>
+          <p style={{ color: "var(--ui-text-secondary)", maxWidth: 400, lineHeight: 1.6 }}>
             Your Purchase Request <strong>"{prTitle}"</strong> is now waiting for manager approval. You will be redirected shortly.
           </p>
           <button 
             onClick={() => navigate("/my-pr")}
-            style={{ marginTop: 32, padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontWeight: 700, cursor: "pointer" }}
+            style={{ marginTop: 32, padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.05)", border: `1px solid var(--ui-border)`, color: "var(--ui-text-primary)", fontWeight: 700, cursor: "pointer" }}
           >
             Go to My Requests
           </button>
@@ -108,44 +108,64 @@ export default function Checkout() {
 
   return (
     <Layout title="Checkout Purchase Request" subtitle="Review your selected items and submit for approval.">
-      <div style={{ padding: "0 32px 40px", display: "flex", gap: 32, maxWidth: 1200, margin: "0 auto" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .checkout-container {
+            flex-direction: column !important;
+            gap: 24px !important;
+            padding: 0 16px 32px !important;
+          }
+          .checkout-form {
+            flex: 1 !important;
+          }
+          .checkout-summary {
+            width: 100% !important;
+            position: static !important;
+          }
+          .checkout-summary > div {
+            position: static !important;
+            top: auto !important;
+          }
+        }
+      `}</style>
+      <div className="checkout-container" style={{ padding: "0 32px 40px", display: "flex", gap: 32, maxWidth: 1200, margin: "0 auto" }}>
         
         {/* Form Area */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div className="checkout-form" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
           <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "#f59e0b", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 700, padding: 0 }}>
             <ArrowLeft size={16} /> Back to Marketplace
           </button>
 
           <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
-            <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
-              <ClipboardList size={20} color="#f97316" /> Request Details
+            <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
+              <ClipboardList size={20} color="var(--huntr-orange)" /> Request Details
             </h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>PR Title *</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>PR Title *</label>
                 <input 
                   type="text" 
                   placeholder="e.g. Office Supplies for Q3 2026" 
                   value={prTitle}
                   onChange={e => setPrTitle(e.target.value)}
                   style={{
-                    padding: "14px 18px", borderRadius: 12, background: "rgba(255,255,255,0.03)", 
-                    border: "1px solid rgba(255,255,255,0.08)", color: "#fff", outline: "none", fontSize: 14,
+                    padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                    border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14,
                   }}
                 />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>Purpose / Description</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Purpose / Description</label>
                 <textarea 
                   placeholder="Explain why these items are needed..." 
                   value={prDesc}
                   onChange={e => setPrDesc(e.target.value)}
                   rows={4}
                   style={{
-                    padding: "14px 18px", borderRadius: 12, background: "rgba(255,255,255,0.03)", 
-                    border: "1px solid rgba(255,255,255,0.08)", color: "#fff", outline: "none", fontSize: 14, resize: "none"
+                    padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                    border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14, resize: "none"
                   }}
                 />
               </div>
@@ -153,40 +173,40 @@ export default function Checkout() {
           </section>
 
           <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
-            <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
-              <Package size={20} color="#f59e0b" /> Item Summary
+            <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
+              <Package size={20} color="var(--huntr-orange)" /> Item Summary
             </h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {cart.map(item => (
                 <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Package size={24} color="rgba(255,255,255,0.1)" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#f3f4f6" }}>{item.name}</div>
-                    <div style={{ fontSize: 12, color: "#6b7280" }}>{item.item_code}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{item.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.item_code}</div>
                   </div>
                   <div style={{ display: "flex", flex: 1, gap: 16, alignItems: "center", justifyContent: "flex-end" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 140 }}>
-                      <label style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>Estimated Price</label>
+                      <label style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>Estimated Price</label>
                       <div style={{ position: "relative" }}>
-                        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#4b5563" }}>IDR</span>
+                        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "var(--ui-text-muted)" }}>IDR</span>
                         <input 
                           type="number"
                           value={item.estimated_price}
                           onChange={(e) => updateEstimatedPrice(item.id, Number(e.target.value))}
                           style={{
                             width: "100%", padding: "8px 8px 8px 34px", borderRadius: 8,
-                            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)",
-                            color: "#fff", fontSize: 12, outline: "none"
+                            background: "var(--ui-bg-input)", border: `1px solid var(--ui-border-input)`,
+                            color: "var(--ui-text-primary)", fontSize: 12, outline: "none"
                           }}
                         />
                       </div>
                     </div>
                     <div style={{ textAlign: "right", minWidth: 100 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
-                      <div style={{ fontSize: 11, color: "#9ca3af" }}>Qty: {item.qty}</div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
+                      <div style={{ fontSize: 11, color: "var(--ui-text-secondary)" }}>Qty: {item.qty}</div>
                     </div>
                   </div>
                 </div>
@@ -196,27 +216,27 @@ export default function Checkout() {
         </div>
 
         {/* Summary Card */}
-        <div style={{ width: 340, flexShrink: 0 }}>
+        <div className="checkout-summary" style={{ width: "clamp(280px, 100%, 340px)", flexShrink: 0 }}>
           <div style={{
             position: "sticky", top: 24,
-            background: "rgba(15,10,6,0.4)", backdropFilter: "blur(10px)",
-            borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--ui-bg-card)", backdropFilter: "blur(10px)",
+            borderRadius: 24, border: `1px solid var(--ui-border)`,
             padding: 32, display: "flex", flexDirection: "column", gap: 24,
           }}>
-            <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#fff" }}>Order Summary</h4>
+            <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)" }}>Order Summary</h4>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                <span style={{ color: "#9ca3af" }}>Subtotal</span>
-                <span style={{ color: "#f3f4f6", fontWeight: 600 }}>IDR {cartTotal.toLocaleString()}</span>
+                <span style={{ color: "var(--ui-text-secondary)" }}>Subtotal</span>
+                <span style={{ color: "var(--ui-text-primary)", fontWeight: 600 }}>IDR {cartTotal.toLocaleString()}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                <span style={{ color: "#9ca3af" }}>Tax (0%)</span>
-                <span style={{ color: "#f3f4f6", fontWeight: 600 }}>IDR 0</span>
+                <span style={{ color: "var(--ui-text-secondary)" }}>Tax (0%)</span>
+                <span style={{ color: "var(--ui-text-primary)", fontWeight: 600 }}>IDR 0</span>
               </div>
-              <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#fff", fontWeight: 700 }}>Total</span>
-                <span style={{ color: "#f59e0b", fontSize: 20, fontWeight: 900 }}>IDR {cartTotal.toLocaleString()}</span>
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid var(--ui-border)`, display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "var(--ui-text-primary)", fontWeight: 700 }}>Total</span>
+                <span style={{ color: "var(--ui-text-brand)", fontSize: 20, fontWeight: 900 }}>IDR {cartTotal.toLocaleString()}</span>
               </div>
             </div>
 
@@ -241,7 +261,7 @@ export default function Checkout() {
               {loading ? <Loader2 size={20} className="animate-spin" /> : <>Submit Request <CheckCircle2 size={20} /></>}
             </button>
             
-            <p style={{ margin: 0, fontSize: 11, color: "#6b7280", textAlign: "center", lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--ui-text-muted)", textAlign: "center", lineHeight: 1.5 }}>
               By submitting, this request will be sent to your manager for approval before being published.
             </p>
           </div>

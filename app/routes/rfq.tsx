@@ -103,11 +103,9 @@ export default function Rfq() {
 
   return (
     <Layout title="Request for Quotation (RFQ)" subtitle="Manage purchase requests, approvals, and open tenders.">
-      <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-        
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="rfq-container" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
           {/* Create RFQ Section */}
-          <div>
+          <div className="rfq-form">
             {result ? (
               <div className="glass-panel" style={{ padding: 28 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
@@ -181,7 +179,7 @@ export default function Rfq() {
           </div>
 
           {/* RFQ Tracking Section */}
-          <div className="glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
+          <div className="rfq-tracking glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <ClipboardList size={20} color="#f97316" />
@@ -240,7 +238,6 @@ export default function Rfq() {
             </div>
           </div>
         </div>
-      </div>
     </Layout>
   );
 }

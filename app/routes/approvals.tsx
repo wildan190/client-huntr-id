@@ -57,7 +57,7 @@ export default function Approvals() {
 
   return (
     <Layout title="Manager Approvals" subtitle="Review and approve purchase requisitions before they are published.">
-      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         
         {loading ? (

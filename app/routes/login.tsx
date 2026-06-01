@@ -7,6 +7,7 @@ import AuthLayout from "../components/AuthLayout";
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPw, setShowPw] = useState(false);
@@ -34,7 +35,7 @@ export default function Login() {
     setLoading(true);
     setError(null);
     try {
-      const userPayload = await login(form);
+      const userPayload = await login({ email: form.email, password: form.password, rememberMe });
 
       if (userPayload.two_factor) {
         setShow2FA(true);
@@ -50,6 +51,7 @@ export default function Login() {
         role: userPayload.role || "buyer",
         company_id: userPayload.company_id || null,
         two_factor_confirmed_at: userPayload.two_factor_confirmed_at || null,
+        token: userPayload.token || null, // IMPORTANT: Save token!
       };
 
       localStorage.setItem("user_session", JSON.stringify(user));
@@ -81,6 +83,7 @@ export default function Login() {
         role: userPayload.role || "buyer",
         company_id: userPayload.company_id || null,
         two_factor_confirmed_at: userPayload.two_factor_confirmed_at || null,
+        token: userPayload.token || null, // IMPORTANT: Save token!
       };
 
       localStorage.setItem("user_session", JSON.stringify(user));
@@ -145,6 +148,29 @@ export default function Login() {
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              id="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={e => setRememberMe(e.target.checked)}
+              style={{
+                width: 18,
+                height: 18,
+                cursor: "pointer",
+                accentColor: "#f97316",
+              }}
+            />
+            <label htmlFor="remember-me" style={{
+              fontSize: 13,
+              color: "var(--ui-text-secondary)",
+              cursor: "pointer",
+              userSelect: "none",
+            }}>
+              Remember me for 30 days
+            </label>
           </div>
 
           {error && <div className="auth-alert auth-alert--error">⚠ {error}</div>}

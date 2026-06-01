@@ -277,14 +277,32 @@ export const register = async (payload: {
   return user;
 };
 
-export const login = async (payload: { email: string; password: string }) => {
-  const res = await apiPost("/api/auth/login", { ...payload, login: payload.email });
+export const login = async (payload: { email: string; password: string; rememberMe?: boolean }) => {
+  const res = await apiPost("/api/auth/login", { 
+    login: payload.email, 
+    email: payload.email, 
+    password: payload.password,
+    remember_me: payload.rememberMe || false,
+  });
   if (res.two_factor) {
     return { two_factor: true };
   }
   const user = res.user || res;
+  
+  // Save token immediately from login response
+  if (user.token && typeof localStorage !== "undefined") {
+    console.log("[login] Saving token from login response");
+    localStorage.setItem("user_session", JSON.stringify(user));
+  }
+  
   try {
-    return await getAuthenticatedUser();
+    // Try to get fresh user data from /api/user endpoint
+    const freshUser = await getAuthenticatedUser();
+    // Preserve token from login response
+    if (user.token) {
+      freshUser.token = user.token;
+    }
+    return freshUser;
   } catch (err) {
     console.warn("[login] getAuthenticatedUser failed, using login response:", err);
     return user;

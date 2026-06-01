@@ -248,10 +248,10 @@ export default function AccountSettings() {
 
   return (
     <Layout title="Pengaturan Akun" subtitle="Kelola keamanan dan profil Anda">
-      <div style={{ maxWidth: "100%", width: "100%", padding: "20px clamp(16px, 5vw, 40px)" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "rgba(255,255,255,0.03)", padding: 6, borderRadius: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "var(--ui-bg-input)", padding: 6, borderRadius: 14, border: "1px solid var(--ui-border-subtle)", transition: "all 0.3s ease" }}>
           <TabBtn active={activeTab === "security"} onClick={() => setActiveTab("security")} Icon={Shield} label="Keamanan" />
           <TabBtn active={activeTab === "profile"} onClick={() => setActiveTab("profile")} Icon={Smartphone} label="Profil" />
           <TabBtn active={activeTab === "sessions"} onClick={() => setActiveTab("sessions")} Icon={Monitor} label="Sesi Aktif" />
@@ -259,23 +259,23 @@ export default function AccountSettings() {
 
         {/* Feedback messages */}
         {error && (
-          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, padding: "12px 16px", marginBottom: 20, color: "#f87171", fontSize: 14, display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, padding: "12px 16px", marginBottom: 20, color: "#f87171", fontSize: 14, display: "flex", alignItems: "center", gap: 10, transition: "all 0.3s ease" }}>
             <AlertCircle size={18} /> {error}
           </div>
         )}
         {success && (
-          <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 12, padding: "12px 16px", marginBottom: 20, color: "#34d399", fontSize: 14, display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 12, padding: "12px 16px", marginBottom: 20, color: "#34d399", fontSize: 14, display: "flex", alignItems: "center", gap: 10, transition: "all 0.3s ease" }}>
             <CheckCircle2 size={18} /> {success}
           </div>
         )}
 
-        <div style={{ background: "rgba(15,15,30,0.4)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 24, padding: 32 }}>
+        <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 32, transition: "all 0.3s ease" }}>
           
           {/* Security Tab */}
           {activeTab === "security" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
               <form onSubmit={handleUpdatePassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 8px" }}>Ganti Password</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: "0 0 8px", transition: "color 0.3s ease" }}>Ganti Password</h2>
                 
                 <div style={inputGroup}>
                   <label style={labelStyle}>Password Saat Ini</label>
@@ -323,14 +323,14 @@ export default function AccountSettings() {
                 </button>
               </form>
 
-              <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+              <div style={{ height: "1px", background: "var(--ui-border)", transition: "all 0.3s ease" }} />
 
               <div>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 16px" }}>Autentikasi Dua Faktor (2FA)</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: "0 0 16px", transition: "color 0.3s ease" }}>Autentikasi Dua Faktor (2FA)</h2>
                 
                 {!twoFactorEnabled && !confirming2FA && (
-                  <div style={{ padding: 20, background: "rgba(249,115,22,0.05)", borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)" }}>
-                    <p style={{ fontSize: 14, color: "#9ca3af", marginBottom: 20 }}>Tingkatkan keamanan akun Anda dengan mengaktifkan autentikasi dua faktor.</p>
+                  <div style={{ padding: 20, background: "rgba(249,115,22,0.05)", borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", transition: "all 0.3s ease" }}>
+                    <p style={{ fontSize: 14, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Tingkatkan keamanan akun Anda dengan mengaktifkan autentikasi dua faktor.</p>
                     <button onClick={handleEnable2FA} disabled={loading} style={{ ...secondaryBtn, height: 44 }}>
                       Aktifkan 2FA
                     </button>
@@ -338,8 +338,8 @@ export default function AccountSettings() {
                 )}
 
                 {confirming2FA && qrCode && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: 20, background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <p style={{ fontSize: 14, color: "#fff" }}>Pindai kode QR berikut menggunakan aplikasi autentikator Anda (seperti Google Authenticator):</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-subtle)", transition: "all 0.3s ease" }}>
+                    <p style={{ fontSize: 14, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Pindai kode QR berikut menggunakan aplikasi autentikator Anda (seperti Google Authenticator):</p>
                     <div dangerouslySetInnerHTML={{ __html: qrCode }} style={{ background: "#fff", padding: 12, borderRadius: 12, width: "fit-content" }} />
                     
                     <div style={inputGroup}>
@@ -361,16 +361,16 @@ export default function AccountSettings() {
                 )}
 
                 {twoFactorEnabled && (
-                  <div style={{ padding: 20, background: "rgba(16,185,129,0.05)", borderRadius: 16, border: "1px solid rgba(16,185,129,0.1)" }}>
+                  <div style={{ padding: 20, background: "rgba(16,185,129,0.05)", borderRadius: 16, border: "1px solid rgba(16,185,129,0.1)", transition: "all 0.3s ease" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#34d399", marginBottom: 12 }}>
                       <CheckCircle2 size={18} />
                       <span style={{ fontWeight: 700, fontSize: 14 }}>2FA Aktif</span>
                     </div>
-                    <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 20 }}>Akun Anda sekarang lebih aman. Gunakan kode dari aplikasi autentikator Anda saat login.</p>
+                    <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Akun Anda sekarang lebih aman. Gunakan kode dari aplikasi autentikator Anda saat login.</p>
                     
                     {recoveryCodes.length > 0 && (
-                      <div style={{ marginBottom: 20, padding: 16, background: "rgba(0,0,0,0.3)", borderRadius: 12 }}>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Simpan kode pemulihan ini di tempat yang aman:</p>
+                      <div style={{ marginBottom: 20, padding: 16, background: "rgba(0,0,0,0.3)", borderRadius: 12, transition: "all 0.3s ease" }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 8, transition: "color 0.3s ease" }}>Simpan kode pemulihan ini di tempat yang aman:</p>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                           {recoveryCodes.map(code => <code key={code} style={{ fontSize: 11, color: "#fdba74" }}>{code}</code>)}
                         </div>
@@ -389,7 +389,7 @@ export default function AccountSettings() {
           {/* Profile Tab */}
           {activeTab === "profile" && (
             <form onSubmit={handleUpdateWhatsapp} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 8px" }}>Informasi WhatsApp</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: "0 0 8px", transition: "color 0.3s ease" }}>Informasi WhatsApp</h2>
               
               <div style={inputGroup}>
                 <label style={labelStyle}>Nomor WhatsApp</label>
@@ -418,7 +418,7 @@ export default function AccountSettings() {
                   )}
                 </div>
                 {newWhatsapp === user?.whatsapp && (
-                  <p style={{ fontSize: 12, color: "#6b7280", margin: "6px 0 0" }}>Ini adalah nomor WhatsApp Anda saat ini.</p>
+                  <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "6px 0 0", transition: "color 0.3s ease" }}>Ini adalah nomor WhatsApp Anda saat ini.</p>
                 )}
               </div>
 
@@ -470,47 +470,49 @@ export default function AccountSettings() {
           {activeTab === "sessions" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: 0 }}>Sesi Aktif</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: 0, transition: "color 0.3s ease" }}>Sesi Aktif</h2>
                 <button onClick={fetchSessions} style={{ background: "none", border: "none", color: "#f59e0b", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Refresh</button>
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {sessions.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px 0", color: "#6b7280" }}>
+                  <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                     <Monitor size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
                     <p>Tidak ada data sesi aktif.</p>
                   </div>
                 ) : (
                   sessions.map((session) => (
                     <div key={session.id} style={{ 
-                      background: "rgba(255,255,255,0.03)", 
-                      border: "1px solid rgba(255,255,255,0.05)", 
+                      background: "var(--ui-bg-input)", 
+                      border: "1px solid var(--ui-border-subtle)", 
                       borderRadius: 16, 
                       padding: 16,
                       display: "flex",
                       alignItems: "center",
-                      gap: 16
+                      gap: 16,
+                      transition: "all 0.3s ease"
                     }}>
                       <div style={{ 
                         width: 40, height: 40, borderRadius: 10, 
-                        background: session.is_current_device ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.05)",
+                        background: session.is_current_device ? "rgba(249,115,22,0.15)" : "var(--ui-bg-input)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        color: session.is_current_device ? "#fb923c" : "#9ca3af"
+                        color: session.is_current_device ? "#fb923c" : "var(--ui-text-secondary)",
+                        transition: "all 0.3s ease"
                       }}>
                         <Monitor size={20} />
                       </div>
                       
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: "#f3f4f6" }}>{session.ip_address}</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{session.ip_address}</span>
                           {session.is_current_device && (
                             <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", background: "rgba(16,185,129,0.1)", padding: "2px 8px", borderRadius: 20 }}>PERANGKAT INI</span>
                           )}
                         </div>
-                        <div style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2, transition: "color 0.3s ease" }}>
                           {session.user_agent}
                         </div>
-                        <div style={{ fontSize: 11, color: "#4b5563", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, transition: "color 0.3s ease" }}>
                           <Clock size={10} /> Aktif terakhir: {session.last_active}
                         </div>
                       </div>
@@ -523,7 +525,7 @@ export default function AccountSettings() {
                             background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)",
                             color: "#f87171", cursor: "pointer",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            transition: "all 0.2s"
+                            transition: "all 0.3s ease"
                           }}
                           title="Hentikan sesi"
                         >
@@ -535,8 +537,8 @@ export default function AccountSettings() {
                 )}
               </div>
               
-              <div style={{ marginTop: 10, padding: 16, background: "rgba(249,115,22,0.05)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.1)" }}>
-                <p style={{ fontSize: 12, color: "#9ca3af", margin: 0, lineHeight: 1.5 }}>
+              <div style={{ marginTop: 10, padding: 16, background: "rgba(249,115,22,0.05)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.1)", transition: "all 0.3s ease" }}>
+                <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", margin: 0, lineHeight: 1.5, transition: "color 0.3s ease" }}>
                   <strong>Catatan:</strong> Jika Anda melihat aktivitas yang mencurigakan, segera ganti password Anda dan hentikan semua sesi aktif lainnya.
                 </p>
               </div>
@@ -554,8 +556,8 @@ function TabBtn({ active, onClick, Icon, label }: any) {
       flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
       padding: "10px 16px", borderRadius: 10, cursor: "pointer",
       background: active ? "rgba(249,115,22,0.1)" : "transparent",
-      border: "none", color: active ? "#fdba74" : "#9ca3af",
-      fontWeight: active ? 700 : 500, fontSize: 13, transition: "all 0.2s",
+      border: "none", color: active ? "#fdba74" : "var(--ui-text-secondary)",
+      fontWeight: active ? 700 : 500, fontSize: 13, transition: "all 0.3s ease",
     }}>
       <Icon size={16} /> {label}
     </button>
@@ -563,19 +565,20 @@ function TabBtn({ active, onClick, Icon, label }: any) {
 }
 
 const inputGroup: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 8 };
-const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#9ca3af" };
+const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" };
 const inputStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--ui-bg-input)",
+  border: "1px solid var(--ui-border-input)",
   borderRadius: 12,
   padding: "12px 16px",
-  color: "#fff",
+  color: "var(--ui-text-primary)",
   fontSize: 14,
   outline: "none",
+  transition: "all 0.3s ease",
 };
 const eyeBtn: React.CSSProperties = {
   position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-  background: "none", border: "none", cursor: "pointer", color: "#6b7280", padding: 8
+  background: "none", border: "none", cursor: "pointer", color: "var(--ui-text-muted)", padding: 8, transition: "color 0.3s ease"
 };
 const primaryBtn: React.CSSProperties = {
   padding: "14px", borderRadius: 12, border: "none",
@@ -590,5 +593,5 @@ const secondaryBtn: React.CSSProperties = {
 };
 const otpSection: React.CSSProperties = {
   marginTop: 10, padding: 20, background: "rgba(249,115,22,0.03)", border: "1px solid rgba(249,115,22,0.1)",
-  borderRadius: 16, display: "flex", flexDirection: "column", gap: 8
+  borderRadius: 16, display: "flex", flexDirection: "column", gap: 8, transition: "all 0.3s ease"
 };

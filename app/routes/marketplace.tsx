@@ -118,13 +118,13 @@ export default function Marketplace() {
 
   return (
     <Layout title="Marketplace" subtitle="Discover items and services from our trusted vendors.">
-      <div style={{ padding: "0 32px 40px", display: "flex", gap: 24, maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ display: "flex", gap: 24, maxWidth: 1400, margin: "0 auto" }}>
         
         {/* Main Grid */}
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
             <div style={{ flex: 1, position: "relative" }}>
-              <Search style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#6b7280" }} size={18} />
+              <Search style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }} size={18} />
               <input 
                 type="text" 
                 placeholder="Search items, codes, or vendors..." 
@@ -132,15 +132,15 @@ export default function Marketplace() {
                 onChange={e => setSearchTerm(e.target.value)}
                 style={{
                   width: "100%", padding: "12px 12px 12px 42px", borderRadius: 14,
-                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#fff", outline: "none", fontSize: 14,
+                  background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
+                  color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
                 }}
               />
             </div>
             <button style={{
-              padding: "0 18px", borderRadius: 14, background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)", color: "#9ca3af", cursor: "pointer",
-              display: "flex", alignItems: "center", gap: 8, fontSize: 14,
+              padding: "0 18px", borderRadius: 14, background: "var(--ui-bg-input)",
+              border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 8, fontSize: 14, transition: "all 0.3s ease",
             }}>
               <Filter size={16} /> Filters
             </button>
@@ -154,15 +154,15 @@ export default function Marketplace() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
               {filteredItems.map(item => (
                 <div key={item.id} style={{
-                  background: "rgba(255,255,255,0.02)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.06)",
-                  padding: 16, display: "flex", flexDirection: "column", gap: 12, transition: "all 0.2s",
+                  background: "var(--ui-bg-card)", borderRadius: 20, border: "1px solid var(--ui-border)",
+                  padding: 16, display: "flex", flexDirection: "column", gap: 12, transition: "all 0.3s ease",
                 }}>
-                  <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Package size={48} color="rgba(255,255,255,0.1)" />
+                  <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                    <Package size={48} color="var(--ui-text-secondary)" style={{ opacity: 0.3, transition: "color 0.3s ease" }} />
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "#f3f4f6", margin: "4px 0" }}>{item.name}</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", transition: "color 0.3s ease" }}>{item.name}</h3>
                   </div>
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
@@ -186,12 +186,13 @@ export default function Marketplace() {
                         width: "100%",
                         padding: "10px 12px",
                         borderRadius: 12,
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        color: "#9ca3af",
+                        background: "var(--ui-bg-input)",
+                        border: "1px solid var(--ui-border-input)",
+                        color: "var(--ui-text-secondary)",
                         cursor: "pointer",
                         fontSize: 13,
                         fontWeight: 700,
+                        transition: "all 0.3s ease",
                       }}
                     >
                       View Details
@@ -207,23 +208,23 @@ export default function Marketplace() {
         <div style={{ width: 320, flexShrink: 0 }}>
           <div style={{
             position: "sticky", top: 24,
-            background: "rgba(15,10,6,0.4)", backdropFilter: "blur(10px)",
-            borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
-            padding: 24, display: "flex", flexDirection: "column", gap: 20,
+            background: "var(--ui-bg-card)", backdropFilter: "blur(10px)",
+            borderRadius: 24, border: "1px solid var(--ui-border)",
+            padding: 24, display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#f97316,#f59e0b)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <ShoppingCart size={20} color="#fff" />
               </div>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#fff" }}>Your Cart</h3>
-              <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "4px 8px", borderRadius: 8 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Your Cart</h3>
+              <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "4px 8px", borderRadius: 8, transition: "all 0.3s ease" }}>
                 {cart.length} items
               </span>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: "400px", overflowY: "auto", paddingRight: 4 }}>
               {cart.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px 0", color: "#6b7280" }}>
+                <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                   <ShoppingCart size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
                   <div style={{ fontSize: 13 }}>Your cart is empty</div>
                 </div>
@@ -231,12 +232,12 @@ export default function Marketplace() {
                 cart.map(item => (
                   <div key={item.id} style={{ display: "flex", gap: 12 }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#f3f4f6" }}>{item.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{item.name}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button type="button" aria-label="Kurangi jumlah" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Minus size={12} /></button>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", minWidth: 20, textAlign: "center" }}>{item.qty}</span>
-                      <button type="button" aria-label="Tambah jumlah" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", color: "#9ca3af", cursor: "pointer" }}><Plus size={12} /></button>
+                      <button type="button" aria-label="Kurangi jumlah" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Minus size={12} /></button>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", minWidth: 20, textAlign: "center", transition: "color 0.3s ease" }}>{item.qty}</span>
+                      <button type="button" aria-label="Tambah jumlah" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Plus size={12} /></button>
                       <button type="button" aria-label="Hapus item dari keranjang" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
                     </div>
                   </div>

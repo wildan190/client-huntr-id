@@ -315,7 +315,7 @@ export default function CompanyDetails() {
       <Layout title="Company" subtitle="Loading company workspace details...">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "50vh", gap: 14 }}>
           <Loader2 size={32} className="animate-spin" color="#f59e0b" />
-          <span style={{ fontSize: 13, color: "#6b7280" }}>Fetching workspace settings...</span>
+          <span style={{ fontSize: 13, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>Fetching workspace settings...</span>
         </div>
       </Layout>
     );
@@ -327,8 +327,8 @@ export default function CompanyDetails() {
         <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "#f3f4f6", margin: 0 }}>Pilih Perusahaan</h2>
-              <p style={{ fontSize: 13, color: "#9ca3af", margin: "8px 0 0" }}>
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", margin: 0, transition: "color 0.3s ease" }}>Pilih Perusahaan</h2>
+              <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", margin: "8px 0 0", transition: "color 0.3s ease" }}>
                 Pilih perusahaan yang ingin Anda kelola dari daftar workspace yang tersedia.
               </p>
             </div>
@@ -337,9 +337,9 @@ export default function CompanyDetails() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 padding: "12px 18px", borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.04)", color: "#f3f4f6",
-                cursor: "pointer", fontWeight: 700,
+                border: "1px solid var(--ui-border-subtle)",
+                background: "var(--ui-bg-input)", color: "var(--ui-text-primary)",
+                cursor: "pointer", fontWeight: 700, transition: "all 0.3s ease",
               }}
             >
               <Plus size={16} /> Register another company
@@ -351,12 +351,12 @@ export default function CompanyDetails() {
               <Loader2 size={32} className="animate-spin" color="#f59e0b" />
             </div>
           ) : companies.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 40, borderRadius: 20, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p style={{ color: "#9ca3af", fontSize: 14, margin: 0 }}>No company workspaces found. Please register one first.</p>
+            <div style={{ textAlign: "center", padding: 40, borderRadius: 20, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
+              <p style={{ color: "var(--ui-text-secondary)", fontSize: 14, margin: 0, transition: "color 0.3s ease" }}>No company workspaces found. Please register one first.</p>
               {user?.role === "owner" && (
                 <button
                   onClick={() => navigate("/onboarding")}
-                  style={{ marginTop: 16, padding: "10px 18px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff", fontWeight: 700, cursor: "pointer" }}
+                  style={{ marginTop: 16, padding: "10px 18px", borderRadius: 12, border: "none", background: "var(--huntr-gradient)", color: "#fff", fontWeight: 700, cursor: "pointer", transition: "all 0.3s ease" }}
                 >
                   Register a Company
                 </button>
@@ -374,11 +374,9 @@ export default function CompanyDetails() {
                       textAlign: "left",
                       borderRadius: 28,
                       padding: "24px",
-                      border: active ? "1px solid rgba(249,115,22,0.35)" : "1px solid rgba(255,255,255,0.10)",
-                      background: active
-                        ? "linear-gradient(180deg, rgba(79,70,229,0.16), rgba(63,63,70,0.72))"
-                        : "rgba(15,23,42,0.72)",
-                      boxShadow: active ? "0 24px 60px rgba(249,115,22,0.18)" : "0 16px 35px rgba(0,0,0,0.08)",
+                      border: active ? "1px solid rgba(249,115,22,0.35)" : `1px solid var(--ui-border)`,
+                      background: active ? "var(--ui-gradient-active-card)" : "var(--ui-bg-card)",
+                      boxShadow: active ? "var(--ui-shadow-orange)" : "0 16px 35px rgba(0,0,0,0.08)",
                       cursor: "pointer",
                       display: "grid",
                       gap: 18,
@@ -389,22 +387,22 @@ export default function CompanyDetails() {
                     onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0px)")}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ width: 58, height: 58, borderRadius: 20, overflow: "hidden", background: "rgba(255,255,255,0.06)", display: "grid", placeItems: "center" }}>
+                      <div style={{ width: 58, height: 58, borderRadius: 20, overflow: "hidden", background: "var(--ui-bg-input)", display: "grid", placeItems: "center" }}>
                         {getLogoUrl(c.logo) ? (
                           <img src={getLogoUrl(c.logo)!} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
                           <div style={{ width: 34, height: 34, borderRadius: 12, background: "rgba(249,115,22,0.15)", display: "grid", placeItems: "center" }}>
-                            <Building2 size={18} color="#fdba74" />
+                            <Building2 size={18} color="var(--huntr-accent)" />
                           </div>
                         )}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc", lineHeight: 1.1 }}>{c.name}</div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.1 }}>{c.name}</div>
                         <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, letterSpacing: "0.12em", color: "#c7d2fe", background: "rgba(249,115,22,0.12)", padding: "4px 10px", borderRadius: 999, textTransform: "uppercase" }}>
+                          <span style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--ui-text-brand)", background: "rgba(249,115,22,0.12)", padding: "4px 10px", borderRadius: 999, textTransform: "uppercase" }}>
                             {c.type?.toUpperCase() || "WORKSPACE"}
                           </span>
-                          <span style={{ fontSize: 11, color: "#d1d5db", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: 999 }}>
+                          <span style={{ fontSize: 11, color: "var(--ui-text-secondary)", background: "var(--ui-bg-input)", padding: "4px 10px", borderRadius: 999 }}>
                             ID #{c.id}
                           </span>
                         </div>
@@ -414,18 +412,18 @@ export default function CompanyDetails() {
                     <div style={{ display: "grid", gap: 10 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: active ? "#8b5cf6" : "#22c55e" }} />
-                          <span style={{ fontSize: 12, color: active ? "#c7d2fe" : "#9ca3af" }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: active ? "var(--ui-status-selected)" : "var(--ui-status-active)" }} />
+                          <span style={{ fontSize: 12, color: "var(--ui-text-secondary)" }}>
                             {active ? "Selected workspace" : "Tap to open workspace"}
                           </span>
                         </div>
-                        <span style={{ fontSize: 11, color: "#f8fafc", background: c.status === "approved" ? "rgba(52,211,153,0.14)" : c.status === "pending" ? "rgba(251,191,36,0.14)" : "rgba(248,113,113,0.14)", padding: "6px 12px", borderRadius: 999, border: c.status === "approved" ? "1px solid rgba(52,211,153,0.24)" : c.status === "pending" ? "1px solid rgba(251,191,36,0.24)" : "1px solid rgba(248,113,113,0.24)" }}>
+                        <span style={{ fontSize: 11, color: "var(--ui-text-primary)", background: c.status === "approved" ? "rgba(52,211,153,0.14)" : c.status === "pending" ? "rgba(251,191,36,0.14)" : "rgba(248,113,113,0.14)", padding: "6px 12px", borderRadius: 999, border: c.status === "approved" ? "1px solid rgba(52,211,153,0.24)" : c.status === "pending" ? "1px solid rgba(251,191,36,0.24)" : "1px solid rgba(248,113,113,0.24)" }}>
                           {c.status?.toUpperCase() || "PENDING"}
                         </span>
                       </div>
-                      <div style={{ display: "grid", gap: 8, color: "#cbd5e1" }}>
-                        <div style={{ fontSize: 13, color: "#e2e8f0" }}>{c.tax_id ? `NPWP: ${c.tax_id}` : "Tax ID belum tersedia"}</div>
-                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", color: "#9ca3af", fontSize: 12 }}>
+                      <div style={{ display: "grid", gap: 8, color: "var(--ui-text-secondary)" }}>
+                        <div style={{ fontSize: 13, color: "var(--ui-text-primary)" }}>{c.tax_id ? `NPWP: ${c.tax_id}` : "Tax ID belum tersedia"}</div>
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", color: "var(--ui-text-muted)", fontSize: 12 }}>
                           {c.email && <span>{c.email}</span>}
                           {c.phone && <span>{c.phone}</span>}
                         </div>
@@ -433,8 +431,8 @@ export default function CompanyDetails() {
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 12, color: "#9ca3af" }}>Workspace opened {c.updated_at ? `• ${new Date(c.updated_at).toLocaleDateString()}` : "recently"}</span>
-                      <span style={{ fontSize: 12, color: "#fdba74", fontWeight: 700 }}>Manage</span>
+                      <span style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>Workspace opened {c.updated_at ? `• ${new Date(c.updated_at).toLocaleDateString()}` : "recently"}</span>
+                      <span style={{ fontSize: 12, color: "var(--huntr-accent)", fontWeight: 700 }}>Manage</span>
                     </div>
                   </button>
                 );
@@ -471,8 +469,8 @@ export default function CompanyDetails() {
         
         {/* Workspace Card Header */}
         <div style={{
-          background: "rgba(15,15,30,0.6)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--ui-bg-card)",
+          border: "1px solid var(--ui-border)",
           borderRadius: 20,
           padding: "24px 30px",
           display: "flex",
@@ -481,6 +479,7 @@ export default function CompanyDetails() {
           flexWrap: "wrap",
           gap: 20,
           backdropFilter: "blur(20px)",
+          transition: "all 0.3s ease",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <div style={{
@@ -493,7 +492,7 @@ export default function CompanyDetails() {
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h2 style={{ fontSize: 20, fontWeight: 900, color: "#f3f4f6", margin: 0, letterSpacing: "-0.3px" }}>
+                <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", margin: 0, letterSpacing: "-0.3px", transition: "color 0.3s ease" }}>
                   {company.name}
                 </h2>
                 <span style={{
@@ -505,8 +504,8 @@ export default function CompanyDetails() {
                   {company.type}
                 </span>
               </div>
-              <p style={{ fontSize: 12, color: "#6b7280", margin: "4px 0 0" }}>
-                Company ID: <strong style={{ color: "#9ca3af" }}>#{company.id}</strong> · Tax ID: <strong style={{ color: "#9ca3af" }}>{company.tax_id || "N/A"}</strong>
+              <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "4px 0 0", transition: "color 0.3s ease" }}>
+                Company ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>#{company.id}</strong> · Tax ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>{company.tax_id || "N/A"}</strong>
               </p>
             </div>
           </div>
@@ -515,10 +514,10 @@ export default function CompanyDetails() {
             <button
               onClick={handleBackToCompanies}
               style={{
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 10, padding: "8px 14px", color: "#cbd5e1",
+                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-subtle)",
+                borderRadius: 10, padding: "8px 14px", color: "var(--ui-text-secondary)",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex",
-                alignItems: "center", gap: 8,
+                alignItems: "center", gap: 8, transition: "all 0.3s ease",
               }}
             >
               <ChevronLeft size={14} /> Switch Company
@@ -527,9 +526,9 @@ export default function CompanyDetails() {
               onClick={() => navigate("/onboarding")}
               style={{
                 background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)",
-                borderRadius: 10, padding: "8px 14px", color: "#fdba74",
+                borderRadius: 10, padding: "8px 14px", color: "var(--huntr-accent)",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex",
-                alignItems: "center", gap: 8,
+                alignItems: "center", gap: 8, transition: "all 0.3s ease",
               }}
             >
               <Plus size={14} /> Add Company
@@ -549,9 +548,9 @@ export default function CompanyDetails() {
               onClick={handleRefresh}
               disabled={refreshing}
               style={{
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-subtle)",
                 borderRadius: 10, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "#9ca3af", transition: "all 0.2s",
+                cursor: "pointer", color: "var(--ui-text-secondary)", transition: "all 0.3s ease",
               }}
               title="Sync latest data"
             >
@@ -565,9 +564,10 @@ export default function CompanyDetails() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            borderBottom: "1px solid var(--ui-border)",
             gap: 12,
             padding: "0 4px",
+            transition: "all 0.3s ease",
           }}>
             <div style={{ display: "flex", gap: 6 }}>
               {tabs.map(t => {
@@ -580,10 +580,10 @@ export default function CompanyDetails() {
                     style={{
                       display: "flex", alignItems: "center", gap: 8,
                       padding: "12px 18px", background: "none", border: "none",
-                      borderBottom: active ? "2px solid #f59e0b" : "2px solid transparent",
-                      color: active ? "#fdba74" : "#6b7280",
+                      borderBottom: active ? "2px solid var(--huntr-amber)" : "2px solid transparent",
+                      color: active ? "var(--huntr-accent)" : "var(--ui-text-muted)",
                       fontWeight: active ? 700 : 500, fontSize: 13,
-                      cursor: "pointer", transition: "all 0.2s",
+                      cursor: "pointer", transition: "all 0.3s ease",
                       marginBottom: -1,
                     }}
                   >
@@ -623,7 +623,7 @@ export default function CompanyDetails() {
                     style={{
                       background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.25)",
                       borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700,
-                      color: "#fdba74", cursor: "pointer", transition: "all 0.2s",
+                      color: "var(--huntr-accent)", cursor: "pointer", transition: "all 0.2s",
                     }}
                   >
                     Edit Data Perusahaan
@@ -634,9 +634,9 @@ export default function CompanyDetails() {
                       onClick={() => setIsEditing(false)}
                       disabled={updatingCompany}
                       style={{
-                        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-subtle)",
                         borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700,
-                        color: "#9ca3af", cursor: "pointer", transition: "all 0.2s",
+                        color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.2s",
                       }}
                     >
                       Batal
@@ -645,7 +645,7 @@ export default function CompanyDetails() {
                       onClick={handleSaveCompany}
                       disabled={updatingCompany}
                       style={{
-                        background: "linear-gradient(135deg,#f97316,#f59e0b)", border: "none",
+                        background: "var(--huntr-gradient)", border: "none",
                         borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 800,
                         color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
                         boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s",
@@ -661,18 +661,19 @@ export default function CompanyDetails() {
 
           {/* Tab Panels */}
           <div style={{
-            background: "rgba(12,12,28,0.4)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "var(--ui-bg-card)",
+            border: "1px solid var(--ui-border)",
             borderRadius: 20,
             padding: 32,
             boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            transition: "all 0.3s ease",
           }}>
             
             {updateError && (
               <div style={{
                 background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
                 borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#f87171",
-                marginBottom: 20, display: "flex", alignItems: "center", gap: 8,
+                marginBottom: 20, display: "flex", alignItems: "center", gap: 8, transition: "all 0.3s ease",
               }}>
                 <AlertCircle size={14} /> {updateError}
               </div>
@@ -681,10 +682,10 @@ export default function CompanyDetails() {
             {/* PROFILE TAB */}
             {activeTab === "profile" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#f3f4f6", margin: "0 0 4px" }}>Company Identity</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 4px", transition: "color 0.3s ease" }}>Company Identity</h3>
                 <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <div style={{ width: 72, height: 72, borderRadius: 18, overflow: "hidden", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 72, height: 72, borderRadius: 18, overflow: "hidden", background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
                       {company.logo_path ? (
                         <img
                           src={getLogoUrl(company.logo_path) || undefined}
@@ -692,12 +693,12 @@ export default function CompanyDetails() {
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
                       ) : (
-                        <Building2 size={32} color="#9ca3af" />
+                        <Building2 size={32} color="var(--ui-text-secondary)" style={{ transition: "color 0.3s ease" }} />
                       )}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#f3f4f6" }}>Company Logo</div>
-                      <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>Upload a logo to personalize this workspace.</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Company Logo</div>
+                      <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", marginTop: 4, transition: "color 0.3s ease" }}>Upload a logo to personalize this workspace.</div>
                     </div>
                   </div>
                   <div>
@@ -719,9 +720,9 @@ export default function CompanyDetails() {
                       onClick={() => logoInputRef.current?.click()}
                       disabled={logoUploading}
                       style={{
-                        padding: "10px 18px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)",
-                        background: "rgba(255,255,255,0.04)", color: "#f3f4f6", fontWeight: 700, cursor: "pointer",
-                        display: "inline-flex", alignItems: "center", gap: 8,
+                        padding: "10px 18px", borderRadius: 12, border: "1px solid var(--ui-border-subtle)",
+                        background: "var(--ui-bg-input)", color: "var(--ui-text-primary)", fontWeight: 700, cursor: "pointer",
+                        display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.3s ease",
                       }}
                     >
                       {logoUploading ? "Uploading..." : company.logo_path ? "Change Logo" : "Upload Logo"}
@@ -729,7 +730,7 @@ export default function CompanyDetails() {
                   </div>
                 </div>
                 {logoError && (
-                  <div style={{ fontSize: 12, color: "#f87171", padding: "10px 12px", background: "rgba(239,68,68,0.08)", borderRadius: 10 }}>
+                  <div style={{ fontSize: 12, color: "#f87171", padding: "10px 12px", background: "rgba(239,68,68,0.08)", borderRadius: 10, transition: "all 0.3s ease" }}>
                     {logoError}
                   </div>
                 )}
@@ -741,19 +742,19 @@ export default function CompanyDetails() {
                       <EditItem label="Primary Contact Email" type="email" value={editForm.email} onChange={v => setEditForm({ ...editForm, email: v })} />
                       <EditItem label="Contact Phone / Whatsapp" value={editForm.phone} onChange={v => setEditForm({ ...editForm, phone: v })} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "var(--huntr-orange-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Industry Type
                         </span>
                         <select
                           value={editForm.industry_type}
                           onChange={e => setEditForm({ ...editForm, industry_type: e.target.value })}
                           style={{
-                            background: "rgba(255,255,255,0.03)",
+                            background: "var(--ui-bg-input)",
                             border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
-                            color: "#e5e7eb",
+                            color: "var(--ui-text-primary)",
                             outline: "none",
                             width: "100%",
                             boxSizing: "border-box",
@@ -778,12 +779,12 @@ export default function CompanyDetails() {
                         </select>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Business Role Type
                         </span>
                         <span style={{
-                          fontSize: 13, color: "#9ca3af", fontWeight: 500,
-                          background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.03)",
+                          fontSize: 13, color: "var(--ui-text-secondary)", fontWeight: 500,
+                          background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-subtle)",
                           padding: "10px 14px", borderRadius: 10, minHeight: 40, boxSizing: "border-box",
                           display: "flex", alignItems: "center",
                         }}>
@@ -815,25 +816,25 @@ export default function CompanyDetails() {
             {/* LOCATION TAB */}
             {activeTab === "location" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#f3f4f6", margin: "0 0 4px" }}>Physical Business coordinates</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 4px", transition: "color 0.3s ease" }}>Physical Business coordinates</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                   {isEditing ? (
                     <>
                       <EditItem label="Province / Country" value={editForm.provincy_country} onChange={v => setEditForm({ ...editForm, provincy_country: v })} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "var(--huntr-orange-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Region / State
                         </span>
                         <select
                           value={editForm.region || ""}
                           onChange={e => setEditForm({ ...editForm, region: e.target.value })}
                           style={{
-                            background: "rgba(255,255,255,0.03)",
+                            background: "var(--ui-bg-input)",
                             border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
-                            color: "#e5e7eb",
+                            color: "var(--ui-text-primary)",
                             outline: "none",
                             width: "100%",
                             boxSizing: "border-box",
@@ -872,24 +873,24 @@ export default function CompanyDetails() {
             {/* BANKING TAB */}
             {activeTab === "banking" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#f3f4f6", margin: "0 0 4px" }}>Banking Settlement</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 4px", transition: "color 0.3s ease" }}>Banking Settlement</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                   {isEditing ? (
                     <>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <span style={{ fontSize: 11, color: "var(--huntr-orange-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                           Settlement Bank Name
                         </span>
                         <select
                           value={editForm.bank_name || ""}
                           onChange={e => setEditForm({ ...editForm, bank_name: e.target.value })}
                           style={{
-                            background: "rgba(255,255,255,0.03)",
+                            background: "var(--ui-bg-input)",
                             border: "1px solid rgba(249,115,22,0.25)",
                             borderRadius: 10,
                             padding: "10px 14px",
                             fontSize: 13,
-                            color: "#e5e7eb",
+                            color: "var(--ui-text-primary)",
                             outline: "none",
                             width: "100%",
                             boxSizing: "border-box",
@@ -924,27 +925,27 @@ export default function CompanyDetails() {
           {activeTab === "documents" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#f3f4f6", margin: "0 0 4px" }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 4px", transition: "color 0.3s ease" }}>
                   {isBuyer ? "Historical Spend / Purchase Orders" : "Product & Price Inventory"}
                 </h3>
-                <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>
+                <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: 0, transition: "color 0.3s ease" }}>
                   {isBuyer
                     ? "Unggah file Excel PO historis. Data akan dikelompokkan per Order No dan disimpan lengkap dengan detail item-nya."
                     : "Unggah file Excel katalog produk Anda. Data akan masuk sebagai inventori harga yang dapat dipakai untuk merespons RFQ."}
                 </p>
               </div>
 
-              <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: 22, background: "rgba(255,255,255,0.03)" }}>
+              <div style={{ border: "1px solid var(--ui-border)", borderRadius: 20, padding: 22, background: "var(--ui-bg-input)", transition: "all 0.3s ease" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <FileText size={18} color="#f59e0b" />
                     <div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: "#f3f4f6" }}>Company Documents</div>
-                      <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>Upload legal company files for verification and profile completeness.</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Company Documents</div>
+                      <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 4, transition: "color 0.3s ease" }}>Upload legal company files for verification and profile completeness.</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "#fbbf24" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "var(--huntr-yellow)" }}>
                       {company?.documents?.length || 0} uploaded
                     </span>
                   </div>
@@ -952,7 +953,7 @@ export default function CompanyDetails() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, marginBottom: 18 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       Document Type
                     </span>
                     <select
@@ -962,9 +963,9 @@ export default function CompanyDetails() {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: 10,
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        background: "rgba(255,255,255,0.04)",
-                        color: "#e5e7eb",
+                        border: "1px solid var(--ui-border-subtle)",
+                        background: "var(--ui-bg-input)",
+                        color: "var(--ui-text-primary)",
                         outline: "none",
                         cursor: "pointer",
                       }}
@@ -1215,12 +1216,12 @@ export default function CompanyDetails() {
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
         {label}
       </span>
       <span style={{
-        fontSize: 13, color: "#e5e7eb", fontWeight: 500,
-        background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+        fontSize: 13, color: "var(--ui-text-primary)", fontWeight: 500,
+        background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-subtle)",
         padding: "10px 14px", borderRadius: 10, minHeight: 40, boxSizing: "border-box",
         display: "flex", alignItems: "center",
       }}>
@@ -1243,7 +1244,7 @@ interface EditItemProps {
 function EditItem({ label, value, onChange, type = "text", textarea = false, placeholder }: EditItemProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span style={{ fontSize: 11, color: "#fb923c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      <span style={{ fontSize: 11, color: "var(--huntr-orange-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
         {label}
       </span>
       {textarea ? (
@@ -1253,12 +1254,12 @@ function EditItem({ label, value, onChange, type = "text", textarea = false, pla
           placeholder={placeholder}
           rows={3}
           style={{
-            background: "rgba(255,255,255,0.03)",
+            background: "var(--ui-bg-input)",
             border: "1px solid rgba(249,115,22,0.25)",
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
-            color: "#e5e7eb",
+            color: "var(--ui-text-primary)",
             outline: "none",
             width: "100%",
             boxSizing: "border-box",
@@ -1273,12 +1274,12 @@ function EditItem({ label, value, onChange, type = "text", textarea = false, pla
           type={type}
           placeholder={placeholder}
           style={{
-            background: "rgba(255,255,255,0.03)",
+            background: "var(--ui-bg-input)",
             border: "1px solid rgba(249,115,22,0.25)",
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
-            color: "#e5e7eb",
+            color: "var(--ui-text-primary)",
             outline: "none",
             width: "100%",
             boxSizing: "border-box",

@@ -129,6 +129,7 @@ export default function Register() {
         email: userPayload?.email || form.email,
         whatsapp: userPayload?.whatsapp || phone,
         role: userPayload?.role || "buyer",
+        token: userPayload?.token || null, // IMPORTANT: Save token!
       };
 
       console.log("[handleSubmit] Saving user session:", user);

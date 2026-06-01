@@ -52,6 +52,21 @@ export default function MyPurchaseRequisitionDetail() {
 
   return (
     <Layout title="Purchase Requisition Detail" subtitle="Review PR metadata, approval status, and item scope.">
+      <style>{`
+        @media (max-width: 768px) {
+          .pr-detail-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .pr-detail-aside {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+          }
+          .pr-detail-sticky {
+            position: static !important;
+            top: auto !important;
+          }
+        }
+      `}</style>
       <div style={{ padding: 24, maxWidth: 1040, margin: "0 auto" }}>
         <button
           type="button"
@@ -102,7 +117,7 @@ export default function MyPurchaseRequisitionDetail() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: 24 }}>
+            <div className="pr-detail-grid" style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: 24 }}>
               <section style={{ padding: 28, borderRadius: 28, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                   <div>
@@ -131,8 +146,8 @@ export default function MyPurchaseRequisitionDetail() {
                 </div>
               </section>
 
-              <aside style={{ display: "grid", gap: 20 }}>
-                <div style={{ padding: 24, borderRadius: 28, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <aside className="pr-detail-aside" style={{ display: "grid", gap: 20 }}>
+                <div className="pr-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
                   <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Approval Detail</div>
                   <DetailRow label="Approver" value={request.approved_by || "Not yet approved"} />
                   <DetailRow label="Status" value={status.label} valueColor={status.color} />
@@ -148,7 +163,7 @@ export default function MyPurchaseRequisitionDetail() {
                   </div>
                 </div>
 
-                <div style={{ padding: 24, borderRadius: 28, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
                   <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>PR Summary</div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                     <span style={{ color: "#9ca3af", fontSize: 12 }}>Line items</span>
@@ -174,11 +189,11 @@ export default function MyPurchaseRequisitionDetail() {
 
 function MetaCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div style={{ padding: 20, borderRadius: 24, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 14 }}>
+    <div style={{ padding: 20, borderRadius: 24, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)`, display: "flex", alignItems: "center", gap: 14 }}>
       <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(249,115,22,0.16)", display: "grid", placeItems: "center", color: "#8b5cf6" }}>{icon}</div>
       <div>
-        <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
-        <div style={{ marginTop: 4, color: "#f8fafc", fontWeight: 700 }}>{value}</div>
+        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
+        <div style={{ marginTop: 4, color: "var(--ui-text-primary)", fontWeight: 700 }}>{value}</div>
       </div>
     </div>
   );
@@ -187,8 +202,8 @@ function MetaCard({ icon, label, value }: { icon: React.ReactNode; label: string
 function DetailRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-      <span style={{ color: "#9ca3af", fontSize: 12 }}>{label}</span>
-      <span style={{ color: valueColor || "#f8fafc", fontWeight: 700, textAlign: "right", maxWidth: 180 }}>{value}</span>
+      <span style={{ color: "var(--ui-text-secondary)", fontSize: 12 }}>{label}</span>
+      <span style={{ color: valueColor || "var(--ui-text-primary)", fontWeight: 700, textAlign: "right", maxWidth: 180 }}>{value}</span>
     </div>
   );
 }

@@ -91,6 +91,20 @@
   --ui-toggle-bg:    rgba(255, 255, 255, 0.03);
   --ui-toggle-border:rgba(255, 255, 255, 0.08);
   --ui-toggle-text:  #9ca3af;
+
+  /* Status colors */
+  --ui-status-approved: #34d399;
+  --ui-status-pending: #fbbf24;
+  --ui-status-rejected: #f87171;
+  --ui-status-active: #22c55e;
+  --ui-status-selected: #8b5cf6;
+
+  /* Gradients */
+  --ui-gradient-active-card: linear-gradient(180deg, rgba(79,70,229,0.16), rgba(63,63,70,0.72));
+
+  /* Shadows */
+  --ui-shadow-orange: 0 24px 60px rgba(249,115,22,0.18);
+  --ui-shadow-orange-hover: 0 12px 40px rgba(249,115,22,0.2);
 }
 
 /* ── Light mode ──────────────────────────────────────────────────────────── */
@@ -161,4 +175,18 @@
   --ui-toggle-bg:    rgba(0, 0, 0, 0.04);
   --ui-toggle-border:rgba(0, 0, 0, 0.10);
   --ui-toggle-text:  #6b7280;
+
+  /* Status colors */
+  --ui-status-approved: #059669;
+  --ui-status-pending: #d97706;
+  --ui-status-rejected: #dc2626;
+  --ui-status-active: #16a34a;
+  --ui-status-selected: #7c3aed;
+
+  /* Gradients */
+  --ui-gradient-active-card: linear-gradient(180deg, rgba(79,70,229,0.08), rgba(229,229,229,0.5));
+
+  /* Shadows */
+  --ui-shadow-orange: 0 24px 60px rgba(249,115,22,0.1);
+  --ui-shadow-orange-hover: 0 12px 40px rgba(249,115,22,0.08);
 }

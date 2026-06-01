@@ -57,13 +57,13 @@ export default function MyPurchaseRequisitions() {
 
   return (
     <Layout title="My Purchase Requisitions" subtitle="Track the status of your internal purchase requests.">
-      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         
         {/* Search & Filter */}
         <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
           <div style={{ flex: 1, position: "relative" }}>
-            <Search style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#6b7280" }} size={18} />
+            <Search style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }} size={18} />
             <input 
               type="text" 
               placeholder="Search by PR title or ID..." 
@@ -71,8 +71,8 @@ export default function MyPurchaseRequisitions() {
               onChange={e => setSearchTerm(e.target.value)}
               style={{
                 width: "100%", padding: "12px 12px 12px 42px", borderRadius: 14,
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                color: "#fff", outline: "none", fontSize: 14,
+                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
+                color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
               }}
             />
           </div>
@@ -83,10 +83,10 @@ export default function MyPurchaseRequisitions() {
             <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
+          <div style={{ textAlign: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)", transition: "all 0.3s ease" }}>
             <ClipboardList size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-            <h3 style={{ color: "#9ca3af", margin: 0, fontSize: 16 }}>No purchase requests found</h3>
-            <button onClick={() => navigate("/marketplace")} style={{ marginTop: 24, padding: "12px 24px", borderRadius: 12, background: "#f59e0b", border: "none", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+            <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase requests found</h3>
+            <button onClick={() => navigate("/marketplace")} style={{ marginTop: 24, padding: "12px 24px", borderRadius: 12, background: "#f59e0b", border: "none", color: "#fff", fontWeight: 700, cursor: "pointer", transition: "all 0.3s ease" }}>
               Go to Marketplace
             </button>
           </div>
@@ -97,30 +97,30 @@ export default function MyPurchaseRequisitions() {
                   const StatusIcon = status.icon;
                   return (
                     <div key={req.id} style={{
-                      background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
-                      padding: "24px 32px", display: "flex", alignItems: "center", gap: 24, transition: "all 0.2s",
+                      background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
+                      padding: "24px 32px", display: "flex", alignItems: "center", gap: 24, transition: "all 0.3s ease",
                       position: "relative",
                       cursor: "pointer",
                     }}>
                       <div onClick={() => navigate(`/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
                       <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>PR #{req.id}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                             <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                           </div>
                         </div>
-                        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f3f4f6" }}>{req.title}</h3>
-                        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
+                        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{req.title}</h3>
+                        <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--ui-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", transition: "color 0.3s ease" }}>
                           {req.description || "No description provided."}
                         </p>
                       </div>
 
                       <div style={{ width: 180, position: "relative", zIndex: 1 }}>
-                        <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items</div>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Items</div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Package size={14} color="#9ca3af" />
-                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{req.items?.length || 0} products</span>
+                          <Package size={14} color="var(--ui-text-secondary)" style={{ transition: "color 0.3s ease" }} />
+                          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{req.items?.length || 0} products</span>
                         </div>
                       </div>
 
@@ -134,11 +134,12 @@ export default function MyPurchaseRequisitions() {
                       </div>
 
                       <button onClick={() => navigate(`/my-pr/${req.id}`)} style={{
-                        width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.08)", color: "#9ca3af", cursor: "pointer",
+                        width: 40, height: 40, borderRadius: 12, background: "var(--ui-bg-input)",
+                        border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         position: "relative",
                         zIndex: 1,
+                        transition: "all 0.3s ease",
                       }}>
                         <ChevronRight size={20} />
                       </button>

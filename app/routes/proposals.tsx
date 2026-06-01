@@ -88,10 +88,23 @@ export default function Proposals() {
 
   return (
     <Layout title="Vendor Tenders & Proposals" subtitle="Participate in open tenders, submit offers, and track your ranking.">
+      <style>{`
+        @media (max-width: 768px) {
+          .proposals-container {
+            grid-template-columns: 1fr !important;
+          }
+          .proposals-sidebar {
+            display: none !important;
+          }
+          .proposals-tabs {
+            flex-wrap: wrap !important;
+          }
+        }
+      `}</style>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 1 }}>
+        <div className="proposals-tabs" style={{ display: "flex", gap: 12, borderBottom: `1px solid var(--ui-border)`, paddingBottom: 1 }}>
           {[
             { id: "tenders", label: "Open Tenders", icon: Gavel },
             { id: "rankings", label: "My Rank & SAW Analysis", icon: Award },
@@ -102,9 +115,9 @@ export default function Proposals() {
               style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "12px 20px",
                 background: "none", border: "none", cursor: "pointer",
-                color: activeTab === tab.id ? "#fdba74" : "#6b7280",
+                color: activeTab === tab.id ? "var(--ui-text-nav-active)" : "var(--ui-text-nav-idle)",
                 fontWeight: activeTab === tab.id ? 700 : 500, fontSize: 13,
-                borderBottom: activeTab === tab.id ? "2px solid #f59e0b" : "2px solid transparent",
+                borderBottom: activeTab === tab.id ? `2px solid var(--huntr-amber)` : "2px solid transparent",
                 marginBottom: -1, transition: "all 0.2s"
               }}
             >
@@ -115,7 +128,7 @@ export default function Proposals() {
 
         {/* Content */}
         {activeTab === "tenders" && (
-          <div style={{ display: "grid", gridTemplateColumns: selectedRfq ? "1fr 400px" : "1fr", gap: 24 }}>
+          <div className="proposals-container" style={{ display: "grid", gridTemplateColumns: selectedRfq ? "1fr 400px" : "1fr", gap: 24 }}>
             {/* Tenders List */}
             <div className="glass-panel" style={{ padding: 28 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
@@ -161,15 +174,16 @@ export default function Proposals() {
 
             {/* Proposal Form (Sidebar) */}
             {selectedRfq && (
-              <div className="glass-panel" style={{ padding: 28, position: "sticky", top: 24, height: "fit-content" }}>
+              <div className="proposals-sidebar" style={{ display: "grid" }}>
+                <div className="glass-panel" style={{ padding: 28, position: "sticky", top: 24, height: "fit-content" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                   <SectionTitle>Submit Proposal</SectionTitle>
-                  <button onClick={() => setSelectedRfq(null)} style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer" }}>×</button>
+                  <button onClick={() => setSelectedRfq(null)} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer" }}>×</button>
                 </div>
                 
                 <div style={{ background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: 14, padding: 16, marginBottom: 24 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#fb923c", textTransform: "uppercase" }}>Target RFQ</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#f3f4f6", marginTop: 4 }}>{selectedRfq.title}</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-brand)", textTransform: "uppercase" }}>Target RFQ</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", marginTop: 4 }}>{selectedRfq.title}</div>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -201,6 +215,7 @@ export default function Proposals() {
                     {loading ? <Loader2 size={16} className="animate-spin" /> : "Submit Offer"}
                   </button>
                 </form>
+                </div>
               </div>
             )}
             
@@ -321,7 +336,7 @@ export default function Proposals() {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 13, fontWeight: 700, color: "#fdba74", letterSpacing: "0.04em", textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-brand)", letterSpacing: "0.04em", textTransform: "uppercase" }}>{children}</div>;
 }
 
 function KV({ label, value }: { label: string; value: any }) {
@@ -339,10 +354,10 @@ function Tag({ color, children }: { color: string; children: React.ReactNode }) 
 function Section({ children }: { children: React.ReactNode }) {
   return <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
 }
-const lbl: React.CSSProperties = { fontSize: 12, color: "#9ca3af", fontWeight: 500 };
+const lbl: React.CSSProperties = { fontSize: 12, color: "var(--ui-text-secondary)", fontWeight: 500 };
 const inputStyle: React.CSSProperties = {
-  background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)",
-  borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#fff",
+  background: "var(--ui-bg-input)", border: `1px solid var(--ui-border-input)`,
+  borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--ui-text-primary)",
   outline: "none", width: "100%", boxSizing: "border-box",
 };
 const primaryBtn: React.CSSProperties = {

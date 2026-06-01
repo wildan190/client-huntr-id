@@ -133,7 +133,7 @@ export default function Orders() {
       title="Purchase Order"
       subtitle="View and manage all purchase order documents."
     >
-      <div style={{ maxWidth: "100%", width: "100%", padding: "clamp(20px, 5vw, 40px)" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
         
         {/* Header Summary Card */}

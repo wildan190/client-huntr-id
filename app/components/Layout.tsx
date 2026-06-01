@@ -38,6 +38,8 @@ export default function Layout({ children, title, subtitle }: Props) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
+  const [notifButtonPos, setNotifButtonPos] = useState({ top: 0, right: 0 });
+  const notifButtonRef = React.useRef<HTMLButtonElement>(null);
 
   const NAV = [
     { to: "/",          label: "Dashboard",  Icon: LayoutDashboard },
@@ -90,6 +92,17 @@ export default function Layout({ children, title, subtitle }: Props) {
       window.removeEventListener('huntr:notification_received', handleNewNotif);
     };
   }, [pathname, navigate]);
+
+  // Calculate notification button position for floating dropdown
+  useEffect(() => {
+    if (showNotifications && notifButtonRef.current) {
+      const rect = notifButtonRef.current.getBoundingClientRect();
+      setNotifButtonPos({
+        top: rect.bottom + 20,  // Increased gap from 12 to 20
+        right: window.innerWidth - rect.right - 40,  // Shift left by 40px
+      });
+    }
+  }, [showNotifications]);
 
   const fetchUnreadCount = async (userId: number) => {
     try {
@@ -266,15 +279,18 @@ export default function Layout({ children, title, subtitle }: Props) {
       </aside>
 
       {/* ── Main content ────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", overflowX: "hidden" }}>
-        {/* Page header */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "hidden", overflowX: "hidden" }}>
+        {/* Page header - STICKY */}
         <div style={{
           padding: "26px 32px 18px",
           borderBottom: "1px solid var(--ui-border-subtle)",
           background: "var(--ui-bg-header)",
           backdropFilter: "blur(20px)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          position: "relative",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          flexShrink: 0,
         }}>
           <div>
             <Breadcrumb />
@@ -286,6 +302,7 @@ export default function Layout({ children, title, subtitle }: Props) {
             {/* Notification Bell & Floating Preview */}
             <div style={{ position: "relative" }}>
               <button 
+                ref={notifButtonRef}
                 onClick={() => setShowNotifications(!showNotifications)}
                 style={{
                   position: "relative", width: 40, height: 40, borderRadius: 12,
@@ -314,14 +331,19 @@ export default function Layout({ children, title, subtitle }: Props) {
                 <>
                   <div 
                     onClick={() => setShowNotifications(false)}
-                    style={{ position: "fixed", inset: 0, zIndex: 90 }} 
+                    style={{ position: "fixed", inset: 0, zIndex: 99998 }} 
                   />
                   <div style={{
-                    position: "absolute", top: "calc(100% + 12px)", right: 0,
-                    width: 320, background: "var(--ui-bg-notif)", backdropFilter: "blur(20px)",
-                    borderRadius: 20, border: "1px solid var(--ui-border-notif)",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.2)", zIndex: 100,
+                    position: "fixed", 
+                    width: 320, 
+                    background: "var(--ui-bg-card)", 
+                    borderRadius: 20, 
+                    border: "1px solid var(--ui-border)",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
+                    zIndex: 99999,
                     overflow: "hidden",
+                    top: `${notifButtonPos.top}px`,
+                    right: `${notifButtonPos.right}px`,
                   }}>
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -384,7 +406,7 @@ export default function Layout({ children, title, subtitle }: Props) {
         </div>
 
         {/* Page content */}
-        <div style={{ flex: 1, padding: "28px 32px" }}>
+        <div style={{ flex: 1, padding: "clamp(20px, 5vw, 32px)", overflowY: "auto", overflowX: "hidden" }}>
           {activeCompany && activeCompany.status === 'pending' && pathname !== '/company' ? (
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",

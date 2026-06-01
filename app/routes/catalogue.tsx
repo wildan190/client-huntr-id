@@ -116,7 +116,7 @@ export default function Catalogue() {
 
   return (
     <Layout title="Company Catalogue" subtitle="Manage your products, add new items manually, or import from Excel/CSV.">
-      <div style={{ padding: "0 32px 40px", display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
         
         {/* Action Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
