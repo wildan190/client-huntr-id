@@ -168,7 +168,7 @@ export default function Marketplace() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                       <button 
                         type="button"
-                        aria-label="Tambah ke keranjang"
+                        aria-label="Add to cart"
                         onClick={() => addToCart(item)}
                         style={{
                           width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.15)",
@@ -235,10 +235,10 @@ export default function Marketplace() {
                       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{item.name}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button type="button" aria-label="Kurangi jumlah" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Minus size={12} /></button>
+                      <button type="button" aria-label="Decrease quantity" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Minus size={12} /></button>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", minWidth: 20, textAlign: "center", transition: "color 0.3s ease" }}>{item.qty}</span>
-                      <button type="button" aria-label="Tambah jumlah" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Plus size={12} /></button>
-                      <button type="button" aria-label="Hapus item dari keranjang" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
+                      <button type="button" aria-label="Increase quantity" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Plus size={12} /></button>
+                      <button type="button" aria-label="Remove item from cart" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 ))

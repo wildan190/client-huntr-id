@@ -67,7 +67,7 @@ export default function MyPurchaseRequisitionDetail() {
           }
         }
       `}</style>
-      <div style={{ padding: 24, maxWidth: 1040, margin: "0 auto" }}>
+      <div style={{ padding: "24px clamp(20px, 5vw, 32px)", maxWidth: 1040, margin: "0 auto" }}>
         <button
           type="button"
           onClick={() => navigate("/my-pr")}

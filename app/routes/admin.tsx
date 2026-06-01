@@ -850,7 +850,7 @@ function AuditModal({
             onChange={e => setNotes(e.target.value)}
             placeholder={isApprove
               ? "e.g. All documents verified, company approved."
-              : "e.g. Incomplete documents, NPWP tidak valid."}
+              : "e.g. Incomplete documents, NPWP not valid."}
             rows={4}
             style={{
               background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",

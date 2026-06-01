@@ -33,7 +33,7 @@ export default function MarketplaceDetail() {
     setIsGuest(!userSession);
 
     if (!id) {
-      setError("Produk tidak ditemukan.");
+      setError("Product not found.");
       setLoading(false);
       return;
     }
@@ -47,7 +47,7 @@ export default function MarketplaceDetail() {
         setError(null);
       })
       .catch(() => {
-        setError("Gagal memuat detail produk. Coba lagi.");
+        setError("Failed to load product details. Please try again.");
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -61,16 +61,16 @@ export default function MarketplaceDetail() {
         : [...currentCart, { ...catalogueItem, qty: 1, estimated_price: 0 }];
 
       localStorage.setItem("huntr_cart", JSON.stringify(nextCart));
-      setCartMessage("Produk berhasil ditambahkan ke keranjang.");
+      setCartMessage("Product successfully added to cart.");
       window.setTimeout(() => setCartMessage(null), 3200);
     } catch (err) {
       console.error(err);
-      setCartMessage("Tidak dapat menambahkan produk ke keranjang sekarang.");
+      setCartMessage("Unable to add product to cart right now.");
     }
   };
 
   return (
-    <Layout title="Marketplace Product" subtitle="Detail produk dari katalog vendor.">
+    <Layout title="Marketplace Product" subtitle="Product details from vendor catalog.">
       <style>{`
         @media (max-width: 768px) {
           .marketplace-detail-grid {
@@ -97,10 +97,10 @@ export default function MarketplaceDetail() {
             transition: "all 0.3s ease",
           }}
         >
-          ← {isGuest ? "Kembali ke Beranda" : "Kembali ke Marketplace"}
+          ← {isGuest ? "Back to Home" : "Back to Marketplace"}
         </button>
 
-        {loading && <div style={{ color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>Memuat detail produk...</div>}
+        {loading && <div style={{ color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>Loading product details...</div>}
         {error && <div style={{ color: "#fca5a5", transition: "color 0.3s ease" }}>{error}</div>}
         {!loading && !error && item ? (
           <div style={{ display: "grid", gap: 24 }}>
@@ -110,7 +110,7 @@ export default function MarketplaceDetail() {
               </div>
               <h1 style={{ margin: 0, fontSize: 34, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{item.name}</h1>
               <p style={{ margin: 0, color: "var(--ui-text-secondary)", maxWidth: 760, lineHeight: 1.7, transition: "color 0.3s ease" }}>
-                {item.specifications || "Tidak ada spesifikasi tambahan."}
+                {item.specifications || "No additional specifications."}
               </p>
             </div>
 
@@ -127,30 +127,30 @@ export default function MarketplaceDetail() {
                 <div style={{ display: "grid", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                     <span style={{ color: "var(--ui-text-muted)", textTransform: "uppercase", fontSize: 12, letterSpacing: 1.2, transition: "color 0.3s ease" }}>
-                      Detail Produk
+                      Product Details
                     </span>
                   </div>
 
                   <div style={{ display: "grid", gap: 12 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>ID Produk</span>
+                      <span>Product ID</span>
                       <span>{item.item_code}</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>Kategori</span>
-                      <span>{item.category || "Umum"}</span>
+                      <span>Category</span>
+                      <span>{item.category || "General"}</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>Satuan</span>
+                      <span>Unit</span>
                       <span>{item.uom}</span>
                     </div>
                   </div>
                 </div>
 
                 <div style={{ display: "grid", gap: 8 }}>
-                  <div style={{ color: "var(--ui-text-secondary)", fontSize: 14, fontWeight: 700, transition: "color 0.3s ease" }}>Spesifikasi</div>
+                  <div style={{ color: "var(--ui-text-secondary)", fontSize: 14, fontWeight: 700, transition: "color 0.3s ease" }}>Specifications</div>
                   <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 16, borderRadius: 16, lineHeight: 1.8, transition: "all 0.3s ease" }}>
-                    {item.specifications || "Tidak ada spesifikasi produk yang tercatat."}
+                    {item.specifications || "No product specifications recorded."}
                   </div>
                 </div>
 
@@ -177,7 +177,7 @@ export default function MarketplaceDetail() {
                       transition: "all 0.3s ease",
                     }}
                   >
-                    Login untuk Membuat PR
+                    Login to Create PR
                   </button>
                 ) : (
                   <button
@@ -195,7 +195,7 @@ export default function MarketplaceDetail() {
                       transition: "all 0.3s ease",
                     }}
                   >
-                    Tambah ke Keranjang
+                    Add to Cart
                   </button>
                 )}
 
@@ -214,7 +214,7 @@ export default function MarketplaceDetail() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {isGuest ? "Kembali ke Beranda" : "Kembali ke Marketplace"}
+                  {isGuest ? "Back to Home" : "Back to Marketplace"}
                 </button>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function MarketplaceDetail() {
         ) : (
         !loading && !error && (
           <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 20, borderRadius: 18, transition: "all 0.3s ease" }}>
-            Tidak ada detail produk yang dapat ditampilkan.
+            No product details available to display.
           </div>
         )
       )}

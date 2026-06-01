@@ -223,8 +223,8 @@ export default function Proposals() {
               <div style={{ position: "fixed", bottom: 24, right: 24, background: "#10b981", color: "#fff", padding: "16px 24px", borderRadius: 16, boxShadow: "0 10px 30px rgba(16,185,129,0.3)", display: "flex", alignItems: "center", gap: 12, zIndex: 100 }}>
                 <CheckCircle2 size={20} />
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 14 }}>Proposal Berhasil!</div>
-                  <div style={{ fontSize: 11, opacity: 0.9 }}>Cek peringkat Anda di tab My Rank.</div>
+                  <div style={{ fontWeight: 800, fontSize: 14 }}>Proposal Submitted Successfully!</div>
+                  <div style={{ fontSize: 11, opacity: 0.9 }}>Check your ranking in the My Rank tab.</div>
                 </div>
                 <button onClick={() => setResult(null)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontWeight: 900 }}>×</button>
               </div>
