@@ -481,59 +481,73 @@ export default function AccountSettings() {
                     <p>Tidak ada data sesi aktif.</p>
                   </div>
                 ) : (
-                  sessions.map((session) => (
-                    <div key={session.id} style={{ 
-                      background: "var(--ui-bg-input)", 
-                      border: "1px solid var(--ui-border-subtle)", 
-                      borderRadius: 16, 
-                      padding: 16,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
-                      transition: "all 0.3s ease"
-                    }}>
-                      <div style={{ 
-                        width: 40, height: 40, borderRadius: 10, 
-                        background: session.is_current_device ? "rgba(249,115,22,0.15)" : "var(--ui-bg-input)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: session.is_current_device ? "#fb923c" : "var(--ui-text-secondary)",
+                  sessions.map((session) => {
+                    const isMobile = session.name?.toLowerCase().includes('android') || session.name?.toLowerCase().includes('ios') || session.user_agent?.toLowerCase().includes('mobile');
+                    const Icon = isMobile ? Smartphone : Monitor;
+
+                    return (
+                      <div key={session.id} style={{ 
+                        background: "var(--ui-bg-input)", 
+                        border: "1px solid var(--ui-border-subtle)", 
+                        borderRadius: 16, 
+                        padding: 16,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
                         transition: "all 0.3s ease"
                       }}>
-                        <Monitor size={20} />
-                      </div>
-                      
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{session.ip_address}</span>
-                          {session.is_current_device && (
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", background: "rgba(16,185,129,0.1)", padding: "2px 8px", borderRadius: 20 }}>PERANGKAT INI</span>
-                          )}
+                        <div style={{ 
+                          width: 40, height: 40, borderRadius: 10, 
+                          background: session.is_current_device ? "rgba(249,115,22,0.15)" : "var(--ui-bg-input)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: session.is_current_device ? "#fb923c" : "var(--ui-text-secondary)",
+                          transition: "all 0.3s ease"
+                        }}>
+                          <Icon size={20} />
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2, transition: "color 0.3s ease" }}>
-                          {session.user_agent}
+                        
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                              {session.type === 'API Token' ? (session.name || 'Unknown Device') : session.ip_address}
+                            </span>
+                            <span style={{ 
+                              fontSize: 9, fontWeight: 800, color: session.type === 'API Token' ? '#3b82f6' : '#9ca3af', 
+                              background: session.type === 'API Token' ? 'rgba(59,130,246,0.1)' : 'rgba(156,163,175,0.1)', 
+                              padding: "2px 6px", borderRadius: 4, textTransform: 'uppercase'
+                            }}>
+                              {session.type === 'API Token' ? 'API' : 'WEB'}
+                            </span>
+                            {session.is_current_device && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", background: "rgba(16,185,129,0.1)", padding: "2px 8px", borderRadius: 20 }}>PERANGKAT INI</span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2, transition: "color 0.3s ease" }}>
+                            {session.type === 'API Token' ? `Authorized via Bearer Token` : session.user_agent}
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, transition: "color 0.3s ease" }}>
+                            <Clock size={10} /> Aktif terakhir: {session.last_active}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, transition: "color 0.3s ease" }}>
-                          <Clock size={10} /> Aktif terakhir: {session.last_active}
-                        </div>
-                      </div>
 
-                      {!session.is_current_device && (
-                        <button 
-                          onClick={() => handleLogoutSession(session.id)}
-                          style={{ 
-                            width: 32, height: 32, borderRadius: 8, 
-                            background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)",
-                            color: "#f87171", cursor: "pointer",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            transition: "all 0.3s ease"
-                          }}
-                          title="Hentikan sesi"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
-                  ))
+                        {!session.is_current_device && (
+                          <button 
+                            onClick={() => handleLogoutSession(session.id)}
+                            style={{ 
+                              width: 32, height: 32, borderRadius: 8, 
+                              background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)",
+                              color: "#f87171", cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              transition: "all 0.3s ease"
+                            }}
+                            title="Hentikan sesi"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
               

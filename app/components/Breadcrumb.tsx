@@ -11,13 +11,11 @@ export default function Breadcrumb() {
   }
 
   return (
-    <nav style={{
-      display: "flex", alignItems: "center", gap: 8,
-      fontSize: 12, color: "#9ca3af",
-      marginBottom: 16,
-      padding: "0 4px"
-    }}>
-      <Link to="/" style={{ color: "#6b7280", transition: "color 0.2s", display: "flex", alignItems: "center" }}>
+    <nav className="flex items-center gap-2 text-[12px] mb-4 px-1 transition-colors">
+      <Link 
+        to="/" 
+        className="text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] transition-colors flex items-center"
+      >
         <Home size={14} />
       </Link>
       
@@ -28,11 +26,14 @@ export default function Breadcrumb() {
 
         return (
           <React.Fragment key={path}>
-            <ChevronRight size={14} color="#4b5563" />
+            <ChevronRight size={14} className="text-[var(--ui-text-muted)] opacity-50" />
             {isLast ? (
-              <span style={{ color: "#e5e7eb", fontWeight: 600 }}>{name}</span>
+              <span className="text-[var(--ui-text-primary)] font-bold">{name}</span>
             ) : (
-              <Link to={to} style={{ color: "#9ca3af", textDecoration: "none", transition: "color 0.2s" }}>
+              <Link 
+                to={to} 
+                className="text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] no-underline transition-colors"
+              >
                 {name}
               </Link>
             )}

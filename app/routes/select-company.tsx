@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
+import { 
   Building2, LogIn, Plus, Loader2, CheckCircle2, ArrowRight,
   LayoutGrid, LogOut, Sparkles,
 } from "lucide-react";
 import { getMyCompanies } from "../lib/api";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function SelectCompany() {
   const navigate = useNavigate();
@@ -46,17 +47,16 @@ export default function SelectCompany() {
   const getMeta = (s: string) => statusMeta[s] || { color: "#9ca3af", bg: "rgba(156,163,175,0.12)", label: s || "Unknown" };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden bg-[#050510]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden bg-[var(--ui-bg-page-grad)]">
 
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-8%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full bg-radial-gradient(circle, rgba(249,115,22,0.11) 0%, transparent 65%)" />
-        <div className="absolute bottom-[-15%] left-[-8%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full bg-radial-gradient(circle, rgba(251,146,60,0.09) 0%, transparent 65%)" />
-        <div className="absolute top-[50%] left-[30%] w-[200px] md:w-[350px] h-[200px] md:h-[350px] rounded-full bg-radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)" />
+        <div className="absolute top-[-10%] right-[-8%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full bg-radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 65%)" />
+        <div className="absolute bottom-[-15%] left-[-8%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full bg-radial-gradient(circle, rgba(251,146,60,0.06) 0%, transparent 65%)" />
       </div>
 
       {/* Top bar */}
-      <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-8">
+      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-8">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img 
@@ -65,23 +65,26 @@ export default function SelectCompany() {
             className="w-8 h-8 md:w-9 md:h-9 rounded-lg object-cover shadow-[0_4px_16px_rgba(249,115,22,0.35)]"
           />
           <div className="hidden sm:block">
-            <div className="font-black text-sm md:text-base text-gray-100 tracking-tight">Huntr.id</div>
+            <div className="font-black text-sm md:text-base text-[var(--ui-text-primary)] tracking-tight">Huntr.id</div>
             <div className="text-[8px] md:text-[9px] text-orange-400 tracking-[0.12em] font-bold uppercase">Workspace</div>
           </div>
         </div>
 
-        {/* Sign out */}
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all"
-        >
-          <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
-        </button>
-      </div>
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-bg-input)] border border-[var(--ui-border)] rounded-xl text-xs font-bold text-[var(--ui-text-muted)] hover:bg-[var(--ui-bg-input-focus)] hover:text-[var(--ui-text-primary)] transition-all"
+          >
+            <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
+      </header>
 
       {/* Card */}
       <div className="w-full max-w-lg relative z-1">
-        <div className="bg-[#0c0c1c]/95 border border-white/8 rounded-3xl backdrop-blur-3xl overflow-hidden shadow-2xl">
+        <div className="bg-[var(--ui-bg-card)] border border-[var(--ui-border)] rounded-3xl backdrop-blur-3xl overflow-hidden shadow-2xl">
           {/* Top accent */}
           <div className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500" />
 
@@ -91,11 +94,11 @@ export default function SelectCompany() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-500/30">
                 <LayoutGrid size={28} className="text-white" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-gray-100 tracking-tight mb-2">
+              <h1 className="text-2xl md:text-3xl font-black text-[var(--ui-text-primary)] tracking-tight mb-2">
                 Choose a Workspace
               </h1>
               {user && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--ui-text-secondary)]">
                   Welcome back,{" "}
                   <span className="text-orange-400 font-bold">
                     {user.name}
@@ -108,14 +111,14 @@ export default function SelectCompany() {
             {isLoading ? (
               <div className="flex flex-col items-center gap-4 py-10">
                 <Loader2 size={32} className="text-orange-500 animate-spin" />
-                <span className="text-sm text-gray-600 font-medium">Loading workspaces...</span>
+                <span className="text-sm text-[var(--ui-text-muted)] font-medium">Loading workspaces...</span>
               </div>
             ) : companies.length === 0 ? (
               <div className="text-center py-6">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5 text-gray-700">
+                <div className="w-14 h-14 rounded-2xl bg-[var(--ui-bg-input)] flex items-center justify-center mx-auto mb-5 text-[var(--ui-text-muted)]">
                   <Building2 size={28} />
                 </div>
-                <p className="text-sm text-gray-500 mb-8">
+                <p className="text-sm text-[var(--ui-text-secondary)] mb-8">
                   You don't have any registered company yet.
                 </p>
                 <button
@@ -141,7 +144,7 @@ export default function SelectCompany() {
                           p-4 rounded-2xl text-left transition-all border-2 flex items-center gap-4 group
                           ${isSelected 
                             ? "bg-orange-500/10 border-orange-500/50 shadow-lg shadow-orange-500/10" 
-                            : "bg-white/3 border-white/5 hover:border-white/10"
+                            : "bg-[var(--ui-bg-input)] border-[var(--ui-border-subtle)] hover:border-[var(--ui-border-input)]"
                           }
                         `}
                       >
@@ -150,14 +153,14 @@ export default function SelectCompany() {
                           w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all
                           ${isSelected 
                             ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white" 
-                            : "bg-white/5 text-gray-500 group-hover:bg-white/10"
+                            : "bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)] group-hover:bg-[var(--ui-bg-input)]"
                           }
                         `}>
                           <Building2 size={22} />
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className={`font-bold truncate ${isSelected ? "text-orange-400" : "text-gray-200"}`}>
+                          <div className={`font-bold truncate ${isSelected ? "text-orange-400" : "text-[var(--ui-text-primary)]"}`}>
                             {c.name}
                           </div>
                           <div className="flex items-center gap-2 mt-1">
@@ -191,7 +194,7 @@ export default function SelectCompany() {
 
                   <button
                     onClick={handleRegisterNew}
-                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                    className="w-full py-3 bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
                   >
                     + Register Another Company
                   </button>
@@ -203,7 +206,7 @@ export default function SelectCompany() {
 
         {/* Footer info */}
         <div className="mt-8 text-center">
-          <p className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">
+          <p className="text-[10px] text-[var(--ui-text-muted)] font-bold uppercase tracking-[0.2em]">
             &copy; 2026 Huntr.id &bull; Secure Environment
           </p>
         </div>

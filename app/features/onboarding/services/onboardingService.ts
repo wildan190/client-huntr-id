@@ -1,15 +1,52 @@
-import { apiPost, apiPostForm, apiGet } from "../../../lib/api";
+import { apiPost, apiPostForm, apiGet } from "../../../lib/client";
+import type { CompanyFormData, NpwpVerifiedData, UploadedDoc } from "../types";
 
-export const OnboardingService = {
-  verifyNpwp: (npwp: string) => apiPost("/api/companies/verify-npwp", { npwp }),
-  
-  uploadDocument: (fd: FormData) => apiPostForm("/api/companies/documents/upload", fd),
-  
-  registerCompany: (payload: any) => apiPost("/api/companies", payload),
-  
-  importHistoricalPo: (fd: FormData) => apiPostForm("/api/orders/historical/import", fd),
-  
-  importCatalogue: (fd: FormData) => apiPostForm("/api/catalogues/import", fd),
-  
-  getMyCompanies: (userId: number | string) => apiGet(`/api/companies/my?user_id=${userId}`),
+/**
+ * OnboardingRepository
+ * 
+ * Tanggung jawab: Melakukan komunikasi data mentah dengan API.
+ * Pola: Repository Pattern untuk abstraksi sumber data.
+ */
+export const OnboardingRepository = {
+  /**
+   * Memverifikasi nomor NPWP melalui API eksternal/internal
+   */
+  async verifyNpwp(npwp: string): Promise<{ status: number; message?: string; data?: NpwpVerifiedData }> {
+    return apiPost("/api/companies/verify-npwp", { npwp });
+  },
+
+  /**
+   * Mengunggah dokumen legalitas perusahaan
+   */
+  async uploadDocument(fd: FormData): Promise<{ file_path: string; url: string }> {
+    return apiPostForm("/api/companies/documents/upload", fd);
+  },
+
+  /**
+   * Mendaftarkan profil perusahaan baru
+   */
+  async registerCompany(payload: any): Promise<any> {
+    return apiPost("/api/companies", payload);
+  },
+
+  /**
+   * Mengimpor data PO historis (khusus Buyer)
+   */
+  async importHistoricalPo(fd: FormData): Promise<any> {
+    return apiPostForm("/api/orders/historical/import", fd);
+  },
+
+  /**
+   * Mengimpor katalog produk (khusus Vendor)
+   */
+  async importCatalogue(fd: FormData): Promise<any> {
+    return apiPostForm("/api/catalogues/import", fd);
+  },
+
+  /**
+   * Mengambil daftar perusahaan milik user yang sedang login
+   */
+  async getMyCompanies(userId: number | string): Promise<{ companies: any[] }> {
+    return apiGet(`/api/companies/my?user_id=${userId}`);
+  },
 };

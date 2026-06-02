@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Loader2, Eye, EyeOff, ShieldCheck, Key } from "lucide-react";
-import { login, verify2FACode, verify2FARecovery, getAuthenticatedUser, getCsrfCookie } from "../lib/api";
+import { login, getAuthenticatedUser, getCsrfCookie } from "../lib/api/auth";
+import { verify2FACode, verify2FARecovery } from "../lib/api/account";
 import AuthLayout from "../components/AuthLayout";
 
 export default function Login() {
