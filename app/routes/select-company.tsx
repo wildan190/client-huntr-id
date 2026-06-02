@@ -46,88 +46,58 @@ export default function SelectCompany() {
   const getMeta = (s: string) => statusMeta[s] || { color: "#9ca3af", bg: "rgba(156,163,175,0.12)", label: s || "Unknown" };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "24px 16px",
-      boxSizing: "border-box",
-      position: "relative",
-      overflow: "hidden",
-    }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden bg-[#050510]">
 
       {/* Background */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-10%", right: "-8%", width: 550, height: 550, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,0.11) 0%, transparent 65%)" }} />
-        <div style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 650, height: 650, borderRadius: "50%", background: "radial-gradient(circle, rgba(251,146,60,0.09) 0%, transparent 65%)" }} />
-        <div style={{ position: "absolute", top: "50%", left: "30%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)" }} />
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-8%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full bg-radial-gradient(circle, rgba(249,115,22,0.11) 0%, transparent 65%)" />
+        <div className="absolute bottom-[-15%] left-[-8%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full bg-radial-gradient(circle, rgba(251,146,60,0.09) 0%, transparent 65%)" />
+        <div className="absolute top-[50%] left-[30%] w-[200px] md:w-[350px] h-[200px] md:h-[350px] rounded-full bg-radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)" />
       </div>
 
       {/* Top bar */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 28px" }}>
+      <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-8">
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="flex items-center gap-3">
           <img 
             src="/assets/img/logo/emblem.jpg" 
             alt="Huntr Logo" 
-            style={{ width: 34, height: 34, borderRadius: 10, objectFit: "cover", boxShadow: "0 4px 16px rgba(249,115,22,0.35)" }} 
+            className="w-8 h-8 md:w-9 md:h-9 rounded-lg object-cover shadow-[0_4px_16px_rgba(249,115,22,0.35)]"
           />
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 14, color: "#f3f4f6", letterSpacing: "-0.3px" }}>Huntr.id</div>
-            <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.12em", fontWeight: 700 }}>WORKSPACE</div>
+          <div className="hidden sm:block">
+            <div className="font-black text-sm md:text-base text-gray-100 tracking-tight">Huntr.id</div>
+            <div className="text-[8px] md:text-[9px] text-orange-400 tracking-[0.12em] font-bold uppercase">Workspace</div>
           </div>
         </div>
 
         {/* Sign out */}
         <button
           onClick={handleSignOut}
-          style={{
-            display: "flex", alignItems: "center", gap: 6,
-            fontSize: 12, color: "#6b7280", background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8,
-            padding: "7px 14px", cursor: "pointer", fontWeight: 500,
-          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all"
         >
-          <LogOut size={13} /> Sign out
+          <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
         </button>
       </div>
 
       {/* Card */}
-      <div style={{
-        width: "100%", maxWidth: 500, position: "relative", zIndex: 1,
-      }}>
-        <div style={{
-          background: "rgba(12,12,28,0.92)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          borderRadius: 28,
-          backdropFilter: "blur(32px)",
-          boxShadow: "0 40px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.02) inset",
-          overflow: "hidden",
-        }}>
+      <div className="w-full max-w-lg relative z-1">
+        <div className="bg-[#0c0c1c]/95 border border-white/8 rounded-3xl backdrop-blur-3xl overflow-hidden shadow-2xl">
           {/* Top accent */}
-          <div style={{ height: 3, background: "linear-gradient(90deg,#f97316,#f59e0b,#fbbf24)" }} />
+          <div className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500" />
 
-          <div style={{ padding: "36px 40px 40px" }}>
+          <div className="p-8 md:p-12">
             {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: 32 }}>
-              <div style={{
-                width: 60, height: 60, borderRadius: 16,
-                background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 18px",
-                boxShadow: "0 8px 24px rgba(249,115,22,0.35)",
-              }}>
-                <LayoutGrid size={28} color="#fff" />
+            <div className="text-center mb-10">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-500/30">
+                <LayoutGrid size={28} className="text-white" />
               </div>
-              <h1 style={{ fontSize: 22, fontWeight: 900, color: "#f3f4f6", margin: "0 0 8px", letterSpacing: "-0.4px" }}>
+              <h1 className="text-2xl md:text-3xl font-black text-gray-100 tracking-tight mb-2">
                 Choose a Workspace
               </h1>
               {user && (
-                <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
+                <p className="text-sm text-gray-500">
                   Welcome back,{" "}
-                  <span style={{ color: "#fdba74", fontWeight: 600 }}>
+                  <span className="text-orange-400 font-bold">
                     {user.name}
                   </span>
                 </p>
@@ -136,41 +106,29 @@ export default function SelectCompany() {
 
             {/* Body */}
             {isLoading ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "32px 0" }}>
-                <Loader2 size={28} color="#f59e0b" className="animate-spin" />
-                <span style={{ fontSize: 13, color: "#4b5563" }}>Loading workspaces...</span>
+              <div className="flex flex-col items-center gap-4 py-10">
+                <Loader2 size={32} className="text-orange-500 animate-spin" />
+                <span className="text-sm text-gray-600 font-medium">Loading workspaces...</span>
               </div>
             ) : companies.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 14,
-                  background: "rgba(255,255,255,0.04)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  margin: "0 auto 16px",
-                }}>
-                  <Building2 size={26} color="#374151" />
+              <div className="text-center py-6">
+                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5 text-gray-700">
+                  <Building2 size={28} />
                 </div>
-                <p style={{ color: "#6b7280", fontSize: 13, marginBottom: 20 }}>
+                <p className="text-sm text-gray-500 mb-8">
                   You don't have any registered company yet.
                 </p>
                 <button
                   onClick={handleRegisterNew}
-                  style={{
-                    width: "100%", padding: "14px 20px", borderRadius: 14,
-                    fontWeight: 700, fontSize: 14, border: "none",
-                    background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                    color: "#fff", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    boxShadow: "0 6px 20px rgba(249,115,22,0.3)",
-                  }}
+                  className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  <Plus size={16} /> Register a Company
+                  <Plus size={18} /> Register a Company
                 </button>
               </div>
             ) : (
               <>
                 {/* Company list */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                <div className="flex flex-col gap-3 mb-8">
                   {companies.map(c => {
                     const isSelected = selected?.id === c.id;
                     const meta = getMeta(c.status);
@@ -179,100 +137,75 @@ export default function SelectCompany() {
                         key={c.id}
                         type="button"
                         onClick={() => setSelected(c)}
-                        style={{
-                          padding: "16px 18px", borderRadius: 14, cursor: "pointer",
-                          background: isSelected ? "rgba(249,115,22,0.09)" : "rgba(255,255,255,0.025)",
-                          border: isSelected
-                            ? "1.5px solid rgba(249,115,22,0.45)"
-                            : "1.5px solid rgba(255,255,255,0.07)",
-                          display: "flex", alignItems: "center", gap: 14,
-                          transition: "all 0.2s", textAlign: "left",
-                          boxShadow: isSelected ? "0 0 24px rgba(249,115,22,0.12)" : "none",
-                        }}
+                        className={`
+                          p-4 rounded-2xl text-left transition-all border-2 flex items-center gap-4 group
+                          ${isSelected 
+                            ? "bg-orange-500/10 border-orange-500/50 shadow-lg shadow-orange-500/10" 
+                            : "bg-white/3 border-white/5 hover:border-white/10"
+                          }
+                        `}
                       >
                         {/* Avatar */}
-                        <div style={{
-                          width: 46, height: 46, borderRadius: 12, flexShrink: 0,
-                          background: isSelected
-                            ? "linear-gradient(135deg,#f97316,#f59e0b)"
-                            : "rgba(255,255,255,0.07)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          transition: "all 0.2s",
-                          boxShadow: isSelected ? "0 4px 16px rgba(249,115,22,0.3)" : "none",
-                        }}>
-                          <Building2 size={21} color={isSelected ? "#fff" : "#4b5563"} />
+                        <div className={`
+                          w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all
+                          ${isSelected 
+                            ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white" 
+                            : "bg-white/5 text-gray-500 group-hover:bg-white/10"
+                          }
+                        `}>
+                          <Building2 size={22} />
                         </div>
 
-                        {/* Info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontSize: 14, fontWeight: 700,
-                            color: isSelected ? "#f3f4f6" : "#9ca3af",
-                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                            transition: "color 0.2s",
-                          }}>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-bold truncate ${isSelected ? "text-orange-400" : "text-gray-200"}`}>
                             {c.name}
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
-                            <span style={{
-                              fontSize: 10, fontWeight: 700, letterSpacing: "0.07em",
-                              color: "#4b5563", textTransform: "uppercase",
-                            }}>{c.type}</span>
-                            <span style={{
-                              fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 99,
-                              background: meta.bg, color: meta.color, letterSpacing: "0.04em",
-                            }}>{meta.label}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span 
+                              className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+                              style={{ color: meta.color, background: meta.bg }}
+                            >
+                              {meta.label}
+                            </span>
                           </div>
                         </div>
 
-                        {isSelected && <CheckCircle2 size={20} color="#fb923c" />}
+                        {isSelected && (
+                          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                            <CheckCircle2 size={14} className="text-white" />
+                          </div>
+                        )}
                       </button>
                     );
                   })}
                 </div>
 
-                {/* Enter button */}
-                <button
-                  onClick={handleLogin}
-                  disabled={!selected}
-                  style={{
-                    width: "100%", padding: "16px 20px", borderRadius: 14,
-                    fontWeight: 800, fontSize: 14, border: "none",
-                    cursor: selected ? "pointer" : "not-allowed",
-                    background: selected
-                      ? "linear-gradient(135deg,#f97316,#f59e0b)"
-                      : "rgba(255,255,255,0.04)",
-                    color: selected ? "#fff" : "#374151",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                    transition: "all 0.25s",
-                    boxShadow: selected ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
-                    letterSpacing: "-0.2px",
-                  }}
-                >
-                  <LogIn size={17} />
-                  {selected ? `Enter as ${selected.name}` : "Select a workspace"}
-                  {selected && <ArrowRight size={16} />}
-                </button>
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={handleLogin}
+                    disabled={!selected}
+                    className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all"
+                  >
+                    Enter Workspace <ArrowRight size={18} />
+                  </button>
 
-                {/* Register another */}
-                {user?.role === "owner" && (
-                  <div style={{ textAlign: "center", marginTop: 18 }}>
-                    <button
-                      onClick={handleRegisterNew}
-                      style={{
-                        fontSize: 12, color: "#f59e0b", background: "none",
-                        border: "none", cursor: "pointer",
-                        display: "inline-flex", alignItems: "center", gap: 5,
-                        fontWeight: 600, textDecoration: "none",
-                      }}
-                    >
-                      <Sparkles size={12} /> Register a new company
-                    </button>
-                  </div>
-                )}
+                  <button
+                    onClick={handleRegisterNew}
+                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                  >
+                    + Register Another Company
+                  </button>
+                </div>
               </>
             )}
           </div>
+        </div>
+
+        {/* Footer info */}
+        <div className="mt-8 text-center">
+          <p className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">
+            &copy; 2026 Huntr.id &bull; Secure Environment
+          </p>
         </div>
       </div>
     </div>
