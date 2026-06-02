@@ -18,6 +18,7 @@ export default function MyRank() {
   const [error, setError] = useState<string | null>(null);
   const [awardingProposal, setAwardingProposal] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isBuyer = activeCompany?.type === 'buyer';
 
   useEffect(() => {
     const activeComp = localStorage.getItem("active_company");
@@ -153,8 +154,8 @@ export default function MyRank() {
                       )}
                     </div>
 
-                    {/* Award Button - Only if not yet awarded */}
-                    {!item.is_winner && item.winner_status !== 'awarded' && (
+                    {/* Award Button - Only if buyer and not yet awarded */}
+                    {isBuyer && !item.is_winner && item.winner_status !== 'awarded' && (
                       <button
                         onClick={() => handleAwardWinner(item.proposal_id, item.rfq_id)}
                         disabled={awardingProposal === item.proposal_id}

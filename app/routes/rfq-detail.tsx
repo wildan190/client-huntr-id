@@ -8,6 +8,7 @@ export default function RfqDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [rfq, setRfq] = useState<any>(null);
+  const [rankings, setRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
@@ -30,6 +31,9 @@ export default function RfqDetail() {
         const data = response?.rfq ?? response?.data ?? response;
         setRfq(data);
         setError(null);
+        if (data?.id) {
+          fetchRankings(data.id);
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -37,6 +41,16 @@ export default function RfqDetail() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  const fetchRankings = async (rfqId: number) => {
+    try {
+      const data = await apiGet(`/api/rfqs/${rfqId}/rankings`);
+      setRankings(Array.isArray(data) ? data : data.rankings || []);
+    } catch (err) {
+      console.error("Failed to load RFQ rankings", err);
+      setRankings([]);
+    }
+  };
 
   const totalItems = rfq?.items?.reduce((sum: number, item: any) => {
     return sum + (item.qty || 0);
@@ -164,6 +178,55 @@ export default function RfqDetail() {
                   <div style={{ color: "var(--ui-text-secondary)", fontSize: 16, lineHeight: 1.8 }}>
                     {rfq.description || "No detailed description provided for this request."}
                   </div>
+
+                  {rankings.length > 0 && (
+                    <div style={{ marginTop: 32, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 24 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <ShieldCheck size={18} color="#f97316" />
+                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings</div>
+                      </div>
+                      <div style={{ display: "grid", gap: 12 }}>
+                        {rankings.map((rankData: any, idx: number) => (
+                          <div
+                            key={idx}
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "40px 1fr auto",
+                              gap: 12,
+                              alignItems: "center",
+                              padding: "14px 16px",
+                              background: idx === 0 ? "rgba(249,115,22,0.08)" : "rgba(255,255,255,0.04)",
+                              borderRadius: 16,
+                            }}
+                          >
+                            <div style={{ fontSize: 14, fontWeight: 800, color: idx === 0 ? "#f97316" : "var(--ui-text-primary)" }}>{rankData.rank}</div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 14 }}>{rankData.proposal.company?.name || "Unknown Vendor"}</div>
+                              <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>
+                                Rp {Number(rankData.proposal.price_offer).toLocaleString('id-ID')} · {rankData.proposal.delivery_days} hari · {rankData.proposal.warranty_months} bulan garansi
+                              </div>
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                minWidth: 80,
+                                padding: "8px 12px",
+                                borderRadius: 12,
+                                background: rankData.is_winner ? "#f59e0b" : rankData.is_top_rank ? "rgba(249,115,22,0.08)" : "rgba(255,255,255,0.08)",
+                                color: rankData.is_winner ? "#fff" : "var(--ui-text-primary)",
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {rankData.is_winner ? "PEMENANG" : rankData.is_top_rank ? `TOP #${rankData.rank}` : "PESERTA"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 24, marginTop: 32, paddingTop: 24, borderTop: "1px solid var(--ui-border)" }}>
