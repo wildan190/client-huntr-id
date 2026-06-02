@@ -105,6 +105,21 @@
   /* Shadows */
   --ui-shadow-orange: 0 24px 60px rgba(249,115,22,0.18);
   --ui-shadow-orange-hover: 0 12px 40px rgba(249,115,22,0.2);
+
+  /* Layout */
+  --ui-layout-padding: 32px;
+}
+
+/* ── Global Elements Standarization ───────────────────────────────────────── */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 40px !important;
 }
 
 /* ── Light mode ──────────────────────────────────────────────────────────── */
@@ -189,4 +204,7 @@
   /* Shadows */
   --ui-shadow-orange: 0 24px 60px rgba(249,115,22,0.1);
   --ui-shadow-orange-hover: 0 12px 40px rgba(249,115,22,0.08);
+
+  /* Layout */
+  --ui-layout-padding: 32px;
 }

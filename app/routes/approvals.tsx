@@ -57,44 +57,43 @@ export default function Approvals() {
 
   return (
     <Layout title="Manager Approvals" subtitle="Review and approve purchase requisitions before they are published.">
-      <div style={{ maxWidth: "100%", width: "100%" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
+            <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
           </div>
         ) : requests.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 0", background: "rgba(255,255,255,0.01)", borderRadius: 32, border: "1px dashed rgba(255,255,255,0.06)" }}>
+          <div style={{ textAlign: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
             <CheckCircle2 size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-            <h3 style={{ color: "#9ca3af", margin: 0, fontSize: 16 }}>No pending approvals</h3>
-            <p style={{ margin: "8px 0 0", fontSize: 14, color: "#6b7280" }}>You're all caught up!</p>
+            <h3 style={{ color: "var(--ui-text-muted)", margin: 0, fontSize: 16 }}>No pending approvals</h3>
+            <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-muted)" }}>You're all caught up!</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {requests.map(req => (
               <div key={req.id} style={{
-                background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
                 padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
               }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "#f97316", background: "rgba(251,146,60,0.1)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#6b7280" }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-brand)", background: "var(--ui-bg-badge)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)" }}>
                       <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f3f4f6" }}>{req.title}</h3>
-                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9ca3af" }}>
-                    <User size={13} /> Requested by: <span style={{ color: "#d1d5db" }}>User #{req.user_id}</span>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{req.title}</h3>
+                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                    <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>User #{req.user_id}</span>
                   </div>
                 </div>
 
                 <div style={{ width: 180 }}>
-                  <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items to Purchase</div>
+                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items to Purchase</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <Package size={14} color="#9ca3af" />
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{req.items?.length || 0} products</span>
+                    <Package size={14} color="var(--ui-text-muted)" />
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{req.items?.length || 0} products</span>
                   </div>
                 </div>
 
@@ -124,7 +123,6 @@ export default function Approvals() {
             ))}
           </div>
         )}
-      </div>
       </div>
     </Layout>
   );

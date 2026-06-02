@@ -57,8 +57,7 @@ export default function MyPurchaseRequisitions() {
 
   return (
     <Layout title="My Purchase Requisitions" subtitle="Track the status of your internal purchase requests.">
-      <div style={{ maxWidth: "100%", width: "100%", padding: "0 clamp(20px, 5vw, 32px)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         
         {/* Search & Filter */}
         <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
@@ -148,7 +147,6 @@ export default function MyPurchaseRequisitions() {
                 })}
           </div>
         )}
-      </div>
       </div>
     </Layout>
   );

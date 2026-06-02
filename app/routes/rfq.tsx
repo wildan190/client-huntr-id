@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { createRfq, getMyCompanies, apiGet, apiPost } from "../lib/api";
+import { createRfq, apiGet, apiPost } from "../lib/api";
 import { ShoppingCart, Calendar, ClipboardList, CheckCircle2, Loader2, AlertCircle, ArrowRight, UserCheck } from "lucide-react";
 
 interface RfqItem {
@@ -13,7 +13,7 @@ interface RfqItem {
 export default function Rfq() {
   const [user, setUser] = useState<any>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", description: "" });
+  const [form, setForm] = useState({ title: "", description: "", duration_days: "7" });
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +84,7 @@ export default function Rfq() {
         company_id: activeCompany.id,
         title: form.title,
         description: form.description,
+        duration_days: Number(form.duration_days || 7),
         items: cartItems.map(it => ({
           catalogue_id: it.catalogue_id,
           qty: it.qty,
@@ -119,6 +120,7 @@ export default function Rfq() {
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 16, padding: 20, marginBottom: 20, border: "1px solid rgba(255,255,255,0.05)" }}>
                   <KV label="RFQ ID" value={`#${result.id}`} />
                   <KV label="Title" value={result.title} />
+                  <KV label="Tender Duration" value={`${result.duration_days || 7} days`} />
                   <KV label="Items" value={`${cartItems.length} items`} />
                 </div>
                 <button onClick={() => setResult(null)} style={primaryBtn}>Buat RFQ Baru</button>
@@ -137,6 +139,21 @@ export default function Rfq() {
                   <textarea value={form.description} onChange={e => setF("description", e.target.value)}
                     required rows={3} placeholder="Jelaskan kebutuhan pengadaan ini..."
                     style={{ ...inputStyle, resize: "none" }} />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={lbl}>Tender Duration (days)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={form.duration_days}
+                    onChange={e => setF("duration_days", e.target.value)}
+                    style={inputStyle}
+                    required
+                  />
+                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>
+                    Default tender duration before the RFQ closes after approval.
+                  </div>
                 </div>
 
                 {/* Items from Cart */}
@@ -210,7 +227,7 @@ export default function Rfq() {
                     
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                       <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                        {rfq.items?.length || 0} items requested
+                        {rfq.items?.length || 0} items requested · Tender {rfq.duration_days ?? 7} days
                       </div>
                       
                       {/* Manager Approval Button */}

@@ -21,6 +21,7 @@ export const createRfq = (payload: {
   company_id: number;
   title: string;
   description: string;
+  duration_days?: number;
   items: { catalogue_id: number; qty: number; expected_date: string }[];
 }) => apiPost("/api/rfqs", payload);
 
@@ -30,13 +31,12 @@ export const approveRfq = (rfqId: number, managerId: number) =>
   apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: managerId });
 
 // --- Proposals ---
-export const submitProposal = (payload: {
-  company_id: number;
-  rfq_id: number;
-  price_offer: number;
-  delivery_days: number;
-  warranty_months: number;
-}) => apiPost("/api/proposals", payload);
+export const submitProposal = (payload: any) => {
+  if (payload instanceof FormData) {
+    return apiPostForm("/api/proposals", payload);
+  }
+  return apiPost("/api/proposals", payload);
+};
 
 // --- Awarding ---
 export const awardVendor = (payload: {

@@ -17,6 +17,7 @@ import {
   Settings,
   Sun,
   Moon,
+  Medal,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -45,6 +46,8 @@ export default function Layout({ children, title, subtitle }: Props) {
     { to: "/",          label: "Dashboard",  Icon: LayoutDashboard },
     ...(activeCompany?.type === 'buyer' ? [{ to: "/marketplace", label: "Marketplace", Icon: Package }] : []),
     ...(activeCompany?.type === 'vendor' ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
+    ...(activeCompany?.type === 'vendor' ? [{ to: "/proposals", label: "Proposals", Icon: Trophy }] : []),
+    ...(activeCompany?.type === 'vendor' ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
     ...(activeCompany?.type === 'buyer' ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
     { to: "/all-requests", label: "All Requests", Icon: Lightbulb },
     ...( (user?.role === 'manager' || activeCompany?.owner_id === user?.id) && activeCompany?.type === 'buyer' ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
@@ -282,7 +285,7 @@ export default function Layout({ children, title, subtitle }: Props) {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "hidden", overflowX: "hidden" }}>
         {/* Page header - STICKY */}
         <div style={{
-          padding: "26px 32px 18px",
+          padding: "26px var(--ui-layout-padding) 18px",
           borderBottom: "1px solid var(--ui-border-subtle)",
           background: "var(--ui-bg-header)",
           backdropFilter: "blur(20px)",
@@ -406,7 +409,7 @@ export default function Layout({ children, title, subtitle }: Props) {
         </div>
 
         {/* Page content */}
-        <div style={{ flex: 1, padding: "clamp(20px, 5vw, 32px)", overflowY: "auto", overflowX: "hidden" }}>
+        <div style={{ flex: 1, padding: "var(--ui-layout-padding)", overflowY: "auto", overflowX: "hidden" }}>
           {activeCompany && activeCompany.status === 'pending' && pathname !== '/company' ? (
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",

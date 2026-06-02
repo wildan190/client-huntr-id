@@ -67,7 +67,7 @@ export default function MyPurchaseRequisitionDetail() {
           }
         }
       `}</style>
-      <div style={{ padding: "24px clamp(20px, 5vw, 32px)", maxWidth: 1040, margin: "0 auto" }}>
+      <div style={{ width: "100%", paddingBottom: 60 }}>
         <button
           type="button"
           onClick={() => navigate("/my-pr")}
@@ -103,8 +103,8 @@ export default function MyPurchaseRequisitionDetail() {
                   <p style={{ margin: "10px 0 0", color: "#9ca3af", maxWidth: 720, lineHeight: 1.7 }}>{request.description || "No description provided."}</p>
                 </div>
                 <div style={{ alignSelf: "center" }}>
-                  <div style={{ background: status.bg, color: status.color, display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 16, fontWeight: 700, fontSize: 13 }}>
-                    {StatusIcon && <StatusIcon size={16} />} {status.label}
+                  <div style={{ background: status?.bg || "var(--ui-bg-badge)", color: status?.color || "var(--ui-text-muted)", display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 16, fontWeight: 700, fontSize: 13 }}>
+                    {StatusIcon && <StatusIcon size={16} />} {status?.label || "Unknown"}
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function MyPurchaseRequisitionDetail() {
                 <div className="pr-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
                   <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Approval Detail</div>
                   <DetailRow label="Approver" value={request.approved_by || "Not yet approved"} />
-                  <DetailRow label="Status" value={status.label} valueColor={status.color} />
+                  <DetailRow label="Status" value={status?.label || "Unknown"} valueColor={status?.color || "var(--ui-text-muted)"} />
                   <DetailRow label="PR Type" value={request.status === "active" ? "Open RFQ" : "Internal Request"} />
                   <div style={{ marginTop: 18, padding: 16, borderRadius: 18, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>Lifecycle</div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { apiGet } from "../lib/api";
-import { ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, Loader2, AlertCircle, ShieldCheck, ChevronRight } from "lucide-react";
 
 export default function RfqDetail() {
   const { id } = useParams<{ id: string }>();
@@ -10,8 +10,14 @@ export default function RfqDetail() {
   const [rfq, setRfq] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeCompany, setActiveCompany] = useState<any>(null);
 
   useEffect(() => {
+    const companySession = localStorage.getItem("active_company");
+    if (companySession) {
+      setActiveCompany(JSON.parse(companySession));
+    }
+
     if (!id) {
       setError("RFQ not found.");
       setLoading(false);
@@ -36,142 +42,243 @@ export default function RfqDetail() {
     return sum + (item.qty || 0);
   }, 0);
 
+  const getTenderSummary = (): string => {
+    const duration = rfq?.duration_days ?? 7;
+    if (rfq?.status === 'active' && rfq.approved_at) {
+      const endsAt = new Date(rfq.approved_at);
+      endsAt.setDate(endsAt.getDate() + duration);
+      const now = new Date();
+      const diffMs = endsAt.getTime() - now.getTime();
+      if (diffMs <= 0) {
+        return 'Closed';
+      }
+      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return `${daysLeft} day${daysLeft > 1 ? 's' : ''} left`;
+    }
+
+    if (rfq?.status === 'draft' || rfq?.status === 'pending_approval') {
+      return `Tender length ${duration} days after approval`;
+    }
+
+    return `${duration} day${duration > 1 ? 's' : ''}`;
+  };
+
   return (
-    <Layout title="RFQ Detail" subtitle="View request for quotation details and submit your proposal.">
-      <style>{`
-        @media (max-width: 768px) {
-          .rfq-detail-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .rfq-detail-aside {
-            display: grid !important;
-            grid-template-columns: 1fr !important;
-          }
-          .rfq-detail-sticky {
-            position: static !important;
-            top: auto !important;
-          }
-        }
-      `}</style>
-      <div style={{ padding: 24, maxWidth: 1040, margin: "0 auto" }}>
-        <button
-          type="button"
-          onClick={() => navigate("/all-requests")}
-          style={{
-            marginBottom: 24,
-            padding: "10px 16px",
-            borderRadius: 10,
-            background: "var(--ui-bg-input)",
-            border: "1px solid var(--ui-border-input)",
-            color: "var(--ui-text-secondary)",
-            cursor: "pointer",
-            fontWeight: 700,
-            transition: "all 0.3s ease",
-          }}
-        >
-          <ArrowLeft size={18} style={{ marginRight: 8 }} /> Back to All Requests
-        </button>
+    <Layout title="RFQ Detail" subtitle="View technical specifications and company profile before submitting your proposal.">
+      <div style={{ width: "100%", paddingBottom: 60 }}>
+        
+        {/* Navigation & Status Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 10,
+                background: "var(--ui-bg-card)",
+                border: "1px solid var(--ui-border)",
+                color: "var(--ui-text-primary)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
+              <ArrowLeft size={16} /> Back
+            </button>
+          </div>
+          
+          {rfq && (
+             <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 800, background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
+                  ACTIVE
+                </div>
+                <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 800, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
+                  PR #{rfq.id}
+                </div>
+             </div>
+          )}
+        </div>
 
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="#f59e0b" />
+          <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
+            <Loader2 className="animate-spin" size={40} color="#f59e0b" />
           </div>
         ) : error ? (
-          <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 20, padding: 28, color: "#fca5a5", display: "flex", gap: 12, alignItems: "center" }}>
-            <AlertCircle size={20} style={{ flexShrink: 0 }} />
-            {error}
+          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 16, padding: 24, color: "#ef4444", display: "flex", gap: 12, alignItems: "center" }}>
+            <AlertCircle size={20} />
+            <span style={{ fontWeight: 600 }}>{error}</span>
           </div>
         ) : rfq ? (
-          <div style={{ display: "grid", gap: 28 }}>
-            <div style={{ display: "grid", gap: 18 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
-                <div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 1.1, transition: "color 0.3s ease" }}>RFQ #{rfq.id}</span>
-                  <h1 style={{ margin: "12px 0 0", fontSize: 32, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{rfq.title}</h1>
-                  <p style={{ margin: "10px 0 0", color: "var(--ui-text-secondary)", maxWidth: 720, lineHeight: 1.7, transition: "color 0.3s ease" }}>{rfq.description || "No description provided."}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+            
+            {/* Main Content Area (Left) */}
+            <div style={{ display: "grid", gap: 24 }}>
+              
+              {/* RFQ Header & Description */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "4px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1 }}>Purchase Requisition</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)" }}>#{rfq.id}</span>
+                  </div>
+                  <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, padding: 24, background: "var(--ui-bg-input)", borderRadius: 20, border: "1px solid var(--ui-border-input)" }}>
+                  <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>Requested By</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
+                        <User size={18} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.user?.name || "Unknown User"}</div>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>Procurement Officer</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>Target Company</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
+                        <Building2 size={18} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.company?.name || "Unknown Company"}</div>
+                        <div style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>VERIFIED ENTERPRISE</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ marginTop: 32 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                    <ClipboardList size={18} color="#f59e0b" />
+                    <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Project Requirements</div>
+                  </div>
+                  <div style={{ color: "var(--ui-text-secondary)", fontSize: 16, lineHeight: 1.8 }}>
+                    {rfq.description || "No detailed description provided for this request."}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 24, marginTop: 32, paddingTop: 24, borderTop: "1px solid var(--ui-border)" }}>
+                   <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ui-text-muted)", fontSize: 14 }}>
+                     <Calendar size={16} /> Published {new Date(rfq.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                   </div>
+                   <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ui-text-muted)", fontSize: 14 }}>
+                     <MapPin size={16} /> {rfq.company?.address || "Location not specified"}
+                   </div>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-                <MetaCard icon={<Building2 size={18} />} label="Company" value={rfq.company?.name || "Unknown"} />
-                <MetaCard icon={<User size={18} />} label="Requested by" value={rfq.user?.name || "Unknown"} />
-                <MetaCard icon={<Calendar size={18} />} label="Posted" value={new Date(rfq.created_at).toLocaleString()} />
-                <MetaCard icon={<Package size={18} />} label="Items" value={`${totalItems || 0} items`} />
+              {/* Items Table Section */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(0,0,0,0.01)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Package size={18} color="#f97316" />
+                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>Technical Specifications</h2>
+                  </div>
+                  <span style={{ fontSize: 12, background: "var(--ui-bg-input)", padding: "4px 10px", borderRadius: 6, color: "var(--ui-text-muted)", fontWeight: 700 }}>
+                    {rfq.items?.length || 0} ITEMS
+                  </span>
+                </div>
+                
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid var(--ui-border)", background: "rgba(0,0,0,0.02)" }}>
+                        <th style={{ padding: "14px 24px", textAlign: "left", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textTransform: "uppercase" }}>Product & Catalog Details</th>
+                        <th style={{ padding: "14px 24px", textAlign: "center", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textTransform: "uppercase" }}>Quantity</th>
+                        <th style={{ padding: "14px 24px", textAlign: "right", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textTransform: "uppercase" }}>Required Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(rfq.items || []).map((item: any, idx: number) => (
+                        <tr key={item.id} style={{ borderBottom: idx === (rfq.items.length - 1) ? "none" : "1px solid var(--ui-border)", transition: "background 0.2s" }}>
+                          <td style={{ padding: "20px 24px" }}>
+                            <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{item.catalogue?.name}</div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>Code: <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>{item.catalogue?.item_code}</span></div>
+                          </td>
+                          <td style={{ padding: "20px 24px", textAlign: "center" }}>
+                            <span style={{ display: "inline-block", padding: "6px 16px", background: "var(--ui-bg-input)", borderRadius: 10, fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>
+                              {item.qty} <span style={{ fontWeight: 500, color: "var(--ui-text-muted)", fontSize: 12, marginLeft: 2 }}>Units</span>
+                            </span>
+                          </td>
+                          <td style={{ padding: "20px 24px", textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, color: "var(--ui-text-secondary)", fontSize: 14, fontWeight: 600 }}>
+                              <Calendar size={14} style={{ opacity: 0.6 }} />
+                              {item.expected_date}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
-            <div className="rfq-detail-grid" style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: 24 }}>
-              <section style={{ padding: 28, borderRadius: 28, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                  <div>
-                    <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: 1.2, color: "var(--ui-text-muted)", fontWeight: 700, transition: "color 0.3s ease" }}>Items Requested</div>
-                    <h2 style={{ margin: "10px 0 0", fontSize: 20, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{rfq.items?.length || 0} items</h2>
-                  </div>
-                </div>
-
+            {/* Sidebar Sticky (Right) */}
+            <div style={{ position: "sticky", top: 24, display: "grid", gap: 24 }}>
+              
+              {/* Action Card */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <h3 style={{ margin: "0 0 20px", fontSize: 13, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Tender Summary</h3>
+                
                 <div style={{ display: "grid", gap: 16 }}>
-                  {(rfq.items || []).map((item: any) => (
-                    <div key={item.id || item.catalogue_id} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, padding: 18, borderRadius: 20, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
-                      <div>
-                        <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, transition: "color 0.3s ease" }}>{item.catalogue?.name || `Item ${item.catalogue_id}`}</div>
-                        <div style={{ color: "var(--ui-text-secondary)", fontSize: 12, marginTop: 4, transition: "color 0.3s ease" }}>{item.catalogue?.item_code || "No code"}</div>
-                        <div style={{ color: "var(--ui-text-muted)", fontSize: 12, marginTop: 8, transition: "color 0.3s ease" }}>Expected {item.expected_date}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Qty: {item.qty}</div>
-                        <div style={{ color: "var(--ui-text-secondary)", fontSize: 12, marginTop: 4, transition: "color 0.3s ease" }}>Unit</div>
-                      </div>
-                    </div>
-                  ))}
+                  <SummaryRow label="Total Quantity" value={`${totalItems} Units`} />
+                  <SummaryRow label="Tender Duration" value={`${rfq.duration_days ?? 7} day${(rfq.duration_days ?? 7) > 1 ? 's' : ''}`} />
+                  <SummaryRow label="Time Remaining" value={getTenderSummary()} />
                 </div>
-              </section>
 
-              <aside className="rfq-detail-aside" style={{ display: "grid", gap: 20 }}>
-                <div className="rfq-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
-                  <h4 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>RFQ Information</h4>
-                  
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6, transition: "color 0.3s ease" }}>Status</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                        <span style={{ display: "inline-block", padding: "6px 12px", borderRadius: 8, background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>Active</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6, transition: "color 0.3s ease" }}>Total Items</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{totalItems || 0} items</div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6, transition: "color 0.3s ease" }}>Posted Date</div>
-                      <div style={{ fontSize: 14, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{new Date(rfq.created_at).toLocaleDateString()}</div>
-                    </div>
-                  </div>
-
+                {activeCompany?.type === 'vendor' && (
                   <button
+                    onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
                     style={{
                       width: "100%",
-                      marginTop: 24,
-                      padding: "14px",
+                      marginTop: 28,
+                      padding: "16px",
                       borderRadius: 14,
                       background: "linear-gradient(135deg,#f97316,#f59e0b)",
                       color: "#fff",
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      fontSize: 15,
                       border: "none",
                       cursor: "pointer",
+                      boxShadow: "0 8px 24px rgba(249,115,22,0.3)",
                       transition: "all 0.3s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 10,
                     }}
                   >
-                    Submit Proposal
+                    Submit Proposal <ArrowLeft size={18} style={{ transform: "rotate(180deg)" }} />
                   </button>
+                )}
+              </div>
+
+              {/* Security Box */}
+              <div style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 20, padding: 20 }}>
+                <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
+                  <ShieldCheck size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
+                  <p style={{ margin: 0, fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.6 }}>
+                    Your proposal is protected by Huntr's enterprise security. Only the target buyer can access your commercial data.
+                  </p>
                 </div>
-              </aside>
+              </div>
             </div>
           </div>
         ) : (
-          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 20, borderRadius: 18, transition: "all 0.3s ease" }}>
-            No RFQ detail available.
+          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-card)", padding: 60, borderRadius: 24, textAlign: "center", border: "1px solid var(--ui-border)" }}>
+            <AlertCircle size={40} color="var(--ui-text-muted)" style={{ marginBottom: 16 }} />
+            <div style={{ fontSize: 18, fontWeight: 800 }}>PR Record Not Found</div>
+            <div style={{ color: "var(--ui-text-muted)", fontSize: 14, marginTop: 4 }}>This request may have been closed or the ID is invalid.</div>
           </div>
         )}
       </div>
@@ -179,14 +286,11 @@ export default function RfqDetail() {
   );
 }
 
-function MetaCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function SummaryRow({ label, value }: { label: string; value: any }) {
   return (
-    <div style={{ padding: 16, borderRadius: 16, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <div style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>{icon}</div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", transition: "color 0.3s ease" }}>{label}</div>
-      </div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{value}</div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14 }}>
+      <span style={{ color: "var(--ui-text-secondary)", fontWeight: 500 }}>{label}</span>
+      <span style={{ fontWeight: 800, color: "var(--ui-text-primary)" }}>{value}</span>
     </div>
   );
 }
