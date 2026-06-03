@@ -10,20 +10,20 @@ import {
   CheckCircle2,
   ReceiptText,
   LogOut,
-  ChevronDown,
   ArrowLeftRight,
   List,
   Bell,
   Settings,
-  Sun,
-  Moon,
   Medal,
+  Menu,
+  X,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
 import ThemeToggle from "./ThemeToggle";
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/api";
 import { useTheme } from "../context/ThemeContext";
+import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 
 interface Props { children: React.ReactNode; title: string; subtitle?: string; }
 
@@ -40,7 +40,9 @@ export default function Layout({ children, title, subtitle }: Props) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [notifButtonPos, setNotifButtonPos] = useState({ top: 0, right: 0 });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const notifButtonRef = React.useRef<HTMLButtonElement>(null);
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
   const isOwner = activeCompany?.owner_id === user?.id;
   const isManager = user?.role === 'manager' || isOwner;
@@ -110,16 +112,29 @@ export default function Layout({ children, title, subtitle }: Props) {
     };
   }, [pathname, navigate]);
 
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sidebarOpen]);
+
   // Calculate notification button position for floating dropdown
   useEffect(() => {
-    if (showNotifications && notifButtonRef.current) {
+    if (showNotifications && notifButtonRef.current && !isMobile) {
       const rect = notifButtonRef.current.getBoundingClientRect();
       setNotifButtonPos({
-        top: rect.bottom + 20,  // Increased gap from 12 to 20
-        right: window.innerWidth - rect.right - 40,  // Shift left by 40px
+        top: rect.bottom + 20,
+        right: window.innerWidth - rect.right - 40,
       });
     }
-  }, [showNotifications]);
+  }, [showNotifications, isMobile]);
 
   const fetchUnreadCount = async (userId: number) => {
     try {
@@ -169,38 +184,38 @@ export default function Layout({ children, title, subtitle }: Props) {
     navigate("/select-company");
   };
 
+  const closeSidebar = () => setSidebarOpen(false);
+  const handleNavClick = () => {
+    if (isMobile) closeSidebar();
+  };
+
   // Public/standalone routes render nothing if no session (they handle their own layout)
   const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/marketplace/");
   if (isPublic && !user && !activeCompany) {
     return <>{children}</>;
   }
 
-  return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <NotificationSound />
-      {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside style={{
-        width: 224, flexShrink: 0,
-        background: "var(--ui-bg-sidebar)",
-        borderRight: "1px solid var(--ui-border)",
-        backdropFilter: "blur(20px)",
-        display: "flex", flexDirection: "column",
-        padding: "22px 0", height: "100%",
-        boxSizing: "border-box",
-        transition: "background 0.3s ease, border-color 0.3s ease",
-      }}>
+  const sidebarInner = (
+    <>
         {/* Logo */}
         <div style={{ padding: "0 18px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img 
-              src="/assets/img/logo/emblem.jpg" 
-              alt="Huntr Logo" 
-              style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover" }} 
-            />
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-logo)", letterSpacing: "-0.3px" }}>Huntr.id</div>
-              <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+              <img 
+                src="/assets/img/logo/emblem.jpg" 
+                alt="Huntr Logo" 
+                style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} 
+              />
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-logo)", letterSpacing: "-0.3px" }}>Huntr.id</div>
+                <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
+              </div>
             </div>
+            {isMobile && (
+              <button type="button" className="huntr-sidebar-close" onClick={closeSidebar} aria-label="Close menu">
+                <X size={18} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -243,7 +258,7 @@ export default function Layout({ children, title, subtitle }: Props) {
           {NAV.map(({ to, label, Icon }) => {
             const active = pathname === to;
             return (
-              <Link key={to} to={to} style={{
+              <Link key={to} to={to} onClick={handleNavClick} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 12px", borderRadius: 10,
                 background: active ? "var(--ui-nav-active-bg)" : "transparent",
@@ -293,29 +308,38 @@ export default function Layout({ children, title, subtitle }: Props) {
             </button>
           </div>
         )}
+    </>
+  );
+
+  return (
+    <div className="huntr-app-shell">
+      <NotificationSound />
+      {sidebarOpen && (
+        <div className="huntr-sidebar-backdrop" onClick={closeSidebar} aria-hidden="true" />
+      )}
+      <aside className={`huntr-sidebar${sidebarOpen ? " huntr-sidebar--open" : ""}`}>
+        {sidebarInner}
       </aside>
 
-      {/* ── Main content ────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "hidden", overflowX: "hidden" }}>
-        {/* Page header - STICKY */}
-        <div style={{
-          padding: "26px var(--ui-layout-padding) 18px",
-          borderBottom: "1px solid var(--ui-border-subtle)",
-          background: "var(--ui-bg-header)",
-          backdropFilter: "blur(20px)",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          flexShrink: 0,
-        }}>
-          <div>
-            <Breadcrumb />
-            <h1 style={{ fontSize: 21, fontWeight: 800, color: "var(--ui-text-primary)", margin: 0, letterSpacing: "-0.4px" }}>{title}</h1>
-            {subtitle && <p style={{ fontSize: 13, color: "var(--ui-text-muted)", margin: "4px 0 0" }}>{subtitle}</p>}
+      <div className="huntr-main">
+        <header className="huntr-main-header">
+          <div className="huntr-header-leading">
+            <button
+              type="button"
+              className="huntr-menu-btn"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="huntr-header-titles">
+              <Breadcrumb />
+              <h1>{title}</h1>
+              {subtitle && <p>{subtitle}</p>}
+            </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div className="huntr-header-actions">
             {/* Notification Bell & Floating Preview */}
             <div style={{ position: "relative" }}>
               <button 
@@ -350,17 +374,19 @@ export default function Layout({ children, title, subtitle }: Props) {
                     onClick={() => setShowNotifications(false)}
                     style={{ position: "fixed", inset: 0, zIndex: 99998 }} 
                   />
-                  <div style={{
-                    position: "fixed", 
-                    width: 320, 
+                  <div
+                    className="huntr-notif-dropdown"
+                    style={{
                     background: "var(--ui-bg-card)", 
                     borderRadius: 20, 
                     border: "1px solid var(--ui-border)",
                     boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
                     zIndex: 99999,
                     overflow: "hidden",
-                    top: `${notifButtonPos.top}px`,
-                    right: `${notifButtonPos.right}px`,
+                    ...(isMobile ? {} : {
+                      top: `${notifButtonPos.top}px`,
+                      right: `${notifButtonPos.right}px`,
+                    }),
                   }}>
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -406,34 +432,27 @@ export default function Layout({ children, title, subtitle }: Props) {
             </div>
 
             {activeCompany && (
-              <div style={{
-                display: "flex", alignItems: "center", gap: 6,
-                background: "var(--ui-bg-badge)", border: "1px solid var(--ui-border-badge)",
-                borderRadius: 20, padding: "5px 12px",
-                fontSize: 11, color: "var(--ui-text-brand)", fontWeight: 600,
-              }}>
+              <div className="huntr-header-company-badge">
                 <Building2 size={11} />
-                {activeCompany.name}
-                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(249,115,22,0.2)", fontSize: 10, color: "#fdba74" }}>
+                <span>{activeCompany.name}</span>
+                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(249,115,22,0.2)", fontSize: 10, color: "#fdba74", flexShrink: 0 }}>
                   {activeCompany.status || "pending"}
                 </span>
               </div>
             )}
           </div>
-        </div>
+        </header>
 
-        {/* Page content */}
-        <div style={{ flex: 1, padding: "var(--ui-layout-padding)", overflowY: "auto", overflowX: "hidden" }}>
+        <div className="huntr-page-content">
           {activeCompany && activeCompany.status === 'pending' && pathname !== '/company' ? (
-            <div style={{
+            <div className="huntr-pending-gate" style={{
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              minHeight: "60vh", padding: "40px", textAlign: "center",
+              minHeight: "60vh", textAlign: "center",
               background: "var(--ui-bg-pending-card)",
               border: "1px solid var(--ui-border)",
               borderRadius: "32px",
               backdropFilter: "blur(20px)",
               boxShadow: "0 24px 60px rgba(0,0,0,0.15)",
-              maxWidth: "600px", margin: "40px auto",
               gap: "24px"
             }}>
               <div style={{
@@ -457,9 +476,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                 </p>
               </div>
 
-              <div style={{
-                display: "flex", gap: "14px", width: "100%", justifyContent: "center"
-              }}>
+              <div className="huntr-pending-gate-actions">
                 <button
                   onClick={() => navigate("/company")}
                   style={{

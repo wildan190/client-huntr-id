@@ -108,30 +108,10 @@ export default function Checkout() {
 
   return (
     <Layout title="Checkout Purchase Request" subtitle="Review your selected items and submit for approval.">
-      <style>{`
-        @media (max-width: 768px) {
-          .checkout-container {
-            flex-direction: column !important;
-            gap: 24px !important;
-            padding: 0 16px 32px !important;
-          }
-          .checkout-form {
-            flex: 1 !important;
-          }
-          .checkout-summary {
-            width: 100% !important;
-            position: static !important;
-          }
-          .checkout-summary > div {
-            position: static !important;
-            top: auto !important;
-          }
-        }
-      `}</style>
-      <div className="checkout-container" style={{ padding: "0 32px 40px", display: "flex", gap: 32, maxWidth: 1200, margin: "0 auto" }}>
+      <div className="huntr-split-layout checkout-container" style={{ paddingBottom: 40 }}>
         
         {/* Form Area */}
-        <div className="checkout-form" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div className="huntr-split-layout-main checkout-form" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "#f59e0b", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 700, padding: 0 }}>
             <ArrowLeft size={16} /> Back to Marketplace
           </button>
@@ -216,9 +196,8 @@ export default function Checkout() {
         </div>
 
         {/* Summary Card */}
-        <div className="checkout-summary" style={{ width: "clamp(280px, 100%, 340px)", flexShrink: 0 }}>
-          <div style={{
-            position: "sticky", top: 24,
+        <div className="huntr-split-layout-aside checkout-summary">
+          <div className="huntr-sticky-panel" style={{
             background: "var(--ui-bg-card)", backdropFilter: "blur(10px)",
             borderRadius: 24, border: `1px solid var(--ui-border)`,
             padding: 32, display: "flex", flexDirection: "column", gap: 24,

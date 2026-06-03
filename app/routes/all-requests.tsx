@@ -40,10 +40,10 @@ export default function AllRequests() {
         
         {/* Info Banner: How to create request? */}
         {activeCompany?.type === 'buyer' && (
-          <div style={{
-            marginBottom: 32, padding: "24px 32px", borderRadius: 24,
+          <div className="huntr-action-card" style={{
+            marginBottom: 32, borderRadius: 24,
             background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(251,146,60,0.1))",
-            border: "1px solid rgba(249,115,22,0.2)", display: "flex", alignItems: "center", gap: 24,
+            border: "1px solid rgba(249,115,22,0.2)",
             transition: "all 0.3s ease",
           }}>
             <div style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.3s ease" }}>
@@ -69,8 +69,8 @@ export default function AllRequests() {
         )}
 
         {/* Search & Filter */}
-        <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
-          <div style={{ flex: 1, position: "relative" }}>
+        <div className="huntr-toolbar">
+          <div className="huntr-toolbar-search">
             <Globe style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }} size={18} />
             <input 
               type="text" 

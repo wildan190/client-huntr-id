@@ -52,21 +52,6 @@ export default function MyPurchaseRequisitionDetail() {
 
   return (
     <Layout title="Purchase Requisition Detail" subtitle="Review PR metadata, approval status, and item scope.">
-      <style>{`
-        @media (max-width: 768px) {
-          .pr-detail-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .pr-detail-aside {
-            display: grid !important;
-            grid-template-columns: 1fr !important;
-          }
-          .pr-detail-sticky {
-            position: static !important;
-            top: auto !important;
-          }
-        }
-      `}</style>
       <div style={{ width: "100%", paddingBottom: 60 }}>
         <button
           type="button"
@@ -99,7 +84,7 @@ export default function MyPurchaseRequisitionDetail() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
                 <div>
                   <span style={{ fontSize: 12, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 1.1 }}>PR #{request.id ? String(request.id).substring(0, 8).toUpperCase() : ""}</span>
-                  <h1 style={{ margin: "12px 0 0", fontSize: 32, color: "#f8fafc" }}>{request.title}</h1>
+                  <h1 style={{ margin: "12px 0 0", fontSize: "clamp(22px, 5vw, 32px)", color: "var(--ui-text-primary)" }}>{request.title}</h1>
                   <p style={{ margin: "10px 0 0", color: "#9ca3af", maxWidth: 720, lineHeight: 1.7 }}>{request.description || "No description provided."}</p>
                 </div>
                 <div style={{ alignSelf: "center" }}>
@@ -109,7 +94,7 @@ export default function MyPurchaseRequisitionDetail() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
+              <div className="huntr-grid-stats">
                 <MetaCard icon={<User size={18} />} label="Requested by" value={request.user?.name || "Unknown"} />
                 <MetaCard icon={<MapPin size={18} />} label="Company" value={request.company?.name || "Unknown"} />
                 <MetaCard icon={<Calendar size={18} />} label="Submitted" value={new Date(request.created_at).toLocaleString()} />
@@ -117,7 +102,7 @@ export default function MyPurchaseRequisitionDetail() {
               </div>
             </div>
 
-            <div className="pr-detail-grid" style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: 24 }}>
+            <div className="huntr-grid-2col pr-detail-grid">
               <section style={{ padding: 28, borderRadius: 28, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                   <div>

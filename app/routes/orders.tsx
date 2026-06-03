@@ -156,19 +156,16 @@ export default function Orders() {
       subtitle="View and manage all purchase order documents."
     >
       <div style={{ maxWidth: "100%", width: "100%" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24 }}>
         
         {/* Header Summary Card */}
-        <div style={{
+        <div className="huntr-action-card" style={{
           background: "var(--ui-bg-card)",
           border: "1px solid var(--ui-border)",
           borderRadius: 24,
-          padding: "32px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
           backdropFilter: "blur(20px)",
           transition: "all 0.3s ease",
+          flexWrap: "wrap",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div style={{
@@ -421,7 +418,7 @@ export default function Orders() {
                     boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)", transition: "all 0.3s ease"
                   }}>
                     {/* Upper Detail Grid */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 40 }}>
+                    <div className="huntr-grid-2col" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                         <div>
                           <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Metadata & Identity</div>

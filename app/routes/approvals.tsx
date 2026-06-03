@@ -105,9 +105,8 @@ export default function Approvals() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {requests.map(req => (
-                <div key={req.id} style={{
+                <div key={req.id} className="huntr-action-card" style={{
                   background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                  padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
                 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -122,7 +121,7 @@ export default function Approvals() {
                     </div>
                   </div>
 
-                  <div style={{ width: 180 }}>
+                  <div className="huntr-action-card-meta" style={{ width: 180 }}>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items to Purchase</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <Package size={14} color="var(--ui-text-muted)" />
@@ -130,7 +129,7 @@ export default function Approvals() {
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div className="huntr-action-card-actions">
                     <button 
                       onClick={() => handleApprove(req.id)}
                       disabled={processingId === req.id}
@@ -170,9 +169,8 @@ export default function Approvals() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {awardedProposals.map(proposal => (
-                <div key={proposal.id} style={{
+                <div key={proposal.id} className="huntr-action-card" style={{
                   background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                  padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
                 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -193,13 +191,13 @@ export default function Approvals() {
                     </div>
                   </div>
 
-                  <div style={{ width: 150 }}>
+                  <div className="huntr-action-card-meta" style={{ width: 150 }}>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Terms</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>{proposal.delivery_days} days delivery</div>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>{proposal.payment_term}</div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div className="huntr-action-card-actions">
                     <button 
                       onClick={() => handleApproveWinner(proposal.id)}
                       disabled={processingId === proposal.id}

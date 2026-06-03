@@ -95,9 +95,9 @@ export default function MyPurchaseRequisitions() {
                   const status = getStatusStyle(req.status);
                   const StatusIcon = status.icon;
                   return (
-                    <div key={req.id} style={{
+                    <div key={req.id} className="huntr-action-card" style={{
                       background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                      padding: "24px 32px", display: "flex", alignItems: "center", gap: 24, transition: "all 0.3s ease",
+                      transition: "all 0.3s ease",
                       position: "relative",
                       cursor: "pointer",
                     }}>
@@ -115,7 +115,7 @@ export default function MyPurchaseRequisitions() {
                         </p>
                       </div>
 
-                      <div style={{ width: 180, position: "relative", zIndex: 1 }}>
+                      <div className="huntr-action-card-meta" style={{ width: 180, position: "relative", zIndex: 1 }}>
                         <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Items</div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <Package size={14} color="var(--ui-text-secondary)" style={{ transition: "color 0.3s ease" }} />
@@ -123,7 +123,7 @@ export default function MyPurchaseRequisitions() {
                         </div>
                       </div>
 
-                      <div style={{ width: 160, position: "relative", zIndex: 1 }}>
+                      <div className="huntr-action-card-meta" style={{ width: 160, position: "relative", zIndex: 1 }}>
                         <div style={{
                           display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 12,
                           background: status.bg, color: status.color, fontSize: 12, fontWeight: 700,

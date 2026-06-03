@@ -251,7 +251,7 @@ export default function AccountSettings() {
       <div style={{ maxWidth: "100%", width: "100%" }}>
         
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "var(--ui-bg-input)", padding: 6, borderRadius: 14, border: "1px solid var(--ui-border-subtle)", transition: "all 0.3s ease" }}>
+        <div className="huntr-tabs-row" style={{ marginBottom: 24, background: "var(--ui-bg-input)", padding: 6, borderRadius: 14, border: "1px solid var(--ui-border-subtle)", transition: "all 0.3s ease" }}>
           <TabBtn active={activeTab === "security"} onClick={() => setActiveTab("security")} Icon={Shield} label="Keamanan" />
           <TabBtn active={activeTab === "profile"} onClick={() => setActiveTab("profile")} Icon={Smartphone} label="Profil" />
           <TabBtn active={activeTab === "sessions"} onClick={() => setActiveTab("sessions")} Icon={Monitor} label="Sesi Aktif" />
@@ -269,7 +269,7 @@ export default function AccountSettings() {
           </div>
         )}
 
-        <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 32, transition: "all 0.3s ease" }}>
+        <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: "clamp(20px, 5vw, 32px)", transition: "all 0.3s ease" }}>
           
           {/* Security Tab */}
           {activeTab === "security" && (

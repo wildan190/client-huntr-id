@@ -81,7 +81,7 @@ export default function MarketplaceDetail() {
           }
         }
       `}</style>
-      <div style={{ maxWidth: 980, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         <button
           type="button"
           onClick={() => isGuest ? navigate("/") : navigate("/marketplace")}

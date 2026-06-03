@@ -11,7 +11,7 @@ export default function Breadcrumb() {
   }
 
   return (
-    <nav className="flex items-center gap-2 text-[12px] mb-4 px-1 transition-colors">
+    <nav className="huntr-breadcrumb-scroll flex items-center gap-2 text-[12px] px-1 transition-colors whitespace-nowrap">
       <Link 
         to="/" 
         className="text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] transition-colors flex items-center"
