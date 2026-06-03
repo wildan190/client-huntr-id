@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import Layout from "../components/Layout";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
   Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText
 } from "lucide-react";
-import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost } from "../lib/api";
+import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 
 export default function Orders() {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // App state
   const [company, setCompany] = useState<any>(null);
@@ -48,6 +49,13 @@ export default function Orders() {
     setUser(u);
     setCompany(ac);
     setLoading(false);
+
+    // Read search param from URL
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get("search");
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
     
     // Initialize CSRF cookie
     getCsrfCookie().catch(err => {
@@ -57,17 +65,23 @@ export default function Orders() {
 
   useEffect(() => {
     if (company) {
+      fetchOrders(company.id, 1, searchQuery, activeTab);
+    }
+  }, [location.pathname, location.search, company, activeTab]);
+
+  useEffect(() => {
+    if (company) {
       const timer = setTimeout(() => {
-        fetchOrders(company.id, 1, searchQuery);
+        fetchOrders(company.id, 1, searchQuery, activeTab);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [searchQuery, company]);
+  }, [searchQuery]);
 
-  const fetchOrders = async (companyId: string | number, page: number, search: string = "") => {
+  const fetchOrders = async (companyId: string | number, page: number, search: string = "", type: string = "all") => {
     try {
       setRefreshing(true);
-      const res = await getOrders(companyId, page, 10, search);
+      const res = await getOrders(companyId, page, 10, search, type);
       setOrders(res.data || []);
       setCurrentPage(res.current_page || 1);
       setLastPage(res.last_page || 1);
@@ -128,7 +142,7 @@ export default function Orders() {
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > lastPage || !company) return;
-    fetchOrders(company.id, newPage, searchQuery);
+    fetchOrders(company.id, newPage, searchQuery, activeTab);
   };
 
   if (loading) {
@@ -141,14 +155,6 @@ export default function Orders() {
       </Layout>
     );
   }
-
-  // Filter orders on frontend based on selected tab only (search is now server-side)
-  const filteredOrders = orders.filter((o) => {
-    // Tab filter
-    if (activeTab === "historical") return o.is_historical;
-    if (activeTab === "operational") return !o.is_historical;
-    return true;
-  });
 
   return (
     <Layout
@@ -199,7 +205,7 @@ export default function Orders() {
             </button>
 
             <button
-              onClick={() => fetchOrders(company.id, currentPage)}
+              onClick={() => fetchOrders(company.id, currentPage, searchQuery, activeTab)}
               disabled={refreshing}
               style={{
                 background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
@@ -324,13 +330,13 @@ export default function Orders() {
 
         {/* PO Table/List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {filteredOrders.length === 0 ? (
+          {orders.length === 0 ? (
             <div style={{ textAlign: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
               <FileText size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
               <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase orders found</h3>
             </div>
           ) : (
-            filteredOrders.map(po => (
+            orders.map(po => (
               <div key={po.id} style={{
                 background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
                 padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
@@ -418,6 +424,30 @@ export default function Orders() {
                     boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)", transition: "all 0.3s ease"
                   }}>
                     {/* Upper Detail Grid */}
+                    <div style={{ background: "rgba(249,115,22,0.05)", padding: 20, borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", marginBottom: 24 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Order Progress</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
+                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#4ade80", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>✓</div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-primary)" }}>PO Issued</span>
+                          <div style={{ position: "absolute", top: 12, left: "50%", width: "100%", height: 2, background: po.status === 'confirmed' ? "#4ade80" : "rgba(255,255,255,0.1)", zIndex: 0 }} />
+                        </div>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
+                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: po.status === 'confirmed' ? "#4ade80" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>
+                            {po.status === 'confirmed' ? "✓" : "2"}
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: po.status === 'confirmed' ? "var(--ui-text-primary)" : "var(--ui-text-muted)" }}>Vendor Confirmed</span>
+                          <div style={{ position: "absolute", top: 12, left: "50%", width: "100%", height: 2, background: (po.invoices && po.invoices.length > 0) ? "#4ade80" : "rgba(255,255,255,0.1)", zIndex: 0 }} />
+                        </div>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
+                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: (po.invoices && po.invoices.length > 0) ? "#4ade80" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>
+                            {(po.invoices && po.invoices.length > 0) ? "✓" : "3"}
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: (po.invoices && po.invoices.length > 0) ? "var(--ui-text-primary)" : "var(--ui-text-muted)" }}>Invoice Ready</span>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="huntr-grid-2col" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                         <div>
@@ -428,6 +458,20 @@ export default function Orders() {
                                 <User size={14} color="#fb923c" />
                               </div>
                               <span>Issued by: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.created_by || "System"}</strong></span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                                <FileText size={14} color="#fb923c" />
+                              </div>
+                              <a 
+                                href={getFullApiUrl(`/api/orders/${po.id}/print`)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: "#fb923c", fontWeight: 700, textDecoration: "none" }}
+                                className="hover:underline"
+                              >
+                                Print PO Document
+                              </a>
                             </div>
                             {po.approved_by && (
                               <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
@@ -512,12 +556,12 @@ export default function Orders() {
                       </div>
 
                       {/* Invoices Section */}
-                      {po.invoices && po.invoices.length > 0 && (
-                        <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                            <ReceiptText size={16} />
-                            Related Invoices
-                          </div>
+                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                          <ReceiptText size={16} />
+                          Related Invoices
+                        </div>
+                        {po.invoices && po.invoices.length > 0 ? (
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                             {po.invoices.map((inv: any) => (
                               <div key={inv.id} style={{ 
@@ -539,19 +583,27 @@ export default function Orders() {
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
                                 {inv.type === 'proforma' && (
                                   <a 
-                                    href={getAssetUrl(`invoices/proforma_${po.id}.pdf`)}
+                                    href={getFullApiUrl(`/api/invoices/${inv.id}/print`)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-2 flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline"
                                   >
-                                    <FileText size={12} /> Download PDF
+                                    <FileText size={12} /> Print Invoice
                                   </a>
                                 )}
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div style={{ textAlign: "center", padding: "20px 0", border: "1px dashed var(--ui-border-input)", borderRadius: 12 }}>
+                            <p style={{ margin: 0, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                              {po.status === 'confirmed' 
+                                ? "Generating invoice data..." 
+                                : "Proforma Invoice will be available once the Vendor confirms this PO."}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

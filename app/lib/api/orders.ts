@@ -7,8 +7,8 @@ import { apiGet, apiPost, apiPostForm } from "../client";
  */
 
 // --- Orders ---
-export const getOrders = (companyId: string | number, page: number = 1, perPage: number = 10, search: string = "") => {
-  let url = `/api/orders?company_id=${companyId}&page=${page}&per_page=${perPage}`;
+export const getOrders = (companyId: string | number, page: number = 1, perPage: number = 10, search: string = "", type: string = "all") => {
+  let url = `/api/orders?company_id=${companyId}&page=${page}&per_page=${perPage}&type=${type}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   return apiGet(url);
 };
@@ -17,15 +17,12 @@ export const importHistoricalPo = (formData: FormData) =>
   apiPostForm("/api/orders/historical/import", formData);
 
 // --- RFQ ---
-export const createRfq = (payload: {
-  company_id: string | number;
-  user_id?: string | number;
-  title: string;
-  description: string;
-  duration_days?: number;
-  items: { catalogue_id: string | number; qty: number; expected_date: string; estimated_price?: number }[];
-  status?: string;
-}) => apiPost("/api/rfqs", payload);
+export const createRfq = (payload: any) => {
+  if (payload instanceof FormData) {
+    return apiPostForm("/api/rfqs", payload);
+  }
+  return apiPost("/api/rfqs", payload);
+};
 
 export const getRfq = (id: string | number) => apiGet(`/api/rfqs/${id}`);
 

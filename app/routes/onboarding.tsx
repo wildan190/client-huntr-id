@@ -90,7 +90,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden bg-[var(--ui-bg-page-grad)]">
+    <div className="min-h-screen flex flex-col items-center justify-start md:justify-center p-4 md:p-8 relative bg-[var(--ui-bg-page-grad)]">
       
       {/* Visual Decor: Background blobs */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -99,7 +99,7 @@ export default function Onboarding() {
       </div>
 
       {/* Branding Header */}
-      <header className="fixed top-4 left-4 right-4 md:top-8 md:left-8 md:right-8 flex items-center justify-between z-10">
+      <header className="sticky top-0 mb-8 w-full flex items-center justify-between z-10 py-2">
         <div className="flex items-center gap-3">
           <img 
             src="/assets/img/logo/emblem.jpg" 
@@ -115,7 +115,7 @@ export default function Onboarding() {
         <ThemeToggle />
       </header>
 
-      <main className="w-full max-w-2xl relative z-1">
+      <main className="w-full max-w-4xl relative z-10 my-auto">
         {/* Step Tracker UI */}
         <StepTracker steps={STEP_META} currentSlide={vm.slide} />
 

@@ -19,7 +19,7 @@ export default [
   route("rfq", "routes/rfq.tsx"),
   route("proposals", "routes/proposals.tsx"),
   route("my-rank", "routes/my-rank.tsx"),
-  route("purchase_orders", "routes/orders.tsx"),
+  route("orders", "routes/orders.tsx"),
   route("receipts", "routes/receipts.tsx"),
   route("notifications", "routes/notifications.tsx"),
   route("account", "routes/account.tsx"),

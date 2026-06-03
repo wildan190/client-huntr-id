@@ -65,8 +65,8 @@ export default function Layout({ children, title, subtitle }: Props) {
     ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
     
     // Common but context-aware
-      { to: "/all-requests", label: "All Requests", Icon: Lightbulb },
-      { to: "/purchase_orders",    label: "Purchase Order",   Icon: ReceiptText },
+      ...(isVendorComp ? [{ to: "/all-requests", label: "Opportunities", Icon: Lightbulb }] : []),
+      { to: "/orders",    label: "Purchase Order",   Icon: ReceiptText },
       { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
     { to: "/company",   label: "Company",    Icon: Building2 },
     { to: "/account",   label: "Settings",   Icon: Settings },

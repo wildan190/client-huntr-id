@@ -2,18 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
+import { getAssetUrl } from "../lib/assets";
 
 interface CatalogueItem {
-  id: number;
+  id: string;
   item_code: string;
   name: string;
   category?: string;
   specifications?: string;
+  price?: number;
   image?: string;
+  image_path?: string;
   uom: string;
-  company_id: number;
+  company_id: string;
   company?: {
-    id: number;
+    id: string;
     name: string;
     type: string;
   };
@@ -41,12 +44,23 @@ export default function MarketplaceDetail() {
     setLoading(true);
     getCatalogue(id)
       .then((response) => {
-        const payload = response?.data ?? response;
-        const product = payload?.data ?? payload;
-        setItem(product);
-        setError(null);
+        console.log("Catalogue detail response:", response);
+        // Laravel Resource usually wraps data in a 'data' property
+        // We handle both { data: { ...item } } and direct { ...item }
+        let product = response;
+        if (response && typeof response === 'object' && 'data' in response) {
+          product = response.data;
+        }
+        
+        if (product) {
+          setItem(product);
+          setError(null);
+        } else {
+          setError("Product data is empty.");
+        }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Failed to load product:", err);
         setError("Failed to load product details. Please try again.");
       })
       .finally(() => setLoading(false));
@@ -117,7 +131,7 @@ export default function MarketplaceDetail() {
             <div className="marketplace-detail-grid" style={{ display: "grid", gap: 24, gridTemplateColumns: "1.1fr 0.9fr" }}>
               <div className="marketplace-image" style={{ borderRadius: 24, overflow: "hidden", background: "var(--ui-bg-card)", minHeight: "clamp(240px, 50vw, 360px)", transition: "background 0.3s ease" }}>
                 <img
-                  src={item.image || "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1200&q=80"}
+                  src={item.image_path ? getAssetUrl(item.image_path) : (item.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80")}
                   alt={item.name}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
@@ -125,7 +139,18 @@ export default function MarketplaceDetail() {
 
               <div style={{ display: "grid", gap: 20, padding: 24, borderRadius: 24, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)`, transition: "all 0.3s ease" }}>
                 <div style={{ display: "grid", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  {item.price && item.price > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ color: "var(--ui-text-muted)", textTransform: "uppercase", fontSize: 11, letterSpacing: 1.2, fontWeight: 700 }}>
+                        Estimated Price
+                      </span>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: "#10b981", transition: "color 0.3s ease" }}>
+                        {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(item.price)}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
                     <span style={{ color: "var(--ui-text-muted)", textTransform: "uppercase", fontSize: 12, letterSpacing: 1.2, transition: "color 0.3s ease" }}>
                       Product Details
                     </span>

@@ -5,12 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: max(16px, env(safe-area-inset-top))
-    max(16px, env(safe-area-inset-right))
-    max(16px, env(safe-area-inset-bottom))
-    max(16px, env(safe-area-inset-left));
+  padding: 16px;
   position: relative;
-  overflow: hidden;
   background: var(--ui-bg-page-grad);
   transition: background 0.3s ease;
 }
@@ -18,7 +14,7 @@
 @media (max-width: 767px) {
   .auth-page {
     align-items: flex-start;
-    padding-top: max(12px, env(safe-area-inset-top));
+    padding: 12px;
   }
 }
 
@@ -374,10 +370,16 @@
   gap: 14px;
 }
 
+@media (max-width: 767px) {
+  .auth-scroll-area {
+    overflow-y: visible; /* Use page scroll on mobile */
+  }
+}
+
 @media (min-width: 768px) {
   .auth-scroll-area {
     gap: 16px;
-    max-height: 60vh;
+    max-height: 55vh;
     overflow-y: auto;
     padding-right: 10px;
   }

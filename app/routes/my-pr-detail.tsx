@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
-import { getRfq } from "../lib/api";
-import { ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, Loader2, Trophy, Building2 } from "lucide-react";
+import { getRfq, apiGet } from "../lib/api";
+import { ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, Loader2, Trophy, Building2, ShieldCheck, ChevronRight, Award, Info } from "lucide-react";
 
 function getStatusStyle(status: string) {
   switch (status) {
@@ -18,6 +18,7 @@ export default function MyPurchaseRequisitionDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [request, setRequest] = useState<any>(null);
+  const [rankings, setRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +35,9 @@ export default function MyPurchaseRequisitionDetail() {
         const rfq = response?.rfq ?? response?.data ?? response;
         setRequest(rfq);
         setError(null);
+        if (rfq?.id) {
+          fetchRankings(rfq.id);
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -41,6 +45,17 @@ export default function MyPurchaseRequisitionDetail() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  const fetchRankings = async (rfqId: string | number) => {
+    try {
+      const response = await apiGet(`/api/rfqs/${rfqId}/rankings`);
+      console.log("Rankings API response:", response);
+      setRankings(response.rankings || (Array.isArray(response) ? response : []));
+    } catch (err) {
+      console.error("Failed to load rankings", err);
+      setRankings([]);
+    }
+  };
 
   const totalItems = request?.items?.reduce((sum: number, item: any) => {
     const price = item?.estimated_price || 0;
@@ -122,13 +137,83 @@ export default function MyPurchaseRequisitionDetail() {
                         <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>{item.catalogue?.item_code || "No code"}</div>
                         <div style={{ color: "#cbd5e1", fontSize: 12, marginTop: 8 }}>Qty: {item.qty} · Expected {item.expected_date}</div>
                       </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontWeight: 700, color: "#f8fafc" }}>IDR {Number(item.estimated_price || 0).toLocaleString()}</div>
-                        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>Unit Price</div>
-                      </div>
+                      {item.estimated_price && Number(item.estimated_price) > 0 ? (
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 700, color: "#f8fafc" }}>IDR {Number(item.estimated_price).toLocaleString()}</div>
+                      <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>Unit Price</div>
+                    </div>
+                  ) : null}
                     </div>
                   ))}
                 </div>
+
+                {rankings.length > 0 && (
+                  <div style={{ marginTop: 32, padding: 24, borderRadius: 28, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                      <ShieldCheck size={18} color="#f97316" />
+                      <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings</div>
+                    </div>
+
+                    <div style={{ display: "grid", gap: 12 }}>
+                      {rankings.map((rankData: any) => (
+                        <div 
+                          key={rankData.proposal.id} 
+                          style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: 16, 
+                            padding: 16, 
+                            borderRadius: 16, 
+                            background: rankData.rank === 1 ? "rgba(249,115,22,0.05)" : "var(--ui-bg-card)", 
+                            border: `1px solid ${rankData.rank === 1 ? "rgba(249,115,22,0.2)" : "var(--ui-border)"}`,
+                            position: "relative",
+                            overflow: "hidden"
+                          }}
+                        >
+                          {/* Rank Badge */}
+                          <div style={{ 
+                            width: 36, 
+                            height: 36, 
+                            borderRadius: 10, 
+                            background: rankData.rank === 1 ? "#f97316" : "rgba(255,255,255,0.05)", 
+                            color: rankData.rank === 1 ? "#fff" : "var(--ui-text-muted)",
+                            display: "grid", 
+                            placeItems: "center", 
+                            fontSize: 14, 
+                            fontWeight: 900 
+                          }}>
+                            {rankData.rank}
+                          </div>
+
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>{rankData.proposal.company?.name}</div>
+                              {rankData.rank === 1 && (
+                                <div style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>BEST PRICE</div>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                              Delivery: {rankData.proposal.delivery_days} days · {rankData.proposal.warranty_months}mo Warranty
+                            </div>
+                          </div>
+
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 14, fontWeight: 900, color: rankData.rank === 1 ? "#f97316" : "var(--ui-text-primary)" }}>
+                              IDR {Number(rankData.proposal.price_offer).toLocaleString()}
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Total Proposal</div>
+                          </div>
+                          
+                          {rankData.rank === 1 && (
+                            <div style={{ position: "absolute", right: -10, top: -10, opacity: 0.1 }}>
+                              <Trophy size={64} color="#f97316" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </section>
 
               <aside className="pr-detail-aside" style={{ display: "grid", gap: 20 }}>

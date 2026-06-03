@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { createRfq } from "../lib/api";
-import { ClipboardList, CheckCircle2, ArrowLeft, Loader2, Package, AlertCircle } from "lucide-react";
+import { ClipboardList, CheckCircle2, ArrowLeft, Loader2, Package, AlertCircle, FileText, Calendar, Paperclip } from "lucide-react";
 import { useNavigate } from "react-router";
+import { getAssetUrl } from "../lib/assets";
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [prTitle, setPrTitle] = useState("");
   const [prDesc, setPrDesc] = useState("");
+  const [prDuration, setPrDuration] = useState(7);
+  const [prDocument, setPrDocument] = useState<File | null>(null);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("huntr_cart");
@@ -58,21 +61,26 @@ export default function Checkout() {
     setError(null);
 
     try {
-      const payload = {
-        company_id: activeCompany.id,
-        user_id: user.id,
-        title: prTitle,
-        description: prDesc,
-        status: "pending_approval", // PR status
-        items: cart.map(i => ({
-          catalogue_id: i.id,
-          qty: i.qty,
-          estimated_price: i.estimated_price,
-          expected_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 7 days from now
-        }))
-      };
+      const formData = new FormData();
+      formData.append("company_id", activeCompany.id);
+      formData.append("user_id", user.id);
+      formData.append("title", prTitle);
+      formData.append("description", prDesc);
+      formData.append("duration_days", prDuration.toString());
+      formData.append("status", "pending_approval");
+      
+      if (prDocument) {
+        formData.append("document", prDocument);
+      }
 
-      await createRfq(payload);
+      cart.forEach((item, index) => {
+        formData.append(`items[${index}][catalogue_id]`, item.id);
+        formData.append(`items[${index}][qty]`, item.qty.toString());
+        formData.append(`items[${index}][estimated_price]`, (item.estimated_price || 0).toString());
+        formData.append(`items[${index}][expected_date]`, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+      });
+
+      await createRfq(formData);
       
       localStorage.removeItem("huntr_cart");
       setSuccess(true);
@@ -149,6 +157,53 @@ export default function Checkout() {
                   }}
                 />
               </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Tender Duration (Days)</div>
+                  </label>
+                  <select 
+                    value={prDuration}
+                    onChange={e => setPrDuration(Number(e.target.value))}
+                    style={{
+                      padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                      border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14,
+                    }}
+                  >
+                    <option value={3}>3 Days</option>
+                    <option value={7}>7 Days</option>
+                    <option value={14}>14 Days</option>
+                    <option value={30}>30 Days</option>
+                  </select>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Paperclip size={14} /> Supporting Doc (Optional)</div>
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input 
+                      type="file" 
+                      id="pr-document"
+                      onChange={e => setPrDocument(e.target.files?.[0] || null)}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.jpg,.png"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('pr-document')?.click()}
+                      style={{
+                        width: "100%", padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                        border: `1px solid var(--ui-border-input)`, color: prDocument ? "var(--huntr-orange)" : "var(--ui-text-muted)", 
+                        textAlign: "left", fontSize: 14, display: "flex", alignItems: "center", gap: 10, cursor: "pointer"
+                      }}
+                    >
+                      {prDocument ? <><FileText size={16} /> {prDocument.name}</> : "Choose file..."}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -160,11 +215,23 @@ export default function Checkout() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {cart.map(item => (
                 <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Package size={24} color="rgba(255,255,255,0.1)" />
+                  <div style={{ width: 64, height: 64, borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {item.image_path ? (
+                      <img 
+                        src={getAssetUrl(item.image_path)} 
+                        alt={item.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <img 
+                        src={`https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80`} 
+                        alt={item.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }}
+                      />
+                    )}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{item.name}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
                     <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.item_code}</div>
                   </div>
                   <div style={{ display: "flex", flex: 1, gap: 16, alignItems: "center", justifyContent: "flex-end" }}>
@@ -185,8 +252,10 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div style={{ textAlign: "right", minWidth: 100 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
-                      <div style={{ fontSize: 11, color: "var(--ui-text-secondary)" }}>Qty: {item.qty}</div>
+                      {item.estimated_price > 0 && (
+                          <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
+                        )}
+                        <div style={{ fontSize: 11, color: "var(--ui-text-secondary)" }}>Qty: {item.qty}</div>
                     </div>
                   </div>
                 </div>

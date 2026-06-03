@@ -13,10 +13,10 @@ body {
   background: var(--ui-bg-page-grad);
   color: var(--ui-text-primary);
   font-family: var(--font-sans);
-  height: 100dvh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   scroll-behavior: smooth;
   transition: background 0.3s ease, color 0.3s ease;
 }

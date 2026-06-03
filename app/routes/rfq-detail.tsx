@@ -65,7 +65,6 @@ export default function RfqDetail() {
     setError(null);
     try {
       await apiPost(`/api/proposals/${proposalId}/award`, {
-        proposal_id: proposalId,
         rfq_id: rfqId,
         user_id: user?.id,
       });

@@ -10,6 +10,7 @@ export default function Approvals() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [activeCompany, setActiveCompany] = useState<any>(null);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -19,22 +20,24 @@ export default function Approvals() {
       const u = JSON.parse(userSession);
       const c = JSON.parse(companySession);
       setUser(u);
+      setActiveCompany(c);
       
       const isOwner = c.owner_id === u.id;
       if (u.role !== 'manager' && !isOwner || c.type !== 'buyer') {
         navigate("/");
         return;
       }
+
+      fetchPendingRequests(c.id);
+      fetchAwardedProposals(c.id);
     }
-    fetchPendingRequests();
-    fetchAwardedProposals();
   }, []);
 
   const [awardedProposals, setAwardedProposals] = useState<any[]>([]);
 
-  const fetchAwardedProposals = async () => {
+  const fetchAwardedProposals = async (companyId: string) => {
     try {
-      const res = await apiGet(`/api/proposals/manager/awaiting-approval`);
+      const res = await apiGet(`/api/proposals/manager/awaiting-approval?company_id=${companyId}`);
       setAwardedProposals(res.proposals || []);
     } catch (err) {
       console.error("Failed to fetch awarded proposals", err);
@@ -54,10 +57,10 @@ export default function Approvals() {
     }
   };
 
-  const fetchPendingRequests = async () => {
+  const fetchPendingRequests = async (companyId: string) => {
     try {
-      // Fetch all requests that are 'pending_approval'
-      const res = await apiGet(`/api/rfqs?status=pending_approval`);
+      // Data Isolation: Fetch only for this company
+      const res = await apiGet(`/api/rfqs?status=pending_approval&company_id=${companyId}`);
       setRequests(res || []);
     } catch (err) {
       console.error("Failed to fetch pending PRs", err);

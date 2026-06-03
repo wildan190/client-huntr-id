@@ -37,11 +37,13 @@ export interface Notification {
 }
 
 export interface CatalogueItem {
-  id: number;
-  company_id: number;
+  id: string;
+  company_id: string;
   item_code: string;
   name: string;
   category: string;
   uom: string;
   price: number;
+  image_path?: string;
+  specifications?: string;
 }

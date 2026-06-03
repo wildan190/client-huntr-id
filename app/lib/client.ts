@@ -49,11 +49,13 @@ export async function apiGet<T = any>(path: string): Promise<T> {
   }
   console.log(`[API] GET ${path}`);
   const res = await fetch(`${BASE_URL}${path}`, {
-    method: "GET",
     headers: getAuthHeaders(),
-    credentials: "include",
   });
   return handleResponse<T>(res);
+}
+
+export function getFullApiUrl(path: string): string {
+  return `${BASE_URL}${path}`;
 }
 
 export async function apiPost<T = any>(path: string, body: Record<string, any>): Promise<T> {

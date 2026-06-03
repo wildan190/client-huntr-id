@@ -25,13 +25,13 @@ export default function MyPurchaseRequisitions() {
   }, []);
 
   const fetchMyRequests = async () => {
-    const userSession = localStorage.getItem("user_session");
-    if (!userSession) return;
-    const user = JSON.parse(userSession);
+    const activeComp = localStorage.getItem("active_company");
+    if (!activeComp) return;
+    const comp = JSON.parse(activeComp);
 
     try {
-      // We use apiGet directly since we don't have a specific function in api.ts yet
-      const res = await apiGet(`/api/rfqs?user_id=${user.id}`);
+      // Data Isolation: Fetch by company_id instead of user_id to see all company PRs
+      const res = await apiGet(`/api/rfqs?company_id=${comp.id}`);
       setRequests(res || []);
     } catch (err) {
       console.error("Failed to fetch my PRs", err);

@@ -4,6 +4,7 @@ import { getCatalogues } from "../lib/api";
 import { ShoppingCart, Search, Filter, Plus, Minus, Trash2, CheckCircle2, Loader2, Package, X } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 import { useNavigate } from "react-router";
+import { getAssetUrl } from "../lib/assets";
 
 export default function Marketplace() {
   const navigate = useNavigate();
@@ -74,8 +75,10 @@ export default function Marketplace() {
     try {
       if (showLoader) setLoading(true);
       const res = await getCatalogues({ search: searchTerm });
-      setItems(res.data || []);
-      saveItemsToCache(res.data || []);
+      // Extract data correctly from Laravel response
+      const data = res.data?.data || res.data || res || [];
+      setItems(data);
+      saveItemsToCache(data);
     } catch (err) {
       console.error("Failed to fetch marketplace items", err);
     } finally {
@@ -229,50 +232,50 @@ export default function Marketplace() {
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))", gap: "clamp(12px, 3vw, 20px)" }}>
               {filteredItems.map(item => (
-                <div key={item.id} style={{
-                  background: "var(--ui-bg-card)", borderRadius: 20, border: "1px solid var(--ui-border)",
-                  padding: 16, display: "flex", flexDirection: "column", gap: 12, transition: "all 0.3s ease",
-                }}>
-                  <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
-                    <Package size={48} color="var(--ui-text-secondary)" style={{ opacity: 0.3, transition: "color 0.3s ease" }} />
+                <div 
+                  key={item.id} 
+                  onClick={() => navigate(`/marketplace/${item.id}`)}
+                  style={{
+                    background: "var(--ui-bg-card)", borderRadius: 20, border: "1px solid var(--ui-border)",
+                    padding: 16, display: "flex", flexDirection: "column", gap: 12, transition: "all 0.3s ease",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                    {item.image_path ? (
+                      <img 
+                        src={getAssetUrl(item.image_path)} 
+                        alt={item.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <img 
+                        src={`https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80`} 
+                        alt={item.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.9 }}
+                      />
+                    )}
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", transition: "color 0.3s ease" }}>{item.name}</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", transition: "color 0.3s ease", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</h3>
                   </div>
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                       <button 
                         type="button"
                         aria-label="Add to cart"
-                        onClick={() => addToCart(item)}
+                        onClick={(e) => { e.stopPropagation(); addToCart(item); }}
                         style={{
                           width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.15)",
-                          border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", cursor: "pointer",
+                          border: "none", color: "#f97316", cursor: "pointer",
                           display: "flex", alignItems: "center", justifyContent: "center",
+                          transition: "all 0.2s ease",
                         }}
                       >
-                        <Plus size={18} />
+                        <ShoppingCart size={16} />
                       </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/marketplace/${item.id}`)}
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        borderRadius: 12,
-                        background: "var(--ui-bg-input)",
-                        border: "1px solid var(--ui-border-input)",
-                        color: "var(--ui-text-secondary)",
-                        cursor: "pointer",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      View Details
-                    </button>
                   </div>
                 </div>
               ))}
