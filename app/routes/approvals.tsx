@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
-import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle, Trophy, Building2, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router";
 
 export default function Approvals() {
@@ -27,7 +27,32 @@ export default function Approvals() {
       }
     }
     fetchPendingRequests();
+    fetchAwardedProposals();
   }, []);
+
+  const [awardedProposals, setAwardedProposals] = useState<any[]>([]);
+
+  const fetchAwardedProposals = async () => {
+    try {
+      const res = await apiGet(`/api/proposals/manager/awaiting-approval`);
+      setAwardedProposals(res.proposals || []);
+    } catch (err) {
+      console.error("Failed to fetch awarded proposals", err);
+    }
+  };
+
+  const handleApproveWinner = async (proposalId: string) => {
+    if (!user) return;
+    setProcessingId(proposalId);
+    try {
+      await apiPost(`/api/proposals/${proposalId}/approve`, { user_id: user.id });
+      setAwardedProposals(prev => prev.filter(p => p.id !== proposalId));
+    } catch (err) {
+      console.error("Failed to approve winner", err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   const fetchPendingRequests = async () => {
     try {
@@ -56,73 +81,143 @@ export default function Approvals() {
   };
 
   return (
-    <Layout title="Manager Approvals" subtitle="Review and approve purchase requisitions before they are published.">
-      <div style={{ width: "100%" }}>
+    <Layout title="Manager Approvals" subtitle="Review and approve purchase requisitions and awarded winners.">
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 40 }}>
         
-        {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-            <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
+        {/* Section 1: Pending PRs */}
+        <section>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ padding: 10, borderRadius: 12, background: "rgba(249,115,22,0.1)", color: "var(--huntr-orange)" }}>
+              <Clock size={20} />
+            </div>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "var(--ui-text-primary)" }}>Pending Purchase Requisitions</h2>
           </div>
-        ) : requests.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
-            <CheckCircle2 size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-            <h3 style={{ color: "var(--ui-text-muted)", margin: 0, fontSize: 16 }}>No pending approvals</h3>
-            <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-muted)" }}>You're all caught up!</p>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {requests.map(req => (
-              <div key={req.id} style={{
-                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-brand)", background: "var(--ui-bg-badge)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)" }}>
-                      <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
+
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+              <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
+            </div>
+          ) : requests.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
+              <CheckCircle2 size={32} style={{ opacity: 0.1, marginBottom: 16 }} />
+              <p style={{ margin: 0, fontSize: 14, color: "var(--ui-text-muted)" }}>No PRs awaiting approval.</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {requests.map(req => (
+                <div key={req.id} style={{
+                  background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
+                  padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-brand)", background: "var(--ui-bg-badge)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                        <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{req.title}</h3>
+                    <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                      <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>{req.user?.name || "Unknown"}</span>
                     </div>
                   </div>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{req.title}</h3>
-                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-muted)" }}>
-                    <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>{req.user?.name || "Unknown"}</span>
+
+                  <div style={{ width: 180 }}>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items to Purchase</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Package size={14} color="var(--ui-text-muted)" />
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{req.items?.length || 0} products</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button 
+                      onClick={() => handleApprove(req.id)}
+                      disabled={processingId === req.id}
+                      style={{
+                        padding: "10px 20px", borderRadius: 12, background: "rgba(34,197,94,0.1)",
+                        border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
+                      }}
+                    >
+                      {processingId === req.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Publish
+                    </button>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-                <div style={{ width: 180 }}>
-                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Items to Purchase</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <Package size={14} color="var(--ui-text-muted)" />
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{req.items?.length || 0} products</span>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button 
-                    onClick={() => handleApprove(req.id)}
-                    disabled={processingId === req.id}
-                    style={{
-                      padding: "10px 20px", borderRadius: 12, background: "rgba(34,197,94,0.1)",
-                      border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e", fontWeight: 700,
-                      fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
-                    }}
-                  >
-                    {processingId === req.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Publish
-                  </button>
-                  <button 
-                    style={{
-                      padding: "10px 20px", borderRadius: 12, background: "rgba(239,68,68,0.05)",
-                      border: "1px solid rgba(239,68,68,0.15)", color: "#f87171", fontWeight: 700,
-                      fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
-                    }}
-                  >
-                    <XCircle size={14} /> Reject
-                  </button>
-                </div>
-              </div>
-            ))}
+        {/* Section 2: Awarded Winners */}
+        <section>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ padding: 10, borderRadius: 12, background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>
+              <Trophy size={20} />
+            </div>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "var(--ui-text-primary)" }}>Awarded Winners Awaiting PO</h2>
           </div>
-        )}
+
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+              <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
+            </div>
+          ) : awardedProposals.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
+              <Trophy size={32} style={{ opacity: 0.1, marginBottom: 16 }} />
+              <p style={{ margin: 0, fontSize: 14, color: "var(--ui-text-muted)" }}>No winners awaiting PO approval.</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {awardedProposals.map(proposal => (
+                <div key={proposal.id} style={{
+                  background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
+                  padding: "24px 32px", display: "flex", alignItems: "center", gap: 32,
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "#22c55e", background: "rgba(34,197,94,0.1)", padding: "2px 8px", borderRadius: 6 }}>AWARDED</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                        <Calendar size={12} /> {new Date(proposal.awarded_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{proposal.rfq_title}</h3>
+                    <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--ui-text-secondary)", fontWeight: 700 }}>
+                        <Building2 size={14} color="#22c55e" /> {proposal.company_name}
+                      </div>
+                      <div style={{ color: "var(--ui-border)", fontSize: 14 }}>•</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--ui-text-brand)", fontWeight: 800 }}>
+                        <DollarSign size={14} /> IDR {Number(proposal.price_offer).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ width: 150 }}>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Terms</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>{proposal.delivery_days} days delivery</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>{proposal.payment_term}</div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button 
+                      onClick={() => handleApproveWinner(proposal.id)}
+                      disabled={processingId === proposal.id}
+                      style={{
+                        padding: "10px 20px", borderRadius: 12, background: "var(--huntr-orange)",
+                        border: "none", color: "#fff", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                        boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                      }}
+                    >
+                      {processingId === proposal.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Generate PO
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </Layout>
   );

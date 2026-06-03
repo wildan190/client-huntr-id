@@ -58,12 +58,16 @@ export default function RfqDetail() {
   };
 
   const handleAwardWinner = async (proposalId: string | number, rfqId: string | number) => {
+    const userSession = localStorage.getItem("user_session");
+    const user = userSession ? JSON.parse(userSession) : null;
+    
     setAwardingProposal(proposalId);
     setError(null);
     try {
       await apiPost(`/api/proposals/${proposalId}/award`, {
         proposal_id: proposalId,
         rfq_id: rfqId,
+        user_id: user?.id,
       });
       setSuccessMessage("✓ Proposal awarded! Sent to manager for approval.");
       if (id) {

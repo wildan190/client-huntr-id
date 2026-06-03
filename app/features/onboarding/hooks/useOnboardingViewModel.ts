@@ -40,6 +40,21 @@ export const useOnboardingViewModel = () => {
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
+  // --- Reset Form State ---
+  const resetForm = useCallback(() => {
+    setSlide(1);
+    setFormData({
+      company_name: "", tax_id: "", email: user?.email || "", phone: user?.whatsapp || "",
+      type: "buyer", industry_type: "", about: "", region: "",
+      provincy_country: "Indonesia", regency: "", city: "",
+      zip_code: "", address: "", bank_name: "", bank_account: "",
+      bank_account_name: "",
+    });
+    setNpwpVerifiedData(null);
+    setUploadedDocs([]);
+    setSelectedFile(null);
+  }, [user]);
+
   // --- Inisialisasi Sesi User ---
   useEffect(() => {
     const session = localStorage.getItem("user_session");
@@ -142,5 +157,6 @@ export const useOnboardingViewModel = () => {
     handleVerifyNpwp,
     handleDocUpload,
     handleCompanySubmit,
+    resetForm,
   };
 };

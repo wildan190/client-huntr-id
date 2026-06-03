@@ -3,9 +3,9 @@ import { useNavigate } from "react-router";
 import Layout from "../components/Layout";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
-  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search
+  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText
 } from "lucide-react";
-import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie } from "../lib/api";
+import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost } from "../lib/api";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // PO State
   const [orders, setOrders] = useState<any[]>([]);
@@ -72,6 +75,24 @@ export default function Orders() {
       console.error("Failed to fetch orders", err);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const handleConfirmPo = async (poId: string) => {
+    if (!company) return;
+    setConfirmingId(poId);
+    setError(null);
+    try {
+      await apiPost(`/api/orders/${poId}/confirm`, {
+        company_id: company.id
+      });
+      setSuccessMessage("✓ PO confirmed! Proforma invoice has been published to buyer.");
+      fetchOrders(company.id, currentPage);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to confirm PO");
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -291,6 +312,18 @@ export default function Orders() {
           </div>
         </div>
 
+        {successMessage && (
+          <div style={{ padding: 16, borderRadius: 16, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 14, fontWeight: 700, marginBottom: 24 }}>
+            {successMessage}
+          </div>
+        )}
+
+        {error && (
+          <div style={{ padding: 16, borderRadius: 16, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 14, fontWeight: 700, marginBottom: 24 }}>
+            {error}
+          </div>
+        )}
+
         {/* PO Table/List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {filteredOrders.length === 0 ? (
@@ -339,22 +372,44 @@ export default function Orders() {
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Status</div>
                     <div style={{
                       display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 10,
-                      background: "rgba(34,197,94,0.1)", color: "#22c55e", fontSize: 12, fontWeight: 700, transition: "all 0.3s ease"
+                      background: po.status === 'confirmed' ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", 
+                      color: po.status === 'confirmed' ? "#22c55e" : "#fb923c", 
+                      fontSize: 12, fontWeight: 700, transition: "all 0.3s ease"
                     }}>
-                      <CheckCircle2 size={14} /> Issued
+                      {po.status === 'confirmed' ? <CheckCircle2 size={14} /> : <Clock size={14} />} 
+                      {po.status === 'confirmed' ? 'Confirmed' : 'Issued'}
                     </div>
                   </div>
 
-                  <button 
-                    onClick={() => setExpandedPo(expandedPo === po.id ? null : po.id)}
-                    style={{
-                      width: 40, height: 40, borderRadius: 12, background: "var(--ui-bg-input)",
-                      border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease"
-                    }}
-                  >
-                    {expandedPo === po.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                  </button>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    {company.type === 'vendor' && po.status === 'published' && (
+                      <button
+                        onClick={() => handleConfirmPo(po.id)}
+                        disabled={confirmingId === po.id}
+                        style={{
+                          background: "var(--huntr-orange)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: confirmingId === po.id ? "wait" : "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        {confirmingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                        Confirm PO
+                      </button>
+                    )}
+
+                    <button 
+                      onClick={() => setExpandedPo(expandedPo === po.id ? null : po.id)}
+                      style={{
+                        width: 40, height: 40, borderRadius: 12, background: "var(--ui-bg-input)",
+                        border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease"
+                      }}
+                    >
+                      {expandedPo === po.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                    </button>
+                  </div>
                 </div>
 
                 {expandedPo === po.id && (
@@ -457,6 +512,38 @@ export default function Orders() {
                           </tbody>
                         </table>
                       </div>
+
+                      {/* Invoices Section */}
+                      {po.invoices && po.invoices.length > 0 && (
+                        <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                            <ReceiptText size={16} />
+                            Related Invoices
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                            {po.invoices.map((inv: any) => (
+                              <div key={inv.id} style={{ 
+                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border-input)",
+                                display: "flex", flexDirection: "column", gap: 4, minWidth: 200
+                              }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>{inv.type} Invoice</span>
+                                  <span style={{ 
+                                    fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6,
+                                    background: inv.status === 'paid' ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)",
+                                    color: inv.status === 'paid' ? "#22c55e" : "#fb923c",
+                                    textTransform: "uppercase"
+                                  }}>{inv.status}</span>
+                                </div>
+                                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)" }}>
+                                  IDR {Number(inv.amount).toLocaleString()}
+                                </div>
+                                <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

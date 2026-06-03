@@ -61,11 +61,15 @@ export default function ManagerApprovals() {
   };
 
   const handleApprove = async (proposalId: string) => {
+    const userSession = localStorage.getItem("user_session");
+    const user = userSession ? JSON.parse(userSession) : null;
+
     setApprovingId(proposalId);
     setError(null);
     try {
       const response = await apiPost(`/api/proposals/${proposalId}/approve`, {
         proposal_id: proposalId,
+        user_id: user?.id,
       });
       setSuccessMessage("✓ Winner approved successfully!");
 

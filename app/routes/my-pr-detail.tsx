@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getRfq } from "../lib/api";
-import { ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, Loader2, Trophy, Building2 } from "lucide-react";
 
 function getStatusStyle(status: string) {
   switch (status) {
@@ -186,9 +186,40 @@ export default function MyPurchaseRequisitionDetail() {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ color: "#9ca3af", fontSize: 12 }}>Vendor proposals</span>
-                    <span style={{ color: "#f8fafc", fontWeight: 700 }}>{request.proposals?.length || 0}</span>
+                    <span style={{ color: "#f87171", fontWeight: 700 }}>{request.proposals?.length || 0}</span>
                   </div>
                 </div>
+
+                {request.proposals?.some((p: any) => p.winner_status === 'approved' || p.winner_status === 'awarded') && (
+                  <div style={{ padding: 24, borderRadius: 28, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#22c55e", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Trophy size={16} /> Selected Winner
+                    </div>
+                    {request.proposals.filter((p: any) => p.winner_status === 'approved' || p.winner_status === 'awarded').map((winner: any) => (
+                      <div key={winner.id} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(34,197,94,0.2)", display: "grid", placeItems: "center", color: "#22c55e" }}>
+                            <Building2 size={20} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{winner.company?.name}</div>
+                            <div style={{ fontSize: 11, color: "#22c55e", fontWeight: 700 }}>Winner · {winner.winner_status.toUpperCase()}</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: 16, borderRadius: 16, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                            <span style={{ fontSize: 12, color: "#9ca3af" }}>Price Offer</span>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>IDR {Number(winner.price_offer).toLocaleString()}</span>
+                          </div>
+                          <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: 12, color: "#9ca3af" }}>Delivery</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc" }}>{winner.delivery_days} days</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </aside>
             </div>
           </div>

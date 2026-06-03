@@ -66,7 +66,11 @@ export default function Onboarding() {
     
     vm.setError(null);
     if (vm.slide === 5) {
-      await vm.handleCompanySubmit();
+      try {
+        await vm.handleCompanySubmit();
+      } catch (err: any) {
+        console.error("Submission failed:", err);
+      }
       return;
     }
     
@@ -81,6 +85,7 @@ export default function Onboarding() {
   const handleLoginAsCompany = () => {
     if (!vm.selectedCompany) return;
     localStorage.setItem("active_company", JSON.stringify(vm.selectedCompany));
+    vm.resetForm();
     navigate("/");
   };
 
