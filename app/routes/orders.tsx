@@ -6,6 +6,7 @@ import {
   Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText
 } from "lucide-react";
 import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost } from "../lib/api";
+import { getAssetUrl } from "../lib/assets";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -539,6 +540,16 @@ export default function Orders() {
                                   IDR {Number(inv.amount).toLocaleString()}
                                 </div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
+                                {inv.type === 'proforma' && (
+                                  <a 
+                                    href={getAssetUrl(`invoices/proforma_${po.id}.pdf`)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline"
+                                  >
+                                    <FileText size={12} /> Download PDF
+                                  </a>
+                                )}
                               </div>
                             ))}
                           </div>

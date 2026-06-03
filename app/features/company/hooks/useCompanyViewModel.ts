@@ -1,0 +1,186 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router";
+import { 
+  getMyCompanies, updateCompany, uploadCompanyLogo, 
+  inviteUser, getTeamMembers, getCsrfCookie 
+} from "../../../lib/api";
+
+export const useCompanyViewModel = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [user, setUser] = useState<any>(null);
+  const [company, setCompany] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<any>(null);
+  const [showCompanyWorkspace, setShowCompanyWorkspace] = useState(false);
+  const [companyListLoading, setCompanyListLoading] = useState(true);
+
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updatingCompany, setUpdatingCompany] = useState(false);
+
+  // Logo state
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Team state
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ whatsapp: "", email: "", role: "" });
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+
+  const syncActiveCompany = useCallback((found: any) => {
+    setCompany(found);
+    localStorage.setItem("active_company", JSON.stringify(found));
+    setEditForm({
+      name: found.name || "",
+      tax_id: found.tax_id || "",
+      email: found.email || "",
+      phone: found.phone || "",
+      provincy_country: found.provincy_country || "Indonesia",
+      region: found.region || "",
+      regency: found.regency || "",
+      city: found.city || "",
+      zip_code: found.zip_code || "",
+      address: found.address || "",
+      bank_name: found.bank_name || "",
+      bank_account: found.bank_account || "",
+      bank_account_name: found.bank_account_name || "",
+      about: found.about || "",
+      industry_type: found.industry_type || "",
+    });
+  }, []);
+
+  const fetchCompanyList = async (userId: number, activeId?: number) => {
+    setCompanyListLoading(true);
+    try {
+      const data = await getMyCompanies(userId);
+      const list = data.companies || [];
+      setCompanies(list);
+      if (activeId) {
+        const current = list.find((c: any) => c.id === activeId);
+        if (current) {
+          setSelectedWorkspace(current);
+          syncActiveCompany(current);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load company list", err);
+    } finally {
+      setCompanyListLoading(false);
+    }
+  };
+
+  const fetchTeamMembers = async (companyId: string | number) => {
+    setTeamLoading(true);
+    try {
+      const res = await getTeamMembers(companyId);
+      setTeamMembers(res.members || []);
+    } catch (err) {
+      console.error("Failed to fetch team members", err);
+    } finally {
+      setTeamLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const userSession = localStorage.getItem("user_session");
+    const activeComp = localStorage.getItem("active_company");
+    if (!userSession) {
+      navigate("/login");
+      return;
+    }
+
+    const u = JSON.parse(userSession);
+    const ac = activeComp ? JSON.parse(activeComp) : null;
+    setUser(u);
+
+    getCsrfCookie().catch(err => console.warn("Failed to initialize CSRF cookie:", err));
+
+    fetchCompanyList(u.id, ac?.id).finally(() => setLoading(false));
+  }, [navigate, syncActiveCompany]);
+
+  useEffect(() => {
+    if (activeTab === "team" && company?.id) {
+      fetchTeamMembers(company.id);
+    }
+  }, [activeTab, company?.id]);
+
+  const handleLogoUpload = async (file: File) => {
+    if (!company) return;
+    setLogoUploading(true);
+    setLogoError(null);
+    const fd = new FormData();
+    fd.append("company_id", String(company.id));
+    fd.append("logo", file);
+    try {
+      const res = await uploadCompanyLogo(fd);
+      const updated = res.company || res;
+      syncActiveCompany(updated);
+    } catch (err: any) {
+      setLogoError(err.message || "Failed to upload logo.");
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleSaveCompany = async () => {
+    if (!company) return;
+    setUpdatingCompany(true);
+    setUpdateError(null);
+    try {
+      const res = await updateCompany(company.id, editForm);
+      const updated = res.company || res;
+      syncActiveCompany(updated);
+      setIsEditing(false);
+    } catch (err: any) {
+      setUpdateError(err.message || "Failed to update company info.");
+    } finally {
+      setUpdatingCompany(false);
+    }
+  };
+
+  const handleInviteUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!company) return;
+    setIsInviting(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+    try {
+      const res = await inviteUser({
+        company_id: company.id,
+        ...inviteForm,
+      });
+      setInviteSuccess("Invitation link generated! Opening WhatsApp...");
+      setInviteForm({ whatsapp: "", email: "", role: "" });
+      if (res.whatsapp_link) window.open(res.whatsapp_link, "_blank");
+      fetchTeamMembers(company.id);
+    } catch (err: any) {
+      setInviteError(err.message || "Failed to send invitation.");
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  return {
+    navigate,
+    activeTab, setActiveTab,
+    user, company, loading, refreshing,
+    companies, selectedWorkspace, showCompanyWorkspace, setShowCompanyWorkspace, companyListLoading,
+    isEditing, setIsEditing, editForm, setEditForm, updateError, updatingCompany, handleSaveCompany,
+    logoUploading, logoError, logoInputRef, handleLogoUpload,
+    teamMembers, teamLoading, isInviting, inviteForm, setInviteForm, handleInviteUser, inviteError, inviteSuccess,
+    openCompanyWorkspace: (workspace: any) => {
+      setShowCompanyWorkspace(true);
+      setSelectedWorkspace(workspace);
+      syncActiveCompany(workspace);
+    }
+  };
+};

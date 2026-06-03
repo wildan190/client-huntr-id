@@ -5,6 +5,7 @@ import {
   Plus, Check, Loader2, Package, Search, UploadCloud, FileText, 
   ChevronRight, X, LayoutGrid, List
 } from "lucide-react";
+import { getAssetUrl } from "../lib/assets";
 
 export default function Catalogue() {
   const [company, setCompany] = useState<any>(null);
@@ -265,7 +266,7 @@ export default function Catalogue() {
                     {item.image_path && (
                       <div style={{ marginTop: 12 }}>
                         <img 
-                          src={`${import.meta.env.VITE_BASE_URL_IMAGE || "http://localhost:8000/storage"}/${item.image_path}`} 
+                          src={getAssetUrl(item.image_path)} 
                           alt={item.name} 
                           style={{ width: "100%", height: 120, objectFit: "contain", borderRadius: 8 }} 
                         />
