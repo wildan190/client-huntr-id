@@ -66,6 +66,7 @@ export const sendOtp = async (payload: { whatsapp: string }) => {
     whatsapp?: string;
     otp_token?: string;
     expires_in?: number;
+    whatsapp_sent?: boolean;
   }>("/api/auth/otp/send", { whatsapp });
 
   const canonical = res.whatsapp || whatsapp;

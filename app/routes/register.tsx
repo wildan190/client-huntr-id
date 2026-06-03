@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
 import { register, sendOtp, verifyOtp, loadOtpSession, clearOtpSession, getCsrfCookie } from "../lib/api";
 import { isValidWhatsapp } from "../lib/whatsapp";
@@ -7,6 +7,9 @@ import AuthLayout from "../components/AuthLayout";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+
   const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,7 +138,12 @@ export default function Register() {
       console.log("[handleSubmit] Saving user session:", user);
       localStorage.setItem("user_session", JSON.stringify(user));
       localStorage.removeItem("active_company");
-      navigate("/onboarding");
+      
+      if (returnTo) {
+        navigate(returnTo);
+      } else {
+        navigate("/onboarding");
+      }
     } catch (err: any) {
       setError(err.message || "Verification or registration failed.");
     } finally {

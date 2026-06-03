@@ -3,9 +3,9 @@ import { useNavigate } from "react-router";
 import Layout from "../components/Layout";
 import {
   Building2, MapPin, CreditCard, UploadCloud, CheckCircle2,
-  AlertCircle, FileSpreadsheet, Loader2, RefreshCw, FileText, Plus, ChevronDown, ChevronLeft, ChevronRight
+  AlertCircle, FileSpreadsheet, Loader2, RefreshCw, FileText, Plus, ChevronDown, ChevronLeft, ChevronRight, UserPlus, Users, MessageCircle, Mail
 } from "lucide-react";
-import { getMyCompanies, importCatalogue, importHistoricalPo, getCatalogues, getHistoricalPos, updateCompany, uploadCompanyDocument, uploadCompanyLogo, getCsrfCookie } from "../lib/api";
+import { getMyCompanies, importCatalogue, importHistoricalPo, getCatalogues, getHistoricalPos, updateCompany, uploadCompanyDocument, uploadCompanyLogo, getCsrfCookie, inviteUser, getTeamMembers } from "../lib/api";
 
 export default function CompanyDetails() {
   const navigate = useNavigate();
@@ -42,6 +42,14 @@ export default function CompanyDetails() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Team state
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ whatsapp: "", email: "", role: "" });
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
 
   const fetchCompanyData = async (userId: number, activeId: number, companyType?: string) => {
     try {
@@ -117,6 +125,45 @@ export default function CompanyDetails() {
       console.error("Failed to fetch historical POs", err);
     } finally {
       setPosLoading(false);
+    }
+  };
+
+  const fetchTeamMembers = async (companyId: string | number) => {
+    setTeamLoading(true);
+    try {
+      const res = await getTeamMembers(companyId);
+      setTeamMembers(res.members || []);
+    } catch (err) {
+      console.error("Failed to fetch team members", err);
+    } finally {
+      setTeamLoading(false);
+    }
+  };
+
+  const handleInviteUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!company) return;
+    setIsInviting(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+
+    try {
+      const res = await inviteUser({
+        company_id: company.id,
+        ...inviteForm,
+      });
+      
+      setInviteSuccess("Invitation link generated! Opening WhatsApp...");
+      setInviteForm({ whatsapp: "", email: "", role: "" });
+      
+      // Open WhatsApp link in new tab
+      if (res.whatsapp_link) {
+        window.open(res.whatsapp_link, "_blank");
+      }
+    } catch (err: any) {
+      setInviteError(err.message || "Failed to send invitation.");
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -310,6 +357,12 @@ export default function CompanyDetails() {
     }
   };
 
+  useEffect(() => {
+    if (activeTab === "team" && company?.id) {
+      fetchTeamMembers(company.id);
+    }
+  }, [activeTab, company?.id]);
+
   if (loading) {
     return (
       <Layout title="Company" subtitle="Loading company workspace details...">
@@ -458,6 +511,7 @@ export default function CompanyDetails() {
     { id: "location", label: "Address & Location", icon: MapPin },
     { id: "banking", label: "Banking & Escrow", icon: CreditCard },
     { id: "documents", label: isBuyer ? "Spend & PO Data" : "Product Catalogue", icon: FileText },
+    { id: "team", label: "Team Members", icon: Users },
   ];
 
   return (
@@ -655,6 +709,134 @@ export default function CompanyDetails() {
                     </button>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* TEAM TAB */}
+            {activeTab === "team" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                {/* Invite Form */}
+                <div style={{ padding: 28, borderRadius: 24, background: "rgba(249,115,22,0.03)", border: "1px solid rgba(249,115,22,0.15)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--huntr-orange)", display: "grid", placeItems: "center", color: "#fff" }}>
+                      <UserPlus size={20} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: 0 }}>Invite Team Member</h3>
+                      <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "4px 0 0" }}>Add colleagues to your workspace via WhatsApp.</p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleInviteUser} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 16, alignItems: "flex-end" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>WhatsApp Number</span>
+                      <div style={{ position: "relative" }}>
+                        <MessageCircle size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)" }} />
+                        <input
+                          required
+                          placeholder="e.g. 628123456789"
+                          value={inviteForm.whatsapp}
+                          onChange={e => setInviteForm({ ...inviteForm, whatsapp: e.target.value })}
+                          style={{
+                            width: "100%", padding: "10px 14px 10px 40px", borderRadius: 12, background: "var(--ui-bg-input)",
+                            border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", outline: "none", fontSize: 13, boxSizing: "border-box"
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Email Address (Optional)</span>
+                      <div style={{ position: "relative" }}>
+                        <Mail size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)" }} />
+                        <input
+                          type="email"
+                          placeholder="colleague@company.com"
+                          value={inviteForm.email}
+                          onChange={e => setInviteForm({ ...inviteForm, email: e.target.value })}
+                          style={{
+                            width: "100%", padding: "10px 14px 10px 40px", borderRadius: 12, background: "var(--ui-bg-input)",
+                            border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", outline: "none", fontSize: 13, boxSizing: "border-box"
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Workspace Role</span>
+                      <select
+                        required
+                        value={inviteForm.role}
+                        onChange={e => setInviteForm({ ...inviteForm, role: e.target.value })}
+                        style={{
+                          width: "100%", padding: "10px 14px", borderRadius: 12, background: "var(--ui-bg-input)",
+                          border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", outline: "none", fontSize: 13, boxSizing: "border-box"
+                        }}
+                      >
+                        <option value="">Select Role...</option>
+                        <option value="manager">Manager (Full Access)</option>
+                        {company.type === 'buyer' ? (
+                          <>
+                            <option value="buyer">Buyer</option>
+                            <option value="finance">Finance</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="admin">Admin</option>
+                            <option value="finance">Finance</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isInviting}
+                      style={{
+                        padding: "12px 24px", borderRadius: 12, background: "var(--huntr-orange)",
+                        color: "#fff", border: "none", fontWeight: 800, fontSize: 13, cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s"
+                      }}
+                    >
+                      {isInviting ? <Loader2 size={16} className="animate-spin" /> : <><MessageCircle size={16} /> Send Invite</>}
+                    </button>
+                  </form>
+
+                  {inviteError && <div style={{ marginTop: 16, fontSize: 12, color: "#f87171", background: "rgba(239,68,68,0.1)", padding: "10px 14px", borderRadius: 10 }}>{inviteError}</div>}
+                  {inviteSuccess && <div style={{ marginTop: 16, fontSize: 12, color: "#34d399", background: "rgba(52,211,153,0.1)", padding: "10px 14px", borderRadius: 10 }}>{inviteSuccess}</div>}
+                </div>
+
+                {/* Member List */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: 0 }}>Team Members ({teamMembers.length})</h3>
+                  </div>
+
+                  {teamLoading ? (
+                    <div style={{ display: "flex", justifyContent: "center", padding: 40 }}><Loader2 size={24} className="animate-spin" color="var(--huntr-orange)" /></div>
+                  ) : teamMembers.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: 40, background: "var(--ui-bg-input)", borderRadius: 20, border: "1px dashed var(--ui-border)" }}>
+                      <p style={{ color: "var(--ui-text-muted)", fontSize: 14 }}>No members found. Start inviting your team!</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+                      {teamMembers.map(member => (
+                        <div key={member.id} style={{ padding: 20, borderRadius: 20, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", display: "flex", alignItems: "center", gap: 16 }}>
+                          <div style={{ width: 48, height: 48, borderRadius: 16, background: "var(--ui-bg-input)", display: "grid", placeItems: "center", color: "var(--huntr-orange)", fontWeight: 900, fontSize: 18 }}>
+                            {member.name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>{member.name}</div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>{member.email || member.whatsapp}</div>
+                          </div>
+                          <div style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(249,115,22,0.1)", color: "var(--huntr-orange)", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>
+                            {member.role}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

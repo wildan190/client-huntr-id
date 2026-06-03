@@ -42,18 +42,32 @@ export default function Layout({ children, title, subtitle }: Props) {
   const [notifButtonPos, setNotifButtonPos] = useState({ top: 0, right: 0 });
   const notifButtonRef = React.useRef<HTMLButtonElement>(null);
 
+  const isOwner = activeCompany?.owner_id === user?.id;
+  const isManager = user?.role === 'manager' || isOwner;
+  const isFinance = user?.role === 'finance';
+  const isBuyerRole = user?.role === 'buyer';
+  const isAdminRole = user?.role === 'admin';
+  const isBuyerComp = activeCompany?.type === 'buyer';
+  const isVendorComp = activeCompany?.type === 'vendor';
+
   const NAV = [
     { to: "/",          label: "Dashboard",  Icon: LayoutDashboard },
-    ...(activeCompany?.type === 'buyer' ? [{ to: "/marketplace", label: "Marketplace", Icon: Package }] : []),
-    ...(activeCompany?.type === 'vendor' ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
-    ...(activeCompany?.type === 'vendor' ? [{ to: "/proposals", label: "Proposals", Icon: Trophy }] : []),
-    ...(activeCompany?.type === 'vendor' ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
-    ...(activeCompany?.type === 'buyer' ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
-    { to: "/all-requests", label: "All Requests", Icon: Lightbulb },
-    ...( (user?.role === 'manager' || activeCompany?.owner_id === user?.id) && activeCompany?.type === 'buyer' ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
+    
+    // Buyer specific
+    ...(isBuyerComp && (isManager || isBuyerRole) ? [{ to: "/marketplace", label: "Marketplace", Icon: Package }] : []),
+    ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
+    ...(isBuyerComp && isManager ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
+    
+    // Vendor specific
+    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
+    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/proposals", label: "Proposals", Icon: Trophy }] : []),
+    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
+    
+    // Common but context-aware
+      { to: "/all-requests", label: "All Requests", Icon: Lightbulb },
+      { to: "/purchase_orders",    label: "Purchase Order",   Icon: ReceiptText },
+      { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
     { to: "/company",   label: "Company",    Icon: Building2 },
-    { to: "/purchase_orders",    label: "Purchase Order",   Icon: ReceiptText },
-    { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
     { to: "/account",   label: "Settings",   Icon: Settings },
   ];
 

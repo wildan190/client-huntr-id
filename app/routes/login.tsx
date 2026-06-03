@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Loader2, Eye, EyeOff, ShieldCheck, Key } from "lucide-react";
 import { login, getAuthenticatedUser, getCsrfCookie } from "../lib/api/auth";
 import { verify2FACode, verify2FARecovery } from "../lib/api/account";
@@ -7,6 +7,9 @@ import AuthLayout from "../components/AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  
   const [form, setForm] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,7 +59,12 @@ export default function Login() {
       };
 
       localStorage.setItem("user_session", JSON.stringify(user));
-      navigate("/select-company");
+      
+      if (returnTo) {
+        navigate(returnTo);
+      } else {
+        navigate("/select-company");
+      }
     } catch (err: any) {
       setError(err.message || "Invalid email or password.");
     } finally {
@@ -88,7 +96,12 @@ export default function Login() {
       };
 
       localStorage.setItem("user_session", JSON.stringify(user));
-      navigate("/select-company");
+      
+      if (returnTo) {
+        navigate(returnTo);
+      } else {
+        navigate("/select-company");
+      }
     } catch (err: any) {
       setError(err.message || "Invalid 2FA code.");
     } finally {
