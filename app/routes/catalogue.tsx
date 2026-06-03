@@ -28,6 +28,7 @@ export default function Catalogue() {
     specifications: "",
     uom: "Pc",
   });
+  const [productImage, setProductImage] = useState<File | null>(null);
   const [editingItem, setEditingItem] = useState<any | null>(null);
 
   useEffect(() => {
@@ -62,21 +63,26 @@ export default function Catalogue() {
     setLoading(true);
     setError(null);
     try {
+      const fd = new FormData();
+      fd.append("company_id", company.id.toString());
+      fd.append("item_code", formData.item_code);
+      fd.append("name", formData.name);
+      fd.append("category", formData.category);
+      fd.append("specifications", formData.specifications);
+      fd.append("uom", formData.uom);
+      fd.append("price", "0");
+      if (productImage) {
+        fd.append("image", productImage);
+      }
+
       if (editingItem) {
-        await updateCatalogue(editingItem.id, {
-          ...formData,
-          company_id: company.id,
-          price: 0,
-        });
+        await updateCatalogue(editingItem.id, fd);
       } else {
-        await createCatalogue({
-          ...formData,
-          company_id: company.id,
-          price: 0,
-        });
+        await createCatalogue(fd);
       }
       setShowForm(false);
       setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
+      setProductImage(null);
       setEditingItem(null);
       fetchItems(company.id);
     } catch (err: any) {
@@ -125,6 +131,7 @@ export default function Catalogue() {
                     onClick={() => {
                       setEditingItem(null);
                       setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
+                      setProductImage(null);
                       setShowForm(!showForm);
                     }}
               style={{
@@ -169,6 +176,15 @@ export default function Catalogue() {
               <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
               <Field label="Category" value={formData.category} onChange={(v:any) => setFormData({...formData, category: v})} placeholder="e.g. Spareparts" />
               <Field label="UOM" value={formData.uom} onChange={(v:any) => setFormData({...formData, uom: v})} placeholder="e.g. Pc, Box" required />
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={lbl}>Product Image</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={e => setProductImage(e.target.files?.[0] || null)}
+                  style={{ ...inputStyle, marginTop: 6 }} 
+                />
+              </div>
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={lbl}>Specifications</label>
                 <textarea 
@@ -246,12 +262,22 @@ export default function Catalogue() {
                     <p style={{ fontSize: 13, color: "#6b7280", margin: "12px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {item.specifications || "No detailed specifications provided."}
                     </p>
+                    {item.image_path && (
+                      <div style={{ marginTop: 12 }}>
+                        <img 
+                          src={`${import.meta.env.VITE_BASE_URL_IMAGE || "http://localhost:8000/storage"}/${item.image_path}`} 
+                          alt={item.name} 
+                          style={{ width: "100%", height: 120, objectFit: "contain", borderRadius: 8 }} 
+                        />
+                      </div>
+                    )}
                   </div>
                   <div style={{ marginTop: "auto", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 12, color: "#4b5563" }}>UOM: <strong style={{ color: "#9ca3af" }}>{item.uom}</strong></span>
                         <button type="button" onClick={() => {
                           setEditingItem(item);
                           setShowForm(true);
+                          setProductImage(null);
                           setFormData({
                             item_code: item.item_code || "",
                             name: item.name || "",
@@ -292,6 +318,7 @@ export default function Catalogue() {
                         <button type="button" onClick={() => {
                           setEditingItem(item);
                           setShowForm(true);
+                          setProductImage(null);
                           setFormData({
                               item_code: item.item_code || "",
                               name: item.name || "",

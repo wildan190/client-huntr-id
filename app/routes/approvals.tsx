@@ -8,7 +8,7 @@ export default function Approvals() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function Approvals() {
     }
   };
 
-  const handleApprove = async (rfqId: number) => {
+  const handleApprove = async (rfqId: string) => {
     if (!user) return;
     setProcessingId(rfqId);
     try {
@@ -78,14 +78,14 @@ export default function Approvals() {
               }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-brand)", background: "var(--ui-bg-badge)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-brand)", background: "var(--ui-bg-badge)", padding: "2px 8px", borderRadius: 6 }}>PR #{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)" }}>
                       <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                     </div>
                   </div>
                   <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{req.title}</h3>
                   <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-muted)" }}>
-                    <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>User #{req.user_id}</span>
+                    <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>{req.user?.name || "Unknown"}</span>
                   </div>
                 </div>
 

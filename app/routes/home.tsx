@@ -26,9 +26,9 @@ import {
 
 // Mock initial data matching the workflow
 const INITIAL_CATALOGUE = [
-  { id: 1, item_code: "CAT-001", name: "Premium Laptop Pro", category: "Hardware", uom: "unit", price: 15000000 },
-  { id: 2, item_code: "CAT-002", name: "Ergonomic Office Chair", category: "Furniture", uom: "pcs", price: 2500000 },
-  { id: 3, item_code: "CAT-003", name: "4K IPS Design Monitor", category: "Hardware", uom: "unit", price: 6000000 },
+  { id: "1", item_code: "CAT-001", name: "Premium Laptop Pro", category: "Hardware", uom: "unit", price: 15000000 },
+  { id: "2", item_code: "CAT-002", name: "Ergonomic Office Chair", category: "Furniture", uom: "pcs", price: 2500000 },
+  { id: "3", item_code: "CAT-003", name: "4K IPS Design Monitor", category: "Hardware", uom: "unit", price: 6000000 },
 ];
 
 const CATEGORIES = ["All", "Hardware", "Furniture", "Software", "Office Supplies", "Services"];

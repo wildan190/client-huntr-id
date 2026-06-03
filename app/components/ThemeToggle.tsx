@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sun, Moon, Settings } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 export default function ThemeToggle() {
   const { theme, toggleTheme, resetToAuto, isAuto, isDark } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // Render placeholder/empty structure with same dimensions to avoid shifting layout
+    return (
+      <div style={{ display: "flex", gap: 4, alignItems: "center", minHeight: 32 }}>
+        <div style={{ width: 68, height: 32, borderRadius: 8, background: "rgba(0,0,0,0.03)" }} />
+        <div style={{ width: 68, height: 32, borderRadius: 8, background: "rgba(0,0,0,0.03)" }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", gap: 4, alignItems: "center" }}>

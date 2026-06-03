@@ -40,7 +40,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
             {npwpVerifiedData && (
               <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
                 <div className="text-sm font-bold text-[var(--ui-text-primary)]">{npwpVerifiedData.nama}</div>
-                <div className="text-[10px] text-[var(--ui-text-muted)] uppercase tracking-widest mt-0.5">Status: <span className="text-emerald-400 font-bold">{npwpVerifiedData.statusWp}</span></div>
+                <div className="text-[10px] text-[var(--ui-text-muted)] uppercase tracking-widest mt-0.5">Status: <span className="text-emerald-400 font-bold">{npwpVerifiedData.statusWp || npwpVerifiedData.status || "Aktif"}</span></div>
               </div>
             )}
           </div>

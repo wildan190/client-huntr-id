@@ -9,7 +9,7 @@ import { apiGet, apiPost, apiPut, apiPostForm } from "../client";
 export const registerCompany = (payload: Record<string, any>) =>
   apiPost("/api/companies", payload);
 
-export const updateCompany = (id: number, payload: Record<string, any>) =>
+export const updateCompany = (id: string | number, payload: Record<string, any>) =>
   apiPut(`/api/companies/${id}`, payload);
 
 export const verifyNpwp = (npwp: string) =>
@@ -24,5 +24,5 @@ export const uploadCompanyLogo = (formData: FormData) =>
 export const getMyCompanies = (userId: number | string) => 
   apiGet(`/api/companies/my?user_id=${userId}`);
 
-export const getHistoricalPos = (companyId: number) =>
+export const getHistoricalPos = (companyId: string | number) =>
   apiGet(`/api/orders/historical?company_id=${companyId}`);

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
-import { apiGet } from "../lib/api";
-import { ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, Loader2, AlertCircle, ShieldCheck, ChevronRight } from "lucide-react";
+import { apiGet, apiPost } from "../lib/api";
+import { 
+  ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, 
+  Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2 
+} from "lucide-react";
 
 export default function RfqDetail() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +15,8 @@ export default function RfqDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
+  const [awardingProposal, setAwardingProposal] = useState<string | number | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const companySession = localStorage.getItem("active_company");
@@ -19,8 +24,8 @@ export default function RfqDetail() {
       setActiveCompany(JSON.parse(companySession));
     }
 
-    if (!id) {
-      setError("RFQ not found.");
+    if (!id || id === "NaN" || id === "undefined") {
+      setError("Invalid RFQ ID.");
       setLoading(false);
       return;
     }
@@ -42,13 +47,38 @@ export default function RfqDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const fetchRankings = async (rfqId: number) => {
+  const fetchRankings = async (rfqId: string | number) => {
     try {
       const data = await apiGet(`/api/rfqs/${rfqId}/rankings`);
       setRankings(Array.isArray(data) ? data : data.rankings || []);
     } catch (err) {
       console.error("Failed to load RFQ rankings", err);
       setRankings([]);
+    }
+  };
+
+  const handleAwardWinner = async (proposalId: string | number, rfqId: string | number) => {
+    setAwardingProposal(proposalId);
+    setError(null);
+    try {
+      await apiPost(`/api/proposals/${proposalId}/award`, {
+        proposal_id: proposalId,
+        rfq_id: rfqId,
+      });
+      setSuccessMessage("✓ Proposal awarded! Sent to manager for approval.");
+      if (id) {
+        const response = await apiGet(`/api/rfqs/${id}`);
+        const data = response?.rfq ?? response?.data ?? response;
+        setRfq(data);
+        if (data?.id) {
+          fetchRankings(data.id);
+        }
+      }
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to award proposal");
+    } finally {
+      setAwardingProposal(null);
     }
   };
 
@@ -112,7 +142,7 @@ export default function RfqDetail() {
                   ACTIVE
                 </div>
                 <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 800, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
-                  PR #{rfq.id}
+                  PR #{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}
                 </div>
              </div>
           )}
@@ -138,7 +168,7 @@ export default function RfqDetail() {
                 <div style={{ marginBottom: 24 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                     <span style={{ fontSize: 11, fontWeight: 900, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "4px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1 }}>Purchase Requisition</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)" }}>#{rfq.id}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)" }}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}</span>
                   </div>
                   <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
                 </div>
@@ -179,54 +209,283 @@ export default function RfqDetail() {
                     {rfq.description || "No detailed description provided for this request."}
                   </div>
 
-                  {rankings.length > 0 && (
-                    <div style={{ marginTop: 32, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 24 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                        <ShieldCheck size={18} color="#f97316" />
-                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings</div>
-                      </div>
-                      <div style={{ display: "grid", gap: 12 }}>
-                        {rankings.map((rankData: any, idx: number) => (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "grid",
-                              gridTemplateColumns: "40px 1fr auto",
-                              gap: 12,
-                              alignItems: "center",
-                              padding: "14px 16px",
-                              background: idx === 0 ? "rgba(249,115,22,0.08)" : "rgba(255,255,255,0.04)",
-                              borderRadius: 16,
-                            }}
-                          >
-                            <div style={{ fontSize: 14, fontWeight: 800, color: idx === 0 ? "#f97316" : "var(--ui-text-primary)" }}>{rankData.rank}</div>
-                            <div>
-                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 14 }}>{rankData.proposal.company?.name || "Unknown Vendor"}</div>
-                              <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>
-                                Rp {Number(rankData.proposal.price_offer).toLocaleString('id-ID')} · {rankData.proposal.delivery_days} hari · {rankData.proposal.warranty_months} bulan garansi
-                              </div>
-                            </div>
-                            <div
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                minWidth: 80,
-                                padding: "8px 12px",
-                                borderRadius: 12,
-                                background: rankData.is_winner ? "#f59e0b" : rankData.is_top_rank ? "rgba(249,115,22,0.08)" : "rgba(255,255,255,0.08)",
-                                color: rankData.is_winner ? "#fff" : "var(--ui-text-primary)",
-                                fontSize: 11,
-                                fontWeight: 800,
-                              }}
-                            >
-                              {rankData.is_winner ? "PEMENANG" : rankData.is_top_rank ? `TOP #${rankData.rank}` : "PESERTA"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                  {successMessage && (
+                    <div style={{
+                      background: "rgba(34, 197, 94, 0.1)",
+                      border: "1px solid rgba(34, 197, 94, 0.2)",
+                      borderRadius: 16,
+                      padding: 16,
+                      color: "#10b981",
+                      display: "flex",
+                      gap: 12,
+                      alignItems: "center",
+                      marginTop: 24,
+                      fontWeight: 700
+                    }}>
+                      <CheckCircle2 size={20} />
+                      {successMessage}
                     </div>
                   )}
+
+                  {rankings.length > 0 && (() => {
+                    const isBuyer = activeCompany?.type === 'buyer';
+                    const topRankData = rankings.find(r => r.rank === 1);
+                    const isRfqAlreadyAwarded = rankings.some(r => r.is_winner || r.proposal.winner_status === 'awarded' || r.proposal.winner_status === 'approved');
+
+                    return (
+                      <div style={{ marginTop: 32, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 24 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                          <ShieldCheck size={18} color="#f97316" />
+                          <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
+                        </div>
+
+                        {/* Metodologi Penilaian (Evaluation Criteria Info) */}
+                        <div style={{
+                          background: "var(--ui-bg-input)",
+                          border: "1px solid var(--ui-border-input)",
+                          borderRadius: 16,
+                          padding: 16,
+                          marginBottom: 20,
+                          fontSize: 12,
+                          color: "var(--ui-text-secondary)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 13 }}>
+                            <Info size={14} color="#f97316" />
+                            Kriteria Penilaian Sistem
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 4 }}>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>1. Harga (Prioritas Utama)</div>
+                              <div style={{ color: "var(--ui-text-muted)", marginTop: 2, fontSize: 11 }}>Mengutamakan total penawaran harga terendah dari seluruh vendor.</div>
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>2. Waktu Pengiriman (Lead Time)</div>
+                              <div style={{ color: "var(--ui-text-muted)", marginTop: 2, fontSize: 11 }}>Jika harga sama, mengutamakan durasi pengiriman paling cepat (hari).</div>
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>3. Garansi Layanan</div>
+                              <div style={{ color: "var(--ui-text-muted)", marginTop: 2, fontSize: 11 }}>Jika harga & lead time sama, mengutamakan masa garansi terpanjang (bulan).</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rekomendasi Pemenang dari Sistem */}
+                        {topRankData && (
+                          <div style={{
+                            background: "linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(245, 158, 11, 0.03) 100%)",
+                            border: "1px solid rgba(249, 115, 22, 0.25)",
+                            borderRadius: 20,
+                            padding: 20,
+                            marginBottom: 24,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 12
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                              <div style={{ display: "flex", gap: 10, alignItems: "start" }}>
+                                <Trophy size={20} color="#f97316" style={{ marginTop: 2 }} />
+                                <div>
+                                  <div style={{ fontWeight: 800, fontSize: 11, color: "#f97316", textTransform: "uppercase", letterSpacing: 0.5 }}>Rekomendasi Sistem (Pemenang Terpilih)</div>
+                                  <div style={{ fontWeight: 800, fontSize: 16, color: "var(--ui-text-primary)", marginTop: 4 }}>
+                                    {topRankData.proposal.company?.name || "Unknown Vendor"}
+                                  </div>
+                                </div>
+                              </div>
+                              {isBuyer && !isRfqAlreadyAwarded && (
+                                <button
+                                  onClick={() => handleAwardWinner(topRankData.proposal.id, rfq.id)}
+                                  disabled={awardingProposal === topRankData.proposal.id}
+                                  style={{
+                                    background: "var(--huntr-orange)",
+                                    border: "none",
+                                    borderRadius: 10,
+                                    padding: "8px 16px",
+                                    color: "#fff",
+                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    cursor: awardingProposal === topRankData.proposal.id ? "wait" : "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                    boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                                  }}
+                                >
+                                  {awardingProposal === topRankData.proposal.id ? <Loader2 size={12} className="animate-spin" /> : <Award size={12} />} Award Proposal Ini
+                                </button>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.5, borderTop: "1px solid rgba(249, 115, 22, 0.1)", paddingTop: 10 }}>
+                              <strong>Alasan Rekomendasi:</strong> Vendor ini menawarkan kombinasi parameter paling optimal dengan harga terendah sebesar <strong>Rp {Number(topRankData.proposal.price_offer).toLocaleString('id-ID')}</strong>, pengiriman dalam waktu <strong>{topRankData.proposal.delivery_days} hari</strong>, dan jaminan garansi <strong>{topRankData.proposal.warranty_months} bulan</strong>.
+                            </div>
+                          </div>
+                        )}
+
+                        {/* List Detail Perbandingan Ranking */}
+                        <div style={{ display: "grid", gap: 16 }}>
+                          {rankings.map((rankData: any, idx: number) => {
+                            const isWinnerOrAwarded = rankData.is_winner || rankData.proposal.winner_status === 'awarded' || rankData.proposal.winner_status === 'approved';
+                            const topProposal = topRankData?.proposal;
+                            
+                            let dynamicReason = "";
+                            if (rankData.rank === 1) {
+                              dynamicReason = "Penawaran paling efisien dan ekonomis berdasarkan prioritas kriteria evaluasi sistem (Harga terendah & waktu pengiriman optimal).";
+                            } else if (topProposal) {
+                              const diffPrice = Number(rankData.proposal.price_offer) - Number(topProposal.price_offer);
+                              const percentDiff = ((diffPrice / Number(topProposal.price_offer)) * 100).toFixed(1);
+                              dynamicReason = `Harga penawaran lebih mahal ${percentDiff}% (+Rp ${diffPrice.toLocaleString('id-ID')}) dibandingkan peringkat pertama.`;
+                            }
+
+                            return (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 12,
+                                  padding: "20px 24px",
+                                  background: idx === 0 ? "rgba(249,115,22,0.04)" : "var(--ui-bg-card)",
+                                  border: idx === 0 ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border)",
+                                  borderRadius: 20,
+                                }}
+                              >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                                    <div style={{
+                                      width: 32,
+                                      height: 32,
+                                      borderRadius: 8,
+                                      background: idx === 0 ? "var(--huntr-orange)" : "var(--ui-bg-input)",
+                                      color: idx === 0 ? "#fff" : "var(--ui-text-muted)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontWeight: 900,
+                                      fontSize: 14
+                                    }}>
+                                      #{rankData.rank}
+                                    </div>
+                                    <div>
+                                      <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>
+                                        {rankData.proposal.company?.name || "Unknown Vendor"}
+                                      </div>
+                                      <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                                        Tanggal Kirim: {new Date(rankData.proposal.created_at).toLocaleDateString('id-ID')}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                    {isBuyer && !isRfqAlreadyAwarded && (
+                                      <button
+                                        onClick={() => handleAwardWinner(rankData.proposal.id, rfq.id)}
+                                        disabled={awardingProposal === rankData.proposal.id}
+                                        style={{
+                                          background: idx === 0 ? "var(--huntr-orange)" : "var(--ui-bg-input)",
+                                          border: idx === 0 ? "none" : "1px solid var(--ui-border)",
+                                          borderRadius: 10,
+                                          padding: "6px 12px",
+                                          color: idx === 0 ? "#fff" : "var(--ui-text-primary)",
+                                          fontSize: 12,
+                                          fontWeight: 700,
+                                          cursor: awardingProposal === rankData.proposal.id ? "wait" : "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 6
+                                        }}
+                                      >
+                                        {awardingProposal === rankData.proposal.id ? <Loader2 size={12} className="animate-spin" /> : <Award size={12} />} Award
+                                      </button>
+                                    )}
+
+                                    {isWinnerOrAwarded ? (
+                                      <div style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 4,
+                                        padding: "6px 12px",
+                                        borderRadius: 10,
+                                        background: "rgba(34,197,94,0.1)",
+                                        color: "#22c55e",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                      }}>
+                                        <CheckCircle2 size={12} /> PEMENANG (AWARDED)
+                                      </div>
+                                    ) : rankData.proposal.winner_status === 'rejected' ? (
+                                      <div style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        padding: "6px 12px",
+                                        borderRadius: 10,
+                                        background: "rgba(239,68,68,0.06)",
+                                        color: "#ef4444",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                      }}>
+                                        DIELIMINASI
+                                      </div>
+                                    ) : (
+                                      <div style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        padding: "6px 12px",
+                                        borderRadius: 10,
+                                        background: "var(--ui-bg-input)",
+                                        color: "var(--ui-text-secondary)",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                      }}>
+                                        PESERTA
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Kriteria Evaluasi Detail */}
+                                <div style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                                  gap: 12,
+                                  background: "var(--ui-bg-input)",
+                                  padding: 12,
+                                  borderRadius: 12,
+                                  border: "1px solid var(--ui-border-subtle)",
+                                  marginTop: 4
+                                }}>
+                                  <div>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", display: "block" }}>HARGA PENAWARAN</span>
+                                    <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>
+                                      Rp {Number(rankData.proposal.price_offer).toLocaleString('id-ID')}
+                                    </strong>
+                                  </div>
+                                  <div>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", display: "block" }}>WAKTU PENGIRIMAN</span>
+                                    <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>
+                                      {rankData.proposal.delivery_days} Hari
+                                    </strong>
+                                  </div>
+                                  <div>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", display: "block" }}>GARANSI</span>
+                                    <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>
+                                      {rankData.proposal.warranty_months} Bulan
+                                    </strong>
+                                  </div>
+                                </div>
+
+                                <div style={{ fontSize: 12, color: "var(--ui-text-muted)", lineHeight: 1.4, display: "flex", gap: 6, alignItems: "start" }}>
+                                  <Info size={14} color="var(--ui-text-muted)" style={{ flexShrink: 0, marginTop: 1 }} />
+                                  <span><strong>Alasan Peringkat:</strong> {dynamicReason}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 24, marginTop: 32, paddingTop: 24, borderTop: "1px solid var(--ui-border)" }}>

@@ -114,7 +114,7 @@ export default function AllRequests() {
                   <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 10px", borderRadius: 8, background: "rgba(34,197,94,0.1)", color: "#22c55e", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", transition: "all 0.3s ease" }}>
                     <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} /> Active RFQ
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, transition: "color 0.3s ease" }}>#{req.id}</div>
+                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, transition: "color 0.3s ease" }}>#{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</div>
                 </div>
 
                 <div>

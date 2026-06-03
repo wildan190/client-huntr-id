@@ -118,10 +118,10 @@ export default function Rfq() {
                   </div>
                 </div>
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 16, padding: 20, marginBottom: 20, border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <KV label="RFQ ID" value={`#${result.id}`} />
-                  <KV label="Title" value={result.title} />
-                  <KV label="Tender Duration" value={`${result.duration_days || 7} days`} />
-                  <KV label="Items" value={`${cartItems.length} items`} />
+                   <KV label="RFQ ID" value={`#${result.id ? String(result.id).substring(0, 8).toUpperCase() : ""}`} />
+                   <KV label="Title" value={result.title} />
+                   <KV label="Tender Duration" value={`${result.duration_days || 7} days`} />
+                   <KV label="Items" value={`${cartItems.length} items`} />
                 </div>
                 <button onClick={() => setResult(null)} style={primaryBtn}>Buat RFQ Baru</button>
               </div>
@@ -219,7 +219,7 @@ export default function Rfq() {
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280" }}>#{rfq.id} · {new Date(rfq.created_at).toLocaleDateString()}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280" }}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""} · {new Date(rfq.created_at).toLocaleDateString()}</div>
                         <h4 style={{ fontSize: 15, fontWeight: 800, color: "#f3f4f6", margin: "4px 0" }}>{rfq.title}</h4>
                       </div>
                       <StatusTag status={rfq.status} />

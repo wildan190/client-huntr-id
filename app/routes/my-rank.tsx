@@ -16,7 +16,7 @@ export default function MyRank() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [awardingProposal, setAwardingProposal] = useState<number | null>(null);
+  const [awardingProposal, setAwardingProposal] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const isBuyer = activeCompany?.type === 'buyer';
 
@@ -29,7 +29,7 @@ export default function MyRank() {
     }
   }, []);
 
-  const fetchRankings = async (companyId: number) => {
+  const fetchRankings = async (companyId: string) => {
     setLoading(true);
     try {
       const result = await apiGet(`/api/proposals/my-rank?company_id=${companyId}`);
@@ -41,7 +41,7 @@ export default function MyRank() {
     }
   };
 
-  const handleAwardWinner = async (proposalId: number, rfqId: number) => {
+  const handleAwardWinner = async (proposalId: string, rfqId: string) => {
     setAwardingProposal(proposalId);
     setError(null);
     try {

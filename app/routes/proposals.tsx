@@ -21,7 +21,7 @@ export default function Proposals() {
   const [openRfqs, setOpenRfqs] = useState<any[]>([]);
   const [rfqsLoading, setRfqsLoading] = useState(false);
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
-  const [vendorSubmittedRfqIds, setVendorSubmittedRfqIds] = useState<number[]>([]);
+  const [vendorSubmittedRfqIds, setVendorSubmittedRfqIds] = useState<string[]>([]);
   const [hasSubmittedForSelectedRfq, setHasSubmittedForSelectedRfq] = useState(false);
 
   // Proposal form state
@@ -67,11 +67,11 @@ export default function Proposals() {
     }
   };
 
-  const fetchVendorSubmissions = async (companyId: number) => {
+  const fetchVendorSubmissions = async (companyId: string | number) => {
     try {
       const data = await apiGet(`/api/proposals/my-rank?company_id=${companyId}`);
       const rankings = Array.isArray(data) ? data : data.rankings || [];
-      setVendorSubmittedRfqIds(rankings.map((item: any) => item.rfq_id));
+      setVendorSubmittedRfqIds(rankings.map((item: any) => String(item.rfq_id)));
     } catch (err) {
       console.error("Failed to fetch vendor submissions", err);
     }
@@ -184,10 +184,21 @@ export default function Proposals() {
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 20 }}>
                   {openRfqs.map(rfq => (
-                    <div key={rfq.id} style={cardStyle} onClick={() => handleSelectRfq(rfq)}>
+                    <div 
+                      key={rfq.id} 
+                      style={{
+                        ...cardStyle,
+                        ...(vendorSubmittedRfqIds.includes(rfq.id) ? { cursor: "default" } : {})
+                      }} 
+                      onClick={() => {
+                        if (!vendorSubmittedRfqIds.includes(rfq.id)) {
+                          handleSelectRfq(rfq);
+                        }
+                      }}
+                    >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                          <div style={iconContainerStyle}><FileText size={20} /></div>
-                         <div style={badgeStyle}>#{rfq.id}</div>
+                         <div style={badgeStyle}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}</div>
                       </div>
                       
                       <div style={{ marginTop: 16 }}>
@@ -203,14 +214,22 @@ export default function Proposals() {
                           <Calendar size={14} color="var(--ui-text-brand)" /> {new Date(rfq.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      {vendorSubmittedRfqIds.includes(rfq.id) && (
-                        <div style={{ marginTop: 8, fontSize: 11, color: "#f59e0b", fontWeight: 700 }}>
-                          ✅ Your company already submitted a proposal for this tender.
-                        </div>
-                      )}
 
                       {isVendor && (
-                        <button style={{ ...primaryBtnStyle, width: "100%", marginTop: 4 }}>
+                        <button 
+                          disabled={vendorSubmittedRfqIds.includes(rfq.id)}
+                          style={{ 
+                            ...primaryBtnStyle, 
+                            width: "100%", 
+                            marginTop: 12,
+                            ...(vendorSubmittedRfqIds.includes(rfq.id) ? {
+                              background: "var(--ui-border)",
+                              color: "var(--ui-text-muted)",
+                              cursor: "not-allowed",
+                              boxShadow: "none"
+                            } : {})
+                          }}
+                        >
                           Submit Quotation <ArrowRight size={14} style={{ marginLeft: 8 }} />
                         </button>
                       )}
@@ -244,7 +263,7 @@ export default function Proposals() {
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>Purchase Req ID</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>PR-{selectedRfq.id}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>PR-{selectedRfq.id ? String(selectedRfq.id).substring(0, 8).toUpperCase() : ""}</div>
                   </div>
                 </div>
 

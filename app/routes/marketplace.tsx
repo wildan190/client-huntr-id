@@ -98,7 +98,7 @@ export default function Marketplace() {
     });
   };
 
-  const updateQty = (id: number, delta: number) => {
+  const updateQty = (id: string, delta: number) => {
     setCart(prev => prev.map(i => {
       if (i.id === id) {
         const newQty = Math.max(1, i.qty + delta);
@@ -108,7 +108,7 @@ export default function Marketplace() {
     }));
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart(prev => prev.filter(i => i.id !== id));
   };
 

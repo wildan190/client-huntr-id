@@ -39,7 +39,7 @@ export default function MarketplaceDetail() {
     }
 
     setLoading(true);
-    getCatalogue(Number(id))
+    getCatalogue(id)
       .then((response) => {
         const payload = response?.data ?? response;
         const product = payload?.data ?? payload;

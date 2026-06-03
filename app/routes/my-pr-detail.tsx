@@ -22,14 +22,14 @@ export default function MyPurchaseRequisitionDetail() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
-      setError("Purchase requisition not found.");
+    if (!id || id === "NaN" || id === "undefined") {
+      setError("Invalid Purchase Requisition ID.");
       setLoading(false);
       return;
     }
 
     setLoading(true);
-    getRfq(Number(id))
+    getRfq(id)
       .then((response) => {
         const rfq = response?.rfq ?? response?.data ?? response;
         setRequest(rfq);
@@ -98,7 +98,7 @@ export default function MyPurchaseRequisitionDetail() {
             <div style={{ display: "grid", gap: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
                 <div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 1.1 }}>PR #{request.id}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 1.1 }}>PR #{request.id ? String(request.id).substring(0, 8).toUpperCase() : ""}</span>
                   <h1 style={{ margin: "12px 0 0", fontSize: 32, color: "#f8fafc" }}>{request.title}</h1>
                   <p style={{ margin: "10px 0 0", color: "#9ca3af", maxWidth: 720, lineHeight: 1.7 }}>{request.description || "No description provided."}</p>
                 </div>

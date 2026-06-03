@@ -17,7 +17,7 @@ export default function Receipts() {
     setLoading(true); setError(null);
     try {
       const data = await createReceipt({
-        po_id: Number(form.po_id),
+        po_id: form.po_id,
         received_qty: Number(form.received_qty),
         handover_document_path: form.handover_document_path,
       });
@@ -39,7 +39,7 @@ export default function Receipts() {
           </p>
 
           <Field label="Purchase Order ID (PO ID)" value={form.po_id} onChange={v => set("po_id", v)}
-            placeholder="e.g. 1" required type="number" />
+            placeholder="e.g. po-uuid" required type="text" />
           <Field label="Received Quantity" value={form.received_qty} onChange={v => set("received_qty", v)}
             placeholder="e.g. 5" required type="number" />
 
@@ -70,7 +70,7 @@ export default function Receipts() {
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-                <KV label="Receipt ID" value={result.id} />
+                <KV label="Receipt ID" value={result.id ? String(result.id).substring(0, 8).toUpperCase() : ""} />
                 <KV label="Received Qty" value={result.received_qty} />
                 <KV label="Status" value={<Tag color="green">{result.status}</Tag>} />
                 <KV label="DO Status" value={<Tag color="green">received</Tag>} />

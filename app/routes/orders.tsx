@@ -22,7 +22,7 @@ export default function Orders() {
   const [lastPage, setLastPage] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [activeTab, setActiveTab] = useState<"all" | "operational" | "historical">("all");
-  const [expandedPo, setExpandedPo] = useState<number | null>(null);
+  const [expandedPo, setExpandedPo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Import State
@@ -60,7 +60,7 @@ export default function Orders() {
     }
   }, [searchQuery, company]);
 
-  const fetchOrders = async (companyId: number, page: number, search: string = "") => {
+  const fetchOrders = async (companyId: string | number, page: number, search: string = "") => {
     try {
       setRefreshing(true);
       const res = await getOrders(companyId, page, 10, search);

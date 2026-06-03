@@ -44,6 +44,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function apiGet<T = any>(path: string): Promise<T> {
+  if (path.includes("NaN")) {
+    console.warn(`[API] Warning: Path contains NaN: ${path}`);
+  }
   console.log(`[API] GET ${path}`);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
@@ -54,6 +57,9 @@ export async function apiGet<T = any>(path: string): Promise<T> {
 }
 
 export async function apiPost<T = any>(path: string, body: Record<string, any>): Promise<T> {
+  if (path.includes("NaN") || JSON.stringify(body).includes("NaN")) {
+    console.warn(`[API] Warning: Path or Body contains NaN: ${path}`, body);
+  }
   console.log(`[API] POST ${path}`, body);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",

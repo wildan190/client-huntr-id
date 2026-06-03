@@ -403,7 +403,7 @@ export default function CompanyDetails() {
                             {c.type?.toUpperCase() || "WORKSPACE"}
                           </span>
                           <span style={{ fontSize: 11, color: "var(--ui-text-secondary)", background: "var(--ui-bg-input)", padding: "4px 10px", borderRadius: 999 }}>
-                            ID #{c.id}
+                            ID #{c.id ? String(c.id).substring(0, 8).toUpperCase() : ""}
                           </span>
                         </div>
                       </div>
@@ -505,7 +505,7 @@ export default function CompanyDetails() {
                 </span>
               </div>
               <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "4px 0 0", transition: "color 0.3s ease" }}>
-                Company ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>#{company.id}</strong> · Tax ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>{company.tax_id || "N/A"}</strong>
+                Company ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>#{company.id ? String(company.id).substring(0, 8).toUpperCase() : ""}</strong> · Tax ID: <strong style={{ color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>{company.tax_id || "N/A"}</strong>
               </p>
             </div>
           </div>

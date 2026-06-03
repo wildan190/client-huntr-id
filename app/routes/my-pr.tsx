@@ -52,7 +52,7 @@ export default function MyPurchaseRequisitions() {
 
   const filteredRequests = requests.filter(r => 
     r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.id.toString().includes(searchTerm)
+    (r.id ? String(r.id).toLowerCase().includes(searchTerm.toLowerCase()) : false)
   );
 
   return (
@@ -104,7 +104,7 @@ export default function MyPurchaseRequisitions() {
                       <div onClick={() => navigate(`/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
                       <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>PR #{req.id}</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>PR #{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                             <Calendar size={12} /> {new Date(req.created_at).toLocaleDateString()}
                           </div>

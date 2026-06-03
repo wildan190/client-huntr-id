@@ -24,7 +24,7 @@ export default function ManagerApprovals() {
   const [approvals, setApprovals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
 
@@ -60,7 +60,7 @@ export default function ManagerApprovals() {
     }
   };
 
-  const handleApprove = async (proposalId: number) => {
+  const handleApprove = async (proposalId: string) => {
     setApprovingId(proposalId);
     setError(null);
     try {
@@ -217,7 +217,7 @@ export default function ManagerApprovals() {
                 </div>
                 <div style={detailRowStyle}>
                   <span style={detailKeyStyle}>RFQ ID:</span>
-                  <span style={detailValueStyle}>#{selectedProposal.rfq_id}</span>
+                  <span style={detailValueStyle}>#{selectedProposal.rfq_id ? String(selectedProposal.rfq_id).substring(0, 8).toUpperCase() : ""}</span>
                 </div>
               </div>
 

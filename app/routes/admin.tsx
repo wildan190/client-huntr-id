@@ -250,7 +250,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [auditModal, setAuditModal] = useState<{ company: Company; action: "approve" | "decline" } | null>(null);
 
   // Pagination states
