@@ -19,7 +19,7 @@ interface AdminUser {
 }
 
 interface CompanyDoc {
-  id: number;
+  id: string;
   name: string;
   type: string;
   file_path: string;
@@ -27,11 +27,13 @@ interface CompanyDoc {
 }
 
 interface Company {
-  id: number;
+  id: string;
   name: string;
   type: string;
   status: "pending" | "approved" | "rejected";
   tax_id?: string;
+  formatted_tax_id?: string;
+  country?: string;
   email?: string;
   phone?: string;
   address?: string;
@@ -611,7 +613,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                           {[
-                            { label: "Tax ID (NPWP)", value: company.tax_id },
+                            { label: "Tax ID (NPWP)", value: company.formatted_tax_id || company.tax_id },
                             { label: "Phone", value: company.phone },
                             { label: "Address", value: company.address },
                             { label: "Bank", value: company.bank_name ? `${company.bank_name} — ${company.bank_account} (${company.bank_account_name})` : null },

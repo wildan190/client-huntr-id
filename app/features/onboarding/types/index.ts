@@ -1,6 +1,7 @@
 export interface CompanyFormData {
   company_name: string;
   tax_id: string;
+  country: string;
   email: string;
   phone: string;
   type: string;

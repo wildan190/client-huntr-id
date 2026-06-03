@@ -39,7 +39,6 @@ export default function Layout({ children, title, subtitle }: Props) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
-  const [notifButtonPos, setNotifButtonPos] = useState({ top: 0, right: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const notifButtonRef = React.useRef<HTMLButtonElement>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
@@ -124,17 +123,6 @@ export default function Layout({ children, title, subtitle }: Props) {
       document.body.style.overflow = prev;
     };
   }, [sidebarOpen]);
-
-  // Calculate notification button position for floating dropdown
-  useEffect(() => {
-    if (showNotifications && notifButtonRef.current && !isMobile) {
-      const rect = notifButtonRef.current.getBoundingClientRect();
-      setNotifButtonPos({
-        top: rect.bottom + 20,
-        right: window.innerWidth - rect.right - 40,
-      });
-    }
-  }, [showNotifications, isMobile]);
 
   const fetchUnreadCount = async (userId: number) => {
     try {
@@ -377,17 +365,14 @@ export default function Layout({ children, title, subtitle }: Props) {
                   <div
                     className="huntr-notif-dropdown"
                     style={{
-                    background: "var(--ui-bg-card)", 
-                    borderRadius: 20, 
-                    border: "1px solid var(--ui-border)",
-                    boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
-                    zIndex: 99999,
-                    overflow: "hidden",
-                    ...(isMobile ? {} : {
-                      top: `${notifButtonPos.top}px`,
-                      right: `${notifButtonPos.right}px`,
-                    }),
-                  }}>
+                      background: "var(--ui-bg-card)", 
+                      borderRadius: 20, 
+                      border: "1px solid var(--ui-border)",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
+                      zIndex: 99999,
+                      overflow: "hidden",
+                    }}
+                  >
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Notifications</span>

@@ -42,6 +42,7 @@ export const useCompanyViewModel = () => {
     setEditForm({
       name: found.name || "",
       tax_id: found.tax_id || "",
+      country: found.country || "ID",
       email: found.email || "",
       phone: found.phone || "",
       provincy_country: found.provincy_country || "Indonesia",

@@ -20,22 +20,35 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
       return (
         <SlideSection title="Profil Perusahaan" subtitle="Informasi dasar & identitas" icon={<Building2 size={22} className="text-orange-500" />} accentColor="#f97316">
           <div className="flex flex-col gap-2">
-            <FormLabel>NPWP Perusahaan *</FormLabel>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="01.234.567.8-901.000" 
-                value={formData.tax_id} 
-                onChange={e => updateField("tax_id", e.target.value)} 
-                className="flex-1 px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm" 
-              />
-              <button 
-                onClick={handleVerifyNpwp} 
-                disabled={isVerifyingNpwp || !formData.tax_id} 
-                className={`px-4 md:px-6 rounded-xl font-bold text-xs transition-all ${npwpVerifiedData ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400" : "bg-orange-500/10 border border-orange-500/20 text-orange-400 hover:bg-orange-500/20"}`}
+            <FormLabel>Negara & Tax ID (NPWP) *</FormLabel>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <select
+                value={formData.country}
+                onChange={e => updateField("country", e.target.value)}
+                className="px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
               >
-                {isVerifyingNpwp ? <Loader2 size={16} className="animate-spin" /> : npwpVerifiedData ? <CheckCircle2 size={16} /> : "Verifikasi"}
-              </button>
+                <option value="ID">Indonesia</option>
+                <option value="MY">Malaysia</option>
+                <option value="SG">Singapore</option>
+              </select>
+              <div className="md:col-span-2 flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder={formData.country === 'ID' ? "01.234.567.8-901.000" : "Tax ID / UEN"} 
+                  value={formData.tax_id} 
+                  onChange={e => updateField("tax_id", e.target.value)} 
+                  className="flex-1 px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm" 
+                />
+                {formData.country === 'ID' && (
+                  <button 
+                    onClick={handleVerifyNpwp} 
+                    disabled={isVerifyingNpwp || !formData.tax_id} 
+                    className={`px-4 md:px-6 rounded-xl font-bold text-xs transition-all ${npwpVerifiedData ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400" : "bg-orange-500/10 border border-orange-500/20 text-orange-400 hover:bg-orange-500/20"}`}
+                  >
+                    {isVerifyingNpwp ? <Loader2 size={16} className="animate-spin" /> : npwpVerifiedData ? <CheckCircle2 size={16} /> : "Verifikasi"}
+                  </button>
+                )}
+              </div>
             </div>
             {npwpVerifiedData && (
               <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">

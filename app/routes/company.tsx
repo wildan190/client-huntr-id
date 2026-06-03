@@ -82,7 +82,7 @@ export default function CompanyDetails() {
                         <span className="text-[var(--ui-text-muted)]">Status</span>
                         <span className={`font-black uppercase tracking-tighter ${c.status === 'approved' ? 'text-emerald-500' : 'text-amber-500'}`}>{c.status}</span>
                       </div>
-                      <div className="text-xs text-[var(--ui-text-muted)] truncate">{c.tax_id || "No NPWP registered"}</div>
+                      <div className="text-xs text-[var(--ui-text-muted)] truncate">{c.formatted_tax_id || c.tax_id || "No NPWP registered"}</div>
                     </div>
                   </button>
                 );
@@ -110,23 +110,50 @@ export default function CompanyDetails() {
   ];
 
   return (
-    <Layout title="Company Settings" subtitle="Manage your corporate identity and team.">
+    <Layout title={vm.company.name} subtitle="Company Workspace Profile">
       <div className="flex flex-col gap-8 w-full">
-        {/* Header Card */}
-        <div className="bg-[var(--ui-bg-card)] border border-[var(--ui-border)] rounded-[32px] p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        {/* Header Section */}
+        <div className="flex justify-between items-start flex-wrap gap-6">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/20">
-              <Building2 size={32} />
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-3xl bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border-2 border-[var(--ui-border)] group-hover:border-orange-500/50 transition-all">
+                {vm.company.logo_path ? (
+                  <img src={getAssetUrl(vm.company.logo_path)} className="w-full h-full object-cover" alt={vm.company.name} />
+                ) : <Building2 size={36} className="text-orange-500" />}
+                <button 
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <Camera className="text-white" size={24} />
+                </button>
+                <input 
+                  id="logo-upload"
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) vm.handleLogoUpload(file);
+                  }}
+                />
+              </div>
+              {vm.logoUploading && (
+                <div className="absolute inset-0 bg-black/20 rounded-3xl flex items-center justify-center">
+                  <Loader2 className="animate-spin text-white" size={20} />
+                </div>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-black text-[var(--ui-text-primary)] m-0">{vm.company.name}</h2>
-                <span className="px-3 py-1 rounded-xl bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest">{vm.company.type}</span>
+                <h2 className="text-3xl font-black text-[var(--ui-text-primary)] m-0">{vm.company.name}</h2>
+                <div className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${statusColor[vm.company.status] || "text-gray-500 bg-gray-500/10 border-gray-500/20"}`}>
+                  {vm.company.status}
+                </div>
               </div>
-              <p className="text-sm text-[var(--ui-text-muted)] mt-2">
-                ID: <span className="text-[var(--ui-text-primary)] font-bold">#{vm.company.id?.substring(0,8).toUpperCase()}</span>
-                <span className="mx-3 opacity-20">|</span>
-                NPWP: <span className="text-[var(--ui-text-primary)] font-bold">{vm.company.tax_id || "N/A"}</span>
+              <p className="text-sm text-[var(--ui-text-secondary)] mt-2 flex items-center gap-4">
+                <span className="flex items-center gap-1.5"><Building2 size={14} className="text-orange-500" /> {vm.company.type.toUpperCase()}</span>
+                <span className="w-1 h-1 rounded-full bg-[var(--ui-border)]"></span>
+                NPWP: <span className="text-[var(--ui-text-primary)] font-bold">{vm.company.formatted_tax_id || vm.company.tax_id || "N/A"}</span>
               </p>
             </div>
           </div>
@@ -206,6 +233,18 @@ export default function CompanyDetails() {
                     <>
                       <EditField label="Company Name" value={vm.editForm.name} onChange={v => vm.setEditForm({...vm.editForm, name: v})} />
                       <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">Country</span>
+                        <select
+                          value={vm.editForm.country}
+                          onChange={e => vm.setEditForm({...vm.editForm, country: e.target.value})}
+                          className="w-full px-5 py-3.5 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none focus:border-orange-500/50 transition-all"
+                        >
+                          <option value="ID">Indonesia</option>
+                          <option value="MY">Malaysia</option>
+                          <option value="SG">Singapore</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">Industry Type</span>
                         <select
                           value={vm.editForm.industry_type}
@@ -229,7 +268,7 @@ export default function CompanyDetails() {
                     <>
                       <DisplayField label="Company Name" value={vm.company.name} />
                       <DisplayField label="Industry Type" value={vm.company.industry_type} />
-                      <DisplayField label="Tax ID" value={vm.company.tax_id} />
+                      <DisplayField label="Tax ID" value={vm.company.formatted_tax_id || vm.company.tax_id} />
                       <DisplayField label="Email Address" value={vm.company.email} />
                       <DisplayField label="Phone Number" value={vm.company.phone} />
                       <div className="md:col-span-2">

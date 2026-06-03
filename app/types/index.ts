@@ -15,6 +15,8 @@ export interface Company {
   id: number;
   name: string;
   tax_id: string;
+  formatted_tax_id?: string;
+  country?: string;
   type: 'buyer' | 'vendor';
   status: 'pending' | 'approved' | 'rejected';
   logo_url?: string;

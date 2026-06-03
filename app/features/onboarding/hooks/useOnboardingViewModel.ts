@@ -22,7 +22,7 @@ export const useOnboardingViewModel = () => {
 
   // --- State: Form Data ---
   const [formData, setFormData] = useState<CompanyFormData>({
-    company_name: "", tax_id: "", email: "", phone: "",
+    company_name: "", tax_id: "", country: "ID", email: "", phone: "",
     type: "buyer", industry_type: "", about: "", region: "",
     provincy_country: "Indonesia", regency: "", city: "",
     zip_code: "", address: "", bank_name: "", bank_account: "",
