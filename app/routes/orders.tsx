@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from "react-router";
 import Layout from "../components/Layout";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
-  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText
+  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard
 } from "lucide-react";
 import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
+import PaymentModal from "../components/PaymentModal";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ export default function Orders() {
   const [lastPage, setLastPage] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [activeTab, setActiveTab] = useState<"all" | "operational" | "historical">("all");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [expandedPo, setExpandedPo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -582,14 +585,34 @@ export default function Orders() {
                                 </div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
                                 {inv.type === 'proforma' && (
-                                  <a 
-                                    href={getFullApiUrl(`/api/invoices/${inv.id}/print`)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline"
-                                  >
-                                    <FileText size={12} /> Print Invoice
-                                  </a>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                    <a 
+                                      href={getFullApiUrl(`/api/invoices/${inv.id}/print`)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="mt-2 flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline"
+                                    >
+                                      <FileText size={12} /> Print Invoice
+                                    </a>
+                                    
+                                    {inv.status === 'unpaid' && company.type === 'buyer' && (
+                                      <button 
+                                        onClick={() => {
+                                          setSelectedInvoice(inv);
+                                          setShowPaymentModal(true);
+                                        }}
+                                        style={{
+                                          width: "100%", padding: "8px 12px", borderRadius: 10,
+                                          background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                                          color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+                                          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                                          boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                                        }}
+                                      >
+                                        <CreditCard size={12} /> Pay Now
+                                      </button>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             ))}
@@ -640,7 +663,18 @@ export default function Orders() {
             </button>
           </div>
         )}
-      </div>
+        </div>
+
+        {showPaymentModal && selectedInvoice && (
+          <PaymentModal 
+            invoice={selectedInvoice} 
+            onClose={() => setShowPaymentModal(false)} 
+            onSuccess={() => {
+              setShowPaymentModal(false);
+              fetchOrders(company.id, currentPage, searchQuery, activeTab);
+            }}
+          />
+        )}
       </div>
     </Layout>
   );
