@@ -17,6 +17,7 @@ import {
   Medal,
   Menu,
   X,
+  History,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -67,6 +68,7 @@ export default function Layout({ children, title, subtitle }: Props) {
     // Common but context-aware
       ...(isVendorComp ? [{ to: "/all-requests", label: "Opportunities", Icon: Lightbulb }] : []),
       { to: "/orders",    label: "Purchase Order",   Icon: ReceiptText },
+      { to: "/payment-history", label: "Payment History", Icon: History },
       { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
     { to: "/company",   label: "Company",    Icon: Building2 },
     { to: "/account",   label: "Settings",   Icon: Settings },

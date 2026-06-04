@@ -21,6 +21,7 @@ export default [
   route("my-rank", "routes/my-rank.tsx"),
   route("orders", "routes/orders.tsx"),
   route("receipts", "routes/receipts.tsx"),
+  route("payment-history", "routes/payment-history.tsx"),
   route("notifications", "routes/notifications.tsx"),
   route("account", "routes/account.tsx"),
   route("admin", "routes/admin.tsx"),

@@ -572,7 +572,9 @@ export default function Orders() {
                                 display: "flex", flexDirection: "column", gap: 4, minWidth: 200
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>{inv.type} Invoice</span>
+                                  <span style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>
+                                    {inv.status === 'paid' ? 'Tax' : 'Proforma'} Invoice
+                                  </span>
                                   <span style={{ 
                                     fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6,
                                     background: inv.status === 'paid' ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)",

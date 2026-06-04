@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, CreditCard, QrCode, Building2, Wallet, Loader2, CheckCircle2, Copy, RefreshCw, AlertCircle } from "lucide-react";
+import { X, CreditCard, QrCode, Building2, Wallet, Loader2, CheckCircle2, Copy, RefreshCw, AlertCircle, ChevronRight } from "lucide-react";
 import { initiatePayment, getPaymentStatus } from "../lib/api";
 
 interface PaymentModalProps {
@@ -14,6 +14,8 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
   const [paymentData, setPaymentData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isSuccess = paymentData && (paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid');
 
   // Auto-polling for status
   useEffect(() => {
@@ -47,11 +49,11 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
       
       if (res && res.payment) {
         const status = res.payment.status;
-        const isSuccess = status === 'settlement' || status === 'capture' || status === 'paid';
+        const isCurrentlySuccess = status === 'settlement' || status === 'capture' || status === 'paid';
         
         setPaymentData(res.payment);
         
-        if (isSuccess) {
+        if (isCurrentlySuccess) {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
@@ -63,7 +65,6 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
       }
     } catch (err: any) {
       console.error("Failed to check payment status", err);
-      // If 404, the payment record might have been lost, stop polling
       if (err.status === 404) {
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
@@ -75,13 +76,6 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
       setChecking(false);
     }
   };
-
-  const paymentMethods = [
-    { id: "qris", label: "QRIS", icon: <QrCode size={20} />, description: "Scan with any banking or e-wallet app" },
-    { id: "bca_va", label: "BCA Virtual Account", icon: <Building2 size={20} />, description: "Pay via m-BCA or ATM" },
-    { id: "mandiri_va", label: "Mandiri Bill", icon: <Building2 size={20} />, description: "Pay via Livin' or ATM" },
-    { id: "dana", label: "DANA", icon: <Wallet size={20} />, description: "Direct payment with DANA balance" },
-  ];
 
   const handleSelectMethod = async (method: string) => {
     setLoading(true);
@@ -96,166 +90,172 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
     }
   };
 
+  const paymentMethods = [
+    { id: "qris", label: "QRIS", icon: <QrCode size={18} />, description: "Scan with e-wallet" },
+    { id: "bca_va", label: "BCA VA", icon: <Building2 size={18} />, description: "m-BCA / ATM" },
+    { id: "mandiri_va", label: "Mandiri Bill", icon: <Building2 size={18} />, description: "Livin' / ATM" },
+    { id: "dana", label: "DANA", icon: <Wallet size={18} />, description: "Direct pay" },
+  ];
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
   };
 
-  const isSuccess = paymentData && (paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid');
-
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20,
-    }}>
-      <div style={{
-        background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 32,
-        width: "100%", maxWidth: 480, padding: 32, display: "flex", flexDirection: "column", gap: 24,
-        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-end sm:items-center justify-center z-[1100] p-0 sm:p-4">
+      <div className="bg-[var(--ui-bg-card)] border-t sm:border border-[var(--ui-border)] rounded-t-[32px] sm:rounded-[32px] w-full max-w-[440px] max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
+        
+        {/* Header */}
+        <div className="px-6 pt-8 pb-4 flex justify-between items-start sticky top-0 bg-[var(--ui-bg-card)] z-10">
           <div>
-            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)" }}>Huntr Pay</h3>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ui-text-muted)" }}>Secure payment for Invoice #{invoice.id.substring(0, 8).toUpperCase()}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-6 h-6 rounded-lg bg-orange-500 flex items-center justify-center">
+                <CreditCard size={14} className="text-white" />
+              </div>
+              <h3 className="text-lg font-black text-[var(--ui-text-primary)] tracking-tight">Huntr Pay</h3>
+            </div>
+            <p className="text-xs text-[var(--ui-text-muted)] font-medium">Inv: #{invoice.id.substring(0, 8).toUpperCase()}</p>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer" }}><X size={24} /></button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/5 text-[var(--ui-text-muted)] transition-colors">
+            <X size={20} />
+          </button>
         </div>
 
-        {!paymentData ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ padding: "16px 20px", background: "rgba(249,115,22,0.05)", borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em" }}>Amount to Pay</div>
-              <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)" }}>IDR {Number(invoice.amount).toLocaleString()}</div>
-            </div>
-
-            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-secondary)", margin: "8px 0 4px" }}>Select Payment Method</p>
-            
-            {paymentMethods.map(m => (
-              <button
-                key={m.id}
-                onClick={() => handleSelectMethod(m.id)}
-                disabled={loading}
-                style={{
-                  display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", borderRadius: 20,
-                  background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                  cursor: "pointer", textAlign: "left", transition: "all 0.2s ease"
-                }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "#f97316"}
-                onMouseLeave={e => e.currentTarget.style.borderColor = "var(--ui-border-input)"}
-              >
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f97316" }}>
-                  {m.icon}
+        <div className="px-6 pb-8 flex flex-col gap-5">
+          {!paymentData ? (
+            <>
+              {/* Amount Display */}
+              <div className="p-5 bg-orange-500/5 rounded-2xl border border-orange-500/10">
+                <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Total Payment</div>
+                <div className="text-2xl font-black text-[var(--ui-text-primary)] leading-none">
+                  IDR {Number(invoice.amount).toLocaleString()}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>{m.label}</div>
-                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>{m.description}</div>
-                </div>
-              </button>
-            ))}
-
-            {loading && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: 20 }}>
-                <Loader2 size={24} className="animate-spin" color="#f97316" />
-                <span style={{ fontSize: 14, color: "var(--ui-text-muted)" }}>Contacting Midtrans...</span>
               </div>
-            )}
-            {error && <div style={{ color: "#f87171", fontSize: 13, textAlign: "center" }}>{error}</div>}
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24, alignItems: "center", textAlign: "center" }}>
-            <div style={{ 
-              width: 64, height: 64, borderRadius: "50%", 
-              background: (paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid') ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", 
-              display: "flex", alignItems: "center", justifyContent: "center", 
-              color: (paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid') ? "#22c55e" : "#f97316" 
-            }}>
-              {(paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid') ? (
-                <CheckCircle2 size={32} />
-              ) : (
-                <Loader2 size={32} className="animate-spin" />
-              )}
-            </div>
-            
-            <div>
-              <h4 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>
-                {(paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid') 
-                  ? "Payment Successful!" 
-                  : "Awaiting Payment"}
-              </h4>
-              <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ui-text-muted)" }}>
-                {(paymentData.status === 'settlement' || paymentData.status === 'capture' || paymentData.status === 'paid')
-                  ? "Your transaction has been processed."
-                  : "Please complete your payment below"}
-              </p>
-            </div>
 
-            {(paymentData.status === 'pending') && (
-              <>
-                {paymentData.payment_method === 'qris' && paymentData.payment_info.qr_url && (
-                  <div style={{ background: "#fff", padding: 16, borderRadius: 20 }}>
-                    <img src={paymentData.payment_info.qr_url} alt="QRIS" style={{ width: 240, height: 240 }} />
-                    <p style={{ color: "#000", fontSize: 12, fontWeight: 700, margin: "8px 0 0" }}>Scan QRIS with ShopeePay, GoPay, or Mobile Banking</p>
-                  </div>
-                )}
-
-                {paymentData.payment_method.includes('_va') && paymentData.payment_info.va_number && (
-                  <div style={{ width: "100%", background: "var(--ui-bg-input)", padding: 24, borderRadius: 24, display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>Virtual Account Number</div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: "#f97316", letterSpacing: 2 }}>{paymentData.payment_info.va_number}</div>
-                      <button onClick={() => copyToClipboard(paymentData.payment_info.va_number)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ui-text-muted)" }}>
-                        <Copy size={20} />
-                      </button>
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Bank: {paymentData.payment_method.split('_')[0].toUpperCase()}</div>
-                  </div>
-                )}
-
-                {paymentData.payment_method === 'dana' && paymentData.payment_info.checkout_url && (
-                  <div style={{ width: "100%", background: "rgba(249,115,22,0.05)", padding: 24, borderRadius: 24, textAlign: "center" }}>
-                    <p style={{ fontSize: 14, color: "var(--ui-text-primary)", marginBottom: 16 }}>Click the button below to complete payment with DANA</p>
-                    <a 
-                      href={paymentData.payment_info.checkout_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "inline-block", padding: "12px 24px", borderRadius: 12, background: "#008CFF",
-                        color: "#fff", fontWeight: 700, textDecoration: "none"
-                      }}
+              <div className="flex flex-col gap-3">
+                <p className="text-[11px] font-black text-[var(--ui-text-muted)] uppercase tracking-widest px-1">Select Method</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {paymentMethods.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => !loading && handleSelectMethod(m.id)}
+                      disabled={loading}
+                      className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] hover:border-orange-500/50 transition-all group active:scale-[0.98]"
                     >
-                      Open DANA Checkout
-                    </a>
-                  </div>
-                )}
-              </>
-            )}
+                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                        {m.icon}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="text-sm font-bold text-[var(--ui-text-primary)] leading-tight">{m.label}</div>
+                        <div className="text-[10px] text-[var(--ui-text-muted)] font-medium">{m.description}</div>
+                      </div>
+                      <ChevronRight size={16} className="text-[var(--ui-text-muted)] opacity-0 group-hover:opacity-100 transition-all" />
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            <button 
-              onClick={isSuccess ? onSuccess : checkStatus}
-              disabled={checking}
-              style={{
-                width: "100%", padding: 16, borderRadius: 16, 
-                background: isSuccess 
-                  ? "#22c55e" 
-                  : "linear-gradient(135deg,#f97316,#f59e0b)",
-                color: "#fff", fontWeight: 700, border: "none", cursor: checking ? "not-allowed" : "pointer", 
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                boxShadow: "0 8px 20px rgba(249,115,22,0.2)"
-              }}
-            >
-              {checking ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : isSuccess ? (
-                "Continue"
-              ) : (
-                <>
-                  <RefreshCw size={18} />
-                  I've Completed Payment
-                </>
+              {loading && (
+                <div className="flex items-center justify-center gap-3 py-4">
+                  <Loader2 size={18} className="animate-spin text-orange-500" />
+                  <span className="text-xs font-bold text-[var(--ui-text-muted)] uppercase tracking-widest">Connecting...</span>
+                </div>
               )}
-            </button>
-          </div>
-        )}
+              {error && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold text-center flex items-center justify-center gap-2">
+                  <AlertCircle size={14} /> {error}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col gap-6 items-center text-center animate-in fade-in zoom-in-95 duration-300">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all ${isSuccess ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-orange-500/10 text-orange-500 shadow-orange-500/10'}`}>
+                {isSuccess ? <CheckCircle2 size={32} /> : <Loader2 size={32} className="animate-spin" />}
+              </div>
+              
+              <div>
+                <h4 className="text-xl font-black text-[var(--ui-text-primary)] leading-tight mb-1">
+                  {isSuccess ? "Payment Received!" : "Complete Payment"}
+                </h4>
+                <p className="text-xs text-[var(--ui-text-muted)] font-medium px-4">
+                  {isSuccess ? "Your transaction has been confirmed successfully." : "Please follow the instructions below to pay."}
+                </p>
+              </div>
+
+              {!isSuccess && (
+                <div className="w-full flex flex-col gap-4">
+                  {paymentData.payment_method === 'qris' && paymentData.payment_info.qr_url && (
+                    <div className="bg-white p-4 rounded-[28px] self-center shadow-inner">
+                      <img src={paymentData.payment_info.qr_url} alt="QRIS" className="w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]" />
+                      <div className="mt-3 py-2 px-4 bg-gray-100 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-tighter">Scan with any e-wallet</div>
+                    </div>
+                  )}
+
+                  {paymentData.payment_method.includes('_va') && (
+                    <div className="w-full bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] p-6 rounded-[24px] flex flex-col gap-4">
+                      <div>
+                        <div className="text-[10px] font-black text-[var(--ui-text-muted)] uppercase tracking-widest mb-3">VA Number ({paymentData.payment_method.split('_')[0].toUpperCase()})</div>
+                        <div className="flex items-center justify-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5 group relative">
+                          <div className="text-xl sm:text-2xl font-black text-orange-500 tracking-[0.15em] break-all leading-tight">
+                            {paymentData.payment_info.va_number || paymentData.payment_info.bill_key}
+                          </div>
+                          <button 
+                            onClick={() => copyToClipboard(paymentData.payment_info.va_number || paymentData.payment_info.bill_key)} 
+                            className="p-2 rounded-lg bg-orange-500 text-white shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all"
+                          >
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {paymentData.payment_method === 'mandiri_va' && paymentData.payment_info.biller_code && (
+                        <div>
+                          <div className="text-[10px] font-black text-[var(--ui-text-muted)] uppercase tracking-widest mb-2">Biller Code</div>
+                          <div className="text-lg font-black text-[var(--ui-text-primary)]">{paymentData.payment_info.biller_code}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {paymentData.payment_method === 'dana' && paymentData.payment_info.checkout_url && (
+                    <div className="w-full bg-blue-500/5 border border-blue-500/10 p-6 rounded-[24px] text-center">
+                      <p className="text-xs text-[var(--ui-text-primary)] font-bold mb-4 px-2 line-clamp-2">Authorize the payment on your DANA account</p>
+                      <a 
+                        href={paymentData.payment_info.checkout_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 py-3 px-6 rounded-xl bg-[#008CFF] text-white text-sm font-black shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 transition-all"
+                      >
+                        <Wallet size={16} /> Open DANA Wallet
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button 
+                onClick={isSuccess ? onSuccess : checkStatus}
+                disabled={checking}
+                className={`w-full py-4 rounded-2xl text-sm font-black flex items-center justify-center gap-3 shadow-xl transition-all active:scale-[0.98] ${
+                  isSuccess 
+                    ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
+                    : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-orange-500/20'
+                }`}
+              >
+                {checking ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : isSuccess ? (
+                  "Return to Dashboard"
+                ) : (
+                  <>
+                    <RefreshCw size={18} />
+                    Confirm Payment
+                  </>
+                )}
+              </button>
+     </div>
+          )}
+        </div>
       </div>
     </div>
   );
