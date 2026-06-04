@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   History,
+  MessageSquare,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -63,6 +64,7 @@ export default function Layout({ children, title, subtitle }: Props) {
     // Vendor specific
     ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
     ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/proposals", label: "Proposals", Icon: Trophy }] : []),
+    { to: "/negotiation", label: "Negotiations", Icon: MessageSquare },
     ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
     
     // Common but context-aware

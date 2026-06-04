@@ -389,7 +389,7 @@ export default function Orders() {
                   </div>
 
                   <div style={{ display: "flex", gap: 12 }}>
-                    {company.type === 'vendor' && po.status === 'published' && (
+                    {company.type === 'vendor' && (po.status === 'published' || po.status === 'issued') && (
                       <button
                         onClick={() => handleConfirmPo(po.id)}
                         disabled={confirmingId === po.id}

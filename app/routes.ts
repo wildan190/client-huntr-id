@@ -18,6 +18,7 @@ export default [
   route("catalogue", "routes/catalogue.tsx"),
   route("rfq", "routes/rfq.tsx"),
   route("proposals", "routes/proposals.tsx"),
+  route("negotiation", "routes/negotiation.tsx"),
   route("my-rank", "routes/my-rank.tsx"),
   route("orders", "routes/orders.tsx"),
   route("receipts", "routes/receipts.tsx"),

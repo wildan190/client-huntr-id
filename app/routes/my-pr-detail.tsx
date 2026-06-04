@@ -1,8 +1,173 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
-import { getRfq, apiGet } from "../lib/api";
-import { ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, Loader2, Trophy, Building2, ShieldCheck, ChevronRight, Award, Info } from "lucide-react";
+import { getRfq, apiGet, apiPost } from "../lib/api";
+import { 
+  ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, 
+  Loader2, Trophy, Building2, ShieldCheck, ChevronRight, Award, Info, MessageSquare, 
+  X, DollarSign, AlertCircle, RefreshCw, BarChart3, AlertTriangle, Briefcase
+} from "lucide-react";
+
+// Negotiation Modal Component (Reused)
+function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onClose: () => void, onSuccess: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [paymentScheme, setPaymentScheme] = useState(proposal.payment_term || "");
+  const [deliveryTerms, setDeliveryTerms] = useState(proposal.delivery_time || "");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    // Force items to be an array and try different keys
+    const rawItems = proposal.items || proposal.proposal_items || [];
+    
+    if (Array.isArray(rawItems) && rawItems.length > 0) {
+      const mappedItems = rawItems.map((it: any) => {
+        const rfqItem = it.rfq_item || it.rfqItem;
+        const catalogue = rfqItem?.catalogue || it.catalogue;
+        return {
+          proposal_item_id: it.id,
+          inventory_name: catalogue?.name || rfqItem?.catalogue?.name || it.name || "Item",
+          original_price: it.price_offer || 0,
+          negotiated_price: it.price_offer || 0,
+          negotiated_qty: rfqItem?.qty || it.qty || 1,
+          uom: catalogue?.uom || rfqItem?.catalogue?.uom || it.uom || "Pc"
+        };
+      });
+      setItems(mappedItems);
+    } else if (proposal.price_offer) {
+      // Fallback for legacy proposals or when items are not loaded
+      setItems([{
+        proposal_item_id: "legacy",
+        inventory_name: proposal.rfq?.title || "Total Proposal Offer",
+        original_price: proposal.price_offer,
+        negotiated_price: proposal.price_offer,
+        negotiated_qty: 1,
+        uom: "Package"
+      }]);
+    }
+  }, [proposal]);
+
+  const handleItemPriceChange = (proposalItemId: string, newPrice: string) => {
+    setItems(prev => prev.map(it => it.proposal_item_id === proposalItemId ? { ...it, negotiated_price: Number(newPrice) } : it));
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await apiPost("/api/orders/negotiate", {
+        proposal_id: proposal.id,
+        items: items,
+        payment_scheme: paymentScheme,
+        delivery_terms: deliveryTerms,
+        buyer_remarks: notes
+      });
+      alert("Negotiation request sent to vendor!");
+      onSuccess();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send negotiation.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }}>
+      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 32, width: "100%", maxWidth: 600, maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
+        <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)" }}>Negotiation Request</h3>
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>Proposal by {proposal.company?.name}</p>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer" }}><X size={24} /></button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "block" }}>Proposed Unit Prices</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {items.length === 0 ? (
+                <div style={{ padding: 20, textAlign: "center", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px dashed var(--ui-border)", color: "var(--ui-text-muted)", fontSize: 13 }}>
+                  No items found in this proposal.
+                </div>
+              ) : items.map((it, idx) => (
+                <div key={idx} style={{ padding: 16, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-input)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>{it.inventory_name}</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>Qty: {it.negotiated_qty} {it.uom} · Original: Rp {Number(it.original_price).toLocaleString()}</div>
+                  </div>
+                  <div style={{ width: 140 }}>
+                    <div style={{ position: "relative" }}>
+                      <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)" }}>Rp</span>
+                      <input 
+                        type="number"
+                        value={it.negotiated_price}
+                        onChange={(e) => handleItemPriceChange(it.proposal_item_id, e.target.value)}
+                        style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10, padding: "8px 12px 8px 32px", fontSize: 14, fontWeight: 800, color: "#f97316", outline: "none" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Payment Scheme</label>
+              <select 
+                value={paymentScheme}
+                onChange={e => setPaymentScheme(e.target.value)}
+                style={{ width: "100%", background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: 12, fontSize: 14, color: "var(--ui-text-primary)", fontWeight: 700, appearance: "auto" }}
+              >
+                <option value="7 days">Net 7 Days</option>
+                <option value="14 days">Net 14 Days</option>
+                <option value="30 days">Net 30 Days</option>
+                <option value="60 days">Net 60 Days</option>
+                <option value="COD">Cash on Delivery (COD)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Delivery Info</label>
+              <select 
+                value={deliveryTerms}
+                onChange={e => setDeliveryTerms(e.target.value)}
+                style={{ width: "100%", background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: 12, fontSize: 14, color: "var(--ui-text-primary)", fontWeight: 700, appearance: "auto" }}
+              >
+                <option value="3">3 Days (Express)</option>
+                <option value="7">7 Days (Standard)</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+                <option value="60">60 Days</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Negotiation Notes</label>
+            <textarea 
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Tell vendor why you are negotiating..."
+              style={{ width: "100%", background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: 16, fontSize: 14, color: "var(--ui-text-primary)", minHeight: 100, outline: "none", resize: "none" }}
+            />
+          </div>
+        </div>
+
+        <div style={{ padding: 32, borderTop: "1px solid var(--ui-border)", display: "flex", gap: 16 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: 16, borderRadius: 16, border: "1px solid var(--ui-border-input)", background: "none", fontSize: 14, fontWeight: 700, color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
+          <button 
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{ flex: 2, padding: 16, borderRadius: 16, background: "var(--huntr-gradient)", border: "none", color: "#fff", fontSize: 14, fontWeight: 900, cursor: "pointer", boxShadow: "0 10px 20px rgba(249,115,22,0.2)", opacity: loading ? 0.5 : 1 }}
+          >
+            {loading ? <Loader2 className="animate-spin" style={{ margin: "0 auto" }} /> : "Submit Negotiation"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function getStatusStyle(status: string) {
   switch (status) {
@@ -21,8 +186,17 @@ export default function MyPurchaseRequisitionDetail() {
   const [rankings, setRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeCompany, setActiveCompany] = useState<any>(null);
+
+  // Negotiation & Awarding State
+  const [showNegModal, setShowNegModal] = useState(false);
+  const [selectedNegProposal, setSelectedNegProposal] = useState<any>(null);
+  const [awardingProposal, setAwardingProposal] = useState<string | number | null>(null);
 
   useEffect(() => {
+    const activeComp = localStorage.getItem("active_company");
+    if (activeComp) setActiveCompany(JSON.parse(activeComp));
+
     if (!id || id === "NaN" || id === "undefined") {
       setError("Invalid Purchase Requisition ID.");
       setLoading(false);
@@ -49,11 +223,33 @@ export default function MyPurchaseRequisitionDetail() {
   const fetchRankings = async (rfqId: string | number) => {
     try {
       const response = await apiGet(`/api/rfqs/${rfqId}/rankings`);
-      console.log("Rankings API response:", response);
       setRankings(response.rankings || (Array.isArray(response) ? response : []));
     } catch (err) {
       console.error("Failed to load rankings", err);
       setRankings([]);
+    }
+  };
+
+  const handleAwardWinner = async (proposalId: string | number, rfqId: string | number) => {
+    const userSession = localStorage.getItem("user_session");
+    const user = userSession ? JSON.parse(userSession) : null;
+    
+    setAwardingProposal(proposalId);
+    try {
+      await apiPost(`/api/proposals/${proposalId}/award`, {
+        rfq_id: rfqId,
+        user_id: user?.id,
+      });
+      alert("✓ Winner awarded! Notification sent to manager for final approval.");
+      if (id) {
+        getRfq(id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
+        fetchRankings(id);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to award winner. Please check your permissions.");
+    } finally {
+      setAwardingProposal(null);
     }
   };
 
@@ -64,6 +260,7 @@ export default function MyPurchaseRequisitionDetail() {
 
   const status = request ? getStatusStyle(request.status) : null;
   const StatusIcon = status?.icon;
+  const isRfqAlreadyAwarded = request?.proposals?.some((p: any) => p.winner_status === 'approved' || p.winner_status === 'awarded');
 
   return (
     <Layout title="Purchase Requisition Detail" subtitle="Review PR metadata, approval status, and item scope.">
@@ -149,68 +346,126 @@ export default function MyPurchaseRequisitionDetail() {
 
                 {rankings.length > 0 && (
                   <div style={{ marginTop: 32, padding: 24, borderRadius: 28, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-                      <ShieldCheck size={18} color="#f97316" />
-                      <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings</div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <BarChart3 size={18} color="#f97316" />
+                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Analysis</div>
+                      </div>
+                      <button 
+                        onClick={() => navigate(`/proposals?search=${encodeURIComponent(request.title)}`)}
+                        style={{ background: "none", border: "none", color: "var(--huntr-orange)", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                      >
+                        Detailed Comparison <ChevronRight size={14} />
+                      </button>
                     </div>
 
-                    <div style={{ display: "grid", gap: 12 }}>
-                      {rankings.map((rankData: any) => (
-                        <div 
-                          key={rankData.proposal.id} 
-                          style={{ 
-                            display: "flex", 
-                            alignItems: "center", 
-                            gap: 16, 
-                            padding: 16, 
-                            borderRadius: 16, 
-                            background: rankData.rank === 1 ? "rgba(249,115,22,0.05)" : "var(--ui-bg-card)", 
-                            border: `1px solid ${rankData.rank === 1 ? "rgba(249,115,22,0.2)" : "var(--ui-border)"}`,
-                            position: "relative",
-                            overflow: "hidden"
-                          }}
-                        >
-                          {/* Rank Badge */}
-                          <div style={{ 
-                            width: 36, 
-                            height: 36, 
-                            borderRadius: 10, 
-                            background: rankData.rank === 1 ? "#f97316" : "rgba(255,255,255,0.05)", 
-                            color: rankData.rank === 1 ? "#fff" : "var(--ui-text-muted)",
-                            display: "grid", 
-                            placeItems: "center", 
-                            fontSize: 14, 
-                            fontWeight: 900 
-                          }}>
-                            {rankData.rank}
-                          </div>
+                    <div style={{ display: "grid", gap: 16 }}>
+                      {rankings.map((rankData: any) => {
+                        const isWinner = rankData.proposal.winner_status === 'approved' || rankData.proposal.winner_status === 'awarded';
+                        
+                        // Dynamic Recommendation Reason
+                        let recommendationReason = "";
+                        if (rankData.rank === 1) {
+                          recommendationReason = "Penyedia ini menawarkan efisiensi biaya tertinggi (Best Price) dengan jangka waktu pengiriman yang kompetitif.";
+                        } else if (rankData.rank === 2) {
+                          recommendationReason = "Alternatif terbaik dengan selisih harga tipis, namun memiliki skor reputasi vendor yang sangat baik.";
+                        }
 
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>{rankData.proposal.company?.name}</div>
-                              {rankData.rank === 1 && (
-                                <div style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>BEST PRICE</div>
-                              )}
+                        return (
+                          <div 
+                            key={rankData.proposal.id} 
+                            style={{ 
+                              display: "flex", 
+                              flexDirection: "column",
+                              gap: 16, 
+                              padding: 24, 
+                              borderRadius: 20, 
+                              background: rankData.rank === 1 ? "rgba(249,115,22,0.04)" : "var(--ui-bg-card)", 
+                              border: `1px solid ${rankData.rank === 1 ? "rgba(249,115,22,0.2)" : "var(--ui-border)"}`,
+                              position: "relative",
+                              overflow: "hidden"
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                                {/* Rank Badge */}
+                                <div style={{ 
+                                  width: 40, 
+                                  height: 40, 
+                                  borderRadius: 12, 
+                                  background: rankData.rank === 1 ? "#f97316" : "rgba(255,255,255,0.05)", 
+                                  color: rankData.rank === 1 ? "#fff" : "var(--ui-text-muted)",
+                                  display: "grid", 
+                                  placeItems: "center", 
+                                  fontSize: 16, 
+                                  fontWeight: 900 
+                                }}>
+                                  {rankData.rank}
+                                </div>
+                                <div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 16 }}>{rankData.proposal.company?.name}</div>
+                                    {rankData.rank === 1 && (
+                                      <div style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5 }}>BEST PRICE & RECOMMENDED</div>
+                                    )}
+                                    {isWinner && (
+                                      <div style={{ background: "rgba(249,115,22,0.1)", color: "#f97316", padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5 }}>SELECTED WINNER</div>
+                                    )}
+                                  </div>
+                                  <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4, display: "flex", gap: 12 }}>
+                                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} /> Delivery: {rankData.proposal.delivery_days} days</span>
+                                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}><ShieldCheck size={12} /> {rankData.proposal.warranty_months}mo Warranty</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div style={{ textAlign: "right" }}>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 2 }}>TOTAL PROPOSAL</div>
+                                <div style={{ fontSize: 20, fontWeight: 900, color: rankData.rank === 1 ? "#f97316" : "var(--ui-text-primary)" }}>
+                                  IDR {Number(rankData.proposal.price_offer).toLocaleString()}
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>
-                              Delivery: {rankData.proposal.delivery_days} days · {rankData.proposal.warranty_months}mo Warranty
-                            </div>
-                          </div>
 
-                          <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: 14, fontWeight: 900, color: rankData.rank === 1 ? "#f97316" : "var(--ui-text-primary)" }}>
-                              IDR {Number(rankData.proposal.price_offer).toLocaleString()}
-                            </div>
-                            <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Total Proposal</div>
+                            {/* System Recommendation Reason */}
+                            {recommendationReason && (
+                              <div style={{ display: "flex", gap: 10, padding: "12px 16px", background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+                                <Info size={16} color="var(--huntr-orange)" style={{ flexShrink: 0, marginTop: 2 }} />
+                                <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.5 }}>
+                                  <strong style={{ color: "var(--ui-text-primary)" }}>Rekomendasi Sistem:</strong> {recommendationReason}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            {request.status === 'active' && !isRfqAlreadyAwarded && (
+                              <div style={{ display: "flex", gap: 12, marginTop: 8, borderTop: "1px solid var(--ui-border)", paddingTop: 16 }}>
+                                <button 
+                                  onClick={() => {
+                                    setSelectedNegProposal(rankData.proposal);
+                                    setShowNegModal(true);
+                                  }}
+                                  style={{ flex: 1, padding: "10px", borderRadius: 10, border: "1px solid var(--ui-border)", background: "none", color: "var(--ui-text-primary)", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                                >
+                                  <MessageSquare size={16} /> Negotiate
+                                </button>
+                                <button 
+                                  onClick={() => handleAwardWinner(rankData.proposal.id, request.id)}
+                                  disabled={awardingProposal === rankData.proposal.id}
+                                  style={{ flex: 2, padding: "10px", borderRadius: 10, border: "none", background: "var(--huntr-gradient)", color: "#fff", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 12px rgba(249,115,22,0.2)" }}
+                                >
+                                  {awardingProposal === rankData.proposal.id ? <Loader2 size={16} className="animate-spin" /> : <><Award size={16} /> Award Proposal Ini</>}
+                                </button>
+                              </div>
+                            )}
+                            
+                            {rankData.rank === 1 && (
+                              <div style={{ position: "absolute", right: -15, top: -15, opacity: 0.05 }}>
+                                <Trophy size={100} color="#f97316" />
+                              </div>
+                            )}
                           </div>
-                          
-                          {rankData.rank === 1 && (
-                            <div style={{ position: "absolute", right: -10, top: -10, opacity: 0.1 }}>
-                              <Trophy size={64} color="#f97316" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -295,6 +550,21 @@ export default function MyPurchaseRequisitionDetail() {
           </div>
         ) : null}
       </div>
+
+      {showNegModal && selectedNegProposal && (
+        <NegotiationModal 
+          proposal={selectedNegProposal} 
+          onClose={() => {
+            setShowNegModal(false);
+            setSelectedNegProposal(null);
+          }}
+          onSuccess={() => {
+            setShowNegModal(false);
+            setSelectedNegProposal(null);
+            if (id) fetchRankings(id);
+          }}
+        />
+      )}
     </Layout>
   );
 }
