@@ -1,155 +1,291 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { createReceipt } from "../lib/api";
+import { createReceipt, getOrders } from "../lib/api";
+import { useNavigate } from "react-router";
+import { Package, Calendar, CheckCircle2, Loader2, FileCheck2, ChevronDown, ChevronRight, Truck, ArrowLeft, ShoppingBag } from "lucide-react";
 
 export default function Receipts() {
-  const [form, setForm] = useState({
-    po_id: "", received_qty: "", handover_document_path: "handover_docs/signed_document.pdf",
-  });
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [company, setCompany] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [selectedPo, setSelectedPo] = useState<any>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [confirmed, setConfirmed] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
 
-  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  useEffect(() => {
+    const activeComp = localStorage.getItem("active_company");
+    if (activeComp) setCompany(JSON.parse(activeComp));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); setError(null);
+  useEffect(() => {
+    if (company) fetchOrders();
+  }, [company]);
+
+  const fetchOrders = async () => {
+    setLoadingOrders(true);
     try {
-      const data = await createReceipt({
-        po_id: form.po_id,
-        received_qty: Number(form.received_qty),
-        handover_document_path: form.handover_document_path,
-      });
-      setResult(data.receipt);
-    } catch (err: any) {
-      setError(err.message);
+      const res = await getOrders(company.id, 1, 100, "", "operational");
+      setOrders(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch orders", err);
     } finally {
-      setLoading(false);
+      setLoadingOrders(false);
     }
   };
 
-  return (
-    <Layout title="Goods Receipt" subtitle="POST /api/receipts — buyer confirms delivery, creates GR, triggers Final Invoice">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 860 }}>
-        <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: 28, display: "flex", flexDirection: "column", gap: 18 }}>
-          <Section>Goods Receipt Form</Section>
-          <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 4px" }}>
-            Buyer confirms physical delivery and submits handover document. The Delivery Order must already be in <code style={{ color: "#fdba74" }}>delivered</code> status.
-          </p>
+  const isBuyer = company?.type === "buyer";
 
-          <Field label="Purchase Order ID (PO ID)" value={form.po_id} onChange={v => set("po_id", v)}
-            placeholder="e.g. po-uuid" required type="text" />
-          <Field label="Received Quantity" value={form.received_qty} onChange={v => set("received_qty", v)}
-            placeholder="e.g. 5" required type="number" />
+  const pendingReceipts = isBuyer
+    ? orders.filter(
+        (po) =>
+          po.status !== "completed" &&
+          po.delivery_orders?.some(
+            (d: any) => d.status === "shipped" || d.status === "delivered"
+          )
+      )
+    : [];
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={lbl}>Handover Document Path</label>
-            <input value={form.handover_document_path} onChange={e => set("handover_document_path", e.target.value)}
-              required placeholder="handover_docs/signed_document.pdf" style={inputStyle} />
-            <span style={{ fontSize: 11, color: "#4b5563" }}>
-              Path to the signed handover document stored on server
-            </span>
-          </div>
+  const isGrAllowed = (expectedDate: string | null) => {
+    if (import.meta.env.VITE_DEBUG_GR_DATE === "true") return true;
+    if (!expectedDate) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const exp = new Date(expectedDate);
+    exp.setHours(0, 0, 0, 0);
+    return today >= exp;
+  };
 
-          {error && <ErrorBox message={error} />}
-          <button type="submit" disabled={loading} style={primaryBtn}>
-            {loading ? "Submitting Receipt..." : "✅ Submit Goods Receipt"}
+  const handleConfirm = async () => {
+    if (!selectedPo || !company) return;
+    setConfirming(true);
+    setError(null);
+    try {
+      const data = await createReceipt({
+        po_id: selectedPo.id,
+        company_id: company.id,
+        received_qty: selectedPo.items?.reduce((s: number, i: any) => s + Number(i.qty), 0) || 1,
+        handover_document_path: "system/auto",
+      });
+      setConfirmed(data.receipt);
+      fetchOrders();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  // ── Detail view ──────────────────────────────────────────────────────────────
+  if (selectedPo) {
+    const do_ = selectedPo.delivery_orders?.[0];
+    const allowed = isGrAllowed(selectedPo.expected_receiving_date);
+
+    return (
+      <Layout title="Konfirmasi Penerimaan Barang" subtitle={`PO ${selectedPo.po_number} · ${selectedPo.vendor_name}`}>
+        <div style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 24 }}>
+
+          {/* Back */}
+          <button
+            onClick={() => { setSelectedPo(null); setConfirmed(null); setError(null); }}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", fontSize: 14, fontWeight: 600, padding: 0 }}
+          >
+            <ArrowLeft size={18} /> Kembali ke daftar
           </button>
-        </form>
 
-        {/* Result / Flow info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {result ? (
-            <div className="glass-panel" style={{ padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <span style={{ fontSize: 28 }}>✅</span>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#fff" }}>Goods Receipt Complete!</div>
-                  <div style={{ fontSize: 12, color: "#6b7280" }}>Final Invoice has been released to Finance</div>
-                </div>
+          {/* Success state */}
+          {confirmed ? (
+            <div style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 24, padding: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, textAlign: "center" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#22c55e,#16a34a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(34,197,94,0.3)" }}>
+                <CheckCircle2 size={36} color="#fff" />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-                <KV label="Receipt ID" value={result.id ? String(result.id).substring(0, 8).toUpperCase() : ""} />
-                <KV label="Received Qty" value={result.received_qty} />
-                <KV label="Status" value={<Tag color="green">{result.status}</Tag>} />
-                <KV label="DO Status" value={<Tag color="green">received</Tag>} />
-                <KV label="PO Status" value={<Tag color="green">completed</Tag>} />
+              <div>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--ui-text-primary)" }}>Barang Berhasil Diterima!</h2>
+                <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-secondary)" }}>
+                  Vendor telah diberitahu. Mereka akan segera menerbitkan invoice final.
+                </p>
               </div>
-              <div style={{ padding: "12px 14px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 10, fontSize: 12, color: "#6ee7b7" }}>
-                Final Invoice has been generated with status <strong>pending_finance</strong>. Finance department will review and approve payment.
-              </div>
+              <button
+                onClick={() => navigate("/orders")}
+                style={{ padding: "12px 32px", borderRadius: 14, background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff", border: "none", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}
+              >
+                Lihat Semua Order
+              </button>
             </div>
           ) : (
-            <div className="glass-panel" style={{ padding: 24 }}>
-              <Section>Goods Receipt Flow</Section>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
-                {[
-                  ["📦", "Vendor releases Delivery Order (DO)"],
-                  ["🚚", "DO status: shipped → buyer confirms → delivered"],
-                  ["✅", "Buyer submits Goods Receipt (this form)"],
-                  ["📄", "DO status → received"],
-                  ["🏁", "PO status → completed"],
-                  ["🧾", "Final Invoice auto-generated (pending_finance)"],
-                  ["💰", "Finance approves → payment forwarded to vendor"],
-                ].map(([icon, desc], i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
-                    <span style={{ fontSize: 12, color: "#d1d5db", lineHeight: "1.5" }}>{desc}</span>
+            <>
+              {/* Delivery Info */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20, display: "flex", gap: 16, alignItems: "center" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(59,130,246,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Truck size={22} color="#3b82f6" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Informasi Pengiriman</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", marginTop: 4 }}>{selectedPo.vendor_name}</div>
+                  {do_?.tracking_number && (
+                    <div style={{ fontSize: 13, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
+                      Resi: {do_.tracking_number}
+                    </div>
+                  )}
+                </div>
+                {selectedPo.expected_receiving_date && (
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Est. Tiba</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: allowed ? "var(--ui-text-primary)" : "#f87171", fontWeight: 700, fontSize: 14, marginTop: 4 }}>
+                      <Calendar size={14} /> {selectedPo.expected_receiving_date}
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
+
+              {/* Date restriction warning */}
+              {!allowed && (
+                <div style={{ padding: "12px 20px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 14, fontSize: 14, color: "#f87171", fontWeight: 600 }}>
+                  ⏰ Barang belum bisa diterima. Estimasi tiba tanggal <strong>{selectedPo.expected_receiving_date}</strong>.
+                </div>
+              )}
+
+              {/* Items to receive */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
+                <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-input)", display: "flex", alignItems: "center", gap: 10 }}>
+                  <ShoppingBag size={18} color="#f59e0b" />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Barang yang Diterima</span>
+                  <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>{selectedPo.items?.length || 0} item</span>
+                </div>
+                <div>
+                  {selectedPo.items?.map((item: any, idx: number) => (
+                    <div key={idx} style={{
+                      padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
+                      borderBottom: idx < (selectedPo.items.length - 1) ? "1px solid var(--ui-border-input)" : "none"
+                    }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <Package size={18} color="#f97316" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>{item.inventory_name}</div>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2, fontFamily: "monospace" }}>{item.inventory_code}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: "#fdba74" }}>{item.qty}</div>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.uom}</div>
+                      </div>
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <CheckCircle2 size={16} color="#22c55e" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div style={{ padding: "12px 20px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 14, color: "#f87171", fontSize: 14, fontWeight: 600 }}>
+                  ⚠ {error}
+                </div>
+              )}
+
+              {/* Confirm button */}
+              <button
+                onClick={handleConfirm}
+                disabled={!allowed || confirming}
+                style={{
+                  padding: "18px", borderRadius: 16, width: "100%",
+                  background: allowed ? "linear-gradient(135deg,#22c55e,#16a34a)" : "var(--ui-bg-input)",
+                  color: allowed ? "#fff" : "var(--ui-text-muted)",
+                  border: "none", fontWeight: 900, fontSize: 17,
+                  cursor: allowed && !confirming ? "pointer" : "not-allowed",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+                  boxShadow: allowed ? "0 8px 24px rgba(34,197,94,0.25)" : "none",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {confirming
+                  ? <><Loader2 size={20} className="animate-spin" /> Memproses...</>
+                  : <><CheckCircle2 size={20} /> Konfirmasi Barang Diterima</>
+                }
+              </button>
+              <p style={{ textAlign: "center", margin: 0, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                Dengan menekan tombol di atas, Anda mengkonfirmasi bahwa semua barang di atas telah diterima dalam kondisi baik.
+              </p>
+            </>
           )}
         </div>
+      </Layout>
+    );
+  }
+
+  // ── List view ─────────────────────────────────────────────────────────────────
+  return (
+    <Layout title="Goods Receipt" subtitle="Konfirmasi penerimaan barang dari vendor">
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Package size={20} color="#22c55e" />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>Menunggu Konfirmasi</h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-muted)" }}>Pilih pengiriman yang sudah tiba untuk dikonfirmasi.</p>
+          </div>
+        </div>
+
+        {loadingOrders ? (
+          <div style={{ textAlign: "center", padding: "60px 0" }}>
+            <Loader2 size={28} className="animate-spin" color="#f59e0b" style={{ display: "block", margin: "0 auto" }} />
+          </div>
+        ) : !isBuyer ? (
+          <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 20, border: "1px dashed var(--ui-border-input)" }}>
+            <Package size={40} style={{ opacity: 0.15, display: "block", margin: "0 auto 12px" }} />
+            <p style={{ margin: 0, color: "var(--ui-text-secondary)", fontSize: 14 }}>Halaman ini hanya tersedia untuk Buyer.</p>
+          </div>
+        ) : pendingReceipts.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 20, border: "1px dashed var(--ui-border-input)" }}>
+            <FileCheck2 size={40} style={{ opacity: 0.15, display: "block", margin: "0 auto 12px" }} />
+            <p style={{ margin: 0, color: "var(--ui-text-secondary)", fontSize: 14 }}>Tidak ada pengiriman yang menunggu konfirmasi.</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {pendingReceipts.map((po) => {
+              const allowed = isGrAllowed(po.expected_receiving_date);
+              const do_ = po.delivery_orders?.[0];
+              return (
+                <div
+                  key={po.id}
+                  onClick={() => allowed && setSelectedPo(po)}
+                  style={{
+                    background: "var(--ui-bg-card)", border: `1px solid ${allowed ? "var(--ui-border)" : "rgba(239,68,68,0.2)"}`,
+                    borderRadius: 20, padding: "20px 24px",
+                    display: "flex", alignItems: "center", gap: 20,
+                    cursor: allowed ? "pointer" : "default",
+                    opacity: allowed ? 1 : 0.6,
+                    transition: "all 0.25s ease",
+                  }}
+                >
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: allowed ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Truck size={22} color={allowed ? "#22c55e" : "#f87171"} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6 }}>{po.po_number}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: allowed ? "#22c55e" : "#f87171", background: allowed ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)", padding: "2px 8px", borderRadius: 6 }}>
+                        {allowed ? "Siap Diterima" : `Tiba ${po.expected_receiving_date}`}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)" }}>{po.vendor_name}</div>
+                    <div style={{ fontSize: 13, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                      {po.items?.length || 0} jenis barang
+                      {do_?.tracking_number && <span> · Resi: <strong style={{ color: "#3b82f6" }}>{do_.tracking_number}</strong></span>}
+                    </div>
+                  </div>
+                  {allowed && <ChevronRight size={20} color="var(--ui-text-muted)" />}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </Layout>
   );
 }
 
-function KV({ label, value }: { label: string; value: any }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 12 }}>
-      <span style={{ color: "#6b7280" }}>{label}</span>
-      <span style={{ color: "#f3f4f6", fontWeight: 500 }}>{value}</span>
-    </div>
-  );
-}
-function Tag({ color, children }: { color: string; children: React.ReactNode }) {
-  const c: Record<string, string> = { yellow: "#fbbf24", green: "#34d399", indigo: "#fdba74" };
-  return <span style={{ background: `${c[color]}20`, color: c[color], border: `1px solid ${c[color]}40`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{children}</span>;
-}
-function Section({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: "0.08em", textTransform: "uppercase" }}>{children}</div>;
-}
-const lbl: React.CSSProperties = { fontSize: 12, color: "#9ca3af", fontWeight: 500 };
-const inputStyle: React.CSSProperties = {
-  background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)",
-  borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#fff",
-  outline: "none", width: "100%", boxSizing: "border-box",
-};
-const primaryBtn: React.CSSProperties = {
-  padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
-  border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff",
-};
-interface FieldProps {
-  label: string;
-  value: any;
-  onChange: (value: any) => void;
-  type?: string;
-  placeholder?: string;
-  required?: boolean;
-}
-
-function Field({ label, value, onChange, type = "text", placeholder, required }: FieldProps) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={lbl}>{label}</label>
-      <input value={value} onChange={e => onChange(e.target.value)} type={type}
-        placeholder={placeholder} required={required} style={inputStyle} />
-    </div>
-  );
-}
-function ErrorBox({ message }: { message: string }) {
-  return <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#f87171" }}>⚠ {message}</div>;
-}

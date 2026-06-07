@@ -13,6 +13,8 @@
   --huntr-yellow-light: #fde68a;
   --huntr-accent: #fdba74;
   --huntr-accent-muted: #fed7aa;
+  --huntr-green: #22c55e;
+  --huntr-green-dark: #16a34a;
 
   --huntr-gradient: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
   --huntr-gradient-wide: linear-gradient(90deg, #f97316, #f59e0b, #fbbf24);

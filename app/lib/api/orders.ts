@@ -47,6 +47,14 @@ export const awardVendor = (payload: {
 // --- Receipts ---
 export const createReceipt = (payload: {
   po_id: string | number;
+  company_id: string | number;
   received_qty: number;
   handover_document_path: string;
 }) => apiPost("/api/receipts", payload);
+
+// --- Delivery & Invoice ---
+export const arrangeDelivery = (poId: string | number, companyId: string | number, trackingNumber?: string) => 
+  apiPost(`/api/orders/${poId}/arrange-delivery`, { company_id: companyId, tracking_number: trackingNumber });
+
+export const publishInvoice = (invoiceId: string | number, companyId: string | number) => 
+  apiPost(`/api/invoices/${invoiceId}/publish`, { company_id: companyId });

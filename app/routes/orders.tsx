@@ -5,7 +5,7 @@ import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
   Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard
 } from "lucide-react";
-import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl } from "../lib/api";
+import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl, arrangeDelivery, publishInvoice } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import PaymentModal from "../components/PaymentModal";
 
@@ -19,6 +19,7 @@ export default function Orders() {
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +112,41 @@ export default function Orders() {
       setError(err.message || "Failed to confirm PO");
     } finally {
       setConfirmingId(null);
+    }
+  };
+
+  const handleArrangeDelivery = async (poId: string) => {
+    if (!company) return;
+    const tracking = window.prompt("Enter Tracking Number / Resi (Optional):");
+    if (tracking === null) return; // User cancelled
+    
+    setProcessingId(poId);
+    setError(null);
+    try {
+      await arrangeDelivery(poId, company.id, tracking);
+      setSuccessMessage("✓ Delivery arranged! Delivery Order published to buyer.");
+      fetchOrders(company.id, currentPage);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to arrange delivery");
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handlePublishInvoice = async (invoiceId: string) => {
+    if (!company) return;
+    setProcessingId(invoiceId);
+    setError(null);
+    try {
+      await publishInvoice(invoiceId, company.id);
+      setSuccessMessage("✓ Invoice published successfully! Sent to buyer finance.");
+      fetchOrders(company.id, currentPage);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to publish invoice");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -406,6 +442,39 @@ export default function Orders() {
                       </button>
                     )}
 
+                    {company.type === 'vendor' && po.status === 'paid' && (
+                      <button
+                        onClick={() => handleArrangeDelivery(po.id)}
+                        disabled={processingId === po.id}
+                        style={{
+                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: processingId === po.id ? "wait" : "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(59,130,246,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <Package size={12} />}
+                        Arrange Delivery
+                      </button>
+                    )}
+
+                    {company.type === 'buyer' && po.delivery_orders && po.delivery_orders.some((d: any) => d.status === 'shipped' || d.status === 'delivered') && (
+                      <button
+                        onClick={() => navigate(`/receipts?po_id=${po.id}`)}
+                        style={{
+                          background: "var(--huntr-green)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(34,197,94,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        <Package size={12} />
+                        Receive Goods
+                      </button>
+                    )}
+
                     <button 
                       onClick={() => setExpandedPo(expandedPo === po.id ? null : po.id)}
                       style={{
@@ -476,6 +545,31 @@ export default function Orders() {
                                 Print PO Document
                               </a>
                             </div>
+                            
+                            {po.delivery_orders && po.delivery_orders.map((doItem: any) => (
+                              <div key={doItem.id} style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(59,130,246,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                                  <Package size={14} color="#3b82f6" />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                  <a 
+                                    href={getFullApiUrl(`/api/do/${doItem.id}/print`)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#3b82f6", fontWeight: 700, textDecoration: "none" }}
+                                    className="hover:underline"
+                                  >
+                                    Print DO: {doItem.do_number}
+                                  </a>
+                                  {doItem.tracking_number && (
+                                    <span style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                                      Tracking / Resi: {doItem.tracking_number}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+
                             {po.approved_by && (
                               <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                                 <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
@@ -615,6 +709,23 @@ export default function Orders() {
                                       </button>
                                     )}
                                   </div>
+                                )}
+
+                                {inv.type === 'final' && inv.status === 'draft' && company.type === 'vendor' && (
+                                  <button
+                                    onClick={() => handlePublishInvoice(inv.id)}
+                                    disabled={processingId === inv.id}
+                                    style={{
+                                      width: "100%", padding: "8px 12px", borderRadius: 10,
+                                      background: "linear-gradient(135deg,#10b981,#059669)",
+                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+                                      cursor: processingId === inv.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                                      boxShadow: "0 4px 12px rgba(16,185,129,0.2)",
+                                      marginTop: 8
+                                    }}
+                                  >
+                                    {processingId === inv.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Publish Invoice
+                                  </button>
                                 )}
                               </div>
                             ))}
