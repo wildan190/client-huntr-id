@@ -4,7 +4,15 @@ import {
   Clock, Eye, FileText, ChevronDown, ChevronUp, Search,
   Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink,
 } from "lucide-react";
-import { adminLogin, adminGetCompanies, adminAuditCompany } from "../lib/api";
+import {
+  adminLogin,
+  adminGetCompanies,
+  adminAuditCompany,
+  adminGetCatalogue,
+  adminCreateCatalogueItem,
+  adminGetTransactions,
+  adminGetEscrowSummary
+} from "../lib/api";
 
 const BASE_URL_IMAGE = import.meta.env.VITE_BASE_URL_IMAGE || `${import.meta.env.VITE_API_URL}/storage`;
 
@@ -247,65 +255,7 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
 /* ─────────────────────────────────────────────────────────────────── */
 
 function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () => void }) {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [auditModal, setAuditModal] = useState<{ company: Company; action: "approve" | "decline" } | null>(null);
-
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [perPage] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
-
-  const fetchCompanies = async (page = currentPage, s = search, status = filterStatus) => {
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-      const res = await adminGetCompanies({
-        page,
-        per_page: perPage,
-        search: s,
-        status: status,
-      });
-      setCompanies(res.data || []);
-      setCurrentPage(res.current_page || 1);
-      setTotalPages(res.last_page || 1);
-      setTotal(res.total || 0);
-      
-      if (res.stats) {
-          setStats(res.stats);
-      }
-    } catch (err: any) {
-      setFetchError(err.message || "Failed to load companies.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchCompanies(1, search, filterStatus);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [search, filterStatus]);
-
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      fetchCompanies(newPage);
-    }
-  };
-
-  const statusMeta = {
-    pending:  { color: "#fbbf24", bg: "rgba(251,191,36,0.1)",  border: "rgba(251,191,36,0.25)",  icon: <Clock size={13} />,        label: "Pending" },
-    approved: { color: "#34d399", bg: "rgba(52,211,153,0.1)",  border: "rgba(52,211,153,0.25)",  icon: <CheckCircle2 size={13} />, label: "Approved" },
-    rejected: { color: "#f87171", bg: "rgba(248,113,113,0.1)", border: "rgba(248,113,113,0.25)", icon: <XCircle size={13} />,      label: "Rejected" },
-  };
+  const [activeTab, setActiveTab] = useState<"companies" | "catalogue" | "transactions">("companies");
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -341,6 +291,25 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
           </div>
         </div>
 
+        {/* Navigation Tabs */}
+        <div style={{ display: "flex", gap: 8 }}>
+          {(["companies", "catalogue", "transactions"] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+                background: activeTab === tab ? "rgba(249,115,22,0.15)" : "transparent",
+                color: activeTab === tab ? "#f97316" : "var(--ui-text-muted)",
+                border: "none", cursor: "pointer", transition: "all 0.2s",
+                textTransform: "capitalize"
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", justifyContent: "flex-end" }}>
           <div style={{ textAlign: "right", minWidth: 0 }}>
             <div style={{ fontSize: "clamp(12px, 2vw, 13px)", fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{admin.name}</div>
@@ -363,392 +332,317 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
       </header>
 
       <main style={{ flex: 1, padding: "clamp(16px, 4vw, 32px)", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+        {activeTab === "companies" && <AdminCompaniesTab />}
+        {activeTab === "catalogue" && <AdminCatalogueTab />}
+        {activeTab === "transactions" && <AdminTransactionsTab />}
+      </main>
+    </div>
+  );
+}
 
-        {/* ── Stats cards ── */}
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "clamp(12px, 2vw, 16px)", 
-          marginBottom: "clamp(20px, 4vw, 32px)" 
-        }}>
-          {[
-            { label: "Total Companies", value: total, icon: <Building2 size={22} />, color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#ea580c)" },
-            { label: "Pending Review",  value: stats.pending,  icon: <Clock size={22} />,       color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#d97706)" },
-            { label: "Approved",        value: stats.approved, icon: <CheckCircle2 size={22} />, color: "#10b981", gradient: "linear-gradient(135deg,#10b981,#059669)" },
-            { label: "Rejected",        value: stats.rejected, icon: <XCircle size={22} />,      color: "#ef4444", gradient: "linear-gradient(135deg,#ef4444,#dc2626)" },
-          ].map(stat => (
-            <div key={stat.label} style={{
-              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-              borderRadius: 20, padding: "clamp(16px, 3vw, 24px)",
-              display: "flex", alignItems: "center", gap: 18,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-              transition: "transform 0.2s, background 0.3s ease",
+function AdminCompaniesTab() {
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [auditModal, setAuditModal] = useState<{ company: Company; action: "approve" | "decline" } | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [perPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
+
+  const fetchCompanies = async (page = currentPage, s = search, status = filterStatus) => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const res = await adminGetCompanies({ page, per_page: perPage, search: s, status });
+      setCompanies(res.data || []);
+      setCurrentPage(res.current_page || 1);
+      setTotalPages(res.last_page || 1);
+      setTotal(res.total || 0);
+      if (res.stats) setStats(res.stats);
+    } catch (err: any) {
+      setFetchError(err.message || "Failed to load companies.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => fetchCompanies(1, search, filterStatus), 400);
+    return () => clearTimeout(timer);
+  }, [search, filterStatus]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) fetchCompanies(newPage);
+  };
+
+  const statusMeta = {
+    pending:  { color: "#fbbf24", bg: "rgba(251,191,36,0.1)",  border: "rgba(251,191,36,0.25)",  icon: <Clock size={13} />,        label: "Pending" },
+    approved: { color: "#34d399", bg: "rgba(52,211,153,0.1)",  border: "rgba(52,211,153,0.25)",  icon: <CheckCircle2 size={13} />, label: "Approved" },
+    rejected: { color: "#f87171", bg: "rgba(248,113,113,0.1)", border: "rgba(248,113,113,0.25)", icon: <XCircle size={13} />,      label: "Rejected" },
+  };
+
+  return (
+    <div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
+        {[
+          { label: "Total Companies", value: total, icon: <Building2 size={22} />, color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#ea580c)" },
+          { label: "Pending Review",  value: stats.pending,  icon: <Clock size={22} />,       color: "#f59e0b", gradient: "linear-gradient(135deg,#f59e0b,#d97706)" },
+          { label: "Approved",        value: stats.approved, icon: <CheckCircle2 size={22} />, color: "#10b981", gradient: "linear-gradient(135deg,#10b981,#059669)" },
+          { label: "Rejected",        value: stats.rejected, icon: <XCircle size={22} />,      color: "#ef4444", gradient: "linear-gradient(135deg,#ef4444,#dc2626)" },
+        ].map(stat => (
+          <div key={stat.label} style={{
+            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 24,
+            display: "flex", alignItems: "center", gap: 18, boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+          }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: 14, flexShrink: 0, background: stat.gradient,
+              display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 20px ${stat.color}30`,
             }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-                background: stat.gradient,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: `0 6px 20px ${stat.color}30`,
-              }}>
-                {React.cloneElement(stat.icon as any, { color: "#fff" })}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: "clamp(24px, 5vw, 30px)", fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1, letterSpacing: "-1px", transition: "color 0.3s ease" }}>
-                  {stat.value}
+              {React.cloneElement(stat.icon as any, { color: "#fff" })}
+            </div>
+            <div>
+              <div style={{ fontSize: 30, fontWeight: 900 }}>{stat.value}</div>
+              <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{stat.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 14, marginBottom: 20 }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: "10px 16px" }}>
+          <Search size={15} color="var(--ui-text-muted)" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search companies…" style={{ background: "none", border: "none", outline: "none", color: "var(--ui-text-primary)", width: "100%" }} />
+        </div>
+        {(["all", "pending", "approved", "rejected"] as const).map(s => (
+          <button key={s} onClick={() => setFilterStatus(s)} style={{
+            padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: "pointer",
+            background: filterStatus === s ? "rgba(249,115,22,0.15)" : "var(--ui-bg-input)",
+            border: filterStatus === s ? "1px solid rgba(249,115,22,0.3)" : "1px solid var(--ui-border-input)",
+            color: filterStatus === s ? "#fb923c" : "var(--ui-text-muted)",
+          }}>
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? <Loader2 className="animate-spin" /> : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {companies.map(company => {
+            const sm = statusMeta[company.status] || statusMeta.pending;
+            const isExpanded = expandedId === company.id;
+            return (
+              <div key={company.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
+                <div onClick={() => setExpandedId(isExpanded ? null : company.id)} style={{ display: "flex", alignItems: "center", gap: 18, padding: 20, cursor: "pointer" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800 }}>{company.name} <span style={{ fontSize: 10, background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 10 }}>{company.type}</span></div>
+                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{company.email}</div>
+                  </div>
+                  <div style={{ background: sm.bg, color: sm.color, padding: "6px 12px", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{sm.label}</div>
+                  {company.status === 'pending' && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={e => { e.stopPropagation(); setAuditModal({ company, action: "approve" }); }} style={{ background: "#10b981", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 8 }}>Approve</button>
+                      <button onClick={e => { e.stopPropagation(); setAuditModal({ company, action: "decline" }); }} style={{ background: "#ef4444", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 8 }}>Decline</button>
+                    </div>
+                  )}
                 </div>
-                <div style={{ fontSize: "clamp(11px, 2vw, 12px)", color: "var(--ui-text-muted)", marginTop: 4, fontWeight: 500, transition: "color 0.3s ease" }}>
-                  {stat.label}
+                {isExpanded && (
+                  <div style={{ padding: 20, borderTop: "1px solid var(--ui-border)" }}>
+                    <div style={{ fontSize: 12 }}>Bank: {company.bank_name} - {company.bank_account}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {auditModal && <AuditModal company={auditModal.company} action={auditModal.action} onClose={() => setAuditModal(null)} onDone={() => { setAuditModal(null); fetchCompanies(); }} />}
+    </div>
+  );
+}
+
+function AdminCatalogueTab() {
+  const [catalogues, setCatalogues] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const fetchCatalogues = async () => {
+    setIsLoading(true);
+    try {
+      const res = await adminGetCatalogue();
+      setCatalogues(res.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCatalogues();
+  }, []);
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const fd = new FormData(e.target as HTMLFormElement);
+    try {
+      await adminCreateCatalogueItem(fd);
+      setShowAddModal(false);
+      fetchCatalogues();
+    } catch (err) {
+      alert("Failed to create product");
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 18, fontWeight: 800 }}>Global Catalogue</div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{
+            padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+            background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer"
+          }}
+        >
+          Add Product
+        </button>
+      </div>
+
+      {isLoading ? <Loader2 className="animate-spin" /> : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
+          {catalogues.map(item => (
+            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden" }}>
+              <div style={{ height: 140, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
+              <div style={{ padding: 16 }}>
+                <div style={{ fontWeight: 800 }}>{item.name}</div>
+                <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.item_code} • {item.company?.name || "Global"}</div>
+                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
+                  Rp {item.price?.toLocaleString()} / {item.uom}
                 </div>
               </div>
             </div>
           ))}
+          {catalogues.length === 0 && <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 40, color: "var(--ui-text-muted)" }}>No products found</div>}
         </div>
-
-        {/* ── Filters & search ── */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: "clamp(10px, 2vw, 14px)",
-          marginBottom: 20, flexWrap: "wrap",
-        }}>
-          {/* Search */}
-          <div style={{
-            flex: 1, minWidth: "clamp(200px, 100%, 220px)", display: "flex", alignItems: "center", gap: 10,
-            background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-            borderRadius: 12, padding: "10px 16px",
-            transition: "all 0.3s ease",
-          }}>
-            <Search size={15} color="var(--ui-text-muted)" />
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search company name or email…"
-              style={{
-                background: "none", border: "none", outline: "none",
-                color: "var(--ui-text-primary)", fontSize: 13, width: "100%",
-                transition: "color 0.3s ease",
-              }}
-            />
-          </div>
-
-          {/* Status filter chips */}
-          {(["all", "pending", "approved", "rejected"] as const).map(s => (
-            <button
-              key={s}
-              onClick={() => setFilterStatus(s)}
-              style={{
-                padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700,
-                cursor: "pointer", transition: "all 0.2s",
-                background: filterStatus === s
-                  ? (s === "all" ? "linear-gradient(135deg,#f59e0b,#f97316)" : s === "pending" ? "linear-gradient(135deg,#f59e0b,#d97706)" : s === "approved" ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)")
-                  : "var(--ui-bg-input)",
-                border: filterStatus === s ? "none" : "1px solid var(--ui-border-input)",
-                color: filterStatus === s ? "#fff" : "var(--ui-text-muted)",
-                boxShadow: filterStatus === s ? "0 4px 14px rgba(0,0,0,0.25)" : "none",
-                minHeight: 40,
-              }}
-            >
-              {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
-              {s !== "all" && (
-                <span style={{
-                  marginLeft: 6, fontSize: 10, padding: "1px 6px", borderRadius: 99,
-                  background: "rgba(255,255,255,0.15)", color: "#fff",
-                }}>
-                  {s === "pending" ? stats.pending : s === "approved" ? stats.approved : stats.rejected}
-                </span>
-              )}
-            </button>
-          ))}
-
-          <button
-            onClick={() => fetchCompanies(1)}
-            style={{
-              padding: "9px 18px", borderRadius: 12, fontSize: 12, fontWeight: 700,
-              cursor: "pointer", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
-              color: "#fb923c", display: "flex", alignItems: "center", gap: 6,
-              transition: "all 0.2s",
-              minHeight: 40,
-            }}
-          >
-            {isLoading ? <Loader2 size={13} className="animate-spin" /> : <TrendingUp size={13} />}
-            Refresh
-          </button>
-        </div>
-
-        {/* ── Company list ── */}
-        {fetchError ? (
-          <div style={{
-            background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
-            borderRadius: 16, padding: "24px", textAlign: "center", color: "#f87171",
-          }}>
-            <AlertCircle size={24} style={{ margin: "0 auto 8px", display: "block" }} />
-            {fetchError}
-          </div>
-        ) : isLoading ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
-            <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", display: "block", color: "#f59e0b" }} />
-            Loading companies…
-          </div>
-        ) : companies.length === 0 ? (
-          <div style={{
-            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-            borderRadius: 20, padding: "60px 24px", textAlign: "center", color: "var(--ui-text-muted)",
-            transition: "all 0.3s ease",
-          }}>
-            <Building2 size={40} style={{ margin: "0 auto 12px", display: "block", opacity: 0.3 }} />
-            No companies found.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {companies.map((company: Company) => {
-              const sm = statusMeta[company.status] || statusMeta.pending;
-              const isExpanded = expandedId === company.id;
-
-              return (
-                <div
-                  key={company.id}
-                  style={{
-                    background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-                    borderRadius: 20, overflow: "hidden",
-                    boxShadow: isExpanded ? "0 8px 40px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.25)",
-                    transition: "box-shadow 0.3s, background 0.3s ease",
-                  }}
-                >
-                  {/* Row */}
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: "clamp(12px, 2vw, 18px)", padding: "clamp(16px, 3vw, 20px) clamp(16px, 3vw, 24px)",
-                    cursor: "pointer",
-                    flexWrap: "wrap",
-                  }}
-                    onClick={() => setExpandedId(isExpanded ? null : company.id)}
-                  >
-                    {/* Avatar */}
-                    <div style={{
-                      width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-                      background: company.type === "buyer"
-                        ? "linear-gradient(135deg,#f59e0b,#ea580c)"
-                        : "linear-gradient(135deg,#10b981,#059669)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      boxShadow: `0 4px 14px ${company.type === "buyer" ? "rgba(249,115,22,0.3)" : "rgba(16,185,129,0.3)"}`,
-                    }}>
-                      <Building2 size={24} color="#fff" />
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "clamp(13px, 2vw, 15px)", fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{company.name}</span>
-                        <span style={{
-                          fontSize: 10, fontWeight: 700, padding: "2px 10px", borderRadius: 99,
-                          background: company.type === "buyer" ? "rgba(249,115,22,0.15)" : "rgba(16,185,129,0.15)",
-                          color: company.type === "buyer" ? "#fdba74" : "#34d399",
-                          letterSpacing: "0.05em", textTransform: "uppercase",
-                        }}>
-                          {company.type}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: "clamp(11px, 2vw, 12px)", color: "var(--ui-text-muted)", marginTop: 4, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", transition: "color 0.3s ease" }}>
-                        {company.email && <span>{company.email}</span>}
-                        {company.city && <span>📍 {company.city}{company.region ? `, ${company.region}` : ""}</span>}
-                        <span>Registered {new Date(company.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</span>
-                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <FileText size={11} /> {company.documents?.length || 0} doc{company.documents?.length !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Status badge */}
-                    <div style={{
-                      padding: "6px 14px", borderRadius: 99, flexShrink: 0,
-                      background: sm.bg, border: `1px solid ${sm.border}`, color: sm.color,
-                      fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5,
-                    }}>
-                      {sm.icon} {sm.label}
-                    </div>
-
-                    {/* Actions */}
-                    {company.status === "pending" && (
-                      <div style={{ display: "flex", gap: 8, flexShrink: 0, flexWrap: "wrap" }} onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => setAuditModal({ company, action: "approve" })}
-                          style={{
-                            display: "flex", alignItems: "center", gap: 6,
-                            padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
-                            background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.3)",
-                            color: "#34d399", cursor: "pointer", transition: "all 0.2s",
-                            minHeight: 40,
-                          }}
-                        >
-                          <CheckCircle2 size={13} /> Approve
-                        </button>
-                        <button
-                          onClick={() => setAuditModal({ company, action: "decline" })}
-                          style={{
-                            display: "flex", alignItems: "center", gap: 6,
-                            padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
-                            background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.3)",
-                            color: "#f87171", cursor: "pointer", transition: "all 0.2s",
-                            minHeight: 40,
-                          }}
-                        >
-                          <XCircle size={13} /> Decline
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Expand toggle */}
-                    <div style={{ flexShrink: 0, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
-                      {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                    </div>
-                  </div>
-
-                  {/* Expanded detail */}
-                  {isExpanded && (
-                    <div style={{
-                      borderTop: "1px solid var(--ui-border)",
-                      padding: "clamp(16px, 3vw, 24px)",
-                      display: "grid", gridTemplateColumns: "1fr", gap: "clamp(16px, 3vw, 24px)",
-                    }}>
-                      {/* Company details */}
-                      <div>
-                        <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
-                          Company Details
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                          {[
-                            { label: "Tax ID (NPWP)", value: company.formatted_tax_id || company.tax_id },
-                            { label: "Phone", value: company.phone },
-                            { label: "Address", value: company.address },
-                            { label: "Bank", value: company.bank_name ? `${company.bank_name} — ${company.bank_account} (${company.bank_account_name})` : null },
-                          ].filter(r => r.value).map(row => (
-                            <div key={row.label} style={{ display: "flex", gap: 12 }}>
-                              <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, width: 110, flexShrink: 0, paddingTop: 1, transition: "color 0.3s ease" }}>
-                                {row.label}
-                              </span>
-                              <span style={{ fontSize: 12, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>{row.value}</span>
-                            </div>
-                          ))}
-                          {company.verification_notes && (
-                            <div style={{
-                              marginTop: 8, background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.15)",
-                              borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#fbbf24",
-                            }}>
-                              <strong>Notes:</strong> {company.verification_notes}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Documents */}
-                      <div>
-                        <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
-                          Legal Documents ({company.documents?.length || 0})
-                        </div>
-                        {!company.documents?.length ? (
-                          <div style={{
-                            background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)",
-                            borderRadius: 12, padding: "16px", fontSize: 12, color: "#f87171",
-                            display: "flex", alignItems: "center", gap: 8,
-                          }}>
-                            <AlertCircle size={14} /> No documents uploaded.
-                          </div>
-                        ) : (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            {company.documents.map((doc: CompanyDoc, i: number) => (
-                              <div key={i} style={{
-                                display: "flex", alignItems: "center", gap: 10,
-                                background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                                borderRadius: 12, padding: "10px 14px",
-                                transition: "all 0.3s ease",
-                              }}>
-                                <div style={{
-                                  width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                                  background: "rgba(249,115,22,0.15)",
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                }}>
-                                  <FileText size={16} color="#fb923c" />
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color 0.3s ease" }}>
-                                    {doc.name}
-                                  </div>
-                                  <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 2, transition: "color 0.3s ease" }}>{doc.type}</div>
-                                </div>
-                                {doc.file_path && (
-                                  <a
-                                    href={`${BASE_URL_IMAGE}/${doc.file_path}`} target="_blank" rel="noopener noreferrer"
-                                    onClick={e => e.stopPropagation()}
-                                    style={{
-                                      display: "flex", alignItems: "center", gap: 4,
-                                      fontSize: 11, color: "#fb923c", textDecoration: "none",
-                                      padding: "5px 10px", borderRadius: 8,
-                                      background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
-                                      flexShrink: 0, fontWeight: 600,
-                                    }}
-                                  >
-                                    <ExternalLink size={11} /> View
-                                  </a>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div style={{
-                marginTop: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                flexWrap: "wrap",
-              }}>
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1 || isLoading}
-                  style={{
-                    padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-                    background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                    color: currentPage === 1 ? "var(--ui-text-muted)" : "var(--ui-text-primary)",
-                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                    transition: "all 0.3s ease",
-                    minHeight: 40,
-                  }}
-                >
-                  Previous
-                </button>
-                <div style={{ fontSize: 13, color: "var(--ui-text-muted)", margin: "0 12px", transition: "color 0.3s ease" }}>
-                  Page <span style={{ color: "var(--ui-text-primary)", fontWeight: 700, transition: "color 0.3s ease" }}>{currentPage}</span> of {totalPages}
-                </div>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages || isLoading}
-                  style={{
-                    padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-                    background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                    color: currentPage === totalPages ? "var(--ui-text-muted)" : "var(--ui-text-primary)",
-                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                    transition: "all 0.3s ease",
-                    minHeight: 40,
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* ── Audit Modal ── */}
-      {auditModal && (
-        <AuditModal
-          company={auditModal.company}
-          action={auditModal.action}
-          onClose={() => setAuditModal(null)}
-          onDone={() => { setAuditModal(null); fetchCompanies(); }}
-        />
       )}
+
+      {showAddModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)", zIndex: 1000,
+          display: "flex", alignItems: "center", justifyContent: "center"
+        }}>
+          <div style={{ background: "var(--ui-bg-card)", padding: 32, borderRadius: 20, width: "100%", maxWidth: 500 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Add Global Product</div>
+            <form onSubmit={handleAddSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Product Name</label>
+                <input name="name" required style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Category (Optional)</label>
+                  <input name="category" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>UOM</label>
+                  <input name="uom" required style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Specifications (Optional)</label>
+                <textarea name="specifications" rows={3} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", resize: "vertical" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Image (Optional)</label>
+                <input name="image" type="file" accept="image/*" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
+                <button type="button" onClick={() => setShowAddModal(false)} style={{ padding: "10px 16px", borderRadius: 10, background: "transparent", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", fontWeight: 700 }}>Cancel</button>
+                <button type="submit" style={{ padding: "10px 16px", borderRadius: 10, background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700 }}>Add Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminTransactionsTab() {
+  const [summary, setSummary] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [sumRes, txRes] = await Promise.all([
+        adminGetEscrowSummary(),
+        adminGetTransactions()
+      ]);
+      setSummary(sumRes);
+      setTransactions(txRes.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (isLoading) return <Loader2 className="animate-spin" style={{ margin: "40px auto", display: "block", color: "#f59e0b" }} />;
+
+  return (
+    <div>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          background: "linear-gradient(135deg, #10b981, #059669)",
+          borderRadius: 20, padding: 32, color: "#fff",
+          boxShadow: "0 10px 30px rgba(16,185,129,0.3)"
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, opacity: 0.9, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 8 }}>Total Escrow Balance</div>
+          <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: "-1px" }}>
+            Rp {summary?.total_escrow_amount?.toLocaleString() || 0}
+          </div>
+          <div style={{ fontSize: 13, opacity: 0.8, marginTop: 8 }}>
+            From {summary?.total_invoices_held || 0} invoices waiting for finance disbursement
+          </div>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Global Transactions</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {transactions.map(tx => (
+          <div key={tx.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 800 }}>{tx.po_number}</div>
+                <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>
+                  Buyer: {tx.buyer?.name} | Vendor: {tx.vendor?.name}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Rp {tx.total_amount?.toLocaleString()}</div>
+                <div style={{ fontSize: 11, background: "rgba(249,115,22,0.1)", color: "#f97316", padding: "2px 8px", borderRadius: 10, display: "inline-block", marginTop: 4 }}>
+                  {tx.status}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {transactions.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "var(--ui-text-muted)" }}>No transactions found</div>}
+      </div>
     </div>
   );
 }
