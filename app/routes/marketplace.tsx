@@ -247,13 +247,18 @@ export default function Marketplace() {
                         src={getAssetUrl(item.image_path)} 
                         alt={item.name} 
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          img.style.display = "none";
+                          const parent = img.parentElement;
+                          if (parent) {
+                            parent.style.display = "flex";
+                            parent.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ui-text-muted);opacity:0.5;font-size:12px;"><svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='18' height='18' rx='3'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='M21 15l-5-5L5 21'/></svg><span>No image</span></div>`;
+                          }
+                        }}
                       />
                     ) : (
-                      <img 
-                        src={`https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80`} 
-                        alt={item.name} 
-                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.9 }}
-                      />
+                      <Package size={36} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.35 }} />
                     )}
                   </div>
                   <div>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
+import { Package, ShoppingCart, ArrowLeft } from "lucide-react";
 
 interface CatalogueItem {
   id: string;
@@ -20,6 +21,42 @@ interface CatalogueItem {
     name: string;
     type: string;
   };
+}
+
+/** Render specifications: preformatted if it contains newlines, else as plain paragraph. */
+function SpecificationsBlock({ text }: { text: string | undefined }) {
+  if (!text) {
+    return (
+      <p style={{ margin: 0, color: "var(--ui-text-muted)", fontStyle: "italic" }}>
+        No product specifications recorded.
+      </p>
+    );
+  }
+
+  const hasNewlines = text.includes("\n");
+
+  if (hasNewlines) {
+    return (
+      <pre style={{
+        margin: 0,
+        fontFamily: "inherit",
+        fontSize: 14,
+        lineHeight: 1.8,
+        color: "var(--ui-text-primary)",
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-word",
+      }}>
+        {text}
+      </pre>
+    );
+  }
+
+  // Paragraph-formatted: split by common separators like ";" or "-" at the start of line
+  return (
+    <p style={{ margin: 0, fontSize: 14, lineHeight: 1.8, color: "var(--ui-text-primary)" }}>
+      {text}
+    </p>
+  );
 }
 
 export default function MarketplaceDetail() {
@@ -44,14 +81,10 @@ export default function MarketplaceDetail() {
     setLoading(true);
     getCatalogue(id)
       .then((response) => {
-        console.log("Catalogue detail response:", response);
-        // Laravel Resource usually wraps data in a 'data' property
-        // We handle both { data: { ...item } } and direct { ...item }
         let product = response;
-        if (response && typeof response === 'object' && 'data' in response) {
+        if (response && typeof response === "object" && "data" in response) {
           product = response.data;
         }
-        
         if (product) {
           setItem(product);
           setError(null);
@@ -59,8 +92,7 @@ export default function MarketplaceDetail() {
           setError("Product data is empty.");
         }
       })
-      .catch((err) => {
-        console.error("Failed to load product:", err);
+      .catch(() => {
         setError("Failed to load product details. Please try again.");
       })
       .finally(() => setLoading(false));
@@ -73,114 +105,131 @@ export default function MarketplaceDetail() {
       const nextCart = existing
         ? currentCart.map((i: any) => i.id === catalogueItem.id ? { ...i, qty: i.qty + 1 } : i)
         : [...currentCart, { ...catalogueItem, qty: 1, estimated_price: 0 }];
-
       localStorage.setItem("huntr_cart", JSON.stringify(nextCart));
       setCartMessage("Product successfully added to cart.");
       window.setTimeout(() => setCartMessage(null), 3200);
     } catch (err) {
-      console.error(err);
       setCartMessage("Unable to add product to cart right now.");
     }
   };
+
+  const imageUrl = item?.image_path
+    ? getAssetUrl(item.image_path)
+    : (item?.image || null);
 
   return (
     <Layout title="Marketplace Product" subtitle="Product details from vendor catalog.">
       <style>{`
         @media (max-width: 768px) {
-          .marketplace-detail-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .marketplace-image {
-            min-height: clamp(240px, 50vw, 360px) !important;
-          }
+          .mp-detail-grid { grid-template-columns: 1fr !important; }
+          .mp-image-box { min-height: 240px !important; max-height: 320px !important; }
         }
       `}</style>
-      <div style={{ width: "100%" }}>
+
+      <div style={{ width: "100%", maxWidth: 1100, margin: "0 auto" }}>
+        {/* Back button */}
         <button
           type="button"
           onClick={() => isGuest ? navigate("/") : navigate("/marketplace")}
           style={{
-            marginBottom: 24,
-            padding: "10px 16px",
-            borderRadius: 10,
-            background: "var(--ui-bg-input)",
-            border: "1px solid var(--ui-border-input)",
-            color: "var(--ui-text-secondary)",
-            cursor: "pointer",
-            fontWeight: 700,
-            transition: "all 0.3s ease",
+            marginBottom: 28, padding: "9px 16px", borderRadius: 10,
+            background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
+            color: "var(--ui-text-secondary)", cursor: "pointer", fontWeight: 700,
+            display: "flex", alignItems: "center", gap: 8, fontSize: 14,
           }}
         >
-          ← {isGuest ? "Back to Home" : "Back to Marketplace"}
+          <ArrowLeft size={16} />
+          {isGuest ? "Back to Home" : "Back to Marketplace"}
         </button>
 
-        {loading && <div style={{ color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>Loading product details...</div>}
-        {error && <div style={{ color: "#fca5a5", transition: "color 0.3s ease" }}>{error}</div>}
-        {!loading && !error && item ? (
-          <div style={{ display: "grid", gap: 24 }}>
-            <div style={{ display: "grid", gap: 10 }}>
-              <div style={{ color: "#fdba74", fontSize: 13, fontWeight: 700, transition: "color 0.3s ease" }}>
-                Marketplace Product
+        {loading && (
+          <div style={{ textAlign: "center", padding: 80, color: "var(--ui-text-muted)" }}>
+            Loading product details...
+          </div>
+        )}
+        {error && (
+          <div style={{ color: "#fca5a5", padding: 20, borderRadius: 14, background: "rgba(239,68,68,0.08)" }}>
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && item && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            {/* Title block */}
+            <div>
+              <div style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                {item.category || "General"} • {item.company?.name || "Global"}
               </div>
-              <h1 style={{ margin: 0, fontSize: 34, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{item.name}</h1>
-              <p style={{ margin: 0, color: "var(--ui-text-secondary)", maxWidth: 760, lineHeight: 1.7, transition: "color 0.3s ease" }}>
-                {item.specifications || "No additional specifications."}
-              </p>
+              <h1 style={{ margin: "0 0 4px", fontSize: "clamp(22px, 5vw, 34px)", fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>
+                {item.name}
+              </h1>
+              <div style={{ fontSize: 13, color: "var(--ui-text-muted)" }}>SKU: {item.item_code}</div>
             </div>
 
-            <div className="marketplace-detail-grid" style={{ display: "grid", gap: 24, gridTemplateColumns: "1.1fr 0.9fr" }}>
-              <div className="marketplace-image" style={{ borderRadius: 24, overflow: "hidden", background: "var(--ui-bg-card)", minHeight: "clamp(240px, 50vw, 360px)", transition: "background 0.3s ease" }}>
-                <img
-                  src={item.image_path ? getAssetUrl(item.image_path) : (item.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80")}
-                  alt={item.name}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+            {/* Image + Info grid */}
+            <div className="mp-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24, alignItems: "start" }}>
+              {/* Image */}
+              <div
+                className="mp-image-box"
+                style={{
+                  borderRadius: 24, overflow: "hidden",
+                  background: "var(--ui-bg-card)",
+                  minHeight: "clamp(240px, 40vw, 480px)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  border: "1px solid var(--ui-border)",
+                }}
+              >
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={item.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, color: "var(--ui-text-muted)" }}>
+                    <Package size={64} strokeWidth={1} />
+                    <span style={{ fontSize: 13 }}>No image available</span>
+                  </div>
+                )}
               </div>
 
-              <div style={{ display: "grid", gap: 20, padding: 24, borderRadius: 24, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)`, transition: "all 0.3s ease" }}>
-                <div style={{ display: "grid", gap: 12 }}>
-                  {item.price && item.price > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      <span style={{ color: "var(--ui-text-muted)", textTransform: "uppercase", fontSize: 11, letterSpacing: 1.2, fontWeight: 700 }}>
-                        Estimated Price
-                      </span>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: "#10b981", transition: "color 0.3s ease" }}>
-                        {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(item.price)}
-                      </div>
+              {/* Right panel */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {/* Price */}
+                {item.price && item.price > 0 ? (
+                  <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 20, border: "1px solid var(--ui-border)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                      Estimated Price
                     </div>
-                  ) : null}
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-                    <span style={{ color: "var(--ui-text-muted)", textTransform: "uppercase", fontSize: 12, letterSpacing: 1.2, transition: "color 0.3s ease" }}>
-                      Product Details
-                    </span>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: "#10b981" }}>
+                      {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(item.price)}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>per {item.uom}</div>
                   </div>
+                ) : null}
 
-                  <div style={{ display: "grid", gap: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>Product ID</span>
-                      <span>{item.item_code}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>Category</span>
-                      <span>{item.category || "General"}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
-                      <span>Unit</span>
-                      <span>{item.uom}</span>
-                    </div>
+                {/* Details */}
+                <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 20, border: "1px solid var(--ui-border)", display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    Product Details
                   </div>
+                  {[
+                    { label: "SKU / Item Code", value: item.item_code },
+                    { label: "Category", value: item.category || "General" },
+                    { label: "Unit of Measure", value: item.uom },
+                    ...(item.company ? [{ label: "Vendor", value: item.company.name }] : []),
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 14 }}>
+                      <span style={{ color: "var(--ui-text-muted)", flexShrink: 0 }}>{label}</span>
+                      <span style={{ color: "var(--ui-text-primary)", fontWeight: 600, textAlign: "right" }}>{value}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <div style={{ display: "grid", gap: 8 }}>
-                  <div style={{ color: "var(--ui-text-secondary)", fontSize: 14, fontWeight: 700, transition: "color 0.3s ease" }}>Specifications</div>
-                  <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 16, borderRadius: 16, lineHeight: 1.8, transition: "all 0.3s ease" }}>
-                    {item.specifications || "No product specifications recorded."}
-                  </div>
-                </div>
-
+                {/* CTA */}
                 {cartMessage ? (
-                  <div style={{ color: "#d1fae5", background: "rgba(16, 185, 129, 0.18)", padding: 14, borderRadius: 14, border: "1px solid rgba(16, 185, 129, 0.25)", transition: "all 0.3s ease" }}>
+                  <div style={{ color: "#d1fae5", background: "rgba(16,185,129,0.15)", padding: 14, borderRadius: 14, border: "1px solid rgba(16,185,129,0.25)", fontSize: 14 }}>
                     {cartMessage}
                   </div>
                 ) : null}
@@ -190,68 +239,49 @@ export default function MarketplaceDetail() {
                     type="button"
                     onClick={() => navigate("/login")}
                     style={{
-                      width: "100%",
-                      padding: "16px 18px",
-                      borderRadius: 16,
+                      width: "100%", padding: "15px 18px", borderRadius: 16,
                       background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                      border: "none",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
-                      transition: "all 0.3s ease",
+                      border: "none", color: "#fff", fontWeight: 700, cursor: "pointer",
+                      fontSize: 15, boxShadow: "0 8px 24px rgba(249,115,22,0.25)",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     }}
                   >
-                    Login to Create PR
+                    <ShoppingCart size={18} /> Login to Create PR
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => addToCart(item)}
                     style={{
-                      width: "100%",
-                      padding: "16px 18px",
-                      borderRadius: 16,
+                      width: "100%", padding: "15px 18px", borderRadius: 16,
                       background: "linear-gradient(135deg,#10b981,#059669)",
-                      border: "none",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
+                      border: "none", color: "#fff", fontWeight: 700, cursor: "pointer",
+                      fontSize: 15, boxShadow: "0 8px 24px rgba(16,185,129,0.25)",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     }}
                   >
-                    Add to Cart
+                    <ShoppingCart size={18} /> Add to Cart
                   </button>
                 )}
-
-                <button
-                  type="button"
-                  onClick={() => isGuest ? navigate("/") : navigate(`/marketplace`)}
-                  style={{
-                    width: "100%",
-                    padding: "14px 16px",
-                    borderRadius: 16,
-                    background: "var(--ui-bg-input)",
-                    border: "1px solid var(--ui-border-input)",
-                    color: "var(--ui-text-secondary)",
-                    cursor: "pointer",
-                    fontWeight: 700,
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  {isGuest ? "Back to Home" : "Back to Marketplace"}
-                </button>
               </div>
             </div>
+
+            {/* Specifications block — full width below */}
+            <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 24, border: "1px solid var(--ui-border)" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+                Specifications
+              </div>
+              <SpecificationsBlock text={item.specifications} />
+            </div>
           </div>
-        ) : (
-        !loading && !error && (
-          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 20, borderRadius: 18, transition: "all 0.3s ease" }}>
+        )}
+
+        {!loading && !error && !item && (
+          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-input)", padding: 20, borderRadius: 18 }}>
             No product details available to display.
           </div>
-        )
-      )}
-    </div>
+        )}
+      </div>
     </Layout>
   );
 }
