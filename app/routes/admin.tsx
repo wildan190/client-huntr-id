@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Building2, ShieldCheck, LogOut, CheckCircle2, XCircle,
   Clock, Eye, FileText, ChevronDown, ChevronUp, Search,
-  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink,
+  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink, Trash2,
 } from "lucide-react";
 import {
   adminLogin,
@@ -10,6 +10,7 @@ import {
   adminAuditCompany,
   adminGetCatalogue,
   adminCreateCatalogueItem,
+  adminDeleteCatalogueItem,
   adminGetTransactions,
   adminGetEscrowSummary
 } from "../lib/api";
@@ -518,7 +519,7 @@ function AdminCatalogueTab() {
       {isLoading ? <Loader2 className="animate-spin" /> : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
           {catalogues.map(item => (
-            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden" }}>
+            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative" }}>
               <div style={{ height: 140, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
               <div style={{ padding: 16 }}>
                 <div style={{ fontWeight: 800 }}>{item.name}</div>
@@ -526,6 +527,25 @@ function AdminCatalogueTab() {
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
                   Rp {item.price?.toLocaleString()} / {item.uom}
                 </div>
+                <button
+                  onClick={async () => {
+                    if (!confirm(`Hapus produk "${item.name}"?`)) return;
+                    try {
+                      await adminDeleteCatalogueItem(item.id);
+                      fetchCatalogues();
+                    } catch (err) {
+                      alert("Gagal menghapus produk");
+                    }
+                  }}
+                  style={{
+                    marginTop: 12, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                    fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
+                    border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                  }}
+                >
+                  <Trash2 size={13} /> Hapus Produk
+                </button>
               </div>
             </div>
           ))}

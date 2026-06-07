@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPostForm } from "../client";
+import { apiGet, apiPost, apiPostForm, apiDelete } from "../client";
 
 /**
  * Admin API
@@ -36,6 +36,9 @@ export const adminGetCatalogue = (params?: { page?: number; per_page?: number; s
 
 export const adminCreateCatalogueItem = (payload: FormData) =>
   apiPostForm("/api/admin/catalogues", payload);
+
+export const adminDeleteCatalogueItem = (id: string) =>
+  apiDelete(`/api/admin/catalogues/${id}`);
 
 // Transactions
 export const adminGetTransactions = (params?: { page?: number; per_page?: number; search?: string }) => {
