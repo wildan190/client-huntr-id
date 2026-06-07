@@ -58,3 +58,6 @@ export const arrangeDelivery = (poId: string | number, companyId: string | numbe
 
 export const publishInvoice = (invoiceId: string | number, companyId: string | number) => 
   apiPost(`/api/invoices/${invoiceId}/publish`, { company_id: companyId });
+
+export const approveInvoice = (invoiceId: string | number, companyId: string | number) => 
+  apiPost(`/api/invoices/${invoiceId}/approve`, { company_id: companyId });

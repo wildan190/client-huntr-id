@@ -660,57 +660,64 @@ export default function Orders() {
                         </div>
                         {po.invoices && po.invoices.length > 0 ? (
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                            {po.invoices.map((inv: any) => (
+                            {[po.invoices.find((i: any) => i.type === 'final') || po.invoices.find((i: any) => i.type === 'proforma')].filter(Boolean).map((inv: any) => (
                               <div key={inv.id} style={{ 
-                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border-input)",
-                                display: "flex", flexDirection: "column", gap: 4, minWidth: 200
+                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", 
+                                border: `1px solid ${inv.type === 'final' ? "rgba(34,197,94,0.2)" : "var(--ui-border-input)"}`,
+                                display: "flex", flexDirection: "column", gap: 8, minWidth: 220
                               }}>
+                                {/* Header row: invoice type + status badge */}
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span style={{ fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>
-                                    {inv.status === 'paid' ? 'Tax' : 'Proforma'} Invoice
+                                  <span style={{ 
+                                    fontSize: 10, fontWeight: 800, textTransform: "uppercase",
+                                    color: inv.type === 'final' ? "#22c55e" : "#fb923c" 
+                                  }}>
+                                    {inv.type === 'final' ? '🧾 Invoice Akhir' : '📄 Proforma Invoice'}
                                   </span>
                                   <span style={{ 
                                     fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6,
-                                    background: inv.status === 'paid' ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)",
-                                    color: inv.status === 'paid' ? "#22c55e" : "#fb923c",
+                                    background: inv.status === 'paid' ? "rgba(34,197,94,0.1)" : inv.status === 'pending_finance' ? "rgba(59,130,246,0.1)" : inv.status === 'unpaid' ? "rgba(249,115,22,0.1)" : "rgba(107,114,128,0.1)",
+                                    color: inv.status === 'paid' ? "#22c55e" : inv.status === 'pending_finance' ? "#3b82f6" : inv.status === 'unpaid' ? "#fb923c" : "#9ca3af",
                                     textTransform: "uppercase"
-                                  }}>{inv.status}</span>
+                                  }}>{inv.status.replace('_', ' ')}</span>
                                 </div>
+
+                                {/* Amount */}
                                 <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)" }}>
                                   IDR {Number(inv.amount).toLocaleString()}
                                 </div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
-                                {inv.type === 'proforma' && (
-                                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                    <a 
-                                      href={getFullApiUrl(`/api/invoices/${inv.id}/print`)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="mt-2 flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline"
-                                    >
-                                      <FileText size={12} /> Print Invoice
-                                    </a>
-                                    
-                                    {inv.status === 'unpaid' && company.type === 'buyer' && (
-                                      <button 
-                                        onClick={() => {
-                                          setSelectedInvoice(inv);
-                                          setShowPaymentModal(true);
-                                        }}
-                                        style={{
-                                          width: "100%", padding: "8px 12px", borderRadius: 10,
-                                          background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                                          color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
-                                          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                                          boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
-                                        }}
-                                      >
-                                        <CreditCard size={12} /> Pay Now
-                                      </button>
-                                    )}
-                                  </div>
+
+                                {/* Print link always available */}
+                                <a 
+                                  href={getFullApiUrl(`/api/invoices/${inv.id}/print`)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ fontSize: 11, color: "#f97316", fontWeight: 700, display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }}
+                                >
+                                  <FileText size={12} /> Print Invoice
+                                </a>
+
+                                {/* Pay Now — for buyer on ANY unpaid invoice */}
+                                {inv.status === 'unpaid' && company.type === 'buyer' && (
+                                  <button 
+                                    onClick={() => {
+                                      setSelectedInvoice(inv);
+                                      setShowPaymentModal(true);
+                                    }}
+                                    style={{
+                                      width: "100%", padding: "8px 12px", borderRadius: 10,
+                                      background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+                                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                                      boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                                    }}
+                                  >
+                                    <CreditCard size={12} /> Bayar Sekarang
+                                  </button>
                                 )}
 
+                                {/* Publish Invoice — vendor only, final invoices in draft */}
                                 {inv.type === 'final' && inv.status === 'draft' && company.type === 'vendor' && (
                                   <button
                                     onClick={() => handlePublishInvoice(inv.id)}
@@ -721,10 +728,9 @@ export default function Orders() {
                                       color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
                                       cursor: processingId === inv.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                                       boxShadow: "0 4px 12px rgba(16,185,129,0.2)",
-                                      marginTop: 8
                                     }}
                                   >
-                                    {processingId === inv.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Publish Invoice
+                                    {processingId === inv.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Terbitkan Invoice Akhir
                                   </button>
                                 )}
                               </div>

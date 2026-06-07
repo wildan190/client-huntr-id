@@ -14,6 +14,7 @@ export default [
   route("rfq/:id", "routes/rfq-detail.tsx"),
   route("checkout", "routes/checkout.tsx"),
   route("approvals", "routes/approvals.tsx"),
+  route("finance", "routes/finance.tsx"),
   route("company", "routes/company.tsx"),
   route("catalogue", "routes/catalogue.tsx"),
   route("rfq", "routes/rfq.tsx"),

@@ -19,6 +19,7 @@ import {
   X,
   History,
   MessageSquare,
+  Briefcase,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -60,6 +61,7 @@ export default function Layout({ children, title, subtitle }: Props) {
     ...(isBuyerComp && (isManager || isBuyerRole) ? [{ to: "/marketplace", label: "Marketplace", Icon: Package }] : []),
     ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
     ...(isBuyerComp && isManager ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
+    ...(isBuyerComp && (isManager || isFinance) ? [{ to: "/finance", label: "Finance Approval", Icon: Briefcase }] : []),
     
     // Vendor specific
     ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
