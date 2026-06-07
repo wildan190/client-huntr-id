@@ -413,15 +413,38 @@ export default function Orders() {
 
                   <div style={{ width: 140 }}>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, transition: "color 0.3s ease" }}>Status</div>
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 10,
-                      background: po.status === 'confirmed' ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", 
-                      color: po.status === 'confirmed' ? "#22c55e" : "#fb923c", 
-                      fontSize: 12, fontWeight: 700, transition: "all 0.3s ease"
-                    }}>
-                      {po.status === 'confirmed' ? <CheckCircle2 size={14} /> : <Clock size={14} />} 
-                      {po.status === 'confirmed' ? 'Confirmed' : 'Issued'}
-                    </div>
+                    {(() => {
+                      let label = 'Issued';
+                      let bg = "rgba(249,115,22,0.1)";
+                      let color = "#fb923c";
+                      let IconComp = Clock;
+                      
+                      switch (po.status) {
+                        case 'confirmed':
+                          label = 'Confirmed'; bg = "rgba(168,85,247,0.1)"; color = "#a855f7"; IconComp = CheckCircle2; break;
+                        case 'paid':
+                          label = 'Paid'; bg = "rgba(59,130,246,0.1)"; color = "#3b82f6"; IconComp = CheckCircle2; break;
+                        case 'completed':
+                        case 'done':
+                          label = 'Completed'; bg = "rgba(34,197,94,0.1)"; color = "#22c55e"; IconComp = CheckCircle2; break;
+                        case 'shipped':
+                        case 'delivered':
+                          label = 'Delivering'; bg = "rgba(236,72,153,0.1)"; color = "#ec4899"; IconComp = Package; break;
+                        default:
+                          label = 'Issued'; bg = "rgba(249,115,22,0.1)"; color = "#fb923c"; IconComp = Clock; break;
+                      }
+
+                      return (
+                        <div style={{
+                          display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 10,
+                          background: bg, color: color, fontSize: 12, fontWeight: 700, transition: "all 0.3s ease",
+                          textTransform: "capitalize"
+                        }}>
+                          <IconComp size={14} /> 
+                          {label}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div style={{ display: "flex", gap: 12 }}>
