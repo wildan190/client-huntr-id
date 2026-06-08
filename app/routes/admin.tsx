@@ -522,7 +522,7 @@ function AdminCatalogueTab() {
             <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
               <div style={{ height: 140, flexShrink: 0, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
               <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
-                <div style={{ fontWeight: 800, lineHeight: 1.3 }}>{item.name}</div>
+                <div style={{ fontWeight: 800, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</div>
                 <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
                   Rp {item.price?.toLocaleString()} / {item.uom}
