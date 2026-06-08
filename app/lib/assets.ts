@@ -13,21 +13,25 @@ export function getAssetUrl(path: string | null | undefined): string {
     return path;
   }
 
-  // Ambil base URL dari environment variable
+  const cleanPath = path.replace(/^\//, "");
+
+  // Coba VITE_BASE_URL_IMAGE dulu (S3 endpoint di production)
   const baseUrl = import.meta.env.VITE_BASE_URL_IMAGE;
-  
-  if (!baseUrl) {
-    // Fallback jika env tidak diset (misal di produksi lupa set)
-    // Kita coba ambil dari origin saat ini
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/storage/${path.replace(/^\//, "")}`;
-    }
-    return `/storage/${path.replace(/^\//, "")}`;
+  if (baseUrl) {
+    const cleanBase = baseUrl.replace(/\/$/, "");
+    return `${cleanBase}/${cleanPath}`;
   }
 
-  // Gabungkan base URL dengan path, pastikan tidak ada double slash
-  const cleanBase = baseUrl.replace(/\/$/, "");
-  const cleanPath = path.replace(/^\//, "");
-  
-  return `${cleanBase}/${cleanPath}`;
+  // Fallback ke VITE_API_URL + /storage (cocok untuk lokal)
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    const cleanApi = apiUrl.replace(/\/$/, "");
+    return `${cleanApi}/storage/${cleanPath}`;
+  }
+
+  // Last resort: gunakan window.location.origin
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/storage/${cleanPath}`;
+  }
+  return `/storage/${cleanPath}`;
 }

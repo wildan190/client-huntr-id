@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import Layout from "../components/Layout";
 import ThemeToggle from "../components/ThemeToggle";
 import { getCatalogues } from "../lib/api";
+import { getAssetUrl } from "../lib/assets";
 import { 
   Activity, 
   ArrowRight, 
@@ -433,8 +434,19 @@ function GuestMarketplaceView() {
               }}
               onClick={() => navigate(`/marketplace/${item.id}`)}
               >
-                <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 16, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Package size={64} color="rgba(255,255,255,0.05)" />
+                <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 16, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {item.image_path ? (
+                    <img
+                      src={getAssetUrl(item.image_path)}
+                      alt={item.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <Package size={48} color="rgba(249,115,22,0.15)" />
+                  )}
                 </div>
                 <div>
                   <div style={{ fontSize: "clamp(10px, 2vw, 12px)", color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item.category || "General"}</div>
