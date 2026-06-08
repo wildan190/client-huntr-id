@@ -26,6 +26,7 @@ export default function Catalogue() {
     item_code: "",
     name: "",
     category: "",
+    brand: "",
     specifications: "",
     uom: "Pc",
   });
@@ -69,6 +70,7 @@ export default function Catalogue() {
       fd.append("item_code", formData.item_code);
       fd.append("name", formData.name);
       fd.append("category", formData.category);
+      fd.append("brand", formData.brand);
       fd.append("specifications", formData.specifications);
       fd.append("uom", formData.uom);
       fd.append("price", "0");
@@ -82,7 +84,7 @@ export default function Catalogue() {
         await createCatalogue(fd);
       }
       setShowForm(false);
-      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
+      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", uom: "Pc" });
       setProductImage(null);
       setEditingItem(null);
       fetchItems(company.id);
@@ -131,7 +133,7 @@ export default function Catalogue() {
                   <button 
                     onClick={() => {
                       setEditingItem(null);
-                      setFormData({ item_code: "", name: "", category: "", specifications: "", uom: "Pc" });
+                      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", uom: "Pc" });
                       setProductImage(null);
                       setShowForm(!showForm);
                     }}
@@ -176,6 +178,7 @@ export default function Catalogue() {
               <Field label="Item Code" value={formData.item_code} onChange={(v:any) => setFormData({...formData, item_code: v})} placeholder="e.g. SKA-001" required />
               <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
               <Field label="Category" value={formData.category} onChange={(v:any) => setFormData({...formData, category: v})} placeholder="e.g. Spareparts" />
+              <Field label="Brand (Optional)" value={formData.brand} onChange={(v:any) => setFormData({...formData, brand: v})} placeholder="e.g. Bosch, Siemens" />
               <Field label="UOM" value={formData.uom} onChange={(v:any) => setFormData({...formData, uom: v})} placeholder="e.g. Pc, Box" required />
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={lbl}>Product Image</label>
@@ -283,6 +286,7 @@ export default function Catalogue() {
                             item_code: item.item_code || "",
                             name: item.name || "",
                             category: item.category || "",
+                            brand: item.brand || "",
                             specifications: item.specifications || "",
                             uom: item.uom || "Pc",
                           });

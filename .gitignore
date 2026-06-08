@@ -6,3 +6,6 @@
 /.react-router/
 /build/
 .env.production
+REFACTOR_IMPLEMENTATION.md
+.gitignore
+REFACTOR_PLAN.md

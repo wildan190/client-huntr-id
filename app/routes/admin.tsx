@@ -570,11 +570,43 @@ function AdminCatalogueTab() {
               <div style={{ display: "flex", gap: 16 }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Category (Optional)</label>
-                  <input name="category" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                  <select name="category" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", cursor: "pointer", fontWeight: 600 }}>
+                    <option value="">Pilih Kategori...</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Raw Materials">Raw Materials</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Chemicals">Chemicals</option>
+                    <option value="Machinery">Machinery</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Spare Parts">Spare Parts</option>
+                    <option value="Safety Equipment">Safety Equipment</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
                 <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Brand (Optional)</label>
+                  <input name="brand" placeholder="e.g. Bosch, Siemens" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div style={{ flex: 1 }}>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>UOM</label>
-                  <input name="uom" required style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                  <select name="uom" required style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", cursor: "pointer", fontWeight: 600 }}>
+                    <option value="">Pilih UOM...</option>
+                    <option value="Pc">Pc (Piece)</option>
+                    <option value="Kg">Kg (Kilogram)</option>
+                    <option value="L">L (Liter)</option>
+                    <option value="M">M (Meter)</option>
+                    <option value="Box">Box</option>
+                    <option value="Pallet">Pallet</option>
+                    <option value="Set">Set</option>
+                    <option value="Unit">Unit</option>
+                    <option value="Ton">Ton</option>
+                    <option value="Pair">Pair</option>
+                    <option value="Drum">Drum</option>
+                    <option value="Container">Container</option>
+                  </select>
                 </div>
               </div>
               <div>
