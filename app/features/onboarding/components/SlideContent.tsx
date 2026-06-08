@@ -75,16 +75,16 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
                 onChange={e => updateField("industry_type", e.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
               >
-                <option value="" className="bg-[var(--ui-bg-page)]">Pilih Industri...</option>
-                <option value="Technology" className="bg-[var(--ui-bg-page)]">Teknologi</option>
-                <option value="Manufacturing" className="bg-[var(--ui-bg-page)]">Manufaktur</option>
-                <option value="Logistics" className="bg-[var(--ui-bg-page)]">Logistik</option>
-                <option value="Healthcare" className="bg-[var(--ui-bg-page)]">Kesehatan</option>
+                <option value="" className="bg-[var(--ui-bg-page)]">Select Industry...</option>
+                <option value="Technology" className="bg-[var(--ui-bg-page)]">Technology</option>
+                <option value="Manufacturing" className="bg-[var(--ui-bg-page)]">Manufacturing</option>
+                <option value="Logistics" className="bg-[var(--ui-bg-page)]">Logistics</option>
+                <option value="Healthcare" className="bg-[var(--ui-bg-page)]">Healthcare</option>
                 <option value="Retail" className="bg-[var(--ui-bg-page)]">Retail</option>
-                <option value="Finance" className="bg-[var(--ui-bg-page)]">Keuangan</option>
-                <option value="Construction" className="bg-[var(--ui-bg-page)]">Konstruksi</option>
-                <option value="Services" className="bg-[var(--ui-bg-page)]">Jasa</option>
-                <option value="Other" className="bg-[var(--ui-bg-page)]">Lainnya</option>
+                <option value="Finance" className="bg-[var(--ui-bg-page)]">Finance</option>
+                <option value="Construction" className="bg-[var(--ui-bg-page)]">Construction</option>
+                <option value="Services" className="bg-[var(--ui-bg-page)]">Services</option>
+                <option value="Other" className="bg-[var(--ui-bg-page)]">Other</option>
               </select>
             </div>
           </div>
@@ -94,9 +94,9 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
             <Field label="Email" value={formData.email} onChange={(v:any) => updateField("email", v)} type="email" />
           </div>
           <div className="flex flex-col gap-2">
-            <FormLabel>Tipe Bisnis *</FormLabel>
+            <FormLabel>Business Type *</FormLabel>
             <div className="grid grid-cols-2 gap-3">
-              {[{ v: "buyer", l: "Pembeli (Buyer)" }, { v: "vendor", l: "Penjual (Vendor)" }].map(opt => (
+              {[{ v: "buyer", l: "Buyer" }, { v: "vendor", l: "Vendor" }].map(opt => (
                 <button 
                   key={opt.v} 
                   type="button" 
@@ -119,21 +119,21 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
     
     case 2:
       return (
-        <SlideSection title="Lokasi" subtitle="Alamat bisnis" icon={<MapPin size={22} className="text-amber-500" />} accentColor="#f59e0b">
+        <SlideSection title="Location" subtitle="Business address" icon={<MapPin size={22} className="text-amber-500" />} accentColor="#f59e0b">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Provinsi *" value={formData.provincy_country} onChange={(v:any) => updateField("provincy_country", v)} placeholder="Contoh: Jawa Barat" />
-            <Field label="Kota *" value={formData.city} onChange={(v:any) => updateField("city", v)} placeholder="Contoh: Bandung" />
+            <Field label="Province *" value={formData.provincy_country} onChange={(v:any) => updateField("provincy_country", v)} placeholder="E.g.: West Java" />
+            <Field label="City *" value={formData.city} onChange={(v:any) => updateField("city", v)} placeholder="E.g.: Bandung" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Kecamatan" value={formData.regency} onChange={(v:any) => updateField("regency", v)} placeholder="Contoh: Coblong" />
-            <Field label="Kode Pos" value={formData.zip_code} onChange={(v:any) => updateField("zip_code", v)} placeholder="Contoh: 40132" />
+            <Field label="District" value={formData.regency} onChange={(v:any) => updateField("regency", v)} placeholder="E.g.: Coblong" />
+            <Field label="Postal Code" value={formData.zip_code} onChange={(v:any) => updateField("zip_code", v)} placeholder="E.g.: 40132" />
           </div>
           <div className="flex flex-col gap-2">
-            <FormLabel>Alamat Lengkap *</FormLabel>
+            <FormLabel>Full Address *</FormLabel>
             <textarea 
               value={formData.address} 
               onChange={e => updateField("address", e.target.value)} 
-              placeholder="Contoh: Jl. Kalidosok Raya No. 21"
+              placeholder="E.g.: Jl. Kalidosok Raya No. 21"
               className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm h-24 resize-none transition-all focus:border-orange-500/50"
             />
           </div>
@@ -142,22 +142,22 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
 
     case 3:
       return (
-        <SlideSection title="Perbankan" subtitle="Detail pembayaran" icon={<CreditCard size={22} className="text-yellow-500" />} accentColor="#fbbf24">
+        <SlideSection title="Banking" subtitle="Payment details" icon={<CreditCard size={22} className="text-yellow-500" />} accentColor="#fbbf24">
           <div className="flex flex-col gap-1.5">
-            <FormLabel>Nama Bank</FormLabel>
+            <FormLabel>Bank Name</FormLabel>
             <select
               value={formData.bank_name}
               onChange={e => updateField("bank_name", e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
             >
-              <option value="" className="bg-[var(--ui-bg-page)]">Pilih Bank...</option>
+              <option value="" className="bg-[var(--ui-bg-page)]">Select Bank...</option>
               <option value="BNI" className="bg-[var(--ui-bg-page)]">BNI</option>
               <option value="Mandiri" className="bg-[var(--ui-bg-page)]">Mandiri</option>
               <option value="BCA" className="bg-[var(--ui-bg-page)]">BCA</option>
               <option value="BRI" className="bg-[var(--ui-bg-page)]">BRI</option>
             </select>
           </div>
-          <Field label="Nomor Rekening" value={formData.bank_account} onChange={(v:any) => updateField("bank_account", v)} />
+          <Field label="Account Number" value={formData.bank_account} onChange={(v:any) => updateField("bank_account", v)} />
           <Field label="Nama Pemilik Rekening" value={formData.bank_account_name} onChange={(v:any) => updateField("bank_account_name", v)} />
         </SlideSection>
       );
@@ -201,14 +201,14 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
 
     case 5:
       return (
-        <SlideSection title="Unggah Data" subtitle="Impor Data Awal" icon={<UploadCloud size={22} className="text-emerald-500" />} accentColor="#10b981">
+        <SlideSection title="Upload Data" subtitle="Import Initial Data" icon={<UploadCloud size={22} className="text-emerald-500" />} accentColor="#10b981">
           <div className="p-8 md:p-12 border-2 border-dashed border-[var(--ui-border-input)] rounded-3xl text-center bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] transition-all group">
             <div className="w-16 h-16 rounded-2xl bg-[var(--ui-bg-input)] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
               <FileSpreadsheet size={32} className="text-[var(--ui-text-muted)]" />
             </div>
-            <p className="text-sm text-[var(--ui-text-secondary)] mb-6">{selectedFile ? selectedFile.name : "Pilih file Excel atau CSV untuk diimpor"}</p>
+            <p className="text-sm text-[var(--ui-text-secondary)] mb-6">{selectedFile ? selectedFile.name : "Select an Excel or CSV file to import"}</p>
             <label className="inline-flex items-center px-6 py-3 bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] border border-[var(--ui-border-input)] rounded-xl text-sm font-bold text-[var(--ui-text-primary)] cursor-pointer transition-all">
-              Cari File
+              Choose File
               <input type="file" accept=".csv, .xlsx, .xls" onChange={e => setSelectedFile(e.target.files?.[0] || null)} className="hidden" />
             </label>
           </div>
@@ -217,7 +217,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
 
     case 6:
       return (
-        <SlideSection title="Berhasil" subtitle="Workspace Anda sudah siap" icon={<LogIn size={22} className="text-pink-500" />} accentColor="#ec4899">
+        <SlideSection title="Success" subtitle="Your workspace is ready" icon={<LogIn size={22} className="text-pink-500" />} accentColor="#ec4899">
           <div className="flex flex-col gap-3">
             {companies.map((c: any) => (
               <button 

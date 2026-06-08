@@ -113,8 +113,8 @@ export default function Rfq() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                   <CheckCircle2 size={32} color="#34d399" />
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: 18, color: "#fff" }}>RFQ Berhasil Dibuat!</div>
-                    <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>Status: <span style={{ color: "#fbbf24", fontWeight: 700 }}>DRAFT</span> (Menunggu Approval Manager)</div>
+                    <div style={{ fontWeight: 800, fontSize: 18, color: "#fff" }}>RFQ Successfully Created!</div>
+                    <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>Status: <span style={{ color: "#fbbf24", fontWeight: 700 }}>DRAFT</span> (Awaiting Manager Approval)</div>
                   </div>
                 </div>
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 16, padding: 20, marginBottom: 20, border: "1px solid rgba(255,255,255,0.05)" }}>

@@ -19,9 +19,9 @@ const STEP_META = [
   { id: 1, icon: Building2, label: "Profil", color: "#f97316" },
   { id: 2, icon: MapPin,     label: "Lokasi", color: "#f59e0b" },
   { id: 3, icon: CreditCard, label: "Bank",   color: "#fbbf24" },
-  { id: 4, icon: FileText,   label: "Dokumen", color: "#f59e0b" },
+  { id: 4, icon: FileText,   label: "Documents", color: "#f59e0b" },
   { id: 5, icon: UploadCloud,label: "Data",   color: "#10b981" },
-  { id: 6, icon: LogIn,      label: "Selesai", color: "#fb923c" },
+  { id: 6, icon: LogIn,      label: "Finish", color: "#fb923c" },
 ];
 
 /**
@@ -45,28 +45,28 @@ export default function Onboarding() {
   };
 
   /**
-   * Validasi lokal sebelum pindah slide
+   * Local validation before moving to next slide
    */
   const validateCurrentSlide = (): string | null => {
     if (vm.slide === 1) {
-      if (!vm.formData.company_name.trim()) return "Nama perusahaan wajib diisi.";
-      if (!vm.formData.type) return "Pilih tipe bisnis Anda.";
+      if (!vm.formData.company_name.trim()) return "Company name is required.";
+      if (!vm.formData.type) return "Please select your business type.";
       // NPWP verification only required for Indonesia
       if (isIndonesia() && !vm.npwpVerifiedData) {
-        return "Mohon verifikasi NPWP sebelum melanjutkan.";
+        return "Please verify NPWP before continuing.";
       }
     }
     if (vm.slide === 4 && vm.uploadedDocs.length === 0) {
-      return "Mohon unggah setidaknya satu dokumen legal.";
+      return "Please upload at least one legal document.";
     }
     if (vm.slide === 5 && !vm.selectedFile) {
-      return "Mohon pilih file CSV atau Excel untuk diimpor.";
+      return "Please select a CSV or Excel file to import.";
     }
     return null;
   };
 
   /**
-   * Navigasi ke slide berikutnya
+   * Navigate to next slide
    */
   const nextSlide = async () => {
     const err = validateCurrentSlide();
@@ -91,7 +91,7 @@ export default function Onboarding() {
   };
 
   /**
-   * Menangani aksi masuk ke workspace setelah berhasil onboarding
+   * Handle action to enter workspace after successful onboarding
    */
   const handleLoginAsCompany = () => {
     if (!vm.selectedCompany) return;
@@ -165,7 +165,7 @@ export default function Onboarding() {
                   onClick={() => vm.setSlide((p: any) => p - 1)} 
                   className="flex items-center gap-2 px-6 py-3 rounded-xl border border-[var(--ui-border)] text-[var(--ui-text-muted)] font-bold text-sm hover:bg-[var(--ui-bg-input)] hover:text-[var(--ui-text-primary)] transition-all"
                 >
-                  <ChevronLeft size={18} /> Kembali
+                  <ChevronLeft size={18} /> Back
                 </button>
               )}
               <div className="flex-1" />
@@ -175,7 +175,7 @@ export default function Onboarding() {
                   disabled={vm.isLoading} 
                   className="flex items-center gap-2 px-8 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-orange-500/25"
                 >
-                  {vm.isLoading ? <Loader2 className="animate-spin" size={18} /> : vm.slide === 5 ? "Selesai" : "Lanjut"} 
+                  {vm.isLoading ? <Loader2 className="animate-spin" size={18} /> : vm.slide === 5 ? "Finish" : "Next"} 
                   {!vm.isLoading && <ChevronRight size={18} />}
                 </button>
               )}

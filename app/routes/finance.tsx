@@ -37,7 +37,7 @@ export default function Finance() {
       setOrders(ordersWithPending);
     } catch (err: any) {
       console.error(err);
-      setError("Gagal memuat data invoice");
+      setError("Failed to load invoice data");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function Finance() {
   };
 
   return (
-    <Layout title="Finance Approval" subtitle="Review dan setujui Invoice Akhir sebelum pembayaran">
+    <Layout title="Finance Approval" subtitle="Review and approve final invoices before payment">
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         {error && (
           <div style={{
@@ -79,10 +79,10 @@ export default function Finance() {
             </div>
             <div>
               <h2 style={{ fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)", margin: 0, letterSpacing: "-0.5px" }}>
-                Menunggu Persetujuan ({orders.length})
+                Pending Approval ({orders.length})
               </h2>
               <p style={{ fontSize: 13, color: "var(--ui-text-muted)", margin: "4px 0 0" }}>
-                Daftar Invoice Akhir yang sudah diterbitkan Vendor dan menunggu review Finance.
+                List of final invoices issued by vendors awaiting finance review.
               </p>
             </div>
           </div>
@@ -91,15 +91,15 @@ export default function Finance() {
         {loading ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 60, color: "var(--ui-text-muted)" }}>
             <Loader2 size={32} className="animate-spin" style={{ marginBottom: 16 }} />
-            <span style={{ fontSize: 14, fontWeight: 600 }}>Memuat data...</span>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>Loading data...</span>
           </div>
         ) : orders.length === 0 ? (
           <div style={{ textAlign: "center", padding: 60, background: "var(--ui-bg-card)", borderRadius: 24, border: "1px dashed var(--ui-border-input)" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "var(--ui-text-muted)" }}>
               <CheckCircle2 size={32} />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 8px" }}>Tidak ada tagihan tertunda</h3>
-            <p style={{ fontSize: 14, color: "var(--ui-text-muted)", margin: 0 }}>Semua Invoice Akhir sudah disetujui atau dibayar.</p>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", margin: "0 0 8px" }}>No Pending Invoices</h3>
+            <p style={{ fontSize: 14, color: "var(--ui-text-muted)", margin: 0 }}>All final invoices have been approved or paid.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -115,7 +115,7 @@ export default function Finance() {
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
                         <span style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(59,130,246,0.1)", color: "#3b82f6", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>
-                          MENUNGGU APPROVAL
+                          PENDING APPROVAL
                         </span>
                         <span style={{ fontSize: 12, color: "var(--ui-text-muted)", fontFamily: "monospace", fontWeight: 600 }}>
                           PO: {po.po_number}
@@ -147,7 +147,7 @@ export default function Finance() {
                         padding: "8px 16px", borderRadius: 10, background: "rgba(249,115,22,0.1)", transition: "background 0.2s"
                       }}
                     >
-                      <FileText size={16} /> Lihat Dokumen Invoice
+                      <FileText size={16} /> View Invoice Document
                     </a>
                     
                     <button

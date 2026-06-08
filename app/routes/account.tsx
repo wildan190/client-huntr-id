@@ -92,7 +92,7 @@ export default function AccountSettings() {
       const qrRes = await get2FAQRCode();
       setQrCode(qrRes.svg);
       setConfirming2FA(true);
-      setSuccess("2FA sedang diaktifkan. Silakan pindai kode QR.");
+      setSuccess("2FA is being activated. Please scan the QR code.");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -117,7 +117,7 @@ export default function AccountSettings() {
       localStorage.setItem("user_session", JSON.stringify(updatedUser));
       setUser(updatedUser);
       
-      setSuccess("2FA Berhasil diaktifkan!");
+      setSuccess("2FA successfully activated!");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -126,7 +126,7 @@ export default function AccountSettings() {
   };
 
   const handleDisable2FA = async () => {
-    if (!confirm("Apakah Anda yakin ingin menonaktifkan 2FA?")) return;
+    if (!confirm("Are you sure you want to disable 2FA?")) return;
     setLoading(true);
     setError(null);
     try {
@@ -163,7 +163,7 @@ export default function AccountSettings() {
     setSuccess(null);
     try {
       await updatePassword(passwordForm);
-      setSuccess("Password berhasil diperbarui!");
+      setSuccess("Password successfully updated!");
       setPasswordForm({
         current_password: "",
         password: "",
@@ -179,7 +179,7 @@ export default function AccountSettings() {
   const handleSendOtp = async () => {
     if (sendingOtp || (resendCooldown > 0 && otpSent)) return;
     if (!newWhatsapp) {
-      setError("Silakan masukkan nomor WhatsApp baru.");
+      setError("Please enter a new WhatsApp number.");
       return;
     }
     setSendingOtp(true);
@@ -222,7 +222,7 @@ export default function AccountSettings() {
       localStorage.setItem("user_session", JSON.stringify(updatedUser));
       setUser(updatedUser);
       
-      setSuccess("Nomor WhatsApp berhasil diperbarui!");
+      setSuccess("WhatsApp number successfully updated!");
       setOtpSent(false);
       setOtp("");
       setCanonicalWhatsapp("");
@@ -237,7 +237,7 @@ export default function AccountSettings() {
   };
 
   const handleLogoutSession = async (sessionId: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghentikan sesi ini?")) return;
+    if (!confirm("Are you sure you want to terminate this session?")) return;
     try {
       await logoutSession(sessionId);
       fetchSessions();
@@ -247,7 +247,7 @@ export default function AccountSettings() {
   };
 
   return (
-    <Layout title="Pengaturan Akun" subtitle="Kelola keamanan dan profil Anda">
+    <Layout title="Account Settings" subtitle="Manage your security and profile">
       <div style={{ maxWidth: "100%", width: "100%" }}>
         
         {/* Tabs */}
@@ -278,10 +278,10 @@ export default function AccountSettings() {
                 <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ui-text-primary)", margin: "0 0 8px", transition: "color 0.3s ease" }}>Ganti Password</h2>
                 
                 <div style={inputGroup}>
-                  <label style={labelStyle}>Password Saat Ini</label>
+                  <label style={labelStyle}>Current Password</label>
                   <input 
                     type="password" 
-                    placeholder="Masukkan password saat ini"
+                    placeholder="Enter current password"
                     value={passwordForm.current_password} 
                     onChange={e => setPasswordForm(p => ({ ...p, current_password: e.target.value }))}
                     required 
@@ -330,16 +330,16 @@ export default function AccountSettings() {
                 
                 {!twoFactorEnabled && !confirming2FA && (
                   <div style={{ padding: 20, background: "rgba(249,115,22,0.05)", borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", transition: "all 0.3s ease" }}>
-                    <p style={{ fontSize: 14, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Tingkatkan keamanan akun Anda dengan mengaktifkan autentikasi dua faktor.</p>
+                    <p style={{ fontSize: 14, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Enhance your account security by enabling two-factor authentication.</p>
                     <button onClick={handleEnable2FA} disabled={loading} style={{ ...secondaryBtn, height: 44 }}>
-                      Aktifkan 2FA
+                      Enable 2FA
                     </button>
                   </div>
                 )}
 
                 {confirming2FA && qrCode && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-subtle)", transition: "all 0.3s ease" }}>
-                    <p style={{ fontSize: 14, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Pindai kode QR berikut menggunakan aplikasi autentikator Anda (seperti Google Authenticator):</p>
+                    <p style={{ fontSize: 14, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Scan the following QR code using your authenticator app (such as Google Authenticator):</p>
                     <div dangerouslySetInnerHTML={{ __html: qrCode }} style={{ background: "#fff", padding: 12, borderRadius: 12, width: "fit-content" }} />
                     
                     <div style={inputGroup}>
@@ -366,7 +366,7 @@ export default function AccountSettings() {
                       <CheckCircle2 size={18} />
                       <span style={{ fontWeight: 700, fontSize: 14 }}>2FA Aktif</span>
                     </div>
-                    <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Akun Anda sekarang lebih aman. Gunakan kode dari aplikasi autentikator Anda saat login.</p>
+                    <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", marginBottom: 20, transition: "color 0.3s ease" }}>Your account is now more secure. Use the code from your authenticator app when logging in.</p>
                     
                     {recoveryCodes.length > 0 && (
                       <div style={{ marginBottom: 20, padding: 16, background: "rgba(0,0,0,0.3)", borderRadius: 12, transition: "all 0.3s ease" }}>
@@ -418,7 +418,7 @@ export default function AccountSettings() {
                   )}
                 </div>
                 {newWhatsapp === user?.whatsapp && (
-                  <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "6px 0 0", transition: "color 0.3s ease" }}>Ini adalah nomor WhatsApp Anda saat ini.</p>
+                  <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "6px 0 0", transition: "color 0.3s ease" }}>This is your current WhatsApp number.</p>
                 )}
               </div>
 
@@ -478,7 +478,7 @@ export default function AccountSettings() {
                 {sessions.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
                     <Monitor size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
-                    <p>Tidak ada data sesi aktif.</p>
+                    <p>No active session data.</p>
                   </div>
                 ) : (
                   sessions.map((session) => {
@@ -553,7 +553,7 @@ export default function AccountSettings() {
               
               <div style={{ marginTop: 10, padding: 16, background: "rgba(249,115,22,0.05)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.1)", transition: "all 0.3s ease" }}>
                 <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", margin: 0, lineHeight: 1.5, transition: "color 0.3s ease" }}>
-                  <strong>Catatan:</strong> Jika Anda melihat aktivitas yang mencurigakan, segera ganti password Anda dan hentikan semua sesi aktif lainnya.
+                  <strong>Note:</strong> If you see any suspicious activity, change your password immediately and terminate all other active sessions.
                 </p>
               </div>
             </div>

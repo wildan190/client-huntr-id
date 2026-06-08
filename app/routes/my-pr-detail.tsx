@@ -431,7 +431,7 @@ export default function MyPurchaseRequisitionDetail() {
                               <div style={{ display: "flex", gap: 10, padding: "12px 16px", background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
                                 <Info size={16} color="var(--huntr-orange)" style={{ flexShrink: 0, marginTop: 2 }} />
                                 <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.5 }}>
-                                  <strong style={{ color: "var(--ui-text-primary)" }}>Rekomendasi Sistem:</strong> {recommendationReason}
+                                  <strong style={{ color: "var(--ui-text-primary)" }}>System Recommendation:</strong> {recommendationReason}
                                 </div>
                               </div>
                             )}

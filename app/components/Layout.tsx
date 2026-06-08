@@ -462,8 +462,8 @@ export default function Layout({ children, title, subtitle }: Props) {
                   Verifikasi Perusahaan Pending
                 </h2>
                 <p style={{ fontSize: "14px", color: "var(--ui-text-secondary)", lineHeight: "1.6", margin: 0 }}>
-                  Workspace perusahaan <strong>{activeCompany.name}</strong> saat ini masih dalam proses peninjauan oleh tim admin.
-                  Semua transaksi, pembuatan RFQ, pengunggahan dokumen, dan katalog dinonaktifkan sementara hingga akun Anda disetujui.
+                  The workspace for <strong>{activeCompany.name}</strong> is currently under review by the admin team.
+                  All transactions, RFQ creation, document uploads, and catalog management are temporarily disabled until your account is approved.
                 </p>
               </div>
 
@@ -477,7 +477,7 @@ export default function Layout({ children, title, subtitle }: Props) {
                     cursor: "pointer", boxShadow: "0 10px 25px rgba(249,115,22,0.25)"
                   }}
                 >
-                  Lihat Status Verifikasi
+                  View Verification Status
                 </button>
                 <button
                   onClick={handleSwitchCompany}

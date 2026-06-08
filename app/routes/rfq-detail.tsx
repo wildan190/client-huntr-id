@@ -439,7 +439,7 @@ export default function RfqDetail() {
                         }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 13 }}>
                             <Info size={14} color="#f97316" />
-                            Kriteria Penilaian Sistem
+                            System Evaluation Criteria
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 4 }}>
                             <div>
@@ -457,7 +457,7 @@ export default function RfqDetail() {
                           </div>
                         </div>
 
-                        {/* Rekomendasi Pemenang dari Sistem */}
+                        {/* System Winner Recommendation */}
                         {topRankData && (
                           <div style={{
                             background: "linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(245, 158, 11, 0.03) 100%)",
@@ -473,7 +473,7 @@ export default function RfqDetail() {
                               <div style={{ display: "flex", gap: 10, alignItems: "start" }}>
                                 <Trophy size={20} color="#f97316" style={{ marginTop: 2 }} />
                                 <div>
-                                  <div style={{ fontWeight: 800, fontSize: 11, color: "#f97316", textTransform: "uppercase", letterSpacing: 0.5 }}>Rekomendasi Sistem (Pemenang Terpilih)</div>
+                                  <div style={{ fontWeight: 800, fontSize: 11, color: "#f97316", textTransform: "uppercase", letterSpacing: 0.5 }}>System Recommendation (Selected Winner)</div>
                                   <div style={{ fontWeight: 800, fontSize: 16, color: "var(--ui-text-primary)", marginTop: 4 }}>
                                     {topRankData.proposal.company?.name || "Unknown Vendor"}
                                   </div>
@@ -540,11 +540,11 @@ export default function RfqDetail() {
                             
                             let dynamicReason = "";
                             if (rankData.rank === 1) {
-                              dynamicReason = "Penawaran paling efisien dan ekonomis berdasarkan prioritas kriteria evaluasi sistem (Harga terendah & waktu pengiriman optimal).";
+                              dynamicReason = "The most efficient and economical offer based on system evaluation criteria priorities (Lowest price & optimal delivery time).";
                             } else if (topProposal) {
                               const diffPrice = Number(rankData.proposal.price_offer) - Number(topProposal.price_offer);
                               const percentDiff = ((diffPrice / Number(topProposal.price_offer)) * 100).toFixed(1);
-                              dynamicReason = `Harga penawaran lebih mahal ${percentDiff}% (+Rp ${diffPrice.toLocaleString('id-ID')}) dibandingkan peringkat pertama.`;
+                              dynamicReason = `Offer price is ${percentDiff}% higher (+Rp ${diffPrice.toLocaleString()}) compared to first rank.`;
                             }
 
                             return (

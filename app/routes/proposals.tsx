@@ -692,7 +692,7 @@ export default function Proposals() {
                           <div style={infoBoxStyle}>
                             <Info size={14} color="var(--ui-text-brand)" style={{ flexShrink: 0, marginTop: 2 }} />
                             <p style={{ margin: 0, fontSize: 11, color: "var(--ui-text-secondary)", lineHeight: 1.5 }}>
-                              <strong>Optional:</strong> Melampirkan profil perusahaan, spesifikasi teknis tambahan, atau sertifikasi vendor akan meningkatkan skor penilaian Anda.
+                              <strong>Optional:</strong> Attaching company profile, additional technical specifications, or vendor certifications will increase your evaluation score.
                             </p>
                           </div>
                         </div>

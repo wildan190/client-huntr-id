@@ -529,12 +529,12 @@ function AdminCatalogueTab() {
                 </div>
                 <button
                   onClick={async () => {
-                    if (!confirm(`Hapus produk "${item.name}"?`)) return;
+                    if (!confirm(`Delete product "${item.name}"?`)) return;
                     try {
                       await adminDeleteCatalogueItem(item.id);
                       fetchCatalogues();
                     } catch (err) {
-                      alert("Gagal menghapus produk");
+                      alert("Failed to delete product");
                     }
                   }}
                   style={{
@@ -545,7 +545,7 @@ function AdminCatalogueTab() {
                     flexShrink: 0,
                   }}
                 >
-                  <Trash2 size={13} /> Hapus Produk
+                  <Trash2 size={13} /> Delete Product
                 </button>
               </div>
             </div>
@@ -571,7 +571,7 @@ function AdminCatalogueTab() {
                 <div style={{ flex: 1 }}>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Category (Optional)</label>
                   <select name="category" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", cursor: "pointer", fontWeight: 600 }}>
-                    <option value="">Pilih Kategori...</option>
+                    <option value="">Select Category...</option>
                     <option value="Electronics">Electronics</option>
                     <option value="Raw Materials">Raw Materials</option>
                     <option value="Equipment">Equipment</option>
@@ -593,7 +593,7 @@ function AdminCatalogueTab() {
                 <div style={{ flex: 1 }}>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>UOM</label>
                   <select name="uom" required style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", cursor: "pointer", fontWeight: 600 }}>
-                    <option value="">Pilih UOM...</option>
+                    <option value="">Select UOM...</option>
                     <option value="Pc">Pc (Piece)</option>
                     <option value="Kg">Kg (Kilogram)</option>
                     <option value="L">L (Liter)</option>

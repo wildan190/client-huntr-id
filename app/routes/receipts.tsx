@@ -91,7 +91,7 @@ export default function Receipts() {
             onClick={() => { setSelectedPo(null); setConfirmed(null); setError(null); }}
             style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", fontSize: 14, fontWeight: 600, padding: 0 }}
           >
-            <ArrowLeft size={18} /> Kembali ke daftar
+            <ArrowLeft size={18} /> Back to list
           </button>
 
           {/* Success state */}
@@ -101,16 +101,16 @@ export default function Receipts() {
                 <CheckCircle2 size={36} color="#fff" />
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--ui-text-primary)" }}>Barang Berhasil Diterima!</h2>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--ui-text-primary)" }}>Goods Received Successfully!</h2>
                 <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-secondary)" }}>
-                  Vendor telah diberitahu. Mereka akan segera menerbitkan invoice final.
+                  Vendor has been notified. They will issue the final invoice shortly.
                 </p>
               </div>
               <button
                 onClick={() => navigate("/orders")}
                 style={{ padding: "12px 32px", borderRadius: 14, background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff", border: "none", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}
               >
-                Lihat Semua Order
+                View All Orders
               </button>
             </div>
           ) : (
@@ -121,17 +121,17 @@ export default function Receipts() {
                   <Truck size={22} color="#3b82f6" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Informasi Pengiriman</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Delivery Information</div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", marginTop: 4 }}>{selectedPo.vendor_name}</div>
                   {do_?.tracking_number && (
                     <div style={{ fontSize: 13, color: "#3b82f6", fontWeight: 600, marginTop: 2 }}>
-                      Resi: {do_.tracking_number}
+                      Tracking: {do_.tracking_number}
                     </div>
                   )}
                 </div>
                 {selectedPo.expected_receiving_date && (
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Est. Tiba</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Est. Arrival</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, color: allowed ? "var(--ui-text-primary)" : "#f87171", fontWeight: 700, fontSize: 14, marginTop: 4 }}>
                       <Calendar size={14} /> {selectedPo.expected_receiving_date}
                     </div>
@@ -142,7 +142,7 @@ export default function Receipts() {
               {/* Date restriction warning */}
               {!allowed && (
                 <div style={{ padding: "12px 20px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 14, fontSize: 14, color: "#f87171", fontWeight: 600 }}>
-                  ⏰ Barang belum bisa diterima. Estimasi tiba tanggal <strong>{selectedPo.expected_receiving_date}</strong>.
+                  ⏰ Goods cannot be received yet. Expected arrival date is <strong>{selectedPo.expected_receiving_date}</strong>.
                 </div>
               )}
 
@@ -150,7 +150,7 @@ export default function Receipts() {
               <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
                 <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-input)", display: "flex", alignItems: "center", gap: 10 }}>
                   <ShoppingBag size={18} color="#f59e0b" />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Barang yang Diterima</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Received Items</span>
                   <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>{selectedPo.items?.length || 0} item</span>
                 </div>
                 <div>
@@ -201,12 +201,12 @@ export default function Receipts() {
                 }}
               >
                 {confirming
-                  ? <><Loader2 size={20} className="animate-spin" /> Memproses...</>
-                  : <><CheckCircle2 size={20} /> Konfirmasi Barang Diterima</>
+                  ? <><Loader2 size={20} className="animate-spin" /> Processing...</>
+                  : <><CheckCircle2 size={20} /> Confirm Goods Received</>
                 }
               </button>
               <p style={{ textAlign: "center", margin: 0, fontSize: 12, color: "var(--ui-text-muted)" }}>
-                Dengan menekan tombol di atas, Anda mengkonfirmasi bahwa semua barang di atas telah diterima dalam kondisi baik.
+                By clicking the button above, you confirm that all goods above have been received in good condition.
               </p>
             </>
           )}
@@ -225,8 +225,8 @@ export default function Receipts() {
             <Package size={20} color="#22c55e" />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>Menunggu Konfirmasi</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-muted)" }}>Pilih pengiriman yang sudah tiba untuk dikonfirmasi.</p>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>Awaiting Confirmation</h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-muted)" }}>Select a delivery that has arrived to confirm receipt.</p>
           </div>
         </div>
 
@@ -242,7 +242,7 @@ export default function Receipts() {
         ) : pendingReceipts.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 20, border: "1px dashed var(--ui-border-input)" }}>
             <FileCheck2 size={40} style={{ opacity: 0.15, display: "block", margin: "0 auto 12px" }} />
-            <p style={{ margin: 0, color: "var(--ui-text-secondary)", fontSize: 14 }}>Tidak ada pengiriman yang menunggu konfirmasi.</p>
+            <p style={{ margin: 0, color: "var(--ui-text-secondary)", fontSize: 14 }}>No deliveries awaiting confirmation.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
