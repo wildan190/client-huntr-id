@@ -519,11 +519,11 @@ function AdminCatalogueTab() {
       {isLoading ? <Loader2 className="animate-spin" /> : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
           {catalogues.map(item => (
-            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative" }}>
-              <div style={{ height: 140, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
-              <div style={{ padding: 16 }}>
-                <div style={{ fontWeight: 800 }}>{item.name}</div>
-                <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.item_code} • {item.company?.name || "Global"}</div>
+            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 140, flexShrink: 0, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
+              <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
+                <div style={{ fontWeight: 800, lineHeight: 1.3 }}>{item.name}</div>
+                <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
                   Rp {item.price?.toLocaleString()} / {item.uom}
                 </div>
@@ -538,10 +538,11 @@ function AdminCatalogueTab() {
                     }
                   }}
                   style={{
-                    marginTop: 12, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                    marginTop: "auto", paddingTop: 16, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
                     fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
                     border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    flexShrink: 0,
                   }}
                 >
                   <Trash2 size={13} /> Hapus Produk
