@@ -207,6 +207,7 @@ export default function Proposals() {
   const [result, setResult] = useState<any>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isProcessing = useRef(false);
 
   useEffect(() => {
     const activeComp = localStorage.getItem("active_company");
@@ -323,6 +324,12 @@ export default function Proposals() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeCompany || !selectedRfq) return;
+
+    // Prevent double submit
+    if (isProcessing.current) {
+      console.warn("Request already in progress");
+      return;
+    }
     
     const missingPrices = form.items.some((it: any) => !it.price_offer || parseFloat(it.price_offer) <= 0);
     if (missingPrices) {
@@ -330,7 +337,9 @@ export default function Proposals() {
       return;
     }
 
-    setLoading(true); setError(null);
+    isProcessing.current = true;
+    setLoading(true); 
+    setError(null);
     try {
       const formData = new FormData();
       formData.append("company_id", activeCompany.id.toString());
@@ -358,6 +367,9 @@ export default function Proposals() {
       setError(err.message || "Failed to submit proposal");
     } finally {
       setLoading(false);
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 500);
     }
   };
 
@@ -690,7 +702,17 @@ export default function Proposals() {
                     {/* Footer Actions */}
                     <div style={formFooterStyle}>
                       <button type="button" onClick={() => { setSelectedRfq(null); setHasSubmittedForSelectedRfq(false); setError(null); }} style={secondaryBtnStyle}>Cancel</button>
-                      <button type="submit" disabled={loading || hasSubmittedForSelectedRfq} style={primaryBtnStyle}>
+                      <button 
+                        type="submit" 
+                        disabled={loading || hasSubmittedForSelectedRfq || isProcessing.current}
+                        style={{
+                          ...primaryBtnStyle,
+                          background: (loading || hasSubmittedForSelectedRfq || isProcessing.current) ? "#9ca3af" : "var(--huntr-gradient)",
+                          cursor: (loading || hasSubmittedForSelectedRfq || isProcessing.current) ? "not-allowed" : "pointer",
+                          boxShadow: (loading || hasSubmittedForSelectedRfq || isProcessing.current) ? "none" : "0 4px 12px rgba(249,115,22,0.2)",
+                          opacity: 1
+                        }}
+                      >
                         {loading ? <Loader2 size={18} className="animate-spin" /> : <><ShieldCheck size={18} /> Submit Official Proposal</>}
                       </button>
                     </div>
@@ -849,7 +871,8 @@ const formFooterStyle: React.CSSProperties = {
 const primaryBtnStyle: React.CSSProperties = {
   padding: "12px 24px", borderRadius: 12, background: "var(--huntr-gradient)",
   border: "none", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer",
-  display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+  display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(249,115,22,0.2)",
+  transition: "all 0.2s ease"
 };
 
 const secondaryBtnStyle: React.CSSProperties = {

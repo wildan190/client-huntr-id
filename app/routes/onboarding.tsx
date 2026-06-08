@@ -37,13 +37,24 @@ export default function Onboarding() {
   const [docType, setDocType] = useState("NPWP");
 
   /**
+   * Check if country is Indonesia
+   */
+  const isIndonesia = (): boolean => {
+    const country = vm.formData.country?.toUpperCase();
+    return country === "ID" || country === "INDONESIA";
+  };
+
+  /**
    * Validasi lokal sebelum pindah slide
    */
   const validateCurrentSlide = (): string | null => {
     if (vm.slide === 1) {
       if (!vm.formData.company_name.trim()) return "Nama perusahaan wajib diisi.";
       if (!vm.formData.type) return "Pilih tipe bisnis Anda.";
-      if (!vm.npwpVerifiedData) return "Mohon verifikasi NPWP sebelum melanjutkan.";
+      // NPWP verification only required for Indonesia
+      if (isIndonesia() && !vm.npwpVerifiedData) {
+        return "Mohon verifikasi NPWP sebelum melanjutkan.";
+      }
     }
     if (vm.slide === 4 && vm.uploadedDocs.length === 0) {
       return "Mohon unggah setidaknya satu dokumen legal.";

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
@@ -177,6 +177,9 @@ export default function RfqDetail() {
   const [awardingProposal, setAwardingProposal] = useState<string | number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Double submit prevention
+  const isProcessing = useRef(false);
+
   const isBuyer = activeCompany?.type === 'buyer';
   const isVendor = activeCompany?.type === 'vendor';
 
@@ -224,17 +227,26 @@ export default function RfqDetail() {
   };
 
   const handleAwardWinner = async (proposalId: string | number, rfqId: string | number) => {
+    // Prevent double submit
+    if (isProcessing.current) {
+      console.warn("Request already in progress");
+      return;
+    }
+
     const userSession = localStorage.getItem("user_session");
     const user = userSession ? JSON.parse(userSession) : null;
     
+    isProcessing.current = true;
     setAwardingProposal(proposalId);
     setError(null);
     try {
-      await apiPost(`/api/proposals/${proposalId}/award`, {
+      const response = await apiPost(`/api/proposals/${proposalId}/award`, {
         rfq_id: rfqId,
         user_id: user?.id,
       });
+      
       setSuccessMessage("✓ Proposal awarded! Sent to manager for approval.");
+      
       if (id) {
         const response = await apiGet(`/api/rfqs/${id}`);
         const data = response?.rfq ?? response?.data ?? response;
@@ -245,9 +257,14 @@ export default function RfqDetail() {
       }
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
+      // Even if error, keep button gray since submit was sent
       setError(err.message || "Failed to award proposal");
     } finally {
-      setAwardingProposal(null);
+      // Keep awardingProposal set to keep button gray
+      // Don't reset isProcessing if error, to prevent rapid retries
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 500);
     }
   };
 
@@ -487,20 +504,21 @@ export default function RfqDetail() {
                                   </button>
                                   <button
                                     onClick={() => handleAwardWinner(topRankData.proposal.id, rfq.id)}
-                                    disabled={awardingProposal === topRankData.proposal.id}
+                                    disabled={awardingProposal === topRankData.proposal.id || isProcessing.current}
                                     style={{
-                                      background: "var(--huntr-orange)",
+                                      background: (awardingProposal === topRankData.proposal.id || isProcessing.current) ? "#9ca3af" : "var(--huntr-orange)",
                                       border: "none",
                                       borderRadius: 10,
                                       padding: "8px 16px",
                                       color: "#fff",
                                       fontSize: 12,
                                       fontWeight: 800,
-                                      cursor: awardingProposal === topRankData.proposal.id ? "wait" : "pointer",
+                                      cursor: (awardingProposal === topRankData.proposal.id || isProcessing.current) ? "not-allowed" : "pointer",
                                       display: "flex",
                                       alignItems: "center",
                                       gap: 6,
-                                      boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                                      boxShadow: (awardingProposal === topRankData.proposal.id || isProcessing.current) ? "none" : "0 4px 12px rgba(249,115,22,0.2)",
+                                      transition: "all 0.2s ease"
                                     }}
                                   >
                                     {awardingProposal === topRankData.proposal.id ? <Loader2 size={12} className="animate-spin" /> : <Award size={12} />} Award Proposal Ini
@@ -594,19 +612,20 @@ export default function RfqDetail() {
                                         </button>
                                         <button
                                           onClick={() => handleAwardWinner(rankData.proposal.id, rfq.id)}
-                                          disabled={awardingProposal === rankData.proposal.id}
+                                          disabled={awardingProposal === rankData.proposal.id || isProcessing.current}
                                           style={{
-                                            background: idx === 0 ? "var(--huntr-orange)" : "var(--ui-bg-input)",
-                                            border: idx === 0 ? "none" : "1px solid var(--ui-border)",
+                                            background: (awardingProposal === rankData.proposal.id || isProcessing.current) ? "#9ca3af" : (idx === 0 ? "var(--huntr-orange)" : "var(--ui-bg-input)"),
+                                            border: (awardingProposal === rankData.proposal.id || isProcessing.current) ? "none" : (idx === 0 ? "none" : "1px solid var(--ui-border)"),
                                             borderRadius: 10,
                                             padding: "6px 12px",
-                                            color: idx === 0 ? "#fff" : "var(--ui-text-primary)",
+                                            color: "#fff",
                                             fontSize: 12,
                                             fontWeight: 700,
-                                            cursor: awardingProposal === rankData.proposal.id ? "wait" : "pointer",
+                                            cursor: (awardingProposal === rankData.proposal.id || isProcessing.current) ? "not-allowed" : "pointer",
                                             display: "flex",
                                             alignItems: "center",
-                                            gap: 6
+                                            gap: 6,
+                                            transition: "all 0.2s ease"
                                           }}
                                         >
                                           {awardingProposal === rankData.proposal.id ? <Loader2 size={12} className="animate-spin" /> : <Award size={12} />} Award

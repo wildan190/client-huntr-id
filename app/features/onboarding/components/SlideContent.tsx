@@ -15,12 +15,20 @@ import { SlideSection, Field, FormLabel } from "./OnboardingUI";
 export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLoginAsCompany }: any) => {
   const { slide, formData, updateField, isVerifyingNpwp, npwpVerifiedData, handleVerifyNpwp, uploadedDocs, setUploadedDocs, isUploadingDoc, handleDocUpload, selectedFile, setSelectedFile, companies, selectedCompany, setSelectedCompany } = vm;
 
+  /**
+   * Check if country is Indonesia
+   */
+  const isIndonesia = (): boolean => {
+    const country = formData.country?.toUpperCase();
+    return country === "ID" || country === "INDONESIA";
+  };
+
   switch (slide) {
     case 1:
       return (
         <SlideSection title="Profil Perusahaan" subtitle="Informasi dasar & identitas" icon={<Building2 size={22} className="text-orange-500" />} accentColor="#f97316">
           <div className="flex flex-col gap-2">
-            <FormLabel>Negara & Tax ID (NPWP) *</FormLabel>
+            <FormLabel>Negara & Tax ID{isIndonesia() ? " (NPWP) *" : ""}</FormLabel>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <select
                 value={formData.country}
@@ -39,7 +47,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
                   onChange={e => updateField("tax_id", e.target.value)} 
                   className="flex-1 px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm" 
                 />
-                {formData.country === 'ID' && (
+                {isIndonesia() && (
                   <button 
                     onClick={handleVerifyNpwp} 
                     disabled={isVerifyingNpwp || !formData.tax_id} 
@@ -113,30 +121,15 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
       return (
         <SlideSection title="Lokasi" subtitle="Alamat bisnis" icon={<MapPin size={22} className="text-amber-500" />} accentColor="#f59e0b">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Provinsi" value={formData.provincy_country} onChange={(v:any) => updateField("provincy_country", v)} placeholder="Contoh: Jawa Barat" />
-            <div className="flex flex-col gap-1.5">
-              <FormLabel>Wilayah</FormLabel>
-              <select
-                value={formData.region}
-                onChange={e => updateField("region", e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
-              >
-                <option value="" className="bg-[var(--ui-bg-page)]">Pilih Wilayah...</option>
-                <option value="Indonesia" className="bg-[var(--ui-bg-page)]">Indonesia</option>
-                <option value="Malaysia" className="bg-[var(--ui-bg-page)]">Malaysia</option>
-                <option value="Singapore" className="bg-[var(--ui-bg-page)]">Singapore</option>
-              </select>
-            </div>
+            <Field label="Provinsi *" value={formData.provincy_country} onChange={(v:any) => updateField("provincy_country", v)} placeholder="Contoh: Jawa Barat" />
+            <Field label="Kota *" value={formData.city} onChange={(v:any) => updateField("city", v)} placeholder="Contoh: Bandung" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Kota" value={formData.city} onChange={(v:any) => updateField("city", v)} placeholder="Contoh: Bandung" />
             <Field label="Kecamatan" value={formData.regency} onChange={(v:any) => updateField("regency", v)} placeholder="Contoh: Coblong" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Field label="Kode Pos" value={formData.zip_code} onChange={(v:any) => updateField("zip_code", v)} placeholder="Contoh: 40132" />
           </div>
           <div className="flex flex-col gap-2">
-            <FormLabel>Alamat Lengkap</FormLabel>
+            <FormLabel>Alamat Lengkap *</FormLabel>
             <textarea 
               value={formData.address} 
               onChange={e => updateField("address", e.target.value)} 
