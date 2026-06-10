@@ -11,8 +11,8 @@ export const OnboardingRepository = {
   /**
    * Memverifikasi nomor NPWP melalui API eksternal/internal
    */
-  async verifyNpwp(npwp: string): Promise<{ status: number; message?: string; data?: NpwpVerifiedData }> {
-    return apiPost("/api/companies/verify-npwp", { npwp });
+  async verifyNpwp(npwp: string, country: string): Promise<{ status: number; message?: string; data?: NpwpVerifiedData }> {
+    return apiPost("/api/companies/verify-npwp", { npwp, country });
   },
 
   /**

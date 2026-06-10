@@ -4,11 +4,31 @@ import { apiGet, apiPost } from "../client";
  * Notifications API
  */
 
-export const getNotifications = (userId: number, page: number = 1) =>
-  apiGet(`/api/notifications?user_id=${userId}&page=${page}`);
+export const getNotifications = (userId: number, page: number = 1) => {
+  // Get active company from localStorage
+  const activeCompanyStr = localStorage.getItem('active_company');
+  const companyId = activeCompanyStr ? JSON.parse(activeCompanyStr).id : null;
+  
+  let url = `/api/notifications?user_id=${userId}&page=${page}`;
+  if (companyId) {
+    url += `&company_id=${companyId}`;
+  }
+  
+  return apiGet(url);
+};
 
-export const markNotificationAsRead = (id: string, userId: number) =>
-  apiPost(`/api/notifications/${id}/read`, { user_id: userId });
+export const markNotificationAsRead = (id: string, userId: number) => {
+  // Get active company from localStorage
+  const activeCompanyStr = localStorage.getItem('active_company');
+  const companyId = activeCompanyStr ? JSON.parse(activeCompanyStr).id : null;
+  
+  const payload: any = { user_id: userId };
+  if (companyId) {
+    payload.company_id = companyId;
+  }
+  
+  return apiPost(`/api/notifications/${id}/read`, payload);
+};
 
 export const markAllNotificationsAsRead = (userId: number) =>
   apiPost(`/api/notifications/read-all`, { user_id: userId });

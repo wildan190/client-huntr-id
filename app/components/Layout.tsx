@@ -20,6 +20,7 @@ import {
   History,
   MessageSquare,
   Briefcase,
+  FileText,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
 import NotificationSound from "./NotificationSound";
@@ -43,7 +44,9 @@ export default function Layout({ children, title, subtitle }: Props) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
   const notifButtonRef = React.useRef<HTMLButtonElement>(null);
+  const navScrollRef = React.useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
   const isOwner = activeCompany?.owner_id === user?.id;
@@ -55,27 +58,48 @@ export default function Layout({ children, title, subtitle }: Props) {
   const isVendorComp = activeCompany?.type === 'vendor';
 
   const NAV = [
-    { to: "/",          label: "Dashboard",  Icon: LayoutDashboard },
+    { to: "/", label: "Dashboard", Icon: LayoutDashboard, section: "main" },
     
-    // Buyer specific
-    ...(isBuyerComp && (isManager || isBuyerRole) ? [{ to: "/marketplace", label: "Marketplace", Icon: Package }] : []),
-    ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [{ to: "/my-pr", label: "My PR", Icon: ClipboardList }] : []),
-    ...(isBuyerComp && isManager ? [{ to: "/approvals", label: "Approvals", Icon: CheckCircle2 }] : []),
-    ...(isBuyerComp && (isManager || isFinance) ? [{ to: "/finance", label: "Finance Approval", Icon: Briefcase }] : []),
+    // === PROCUREMENT SECTION (Buyer) ===
+    ...(isBuyerComp && (isManager || isBuyerRole) ? [
+      { to: "/marketplace", label: "Marketplace", Icon: Package, section: "procurement" }
+    ] : []),
+    ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
+      { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement" }
+    ] : []),
+    ...(isBuyerComp && isManager ? [
+      { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" }
+    ] : []),
     
-    // Vendor specific
-    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/catalogue", label: "Catalogue", Icon: List }] : []),
-    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/proposals", label: "Proposals", Icon: Trophy }] : []),
-    { to: "/negotiation", label: "Negotiations", Icon: MessageSquare },
-    ...(isVendorComp && (isManager || isAdminRole) ? [{ to: "/my-rank", label: "My Rank", Icon: Medal }] : []),
+    // === VENDOR SECTION ===
+    ...(isVendorComp ? [
+      { to: "/all-requests", label: "Opportunities", Icon: Lightbulb, section: "vendor", badge: "opportunities" }
+    ] : []),
+    ...(isVendorComp && (isManager || isAdminRole) ? [
+      { to: "/catalogue", label: "Catalogue", Icon: List, section: "vendor" },
+      { to: "/proposals", label: "Proposals", Icon: Trophy, section: "vendor", badge: "pendingProposals" }
+    ] : []),
+    ...(isVendorComp && (isManager || isAdminRole) ? [
+      { to: "/my-rank", label: "My Rank", Icon: Medal, section: "vendor" }
+    ] : []),
     
-    // Common but context-aware
-      ...(isVendorComp ? [{ to: "/all-requests", label: "Opportunities", Icon: Lightbulb }] : []),
-      { to: "/orders",    label: "Purchase Order",   Icon: ReceiptText },
-      { to: "/payment-history", label: "Payment History", Icon: History },
-      { to: "/receipts",  label: "Receipt",    Icon: CheckCircle2 },
-    { to: "/company",   label: "Company",    Icon: Building2 },
-    { to: "/account",   label: "Settings",   Icon: Settings },
+    // === ORDERS & DOCUMENTS SECTION ===
+    { to: "/negotiation", label: "Negotiations", Icon: MessageSquare, section: "orders", badge: "negotiations" },
+    { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders" },
+    { to: "/receipts", label: "Goods Receipt", Icon: CheckCircle2, section: "orders", badge: "receiptsToInspect" },
+    { to: "/bast", label: "BAST", Icon: FileText, section: "orders" },
+    { to: "/returns", label: "Returns", Icon: Package, section: "orders", badge: "pendingReturns" },
+    { to: "/debit-notes", label: "Debit Notes", Icon: Briefcase, section: "orders", badge: "pendingDebitNotes" },
+    
+    // === FINANCE SECTION ===
+    ...(isBuyerComp && (isManager || isFinance) ? [
+      { to: "/finance", label: "Finance Approval", Icon: Briefcase, section: "finance", badge: "financeApprovals" }
+    ] : []),
+    { to: "/payment-history", label: "Payment History", Icon: History, section: "finance" },
+    
+    // === SETTINGS SECTION ===
+    { to: "/company", label: "Company", Icon: Building2, section: "settings" },
+    { to: "/account", label: "Settings", Icon: Settings, section: "settings" },
   ];
 
   // ── Double-auth guard ────────────────────────────────────────────────────────
@@ -118,8 +142,11 @@ export default function Layout({ children, title, subtitle }: Props) {
   }, [pathname, navigate]);
 
   useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+    // Don't scroll sidebar to top on navigation
+  }, [pathname, isMobile]);
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -138,9 +165,52 @@ export default function Layout({ children, title, subtitle }: Props) {
       const unread = dataArray.filter((n: any) => n.read_at === null).length;
       setUnreadCount(unread);
       setRecentNotifications(dataArray.slice(0, 5));
+      
+      // Calculate pending action counts from notifications
+      calculatePendingCounts(dataArray);
     } catch (err) {
       console.error("Failed to fetch unread notifications", err);
     }
+  };
+
+  const calculatePendingCounts = (notifications: any[]) => {
+    const counts: Record<string, number> = {
+      pendingApprovals: 0,
+      opportunities: 0,
+      pendingProposals: 0,
+      negotiations: 0,
+      receiptsToInspect: 0,
+      pendingReturns: 0,
+      pendingDebitNotes: 0,
+      financeApprovals: 0,
+    };
+
+    notifications.forEach((n: any) => {
+      if (n.read_at) return; // Skip read notifications
+      
+      const type = n.data?.type || n.type;
+      
+      // Map notification types to pending counts
+      if (type === 'rfq_created' || type === 'rfq_published') {
+        counts.opportunities++;
+      } else if (type === 'proposal_submitted') {
+        counts.pendingProposals++;
+      } else if (type === 'negotiation_started' || type === 'negotiation_response') {
+        counts.negotiations++;
+      } else if (type === 'goods_delivered' || type === 'delivery_order_created') {
+        counts.receiptsToInspect++;
+      } else if (type === 'return_created' || type === 'resolution_proposed' || type === 'goods_receipt_rejected_items') {
+        counts.pendingReturns++;
+      } else if (type === 'debit_note_issued') {
+        counts.pendingDebitNotes++;
+      } else if (type === 'invoice_published' || type === 'payment_pending') {
+        counts.financeApprovals++;
+      } else if (type?.includes('approval') || type?.includes('review')) {
+        counts.pendingApprovals++;
+      }
+    });
+
+    setPendingCounts(counts);
   };
 
   const handleNotificationClick = async (n: any) => {
@@ -248,25 +318,73 @@ export default function Layout({ children, title, subtitle }: Props) {
         )}
 
         {/* Nav */}
-        <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, padding: "0 10px", overflowY: "auto" }}>
-          {NAV.map(({ to, label, Icon }) => {
-            const active = pathname === to;
-            return (
-              <Link key={to} to={to} onClick={handleNavClick} style={{
-                display: "flex", alignItems: "center", gap: 10,
-                padding: "9px 12px", borderRadius: 10,
-                background: active ? "var(--ui-nav-active-bg)" : "transparent",
-                border: active ? "1px solid var(--ui-nav-active-border)" : "1px solid transparent",
-                color: active ? "var(--ui-text-nav-active)" : "var(--ui-text-nav-idle)",
-                fontWeight: active ? 600 : 400, fontSize: 13,
-                textDecoration: "none", transition: "all 0.15s",
-              }}>
-                <Icon size={16} />
-                {label}
-                {active && <span style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />}
-              </Link>
-            );
-          })}
+        <nav ref={navScrollRef} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, padding: "0 10px", overflowY: "auto" }}>
+          {(() => {
+            let currentSection = "";
+            const sectionLabels: Record<string, string> = {
+              main: "Main",
+              procurement: "Procurement",
+              vendor: "Vendor",
+              orders: "Orders & Documents",
+              finance: "Finance",
+              settings: "Settings"
+            };
+
+            return NAV.map(({ to, label, Icon, section, badge }) => {
+              const active = pathname === to;
+              const badgeCount = badge ? pendingCounts[badge] || 0 : 0;
+              
+              // Section header
+              const showSectionHeader = section && section !== currentSection;
+              if (showSectionHeader) {
+                currentSection = section;
+              }
+
+              return (
+                <React.Fragment key={to}>
+                  {showSectionHeader && (
+                    <div style={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color: "var(--ui-text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                      padding: "12px 12px 6px",
+                      marginTop: currentSection === "main" ? 0 : 8
+                    }}>
+                      {sectionLabels[section] || section}
+                    </div>
+                  )}
+                  <Link to={to} onClick={handleNavClick} style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "9px 12px", borderRadius: 10,
+                    background: active ? "var(--ui-nav-active-bg)" : "transparent",
+                    border: active ? "1px solid var(--ui-nav-active-border)" : "1px solid transparent",
+                    color: active ? "var(--ui-text-nav-active)" : "var(--ui-text-nav-idle)",
+                    fontWeight: active ? 600 : 400, fontSize: 13,
+                    textDecoration: "none", transition: "all 0.15s",
+                    position: "relative"
+                  }}>
+                    <Icon size={16} />
+                    <span style={{ flex: 1 }}>{label}</span>
+                    {badgeCount > 0 && (
+                      <span style={{
+                        minWidth: 18, height: 18, borderRadius: 9,
+                        background: active ? "#f59e0b" : "rgba(249,115,22,0.15)",
+                        color: active ? "#fff" : "#f59e0b",
+                        fontSize: 9, fontWeight: 800,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        padding: "0 5px"
+                      }}>
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </span>
+                    )}
+                    {active && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />}
+                  </Link>
+                </React.Fragment>
+              );
+            });
+          })()}
         </nav>
 
         {/* User panel */}

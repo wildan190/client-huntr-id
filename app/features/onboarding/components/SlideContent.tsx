@@ -2,9 +2,11 @@ import React from "react";
 import { 
   Building2, MapPin, CreditCard, UploadCloud, FileText, 
   LogIn, AlertCircle, Loader2, CheckCircle2, X, Plus, 
-  FileSpreadsheet 
+  FileSpreadsheet, MapPinPlus
 } from "lucide-react";
 import { SlideSection, Field, FormLabel } from "./OnboardingUI";
+import { AddressAutocomplete } from "./AddressAutocomplete";
+import { LocationStep } from "./LocationStep";
 
 /**
  * SlideContent Component
@@ -120,23 +122,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
     case 2:
       return (
         <SlideSection title="Location" subtitle="Business address" icon={<MapPin size={22} className="text-amber-500" />} accentColor="#f59e0b">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="Province *" value={formData.provincy_country} onChange={(v:any) => updateField("provincy_country", v)} placeholder="E.g.: West Java" />
-            <Field label="City *" value={formData.city} onChange={(v:any) => updateField("city", v)} placeholder="E.g.: Bandung" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="District" value={formData.regency} onChange={(v:any) => updateField("regency", v)} placeholder="E.g.: Coblong" />
-            <Field label="Postal Code" value={formData.zip_code} onChange={(v:any) => updateField("zip_code", v)} placeholder="E.g.: 40132" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <FormLabel>Full Address *</FormLabel>
-            <textarea 
-              value={formData.address} 
-              onChange={e => updateField("address", e.target.value)} 
-              placeholder="E.g.: Jl. Kalidosok Raya No. 21"
-              className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm h-24 resize-none transition-all focus:border-orange-500/50"
-            />
-          </div>
+          <LocationStep formData={formData} updateField={updateField} />
         </SlideSection>
       );
 

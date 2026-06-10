@@ -85,7 +85,7 @@ export const useOnboardingViewModel = () => {
     setIsVerifyingNpwp(true);
     setError(null);
     try {
-      const data = await OnboardingController.verifyTaxId(formData.tax_id);
+      const data = await OnboardingController.verifyTaxId(formData.tax_id, formData.country);
       setNpwpVerifiedData(data);
       
       // Auto-fill form berdasarkan data NPWP yang valid

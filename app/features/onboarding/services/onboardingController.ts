@@ -11,14 +11,14 @@ export const OnboardingController = {
   /**
    * Menangani proses verifikasi NPWP dan memformat hasilnya
    */
-  async verifyTaxId(taxId: string) {
+  async verifyTaxId(taxId: string, country: string) {
     const rawNpwp = taxId.replace(/[^\d]/g, "");
     if (rawNpwp.length !== 15 && rawNpwp.length !== 16) {
       throw new Error("Nomor NPWP harus 15 atau 16 digit.");
     }
 
     const formattedNpwp = rawNpwp.length === 15 ? "0" + rawNpwp : rawNpwp;
-    const res = await OnboardingRepository.verifyNpwp(formattedNpwp);
+    const res = await OnboardingRepository.verifyNpwp(formattedNpwp, country);
     
     if (res.status !== 1 || !res.data) {
       throw new Error(res.message || "Verifikasi NPWP gagal.");

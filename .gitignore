@@ -9,3 +9,4 @@
 REFACTOR_IMPLEMENTATION.md
 .gitignore
 REFACTOR_PLAN.md
+.env.staging

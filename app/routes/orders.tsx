@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import Layout from "../components/Layout";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
-  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard
+  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard, Signature, AlertCircle, Download
 } from "lucide-react";
 import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl, arrangeDelivery, publishInvoice } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
@@ -40,6 +40,8 @@ export default function Orders() {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
+  const [issuingBastId, setIssuingBastId] = useState<string | null>(null);
+  const [bastData, setBastData] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -147,6 +149,65 @@ export default function Orders() {
       setError(err.message || "Failed to publish invoice");
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const handleIssueBast = async (poId: string) => {
+    if (!company || !user) return;
+    setIssuingBastId(poId);
+    setError(null);
+    try {
+      const userSession = localStorage.getItem("user_session");
+      const token = userSession ? JSON.parse(userSession).token : null;
+      if (!token) {
+        setError("Authentication token not found");
+        return;
+      }
+
+      const po = orders.find(p => p.id === poId);
+      if (!po) {
+        setError("Purchase order not found");
+        return;
+      }
+
+      // Create BAST with auto-generated number and complete user info
+      const bastPayload = {
+        po_id: poId,
+        handed_by_name: user.name || company.name,
+        handed_by_position: user.role || "Manager",
+        handed_by_user_id: user.id,
+        received_by_name: "Buyer Representative",
+        received_by_position: "Procurement Manager",
+        items: po.items || [],
+        handover_notes: `BAST for PO ${po.po_number}`,
+        created_by: user.id,
+      };
+      
+      console.log("Issuing BAST with payload:", bastPayload);
+      
+      const response = await fetch(getFullApiUrl("/api/basts"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(bastPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to issue BAST (${response.status})`);
+      }
+
+      const data = await response.json();
+      setSuccessMessage(`✓ BAST ${data.bast.bast_number} issued successfully! Notification sent to buyer.`);
+      fetchOrders(company.id, currentPage);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      console.error("BAST Error:", err);
+      setError(err.message || "Failed to issue BAST");
+    } finally {
+      setIssuingBastId(null);
     }
   };
 
@@ -421,7 +482,7 @@ export default function Orders() {
                       
                       switch (po.status) {
                         case 'confirmed':
-                          label = 'Confirmed'; bg = "rgba(168,85,247,0.1)"; color = "#a855f7"; IconComp = CheckCircle2; break;
+                          label = 'Confirmed'; bg = "rgba(249,115,22,0.1)"; color = "#f97316"; IconComp = CheckCircle2; break;
                         case 'paid':
                           label = 'Paid'; bg = "rgba(59,130,246,0.1)"; color = "#3b82f6"; IconComp = CheckCircle2; break;
                         case 'completed':
@@ -769,6 +830,91 @@ export default function Orders() {
                           </div>
                         )}
                       </div>
+
+                      {/* BAST Section */}
+                      {company.type === 'vendor' && (
+                        <div style={{ marginTop: 24, padding: 20, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 16 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                            <Signature size={16} color="#f97316" />
+                            Berita Acara Serah Terima (BAST)
+                          </div>
+                          <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", marginBottom: 16, margin: "0 0 16px 0" }}>
+                            Issue a handover document to formally transfer goods to the buyer with multi-party signatures.
+                          </p>
+                          <button
+                            onClick={() => handleIssueBast(po.id)}
+                            disabled={issuingBastId === po.id}
+                            style={{
+                              width: "100%", padding: "12px 16px", borderRadius: 12,
+                              background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                              color: "#fff", border: "none", fontSize: 12, fontWeight: 800,
+                              cursor: issuingBastId === po.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                              boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease"
+                            }}
+                          >
+                            {issuingBastId === po.id ? (
+                              <>
+                                <Loader2 size={14} className="animate-spin" /> Issuing BAST...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 size={14} /> Issue BAST (Auto-Generated)
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* BAST List Section - Show all BASTs for this PO */}
+                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                          <Signature size={16} color="#f97316" />
+                          BAST Documents for this PO
+                        </div>
+                        {po.basts && po.basts.length > 0 ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {po.basts.map((bast: any) => (
+                              <div key={bast.id} style={{ 
+                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", 
+                                border: "1px solid var(--ui-border-input)",
+                                display: "flex", flexDirection: "column", gap: 8
+                              }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ 
+                                    fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                                    color: "#f97316" 
+                                  }}>
+                                    📋 {bast.bast_number}
+                                  </span>
+                                </div>
+
+                                <div style={{ fontSize: 12, color: "var(--ui-text-secondary)" }}>
+                                  Date: {bast.bast_date} • Issued by: {bast.handed_by_name || "N/A"}
+                                </div>
+
+                                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                  <button
+                                    onClick={() => {
+                                      // Open print view directly in new tab
+                                      window.open(getFullApiUrl(`/api/basts/${bast.id}/pdf`), '_blank');
+                                    }}
+                                    style={{ fontSize: 11, color: "#f97316", fontWeight: 700, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+                                  >
+                                    <FileText size={12} /> View Details
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ textAlign: "center", padding: "16px 0", border: "1px dashed var(--ui-border-input)", borderRadius: 12 }}>
+                            <p style={{ margin: 0, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                              No BAST documents issued for this PO yet.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    
                     </div>
                   </div>
                 )}

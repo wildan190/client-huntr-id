@@ -98,6 +98,10 @@
   --ui-status-approved: #34d399;
   --ui-status-pending: #fbbf24;
   --ui-status-rejected: #f87171;
+
+  /* Skeleton loader */
+  --ui-skeleton-base: rgba(255, 255, 255, 0.05);
+  --ui-skeleton-highlight: rgba(255, 255, 255, 0.1);
   --ui-status-active: #22c55e;
   --ui-status-selected: #8b5cf6;
 
@@ -199,6 +203,10 @@ select {
   --ui-status-rejected: #dc2626;
   --ui-status-active: #16a34a;
   --ui-status-selected: #7c3aed;
+
+  /* Skeleton loader */
+  --ui-skeleton-base: rgba(0, 0, 0, 0.06);
+  --ui-skeleton-highlight: rgba(0, 0, 0, 0.12);
 
   /* Gradients */
   --ui-gradient-active-card: linear-gradient(180deg, rgba(79,70,229,0.08), rgba(229,229,229,0.5));

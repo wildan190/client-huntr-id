@@ -7,13 +7,13 @@ import { clearAuthSession, getAuthHeaders } from "./session";
  */
 
 function resolveBaseUrl(): string {
-  if (import.meta.env.DEV) {
-    return "";
-  }
   let url = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  
+  // Handle HTTPS upgrade for ports like 8443
   if (url.includes(":8443") && url.startsWith("http://")) {
     url = url.replace("http://", "https://");
   }
+  
   return url.replace(/\/$/, "");
 }
 
