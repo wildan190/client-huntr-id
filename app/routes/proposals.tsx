@@ -480,24 +480,26 @@ export default function Proposals() {
                         <div style={itemDetailStyle}><Calendar size={14} /> Submitted: {new Date(p.created_at).toLocaleDateString()}</div>
                       </div>
 
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20 }}>
-                        <button 
-                          onClick={() => {
-                            setSelectedNegProposal(p);
-                            setShowNegModal(true);
-                          }}
-                          style={{ ...secondaryBtnStyle, display: "flex", alignItems: "center", gap: 8, color: "var(--huntr-orange)" }}
-                        >
-                          <MessageSquare size={16} /> Negotiate
-                        </button>
-                        <button 
-                          onClick={() => handleAward(p.id)}
-                          disabled={awardingId === p.id}
-                          style={{ ...primaryBtnStyle, minWidth: 160 }}
-                        >
-                          {awardingId === p.id ? <Loader2 size={18} className="animate-spin" /> : <><Trophy size={16} style={{ marginRight: 8 }} /> Award Proposal</>}
-                        </button>
-                      </div>
+                      {p.rfq?.status === 'active' && p.winner_status !== 'rejected' && p.winner_status !== 'awarded' && p.winner_status !== 'approved' && (
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20 }}>
+                          <button 
+                            onClick={() => {
+                              setSelectedNegProposal(p);
+                              setShowNegModal(true);
+                            }}
+                            style={{ ...secondaryBtnStyle, display: "flex", alignItems: "center", gap: 8, color: "var(--huntr-orange)" }}
+                          >
+                            <MessageSquare size={16} /> Negotiate
+                          </button>
+                          <button 
+                            onClick={() => handleAward(p.id)}
+                            disabled={awardingId === p.id}
+                            style={{ ...primaryBtnStyle, minWidth: 160 }}
+                          >
+                            {awardingId === p.id ? <Loader2 size={18} className="animate-spin" /> : <><Trophy size={16} style={{ marginRight: 8 }} /> Award Proposal</>}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

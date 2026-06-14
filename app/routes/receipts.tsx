@@ -13,6 +13,27 @@ export default function Receipts() {
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [inspectionData, setInspectionData] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (selectedPo) {
+      const initial: Record<string, any> = {};
+      selectedPo.items?.forEach((item: any) => {
+        initial[item.id] = {
+          po_item_id: item.id,
+          inventory_name: item.inventory_name,
+          ordered_qty: Number(item.qty),
+          received_qty: Number(item.qty),
+          rejected_qty: 0,
+          condition: "Good",
+          rejection_reason: "",
+        };
+      });
+      setInspectionData(initial);
+    } else {
+      setInspectionData({});
+    }
+  }, [selectedPo]);
 
   useEffect(() => {
     const activeComp = localStorage.getItem("active_company");
@@ -59,14 +80,28 @@ export default function Receipts() {
 
   const handleConfirm = async () => {
     if (!selectedPo || !company) return;
-    setConfirming(true);
     setError(null);
+
+    // Validate: rejection reason required for any rejected items
+    const itemsInspectionArray = Object.values(inspectionData);
+    const missingReason = itemsInspectionArray.find(
+      (item: any) => (item.rejected_qty ?? 0) > 0 && !(item.rejection_reason ?? "").trim()
+    );
+    if (missingReason) {
+      setError(`Please provide a rejection reason for "${(missingReason as any).inventory_name}" before confirming.`);
+      return;
+    }
+
+    setConfirming(true);
     try {
+      const totalReceived = itemsInspectionArray.reduce((sum: number, item: any) => sum + item.received_qty, 0);
+
       const data = await createReceipt({
         po_id: selectedPo.id,
         company_id: company.id,
-        received_qty: selectedPo.items?.reduce((s: number, i: any) => s + Number(i.qty), 0) || 1,
+        received_qty: totalReceived > 0 ? totalReceived : 1,
         handover_document_path: "system/auto",
+        items_inspection: itemsInspectionArray
       });
       setConfirmed(data.receipt);
       fetchOrders();
@@ -154,27 +189,116 @@ export default function Receipts() {
                   <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>{selectedPo.items?.length || 0} item</span>
                 </div>
                 <div>
-                  {selectedPo.items?.map((item: any, idx: number) => (
-                    <div key={idx} style={{
-                      padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
-                      borderBottom: idx < (selectedPo.items.length - 1) ? "1px solid var(--ui-border-input)" : "none"
-                    }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <Package size={18} color="#f97316" />
+                  {selectedPo.items?.map((item: any, idx: number) => {
+                    const idata = inspectionData[item.id] || {};
+                    return (
+                      <div key={idx} style={{
+                        padding: "16px 20px",
+                        borderBottom: idx < (selectedPo.items.length - 1) ? "1px solid var(--ui-border-input)" : "none"
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <Package size={18} color="#f97316" />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>{item.inventory_name}</div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2, fontFamily: "monospace" }}>{item.inventory_code}</div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 18, fontWeight: 900, color: "#fdba74" }}>{item.qty}</div>
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.uom}</div>
+                          </div>
+                        </div>
+                        
+                        {/* Inspection Form for this item */}
+                        {allowed && (
+                          <div style={{ marginTop: 16, background: "rgba(0,0,0,0.02)", padding: 16, borderRadius: 12, border: "1px dashed var(--ui-border-input)" }}>
+                            <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6 }}>Accepted Qty</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={item.qty}
+                                  value={idata.received_qty ?? item.qty}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setInspectionData((prev) => ({
+                                      ...prev,
+                                      [item.id]: { ...prev[item.id], received_qty: val, rejected_qty: Number(item.qty) - val }
+                                    }));
+                                  }}
+                                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--ui-border-input)", background: "var(--ui-bg)", color: "var(--ui-text-primary)", fontSize: 14 }}
+                                />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6 }}>Rejected Qty</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={item.qty}
+                                  value={idata.rejected_qty ?? 0}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setInspectionData((prev) => ({
+                                      ...prev,
+                                      [item.id]: { ...prev[item.id], rejected_qty: val, received_qty: Number(item.qty) - val }
+                                    }));
+                                  }}
+                                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--ui-border-input)", background: "var(--ui-bg)", color: "var(--ui-text-primary)", fontSize: 14 }}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 6 }}>Condition / Notes</label>
+                              <input
+                                type="text"
+                                placeholder="E.g., Good, Box damaged, Missing parts"
+                                value={idata.condition ?? "Good"}
+                                onChange={(e) => {
+                                  setInspectionData((prev) => ({
+                                    ...prev,
+                                    [item.id]: { ...prev[item.id], condition: e.target.value }
+                                  }));
+                                }}
+                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--ui-border-input)", background: "var(--ui-bg)", color: "var(--ui-text-primary)", fontSize: 14 }}
+                              />
+                            </div>
+
+                            {/* Rejection reason — appears only when there are rejected items */}
+                            {(idata.rejected_qty ?? 0) > 0 && (
+                              <div style={{ marginTop: 12 }}>
+                                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#f87171", textTransform: "uppercase", marginBottom: 6 }}>
+                                  ⚠ Rejection Reason <span style={{ color: "#f87171" }}>*</span>
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  placeholder="Explain why these items are being rejected (e.g., wrong spec, damaged, expired)"
+                                  value={idata.rejection_reason ?? ""}
+                                  onChange={(e) => {
+                                    setInspectionData((prev) => ({
+                                      ...prev,
+                                      [item.id]: { ...prev[item.id], rejection_reason: e.target.value }
+                                    }));
+                                  }}
+                                  style={{
+                                    width: "100%", padding: "10px 12px", borderRadius: 8,
+                                    border: "1px solid rgba(239,68,68,0.4)",
+                                    background: "rgba(239,68,68,0.04)",
+                                    color: "var(--ui-text-primary)", fontSize: 13,
+                                    resize: "vertical", fontFamily: "inherit"
+                                  }}
+                                />
+                                <p style={{ margin: "4px 0 0", fontSize: 11, color: "#f87171" }}>
+                                  {idata.rejected_qty} unit will be sent to Return — reason required.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>{item.inventory_name}</div>
-                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2, fontFamily: "monospace" }}>{item.inventory_code}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: "#fdba74" }}>{item.qty}</div>
-                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.uom}</div>
-                      </div>
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <CheckCircle2 size={16} color="#22c55e" />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

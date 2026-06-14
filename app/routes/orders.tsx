@@ -832,36 +832,52 @@ export default function Orders() {
                       </div>
 
                       {/* BAST Section */}
-                      {company.type === 'vendor' && (
+                      {company.type === 'vendor' && ['delivered', 'completed', 'done', 'paid'].includes(po.status) && (
                         <div style={{ marginTop: 24, padding: 20, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 16 }}>
                           <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                             <Signature size={16} color="#f97316" />
                             Berita Acara Serah Terima (BAST)
                           </div>
-                          <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", marginBottom: 16, margin: "0 0 16px 0" }}>
-                            Issue a handover document to formally transfer goods to the buyer with multi-party signatures.
-                          </p>
-                          <button
-                            onClick={() => handleIssueBast(po.id)}
-                            disabled={issuingBastId === po.id}
-                            style={{
-                              width: "100%", padding: "12px 16px", borderRadius: 12,
-                              background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                              color: "#fff", border: "none", fontSize: 12, fontWeight: 800,
-                              cursor: issuingBastId === po.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                              boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease"
-                            }}
-                          >
-                            {issuingBastId === po.id ? (
-                              <>
-                                <Loader2 size={14} className="animate-spin" /> Issuing BAST...
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 size={14} /> Issue BAST (Auto-Generated)
-                              </>
-                            )}
-                          </button>
+                          {po.basts && po.basts.length > 0 ? (
+                            /* BAST already issued — show badge, prevent duplicate */
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 12 }}>
+                              <CheckCircle2 size={16} color="#22c55e" />
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: "#22c55e" }}>BAST Already Issued</div>
+                                <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                                  {po.basts[0].bast_number} · {po.basts[0].bast_date}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* No BAST yet — show issue button */
+                            <>
+                              <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", marginBottom: 16, margin: "0 0 16px 0" }}>
+                                Issue a handover document to formally transfer goods to the buyer with multi-party signatures.
+                              </p>
+                              <button
+                                onClick={() => handleIssueBast(po.id)}
+                                disabled={issuingBastId === po.id}
+                                style={{
+                                  width: "100%", padding: "12px 16px", borderRadius: 12,
+                                  background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                                  color: "#fff", border: "none", fontSize: 12, fontWeight: 800,
+                                  cursor: issuingBastId === po.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                                  boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease"
+                                }}
+                              >
+                                {issuingBastId === po.id ? (
+                                  <>
+                                    <Loader2 size={14} className="animate-spin" /> Issuing BAST...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle2 size={14} /> Issue BAST (Auto-Generated)
+                                  </>
+                                )}
+                              </button>
+                            </>
+                          )}
                         </div>
                       )}
 

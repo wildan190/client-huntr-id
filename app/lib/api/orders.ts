@@ -50,6 +50,7 @@ export const createReceipt = (payload: {
   company_id: string | number;
   received_qty: number;
   handover_document_path: string;
+  items_inspection?: any[];
 }) => apiPost("/api/receipts", payload);
 
 // --- Delivery & Invoice ---
