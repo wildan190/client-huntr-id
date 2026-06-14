@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { getOrders, approveInvoice, getFullApiUrl } from "../lib/api";
 import { Briefcase, Loader2, CheckCircle2, ChevronRight, AlertCircle, FileText } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function Finance() {
   const [company, setCompany] = useState<any>(null);
@@ -50,7 +51,11 @@ export default function Finance() {
       await fetchPendingInvoices();
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Failed to approve invoice");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err.message || "Failed to approve invoice"
+      });
     } finally {
       setProcessingId(null);
     }

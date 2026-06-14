@@ -7,6 +7,7 @@ import {
   DollarSign, Clock, ShieldCheck, X, AlertCircle, 
   CheckCircle2, FileText, ChevronRight
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 // Negotiation Response Modal for Vendor
 function NegotiationResponseModal({ negotiation, onClose, onSuccess }: { negotiation: any, onClose: () => void, onSuccess: () => void }) {
@@ -20,11 +21,22 @@ function NegotiationResponseModal({ negotiation, onClose, onSuccess }: { negotia
         status,
         vendor_remarks: remarks
       });
-      alert(`Negotiation ${status} successfully!`);
+      Swal.fire({
+        icon: 'success',
+        title: `Negotiation Responded!`,
+        text: `Negotiation ${status} successfully!`,
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Failed to respond to negotiation.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to respond to negotiation.'
+      });
     } finally {
       setLoading(false);
     }
@@ -124,6 +136,21 @@ export default function Negotiation() {
     } else {
       navigate("/login");
     }
+    
+    // Listen for new notifications to refresh data
+    const handleRefreshData = () => {
+      const comp = localStorage.getItem("active_company");
+      if (comp) {
+        const parsed = JSON.parse(comp);
+        fetchNegotiations(parsed.id);
+      }
+    };
+    
+    window.addEventListener('huntr:notification_received', handleRefreshData);
+    
+    return () => {
+      window.removeEventListener('huntr:notification_received', handleRefreshData);
+    };
   }, []);
 
   const fetchNegotiations = async (companyId: string) => {

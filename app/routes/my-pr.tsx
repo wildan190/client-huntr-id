@@ -22,6 +22,17 @@ export default function MyPurchaseRequisitions() {
       }
     }
     fetchMyRequests();
+    
+    // Listen for new notifications to refresh data
+    const handleRefreshData = () => {
+      fetchMyRequests();
+    };
+    
+    window.addEventListener('huntr:notification_received', handleRefreshData);
+    
+    return () => {
+      window.removeEventListener('huntr:notification_received', handleRefreshData);
+    };
   }, []);
 
   const fetchMyRequests = async () => {

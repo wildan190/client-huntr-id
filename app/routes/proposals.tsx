@@ -8,6 +8,7 @@ import {
   RefreshCw, MessageSquare, Trophy, X
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
+import Swal from "sweetalert2";
 
 /**
  * Proposals Page
@@ -71,11 +72,22 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
         delivery_terms: deliveryTerms,
         buyer_remarks: notes
       });
-      alert("Negotiation request sent to vendor!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Negotiation Sent!',
+        text: 'Negotiation request sent to vendor!',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Failed to send negotiation.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to send negotiation.'
+      });
     } finally {
       setLoading(false);
     }
@@ -226,6 +238,26 @@ export default function Proposals() {
         fetchReceivedProposals(comp.id);
       }
     }
+    
+    // Listen for new notifications to refresh data
+    const handleRefreshData = () => {
+      const activeComp = localStorage.getItem("active_company");
+      if (activeComp) {
+        const comp = JSON.parse(activeComp);
+        if (comp.type === 'vendor') {
+          fetchOpenTenders();
+          fetchVendorSubmissions(comp.id);
+        } else {
+          fetchReceivedProposals(comp.id);
+        }
+      }
+    };
+    
+    window.addEventListener('huntr:notification_received', handleRefreshData);
+    
+    return () => {
+      window.removeEventListener('huntr:notification_received', handleRefreshData);
+    };
   }, [location.state]);
 
   const fetchReceivedProposals = async (companyId: string | number) => {
@@ -252,11 +284,22 @@ export default function Proposals() {
         rfq_id: receivedProposals.find(p => p.id === proposalId)?.rfq_id,
         user_id: user?.id,
       });
-      alert("✓ Winner awarded! Notification sent to manager for final approval.");
+      Swal.fire({
+        icon: 'success',
+        title: 'Winner Awarded!',
+        text: '✓ Winner awarded! Notification sent to manager for final approval.',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       fetchReceivedProposals(activeCompany.id);
     } catch (err) {
       console.error(err);
-      alert("Failed to award winner.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to award winner.'
+      });
     } finally {
       setAwardingId(null);
     }

@@ -29,6 +29,7 @@ import {
   get2FARecoveryCodes,
   confirm2FA
 } from "../lib/api";
+import Swal from "sweetalert2";
 
 export default function AccountSettings() {
   const [user, setUser] = useState<any>(null);
@@ -237,12 +238,25 @@ export default function AccountSettings() {
   };
 
   const handleLogoutSession = async (sessionId: string) => {
-    if (!confirm("Are you sure you want to terminate this session?")) return;
+    const result = await Swal.fire({
+      icon: 'question',
+      title: 'Terminate Session?',
+      text: 'Are you sure you want to terminate this session?',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Terminate',
+      cancelButtonText: 'Cancel'
+    });
+    if (!result.isConfirmed) return;
+    
     try {
       await logoutSession(sessionId);
       fetchSessions();
     } catch (err: any) {
-      alert(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err.message
+      });
     }
   };
 

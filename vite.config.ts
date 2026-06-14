@@ -24,6 +24,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/broadcasting": {
+          target: backendUrl,
+          changeOrigin: true,
+          secure: false,
+        },
         // Frontend routes are handled by React Router, not proxied
         // /login, /register, /logout are frontend routes
       },

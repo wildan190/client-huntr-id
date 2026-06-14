@@ -7,6 +7,7 @@ import {
   Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2,
   MessageSquare, X, DollarSign, Clock, RefreshCw, AlertTriangle
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 // Negotiation Modal Component
 function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onClose: () => void, onSuccess: () => void }) {
@@ -61,11 +62,22 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
         delivery_terms: deliveryTerms,
         buyer_remarks: notes
       });
-      alert("Negotiation request sent to vendor!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Negotiation Sent!',
+        text: 'Negotiation request sent to vendor!',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Failed to send negotiation.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to send negotiation.'
+      });
     } finally {
       setLoading(false);
     }

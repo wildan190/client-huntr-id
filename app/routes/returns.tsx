@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { getFullApiUrl } from "../lib/client";
 import { Loader2, AlertCircle, FileText, Package, CheckCircle2, XCircle, Download } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface Return {
   id: string;
@@ -70,7 +71,11 @@ export default function ReturnsPage() {
       const userSession = localStorage.getItem("user_session");
       const token = userSession ? JSON.parse(userSession).token : null;
       if (!token) {
-        alert("Authentication token not found. Please log in again.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Authentication token not found. Please log in again.'
+        });
         return;
       }
       const response = await fetch(getFullApiUrl(`/api/returns/${returnId}/pdf`), {
@@ -88,7 +93,11 @@ export default function ReturnsPage() {
       link.download = `Return-${returnId}.pdf`;
       link.click();
     } catch (err: any) {
-      alert(err.message || "Failed to download PDF");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err.message || "Failed to download PDF"
+      });
     }
   };
 

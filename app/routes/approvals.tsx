@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
 import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle, Trophy, Building2, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router";
+import Swal from "sweetalert2";
 
 export default function Approvals() {
   const navigate = useNavigate();
@@ -77,7 +78,11 @@ export default function Approvals() {
       setRequests(prev => prev.filter(r => r.id !== rfqId));
     } catch (err) {
       console.error("Failed to approve PR", err);
-      alert("Failed to approve PR. Check console for details.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "Failed to approve PR. Check console for details."
+      });
     } finally {
       setProcessingId(null);
     }

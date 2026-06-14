@@ -1,114 +1,156 @@
-/**
- * Session Management Utilities
- * 
- * Tanggung jawab: Mengelola token autentikasi dan sesi OTP di storage.
- */
+type User = {
+  id: string | number;
+  name: string;
+  email: string;
+  role: string;
+  token: string;
+};
 
-const OTP_SESSION_KEY = "huntr_otp_session";
+type ActiveCompany = {
+  id: string | number;
+  name: string;
+  type: string;
+  status: string;
+  owner_id: string | number;
+};
 
-export type OtpSession = {
+type OtpSession = {
   otp_token: string;
   whatsapp: string;
   expires_at: number;
 };
 
-/**
- * Mengambil token autentikasi dari localStorage
- */
-export function getAuthToken(): string | null {
-  if (typeof localStorage === "undefined") return null;
-  const session = localStorage.getItem("user_session");
-  if (!session) return null;
-  try {
-    const user = JSON.parse(session);
-    return user.token || null;
-  } catch {
-    return null;
+export class SessionManager {
+  private static USER_KEY = 'user_session';
+  private static COMPANY_KEY = 'active_company';
+  private static OTP_KEY = 'otp_session';
+  private static subscribers: Set<() => void> = new Set();
+
+  static subscribe(callback: () => void) {
+    this.subscribers.add(callback);
+    return () => this.subscribers.delete(callback);
   }
-}
 
-/**
- * Menghasilkan header HTTP standar dengan Authorization Bearer
- */
-export function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  };
-  const token = getAuthToken();
-  if (token && token !== "null" && token !== "undefined") {
-    headers["Authorization"] = `Bearer ${token}`;
+  private static notify() {
+    this.subscribers.forEach(cb => cb());
   }
-  return headers;
-}
 
-/**
- * Menghapus sesi autentikasi dan mengarahkan ke halaman login
- */
-export function clearAuthSession(): void {
-  if (typeof localStorage === "undefined") return;
-  console.log("[Session] Clearing auth session");
-  localStorage.removeItem("user_session");
-  localStorage.removeItem("active_company");
-  if (typeof window !== "undefined") {
-    window.location.href = "/login";
-  }
-}
-
-/**
- * Menyimpan sesi OTP ke sessionStorage
- */
-export function saveOtpSession(session: OtpSession): void {
-  if (typeof sessionStorage === "undefined") return;
-  sessionStorage.setItem(OTP_SESSION_KEY, JSON.stringify(session));
-}
-
-/**
- * Mengambil sesi OTP yang masih valid
- */
-export function loadOtpSession(): OtpSession | null {
-  if (typeof sessionStorage === "undefined") return null;
-  try {
-    const raw = sessionStorage.getItem(OTP_SESSION_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw) as OtpSession;
-    if (!data?.otp_token || Date.now() > data.expires_at) {
-      sessionStorage.removeItem(OTP_SESSION_KEY);
+  static getUser(): User | null {
+    try {
+      const userStr = localStorage.getItem(this.USER_KEY);
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
       return null;
     }
-    return data;
-  } catch {
-    return null;
+  }
+
+  static setUser(user: User) {
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    this.notify();
+  }
+
+  static getToken(): string | null {
+    const user = this.getUser();
+    return user?.token || null;
+  }
+
+  static clearUser() {
+    localStorage.removeItem(this.USER_KEY);
+    this.notify();
+  }
+
+  static getCompany(): ActiveCompany | null {
+    try {
+      const companyStr = localStorage.getItem(this.COMPANY_KEY);
+      return companyStr ? JSON.parse(companyStr) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  static setCompany(company: ActiveCompany) {
+    localStorage.setItem(this.COMPANY_KEY, JSON.stringify(company));
+    this.notify();
+  }
+
+  static clearCompany() {
+    localStorage.removeItem(this.COMPANY_KEY);
+    this.notify();
+  }
+
+  static clearAll() {
+    this.clearUser();
+    this.clearCompany();
+  }
+
+  // OTP Session functions
+  static saveOtpSession(session: OtpSession) {
+    localStorage.setItem(this.OTP_KEY, JSON.stringify(session));
+  }
+
+  static loadOtpSession(): OtpSession | null {
+    try {
+      const sessionStr = localStorage.getItem(this.OTP_KEY);
+      const session = sessionStr ? JSON.parse(sessionStr) : null;
+      if (session && session.expires_at < Date.now()) {
+        this.clearOtpSession();
+        return null;
+      }
+      return session;
+    } catch {
+      return null;
+    }
+  }
+
+  static clearOtpSession() {
+    localStorage.removeItem(this.OTP_KEY);
+  }
+
+  static getDeviceIdentity(): string {
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return navigator.userAgent.substring(0, 100);
+      
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = '#f60';
+      ctx.fillRect(125, 1, 62, 20);
+      ctx.fillStyle = '#069';
+      ctx.fillText('Hello, world.', 2, 15);
+      const dataUrl = canvas.toDataURL();
+      // Simple hash of the canvas fingerprint + user agent
+      let hash = 0;
+      const str = dataUrl + navigator.userAgent;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return `device-${Math.abs(hash).toString(36)}`;
+    } catch {
+      return navigator.userAgent.substring(0, 100);
+    }
+  }
+
+  // For backwards compatibility
+  static getAuthHeaders(): Record<string, string> {
+    const token = this.getToken();
+    return token
+      ? { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+      : { Accept: 'application/json' };
+  }
+
+  static clearAuthSession() {
+    this.clearAll();
   }
 }
 
-/**
- * Menghapus sesi OTP
- */
-export function clearOtpSession(): void {
-  if (typeof sessionStorage === "undefined") return;
-  sessionStorage.removeItem(OTP_SESSION_KEY);
-}
-
-/**
- * Mendapatkan identitas perangkat sederhana (Browser & OS)
- */
-export function getDeviceIdentity(): string {
-  if (typeof navigator === "undefined") return "Unknown Device";
-  
-  const ua = navigator.userAgent;
-  let os = "Unknown OS";
-  if (ua.indexOf("Win") !== -1) os = "Windows";
-  if (ua.indexOf("Mac") !== -1) os = "macOS";
-  if (ua.indexOf("X11") !== -1) os = "UNIX";
-  if (ua.indexOf("Linux") !== -1) os = "Linux";
-  if (ua.indexOf("Android") !== -1) os = "Android";
-  if (ua.indexOf("like Mac") !== -1) os = "iOS";
-
-  let browser = "Unknown Browser";
-  if (ua.indexOf("Chrome") !== -1) browser = "Chrome";
-  else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
-  else if (ua.indexOf("Safari") !== -1) browser = "Safari";
-  else if (ua.indexOf("Edge") !== -1) browser = "Edge";
-
-  return `${browser} on ${os}`;
-}
+// For backwards compatibility with existing code
+export const getAuthHeaders = SessionManager.getAuthHeaders.bind(SessionManager);
+export const clearAuthSession = SessionManager.clearAuthSession.bind(SessionManager);
+export const saveOtpSession = SessionManager.saveOtpSession.bind(SessionManager);
+export const loadOtpSession = SessionManager.loadOtpSession.bind(SessionManager);
+export const clearOtpSession = SessionManager.clearOtpSession.bind(SessionManager);
+export const getDeviceIdentity = SessionManager.getDeviceIdentity.bind(SessionManager);

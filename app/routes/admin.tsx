@@ -14,6 +14,7 @@ import {
   adminGetTransactions,
   adminGetEscrowSummary
 } from "../lib/api";
+import Swal from "sweetalert2";
 
 const BASE_URL_IMAGE = import.meta.env.VITE_BASE_URL_IMAGE || `${import.meta.env.VITE_API_URL}/storage`;
 
@@ -497,7 +498,11 @@ function AdminCatalogueTab() {
       setShowAddModal(false);
       fetchCatalogues();
     } catch (err) {
-      alert("Failed to create product");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "Failed to create product"
+      });
     }
   };
 
@@ -529,12 +534,25 @@ function AdminCatalogueTab() {
                 </div>
                 <button
                   onClick={async () => {
-                    if (!confirm(`Delete product "${item.name}"?`)) return;
+                    const result = await Swal.fire({
+                      icon: 'question',
+                      title: 'Delete Product?',
+                      text: `Delete product "${item.name}"?`,
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes, Delete',
+                      cancelButtonText: 'Cancel'
+                    });
+                    if (!result.isConfirmed) return;
+                    
                     try {
                       await adminDeleteCatalogueItem(item.id);
                       fetchCatalogues();
                     } catch (err) {
-                      alert("Failed to delete product");
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: "Failed to delete product"
+                      });
                     }
                   }}
                   style={{

@@ -1,35 +1,24 @@
 import React, { useEffect, useRef } from 'react';
-import echo from '../lib/echo';
+import { useEventBus } from '../lib/EventBus';
 
 export default function NotificationSound() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { lastEvent } = useEventBus();
+  const lastPlayedId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!echo) return;
-
-    // Listen to global test channel for now
-    const channel = echo.channel('test-channel');
-    
-    channel.listen('.communication.websocket.broadcast', (e: any) => {
-      console.log('Notification received:', e);
+    if (lastEvent && lastEvent.data?.id !== lastPlayedId.current) {
+      console.log('NotificationSound: Playing sound for notification:', lastEvent);
+      lastPlayedId.current = lastEvent.data?.id;
       
-      // Trigger unread count refresh in Layout
-      window.dispatchEvent(new CustomEvent('huntr:notification_received'));
-
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch(err => {
           console.warn('Audio playback failed (interaction required?):', err);
         });
       }
-    });
-
-    return () => {
-      if (echo) {
-        echo.leaveChannel('test-channel');
-      }
-    };
-  }, []);
+    }
+  }, [lastEvent]);
 
   return (
     <audio 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { createRfq, apiGet, apiPost } from "../lib/api";
 import { ShoppingCart, Calendar, ClipboardList, CheckCircle2, Loader2, AlertCircle, ArrowRight, UserCheck } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface RfqItem {
   catalogue_id: number;
@@ -63,7 +64,11 @@ export default function Rfq() {
       await apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: user.id });
       if (activeCompany) fetchRfqs(activeCompany.id);
     } catch (err: any) {
-      alert(err.message || "Failed to approve RFQ");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err.message || "Failed to approve RFQ"
+      });
     }
   };
 

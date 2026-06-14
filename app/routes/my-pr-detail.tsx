@@ -7,6 +7,7 @@ import {
   Loader2, Trophy, Building2, ShieldCheck, ChevronRight, Award, Info, MessageSquare, 
   X, DollarSign, AlertCircle, RefreshCw, BarChart3, AlertTriangle, Briefcase
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 // Negotiation Modal Component (Reused)
 function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onClose: () => void, onSuccess: () => void }) {
@@ -61,11 +62,22 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
         delivery_terms: deliveryTerms,
         buyer_remarks: notes
       });
-      alert("Negotiation request sent to vendor!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Negotiation Sent!',
+        text: 'Negotiation request sent to vendor!',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Failed to send negotiation.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to send negotiation.'
+      });
     } finally {
       setLoading(false);
     }
@@ -240,14 +252,25 @@ export default function MyPurchaseRequisitionDetail() {
         rfq_id: rfqId,
         user_id: user?.id,
       });
-      alert("✓ Winner awarded! Notification sent to manager for final approval.");
+      Swal.fire({
+        icon: 'success',
+        title: 'Winner Awarded!',
+        text: '✓ Winner awarded! Notification sent to manager for final approval.',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
       if (id) {
         getRfq(id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
         fetchRankings(id);
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to award winner. Please check your permissions.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to award winner. Please check your permissions.'
+      });
     } finally {
       setAwardingProposal(null);
     }

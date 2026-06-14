@@ -28,6 +28,7 @@ import ThemeToggle from "./ThemeToggle";
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/api";
 import { useTheme } from "../context/ThemeContext";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
+import { useEventBus } from "../lib/EventBus";
 
 interface Props { children: React.ReactNode; title: string; subtitle?: string; }
 
@@ -38,6 +39,7 @@ export default function Layout({ children, title, subtitle }: Props) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme, isDark, isAuto, resetToAuto } = useTheme();
+  const { lastEvent } = useEventBus();
   const [user, setUser] = useState<any>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -65,7 +67,7 @@ export default function Layout({ children, title, subtitle }: Props) {
       { to: "/marketplace", label: "Marketplace", Icon: Package, section: "procurement" }
     ] : []),
     ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
-      { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement" }
+      { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement", badge: "pendingNewProposals" }
     ] : []),
     ...(isBuyerComp && isManager ? [
       { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" }
@@ -82,10 +84,14 @@ export default function Layout({ children, title, subtitle }: Props) {
     ...(isVendorComp && (isManager || isAdminRole) ? [
       { to: "/my-rank", label: "My Rank", Icon: Medal, section: "vendor" }
     ] : []),
-    
+
     // === ORDERS & DOCUMENTS SECTION ===
     { to: "/negotiation", label: "Negotiations", Icon: MessageSquare, section: "orders", badge: "negotiations" },
-    { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders" },
+    ...(isVendorComp ? [
+      { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders", badge: "pendingPurchaseOrders" }
+    ] : [
+      { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders" }
+    ]),
     { to: "/receipts", label: "Goods Receipt", Icon: CheckCircle2, section: "orders", badge: "receiptsToInspect" },
     { to: "/bast", label: "BAST", Icon: FileText, section: "orders" },
     { to: "/returns", label: "Returns", Icon: Package, section: "orders", badge: "pendingReturns" },
@@ -131,21 +137,36 @@ export default function Layout({ children, title, subtitle }: Props) {
       navigate("/select-company");
       return;
     }
-
-    // Listen for real-time notification events
-    const handleNewNotif = () => userSession && fetchUnreadCount(JSON.parse(userSession).id);
-    window.addEventListener('huntr:notification_received', handleNewNotif);
-
-    return () => {
-      window.removeEventListener('huntr:notification_received', handleNewNotif);
-    };
   }, [pathname, navigate]);
 
+  // Refresh notifications when a new event arrives from EventBus
+  useEffect(() => {
+    if (user && lastEvent) {
+      console.log("New event received, refreshing notifications:", lastEvent);
+      fetchUnreadCount(user.id);
+    }
+  }, [lastEvent, user]);
+
+  // Save sidebar scroll position when leaving page
+  useEffect(() => {
+    const currentScroll = navScrollRef.current?.scrollTop;
+    return () => {
+      if (currentScroll !== undefined) {
+        sessionStorage.setItem('sidebar-scroll-position', String(currentScroll));
+      }
+    };
+  }, [pathname]);
+
+  // Restore sidebar scroll position when path changes
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
+    } else {
+      const savedScroll = sessionStorage.getItem('sidebar-scroll-position');
+      if (savedScroll && navScrollRef.current) {
+        navScrollRef.current.scrollTop = parseInt(savedScroll, 10);
+      }
     }
-    // Don't scroll sidebar to top on navigation
   }, [pathname, isMobile]);
 
   useEffect(() => {
@@ -162,6 +183,7 @@ export default function Layout({ children, title, subtitle }: Props) {
       const res = await getNotifications(userId);
       // Ensure we are working with the data array from pagination
       const dataArray = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : []);
+      console.log('Notifications:', dataArray);
       const unread = dataArray.filter((n: any) => n.read_at === null).length;
       setUnreadCount(unread);
       setRecentNotifications(dataArray.slice(0, 5));
@@ -174,6 +196,7 @@ export default function Layout({ children, title, subtitle }: Props) {
   };
 
   const calculatePendingCounts = (notifications: any[]) => {
+    console.log("Calculating pending counts from notifications:", notifications);
     const counts: Record<string, number> = {
       pendingApprovals: 0,
       opportunities: 0,
@@ -183,18 +206,27 @@ export default function Layout({ children, title, subtitle }: Props) {
       pendingReturns: 0,
       pendingDebitNotes: 0,
       financeApprovals: 0,
+      pendingNewProposals: 0,
+      pendingPurchaseOrders: 0,
     };
 
     notifications.forEach((n: any) => {
-      if (n.read_at) return; // Skip read notifications
+      console.log("Processing notification:", n);
+      if (n.read_at) {
+        console.log("Skipping read notification");
+        return; 
+      }
       
       const type = n.data?.type || n.type;
+      console.log("Notification type:", type);
       
       // Map notification types to pending counts
       if (type === 'rfq_created' || type === 'rfq_published') {
         counts.opportunities++;
       } else if (type === 'proposal_submitted') {
         counts.pendingProposals++;
+        counts.pendingNewProposals++;
+        console.log("Incremented pendingNewProposals to:", counts.pendingNewProposals);
       } else if (type === 'negotiation_started' || type === 'negotiation_response') {
         counts.negotiations++;
       } else if (type === 'goods_delivered' || type === 'delivery_order_created') {
@@ -207,9 +239,12 @@ export default function Layout({ children, title, subtitle }: Props) {
         counts.financeApprovals++;
       } else if (type?.includes('approval') || type?.includes('review')) {
         counts.pendingApprovals++;
+      } else if (type === 'purchase_order_created') {
+        counts.pendingPurchaseOrders++;
       }
     });
 
+    console.log("Final pending counts:", counts);
     setPendingCounts(counts);
   };
 
@@ -331,7 +366,8 @@ export default function Layout({ children, title, subtitle }: Props) {
             };
 
             return NAV.map(({ to, label, Icon, section, badge }) => {
-              const active = pathname === to;
+              // Handle nested routes like /my-pr/:id or /rfq/:id
+              const active = pathname === to || pathname.startsWith(to + '/');
               const badgeCount = badge ? pendingCounts[badge] || 0 : 0;
               
               // Section header

@@ -11,6 +11,7 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { ThemeProvider } from "./context/ThemeContext";
+import { EventBusProvider } from "./lib/EventBus";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -62,7 +63,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
-          {children}
+          <EventBusProvider>
+            {children}
+          </EventBusProvider>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />

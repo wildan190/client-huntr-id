@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { getFullApiUrl } from "../lib/client";
 import { Loader2, AlertCircle, FileText, Banknote, CheckCircle2, Download } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface DebitNote {
   id: string;
@@ -72,7 +73,11 @@ export default function DebitNotesPage() {
       const userSession = localStorage.getItem("user_session");
       const token = userSession ? JSON.parse(userSession).token : null;
       if (!token) {
-        alert("Authentication token not found. Please log in again.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Authentication token not found. Please log in again.'
+        });
         return;
       }
       const response = await fetch(getFullApiUrl(`/api/debit-notes/${debitNoteId}/pdf`), {
@@ -90,7 +95,11 @@ export default function DebitNotesPage() {
       link.download = `DebitNote-${debitNoteId}.pdf`;
       link.click();
     } catch (err: any) {
-      alert(err.message || "Failed to download PDF");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err.message || "Failed to download PDF"
+      });
     }
   };
 
