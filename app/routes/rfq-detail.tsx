@@ -548,16 +548,6 @@ export default function RfqDetail() {
                         <div style={{ display: "grid", gap: 16 }}>
                           {rankings.map((rankData: any, idx: number) => {
                             const isWinnerOrAwarded = rankData.is_winner || rankData.proposal.winner_status === 'awarded' || rankData.proposal.winner_status === 'approved';
-                            const topProposal = topRankData?.proposal;
-                            
-                            let dynamicReason = "";
-                            if (rankData.rank === 1) {
-                              dynamicReason = "The most efficient and economical offer based on system evaluation criteria priorities (Lowest price & optimal delivery time).";
-                            } else if (topProposal) {
-                              const diffPrice = Number(rankData.proposal.price_offer) - Number(topProposal.price_offer);
-                              const percentDiff = ((diffPrice / Number(topProposal.price_offer)) * 100).toFixed(1);
-                              dynamicReason = `Offer price is ${percentDiff}% higher (+Rp ${diffPrice.toLocaleString()}) compared to first rank.`;
-                            }
 
                             return (
                               <div
@@ -689,6 +679,32 @@ export default function RfqDetail() {
                                   </div>
                                 </div>
 
+                                {/* Vendor Stats */}
+                                {rankData.vendor_stats && (
+                                  <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+                                    gap: 12,
+                                    background: "rgba(59, 130, 246, 0.05)",
+                                    padding: 12,
+                                    borderRadius: 12,
+                                    border: "1px solid rgba(59, 130, 246, 0.1)"
+                                  }}>
+                                    <div>
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: "#3b82f6", display: "block" }}>TOTAL TENDER</span>
+                                      <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>{rankData.vendor_stats.total_tenders}</strong>
+                                    </div>
+                                    <div>
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", display: "block" }}>TOTAL MENANG</span>
+                                      <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>{rankData.vendor_stats.total_wins}</strong>
+                                    </div>
+                                    <div>
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: "#f59e0b", display: "block" }}>PERSENTASE KEMENANGAN</span>
+                                      <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>{rankData.vendor_stats.win_rate}%</strong>
+                                    </div>
+                                  </div>
+                                )}
+
                                 {/* Kriteria Evaluasi Detail */}
                                 <div style={{
                                   display: "grid",
@@ -722,7 +738,7 @@ export default function RfqDetail() {
 
                                 <div style={{ fontSize: 12, color: "var(--ui-text-muted)", lineHeight: 1.4, display: "flex", gap: 6, alignItems: "start" }}>
                                   <Info size={14} color="var(--ui-text-muted)" style={{ flexShrink: 0, marginTop: 1 }} />
-                                  <span><strong>Alasan Peringkat:</strong> {dynamicReason}</span>
+                                  <span><strong>Alasan Peringkat:</strong> {rankData.detailed_reason?.summary || "Tidak ada alasan yang tersedia"}</span>
                                 </div>
                               </div>
                             );

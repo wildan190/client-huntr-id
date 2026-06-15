@@ -145,53 +145,60 @@ export default function AppShell() {
   const isVendorComp = activeCompany?.type === "vendor";
 
   // ── Nav items ─────────────────────────────────────────────────────────────
+  const isPendingCompany = activeCompany?.status === "pending";
+
   const NAV = [
-    { to: "/", label: "Dashboard", Icon: LayoutDashboard, section: "main", badge: "totalUnread" },
-
-    // Procurement (Buyer)
-    ...(isBuyerComp && (isManager || isBuyerRole) ? [
-      { to: "/marketplace", label: "Marketplace", Icon: Package, section: "procurement" },
-    ] : []),
-    ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
-      { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement", badge: "pendingNewProposals" },
-    ] : []),
-    ...(isBuyerComp && isManager ? [
-      { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" },
-    ] : []),
-
-    // Vendor
-    ...(isVendorComp ? [
-      { to: "/all-requests", label: "Opportunities", Icon: Lightbulb, section: "vendor", badge: "opportunities" },
-    ] : []),
-    ...(isVendorComp && (isManager || isAdminRole) ? [
-      { to: "/catalogue", label: "Catalogue", Icon: List, section: "vendor", badge: "catalogueAlerts" },
-      { to: "/proposals", label: "Proposals", Icon: Trophy, section: "vendor", badge: "pendingProposals" },
-    ] : []),
-    ...(isVendorComp && (isManager || isAdminRole) ? [
-      { to: "/my-rank", label: "My Rank", Icon: Medal, section: "vendor", badge: "rankAlerts" },
-    ] : []),
-
-    // Orders & Documents
-    { to: "/negotiation", label: "Negotiations", Icon: MessageSquare, section: "orders", badge: "negotiations" },
-    ...(isVendorComp ? [
-      { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders", badge: "pendingPurchaseOrders" },
+    ...(isPendingCompany ? [
+      { to: "/company", label: "Company", Icon: Building2, section: "settings", badge: "companyAlerts" },
+      { to: "/account", label: "Settings", Icon: Settings, section: "settings", badge: "accountAlerts" },
     ] : [
-      { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders", badge: "buyerOrderAlerts" },
+      { to: "/", label: "Dashboard", Icon: LayoutDashboard, section: "main", badge: "totalUnread" },
+
+      // Procurement (Buyer)
+      ...(isBuyerComp && (isManager || isBuyerRole) ? [
+        { to: "/marketplace", label: "Marketplace", Icon: Package, section: "procurement" },
+      ] : []),
+      ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
+        { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement", badge: "pendingNewProposals" },
+      ] : []),
+      ...(isBuyerComp && isManager ? [
+        { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" },
+      ] : []),
+
+      // Vendor
+      ...(isVendorComp ? [
+        { to: "/all-requests", label: "Opportunities", Icon: Lightbulb, section: "vendor", badge: "opportunities" },
+      ] : []),
+      ...(isVendorComp && (isManager || isAdminRole) ? [
+        { to: "/catalogue", label: "Catalogue", Icon: List, section: "vendor", badge: "catalogueAlerts" },
+        { to: "/proposals", label: "Proposals", Icon: Trophy, section: "vendor", badge: "pendingProposals" },
+      ] : []),
+      ...(isVendorComp && (isManager || isAdminRole) ? [
+        { to: "/my-rank", label: "My Rank", Icon: Medal, section: "vendor", badge: "rankAlerts" },
+      ] : []),
+
+      // Orders & Documents
+      { to: "/negotiation", label: "Negotiations", Icon: MessageSquare, section: "orders", badge: "negotiations" },
+      ...(isVendorComp ? [
+        { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders", badge: "pendingPurchaseOrders" },
+      ] : [
+        { to: "/orders", label: "Purchase Order", Icon: ReceiptText, section: "orders", badge: "buyerOrderAlerts" },
+      ]),
+      { to: "/receipts", label: "Goods Receipt", Icon: CheckCircle2, section: "orders", badge: "receiptsToInspect" },
+      { to: "/bast", label: "BAST", Icon: FileText, section: "orders", badge: "pendingBast" },
+      { to: "/returns", label: "Returns", Icon: Package, section: "orders", badge: "pendingReturns" },
+      { to: "/debit-notes", label: "Debit Notes", Icon: Briefcase, section: "orders", badge: "pendingDebitNotes" },
+
+      // Finance
+      ...(isBuyerComp && (isManager || isFinance) ? [
+        { to: "/finance", label: "Finance Approval", Icon: Briefcase, section: "finance", badge: "financeApprovals" },
+      ] : []),
+      { to: "/payment-history", label: "Payment History", Icon: History, section: "finance" },
+
+      // Settings
+      { to: "/company", label: "Company", Icon: Building2, section: "settings", badge: "companyAlerts" },
+      { to: "/account", label: "Settings", Icon: Settings, section: "settings", badge: "accountAlerts" },
     ]),
-    { to: "/receipts", label: "Goods Receipt", Icon: CheckCircle2, section: "orders", badge: "receiptsToInspect" },
-    { to: "/bast", label: "BAST", Icon: FileText, section: "orders", badge: "pendingBast" },
-    { to: "/returns", label: "Returns", Icon: Package, section: "orders", badge: "pendingReturns" },
-    { to: "/debit-notes", label: "Debit Notes", Icon: Briefcase, section: "orders", badge: "pendingDebitNotes" },
-
-    // Finance
-    ...(isBuyerComp && (isManager || isFinance) ? [
-      { to: "/finance", label: "Finance Approval", Icon: Briefcase, section: "finance", badge: "financeApprovals" },
-    ] : []),
-    { to: "/payment-history", label: "Payment History", Icon: History, section: "finance" },
-
-    // Settings
-    { to: "/company", label: "Company", Icon: Building2, section: "settings", badge: "companyAlerts" },
-    { to: "/account", label: "Settings", Icon: Settings, section: "settings", badge: "accountAlerts" },
   ];
 
   // ── Notification logic ───────────────────────────────────────────────────
