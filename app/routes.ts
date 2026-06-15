@@ -36,6 +36,7 @@ export default [
     route("returns", "routes/returns.tsx"),
     route("debit-notes", "routes/debit-notes.tsx"),
     route("bast", "routes/bast.tsx"),
+    route("efaktur", "routes/efaktur.tsx"),
     route("notifications", "routes/notifications.tsx"),
     route("account", "routes/account.tsx"),
     // Catch-all for well-known and other non-route paths

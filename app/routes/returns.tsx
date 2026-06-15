@@ -138,7 +138,7 @@ export default function ReturnsPage() {
 
   return (
     <Layout title="Returns Management" subtitle="Track returned and rejected goods">
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         {error && (
           <div style={{
             padding: 16, background: "rgba(239,68,68,0.1)", color: "#ef4444", borderRadius: 12, marginBottom: 24, display: "flex", alignItems: "center", gap: 10

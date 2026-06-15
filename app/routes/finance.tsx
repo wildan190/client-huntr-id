@@ -63,7 +63,7 @@ export default function Finance() {
 
   return (
     <Layout title="Finance Approval" subtitle="Review and approve final invoices before payment">
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         {error && (
           <div style={{
             padding: 16, background: "rgba(239,68,68,0.1)", color: "#ef4444", borderRadius: 12, marginBottom: 24, display: "flex", alignItems: "center", gap: 10

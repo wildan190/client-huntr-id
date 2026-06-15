@@ -766,9 +766,50 @@ export default function Orders() {
                                   }}>{inv.status.replace('_', ' ')}</span>
                                 </div>
 
-                                {/* Amount */}
-                                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)" }}>
-                                  IDR {Number(inv.amount).toLocaleString()}
+                                {/* Amount Breakdown */}
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 12px", background: "rgba(249,115,22,0.04)", borderRadius: 10, border: "1px solid rgba(249,115,22,0.1)" }}>
+                                  {/* Base */}
+                                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
+                                    <span>Nilai Transaksi</span>
+                                    <span style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>IDR {Number(inv.base_amount || inv.amount).toLocaleString()}</span>
+                                  </div>
+                                  {/* Platform fee */}
+                                  {Number(inv.platform_fee) > 0 && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
+                                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fb923c", display: "inline-block" }} />
+                                        Biaya Layanan {Number(inv.base_amount) <= 50000000 ? '(2.5%)' : Number(inv.base_amount) <= 250000000 ? '(2%)' : '(1%)'}
+                                      </span>
+                                      <span style={{ fontWeight: 700, color: "#fb923c" }}>+ IDR {Number(inv.platform_fee).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  {/* Midtrans fee */}
+                                  {Number(inv.midtrans_fee) > 0 && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
+                                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#60a5fa", display: "inline-block" }} />
+                                        Biaya Transaksi
+                                      </span>
+                                      <span style={{ fontWeight: 700, color: "#60a5fa" }}>+ IDR {Number(inv.midtrans_fee).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  {/* PPN */}
+                                  {Number(inv.ppn_fee) > 0 && (
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
+                                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#c084fc", display: "inline-block" }} />
+                                        PPN 11%
+                                      </span>
+                                      <span style={{ fontWeight: 700, color: "#c084fc" }}>+ IDR {Number(inv.ppn_fee).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  {/* Divider */}
+                                  <div style={{ borderTop: "1px solid rgba(249,115,22,0.15)", margin: "2px 0" }} />
+                                  {/* Total */}
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-primary)" }}>Total</span>
+                                    <span style={{ fontSize: 15, fontWeight: 900, color: "var(--ui-text-primary)" }}>IDR {Number(inv.total_amount || inv.amount).toLocaleString()}</span>
+                                  </div>
                                 </div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
 

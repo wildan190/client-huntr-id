@@ -186,6 +186,7 @@ export default function AppShell() {
       ]),
       { to: "/receipts", label: "Goods Receipt", Icon: CheckCircle2, section: "orders", badge: "receiptsToInspect" },
       { to: "/bast", label: "BAST", Icon: FileText, section: "orders", badge: "pendingBast" },
+      { to: "/efaktur", label: "e-Faktur", Icon: ReceiptText, section: "orders" },
       { to: "/returns", label: "Returns", Icon: Package, section: "orders", badge: "pendingReturns" },
       { to: "/debit-notes", label: "Debit Notes", Icon: Briefcase, section: "orders", badge: "pendingDebitNotes" },
 

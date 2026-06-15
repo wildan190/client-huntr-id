@@ -124,11 +124,64 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
         <div className="px-6 pb-8 flex flex-col gap-5">
           {!paymentData ? (
             <>
-              {/* Amount Display */}
-              <div className="p-5 bg-orange-500/5 rounded-2xl border border-orange-500/10">
-                <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Total Payment</div>
-                <div className="text-2xl font-black text-[var(--ui-text-primary)] leading-none">
-                  IDR {Number(invoice.amount).toLocaleString()}
+              {/* Fee Breakdown */}
+              <div className="p-5 bg-orange-500/5 rounded-2xl border border-orange-500/10 flex flex-col gap-3">
+                <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Rincian Biaya</div>
+
+                {/* Base amount */}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-[var(--ui-text-secondary)]">Nilai Transaksi</span>
+                  <span className="font-bold text-[var(--ui-text-primary)]">IDR {Number(invoice.base_amount || invoice.amount).toLocaleString()}</span>
+                </div>
+
+                {/* Platform fee */}
+                {Number(invoice.platform_fee) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                      Biaya Layanan Platform
+                      <span className="text-[10px] text-orange-400 font-black bg-orange-500/10 px-1.5 py-0.5 rounded-md">
+                        {Number(invoice.base_amount) <= 50000000 ? '2.5%' : Number(invoice.base_amount) <= 250000000 ? '2%' : '1%'}
+                      </span>
+                    </span>
+                    <span className="font-bold text-orange-400">+ IDR {Number(invoice.platform_fee).toLocaleString()}</span>
+                  </div>
+                )}
+
+                {/* Midtrans fee */}
+                {Number(invoice.midtrans_fee) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                      Biaya Transaksi Midtrans
+                    </span>
+                    <span className="font-bold text-blue-400">+ IDR {Number(invoice.midtrans_fee).toLocaleString()}</span>
+                  </div>
+                )}
+
+                {/* PPN */}
+                {Number(invoice.ppn_fee) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                      PPN 11%
+                    </span>
+                    <span className="font-bold text-purple-400">+ IDR {Number(invoice.ppn_fee).toLocaleString()}</span>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-orange-500/15 my-1"></div>
+
+                {/* Total */}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-black text-[var(--ui-text-primary)]">Total Pembayaran</span>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-[var(--ui-text-primary)] leading-none">
+                      IDR {Number(invoice.total_amount || invoice.amount).toLocaleString()}
+                    </div>
+                    <div className="text-[9px] text-[var(--ui-text-muted)] uppercase tracking-widest mt-0.5">Sudah termasuk semua biaya</div>
+                  </div>
                 </div>
               </div>
 
