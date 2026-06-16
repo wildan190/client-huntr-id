@@ -152,6 +152,13 @@ export default function AppShell() {
     return () => clearInterval(id);
   }, [user]);
 
+  // ── Refresh notifications when active company changes ────────────────────
+  useEffect(() => {
+    if (user?.id && activeCompany?.id) {
+      fetchUnreadCount(user.id);
+    }
+  }, [user?.id, activeCompany?.id]);
+
   // ── Close mobile sidebar on navigation ───────────────────────────────────
   useEffect(() => {
     if (isMobile) setSidebarOpen(false);
@@ -275,6 +282,9 @@ export default function AppShell() {
       } else if (type === "proposal_submitted") {
         counts.pendingProposals++;
         counts.pendingNewProposals++;
+      } else if (type === "proposal_awarded" || type === "award_received") {
+        counts.pendingProposals++;
+        counts.rankAlerts++;
       } else if (type === "negotiation_started" || type === "negotiation_response") {
         counts.negotiations++;
       } else if (type === "goods_delivered" || type === "delivery_order_created") {
@@ -304,7 +314,7 @@ export default function AppShell() {
       } else if (type === "company_verified" || type === "company_rejected") {
         counts.companyAlerts++;
         counts.accountAlerts++;
-      } else if (["ranking_update", "award_received", "proposal_awarded"].includes(type)) {
+      } else if (["ranking_update", "award_received"].includes(type)) {
         counts.rankAlerts++;
       }
     });

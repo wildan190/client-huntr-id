@@ -119,7 +119,7 @@ export default function Receipts() {
 
     return (
       <Layout title="Konfirmasi Penerimaan Barang" subtitle={`PO ${selectedPo.po_number} · ${selectedPo.vendor_name}`}>
-        <div style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* Back */}
           <button
@@ -342,7 +342,7 @@ export default function Receipts() {
   // ── List view ─────────────────────────────────────────────────────────────────
   return (
     <Layout title="Goods Receipt" subtitle="Konfirmasi penerimaan barang dari vendor">
-      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24 }}>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
