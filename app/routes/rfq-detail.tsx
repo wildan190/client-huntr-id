@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
 import { aiRankProposals } from "../lib/api/ai";
+import { useEventBusListener } from "../lib/EventBus";
 import { 
   ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, 
   Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2,
@@ -286,25 +287,40 @@ export default function RfqDetail() {
       setSuccessMessage("✓ Proposal awarded! Sent to manager for approval.");
       
       if (id) {
-        const response = await apiGet(`/api/rfqs/${id}`);
-        const data = response?.rfq ?? response?.data ?? response;
-        setRfq(data);
-        if (data?.id) {
-          fetchRankings(data.id);
-        }
+        // Refresh RFQ data completely
+        const rfqResponse = await apiGet(`/api/rfqs/${id}`);
+        const newRfqData = rfqResponse?.rfq ?? rfqResponse?.data ?? rfqResponse;
+        setRfq(newRfqData);
+        // Refresh rankings
+        fetchRankings(id);
       }
-      setTimeout(() => setSuccessMessage(null), 3000);
+      
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setAwardingProposal(null);
+      }, 3000);
     } catch (err: any) {
-      // Even if error, keep button gray since submit was sent
       setError(err.message || "Failed to award proposal");
+      setAwardingProposal(null);
     } finally {
-      // Keep awardingProposal set to keep button gray
-      // Don't reset isProcessing if error, to prevent rapid retries
+      // Reset processing state
       setTimeout(() => {
         isProcessing.current = false;
       }, 500);
     }
   };
+
+  // EventBus listener for negotiation responses
+  useEventBusListener(['negotiation.responded'], (event) => {
+    if (id) {
+      // Refresh RFQ and rankings when negotiation is responded to
+      apiGet(`/api/rfqs/${id}`).then((response) => {
+        const data = response?.rfq ?? response?.data ?? response;
+        setRfq(data);
+        fetchRankings(id);
+      });
+    }
+  });
 
   const totalItems = rfq?.items?.reduce((sum: number, item: any) => {
     return sum + (item.qty || 0);
@@ -1048,7 +1064,14 @@ export default function RfqDetail() {
           onSuccess={() => {
             setShowNegModal(false);
             setSelectedNegProposal(null);
-            if (id) fetchRankings(id);
+            if (id) {
+              // Refresh RFQ data and rankings after negotiation
+              apiGet(`/api/rfqs/${id}`).then((response) => {
+                const data = response?.rfq ?? response?.data ?? response;
+                setRfq(data);
+                fetchRankings(id);
+              });
+            }
           }}
         />
       )}
