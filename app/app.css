@@ -30,6 +30,81 @@ body {
   border-radius: 16px;
   box-shadow: var(--ui-glass-shadow);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--ui-text-primary);
+}
+
+/* Theme-aware dashboard content (fixes hardcoded dark Tailwind classes in light mode) */
+.huntr-page-content {
+  color: var(--ui-text-primary);
+}
+
+.huntr-page-content h2:not([class*="text-"]),
+.huntr-page-content h3:not([class*="text-"]) {
+  color: var(--ui-text-primary);
+}
+
+[data-theme="light"] .huntr-page-content .text-white {
+  color: var(--ui-text-primary);
+}
+
+[data-theme="light"] .huntr-page-content .text-gray-300 {
+  color: var(--ui-text-secondary);
+}
+
+[data-theme="light"] .huntr-page-content .text-gray-400 {
+  color: var(--ui-text-secondary);
+}
+
+[data-theme="light"] .huntr-page-content .text-gray-500 {
+  color: var(--ui-text-muted);
+}
+
+[data-theme="light"] .huntr-page-content .text-amber-300 {
+  color: #b45309;
+}
+
+[data-theme="light"] .huntr-page-content .text-yellow-300 {
+  color: #a16207;
+}
+
+[data-theme="light"] .huntr-page-content .text-green-300 {
+  color: #15803d;
+}
+
+[data-theme="light"] .huntr-page-content .bg-white\/5,
+[data-theme="light"] .huntr-page-content .hover\:bg-white\/5:hover {
+  background-color: var(--ui-bg-inset);
+}
+
+[data-theme="light"] .huntr-page-content .bg-white\/10,
+[data-theme="light"] .huntr-page-content .hover\:bg-white\/15:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .huntr-page-content .bg-black\/20 {
+  background-color: var(--ui-bg-inset);
+}
+
+[data-theme="light"] .huntr-page-content .bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .huntr-page-content .bg-gray-800 {
+  background-color: var(--ui-progress-track);
+}
+
+[data-theme="light"] .huntr-page-content .border-white\/5,
+[data-theme="light"] .huntr-page-content .border-white\/10,
+[data-theme="light"] .huntr-page-content .border-white\/15 {
+  border-color: var(--ui-border);
+}
+
+[data-theme="light"] .huntr-page-content .recharts-legend-item-text {
+  color: var(--ui-chart-legend) !important;
+}
+
+[data-theme="light"] .huntr-page-content .recharts-default-legend .recharts-legend-item-text {
+  fill: var(--ui-chart-legend);
 }
 
 .glass-panel:hover {

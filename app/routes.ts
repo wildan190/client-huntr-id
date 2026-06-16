@@ -17,6 +17,7 @@ export default [
     index("routes/home.tsx"),
     route("marketplace", "routes/marketplace.tsx"),
     route("marketplace/:id", "routes/marketplace-detail.tsx"),
+    route("cart", "routes/cart.tsx"),
     route("my-pr", "routes/my-pr.tsx"),
     route("my-pr/:id", "routes/my-pr-detail.tsx"),
     route("all-requests", "routes/all-requests.tsx"),

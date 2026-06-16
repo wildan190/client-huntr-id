@@ -2,10 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
+import { aiRankProposals } from "../lib/api/ai";
 import { 
   ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, 
   Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2,
-  MessageSquare, X, DollarSign, Clock, RefreshCw, AlertTriangle
+  MessageSquare, X, DollarSign, Clock, RefreshCw, AlertTriangle, Sparkles, Brain
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -198,6 +199,31 @@ export default function RfqDetail() {
   // Negotiation State
   const [showNegModal, setShowNegModal] = useState(false);
   const [selectedNegProposal, setSelectedNegProposal] = useState<any>(null);
+
+  // AI Ranking State
+  const [aiRankings, setAiRankings] = useState<any>(null);
+  const [aiRankLoading, setAiRankLoading] = useState(false);
+  const [aiRankError, setAiRankError] = useState<string | null>(null);
+  const [showAiPanel, setShowAiPanel] = useState(false);
+
+  const handleAiRank = async () => {
+    if (!rfq?.id) return;
+    setAiRankLoading(true);
+    setAiRankError(null);
+    setShowAiPanel(true);
+    try {
+      const res = await aiRankProposals(rfq.id);
+      if (res.success) {
+        setAiRankings(res.data);
+      } else {
+        setAiRankError(res.error || 'AI ranking tidak tersedia.');
+      }
+    } catch {
+      setAiRankError('Gagal menghubungi AI. Periksa koneksi Anda.');
+    } finally {
+      setAiRankLoading(false);
+    }
+  };
 
   useEffect(() => {
     const companySession = localStorage.getItem("active_company");
@@ -431,9 +457,36 @@ export default function RfqDetail() {
 
                     return (
                       <div style={{ marginTop: 32, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 24 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                          <ShieldCheck size={18} color="#f97316" />
-                          <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <ShieldCheck size={18} color="#f97316" />
+                            <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
+                          </div>
+                          {/* AI Analyse Button */}
+                          {isBuyer && (
+                            <button
+                              onClick={handleAiRank}
+                              disabled={aiRankLoading}
+                              style={{
+                                padding: "8px 16px", borderRadius: 12,
+                                background: showAiPanel
+                                  ? "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.1))"
+                                  : "linear-gradient(135deg, #a855f7, #6366f1)",
+                                border: showAiPanel ? "1px solid rgba(168,85,247,0.3)" : "none",
+                                color: showAiPanel ? "#a855f7" : "#fff",
+                                fontSize: 12, fontWeight: 800, cursor: aiRankLoading ? "not-allowed" : "pointer",
+                                display: "flex", alignItems: "center", gap: 6,
+                                boxShadow: showAiPanel ? "none" : "0 4px 14px rgba(168,85,247,0.35)",
+                                transition: "all 0.2s ease",
+                                opacity: aiRankLoading ? 0.7 : 1,
+                              }}
+                            >
+                              {aiRankLoading
+                                ? <><Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> AI Menganalisis...</>
+                                : <><Sparkles size={13} /> {showAiPanel ? "Refresh AI Analisis" : "🤖 Analisis AI"}</>
+                              }
+                            </button>
+                          )}
                         </div>
 
                         {/* Metodologi Penilaian (Evaluation Criteria Info) */}
@@ -744,6 +797,125 @@ export default function RfqDetail() {
                             );
                           })}
                         </div>
+
+                        {/* ── AI Assessment Panel ── */}
+                        {showAiPanel && (
+                          <div style={{
+                            marginTop: 24,
+                            background: "linear-gradient(135deg, rgba(168,85,247,0.07), rgba(99,102,241,0.04))",
+                            border: "1px solid rgba(168,85,247,0.25)",
+                            borderRadius: 20,
+                            padding: 24,
+                            animation: "fadeSlideIn 0.4s ease",
+                          }}>
+                            {/* Panel Header */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                              <div style={{
+                                width: 36, height: 36, borderRadius: 10,
+                                background: "linear-gradient(135deg, #a855f7, #6366f1)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                boxShadow: "0 4px 12px rgba(168,85,247,0.35)",
+                              }}>
+                                <Sparkles size={18} color="#fff" />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 13, fontWeight: 900, color: "var(--ui-text-primary)" }}>Huntr AI Assessment</div>
+                                <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>Analisis multikriteria: harga 40% · delivery 30% · garansi 20% · kelengkapan 10%</div>
+                              </div>
+                            </div>
+
+                            {aiRankLoading ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "20px 0", color: "var(--ui-text-muted)" }}>
+                                <Loader2 size={18} style={{ animation: "spin 1s linear infinite", color: "#a855f7" }} />
+                                <span style={{ fontSize: 13, fontWeight: 600 }}>Huntr AI sedang mengevaluasi semua proposal...</span>
+                              </div>
+                            ) : aiRankError ? (
+                              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12, padding: 16, color: "#ef4444", fontSize: 13, fontWeight: 600 }}>
+                                {aiRankError}
+                              </div>
+                            ) : aiRankings ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                                {/* Overall analysis */}
+                                {aiRankings.overall_analysis && (
+                                  <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", lineHeight: 1.7, padding: "12px 16px", background: "rgba(168,85,247,0.06)", borderRadius: 12, borderLeft: "3px solid #a855f7" }}>
+                                    {aiRankings.overall_analysis}
+                                  </div>
+                                )}
+                                {/* Per-proposal AI scores */}
+                                {(aiRankings.rankings || []).map((rank: any, idx: number) => {
+                                  const isAiWinner = rank.proposal_id === aiRankings.recommended_winner_id;
+                                  return (
+                                    <div key={rank.proposal_id || idx} style={{
+                                      padding: "16px 20px",
+                                      background: isAiWinner ? "rgba(168,85,247,0.06)" : "var(--ui-bg-input)",
+                                      border: isAiWinner ? "1px solid rgba(168,85,247,0.3)" : "1px solid var(--ui-border-input)",
+                                      borderRadius: 16,
+                                      display: "flex", flexDirection: "column", gap: 10,
+                                    }}>
+                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                          <div style={{
+                                            width: 28, height: 28, borderRadius: 8,
+                                            background: isAiWinner ? "linear-gradient(135deg, #a855f7, #6366f1)" : "var(--ui-bg-card)",
+                                            color: isAiWinner ? "#fff" : "var(--ui-text-muted)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            fontWeight: 900, fontSize: 13,
+                                          }}>#{rank.rank}</div>
+                                          <div>
+                                            <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-primary)" }}>
+                                              {rank.proposal?.company?.name || "Unknown Vendor"}
+                                            </div>
+                                            {isAiWinner && (
+                                              <div style={{ fontSize: 10, fontWeight: 900, color: "#a855f7", textTransform: "uppercase", letterSpacing: "0.06em" }}>✦ AI Recommendation</div>
+                                            )}
+                                          </div>
+                                        </div>
+                                        {/* Total score */}
+                                        <div style={{
+                                          padding: "4px 12px", borderRadius: 20,
+                                          background: isAiWinner ? "rgba(168,85,247,0.15)" : "var(--ui-bg-card)",
+                                          border: isAiWinner ? "1px solid rgba(168,85,247,0.3)" : "1px solid var(--ui-border)",
+                                          fontSize: 14, fontWeight: 900,
+                                          color: isAiWinner ? "#a855f7" : "var(--ui-text-secondary)",
+                                        }}>
+                                          {rank.total_score ? `${rank.total_score.toFixed(1)} pts` : "—"}
+                                        </div>
+                                      </div>
+                                      {/* Score breakdown bars */}
+                                      {rank.score_breakdown && (
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: 8 }}>
+                                          {([
+                                            { key: "price_score", label: "Harga", weight: "40%" },
+                                            { key: "delivery_score", label: "Delivery", weight: "30%" },
+                                            { key: "warranty_score", label: "Garansi", weight: "20%" },
+                                            { key: "completeness_score", label: "Kelengkapan", weight: "10%" },
+                                          ] as const).map(({ key, label, weight }) => (
+                                            <div key={key}>
+                                              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                                                <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)" }}>{label} <span style={{ opacity: 0.6 }}>({weight})</span></span>
+                                                <span style={{ fontSize: 10, fontWeight: 900, color: isAiWinner ? "#a855f7" : "var(--ui-text-secondary)" }}>{rank.score_breakdown[key] ?? "—"}</span>
+                                              </div>
+                                              <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                                                <div style={{ height: "100%", width: `${rank.score_breakdown[key] || 0}%`, background: isAiWinner ? "linear-gradient(90deg, #a855f7, #6366f1)" : "rgba(255,255,255,0.15)", borderRadius: 2 }} />
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {/* Recommendation text */}
+                                      {rank.recommendation && (
+                                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", lineHeight: 1.6 }}>
+                                          <strong style={{ color: "var(--ui-text-secondary)" }}>AI:</strong> {rank.recommendation}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+
                       </div>
                     );
                   })()}
@@ -880,6 +1052,15 @@ export default function RfqDetail() {
           }}
         />
       )}
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </Layout>
   );
 }

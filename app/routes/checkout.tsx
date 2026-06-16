@@ -19,15 +19,6 @@ export default function Checkout() {
   const [prDocument, setPrDocument] = useState<File | null>(null);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem("huntr_cart");
-    if (savedCart) {
-      const items = JSON.parse(savedCart).map((i: any) => ({
-        ...i,
-        estimated_price: i.estimated_price || 0
-      }));
-      setCart(items);
-    }
-
     const userSession = localStorage.getItem("user_session");
     if (userSession) setUser(JSON.parse(userSession));
 
@@ -38,6 +29,45 @@ export default function Checkout() {
       if (comp.type === 'vendor') {
         navigate("/");
         return;
+      }
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const fromAi = searchParams.get("from") === "ai";
+    const aiDraftStr = localStorage.getItem("ai_pr_draft");
+
+    if (fromAi && aiDraftStr) {
+      const draft = JSON.parse(aiDraftStr);
+      if (draft.title) setPrTitle(draft.title);
+      if (draft.description) setPrDesc(draft.description);
+      if (draft.duration_days) setPrDuration(draft.duration_days);
+
+      if (draft.suggested_items && draft.suggested_items.length > 0) {
+        const items = draft.suggested_items
+          .filter((item: any) => item.catalogue_id || item.catalogue?.id)
+          .map((item: any) => ({
+            id: item.catalogue_id || item.catalogue?.id || "",
+            item_code: item.catalogue?.item_code || item.item_code || "",
+            name: item.catalogue?.name || item.name || `Item ${item.catalogue_id?.slice(0, 8) || "?"}`,
+            category: item.catalogue?.category || item.category || "",
+            brand: item.catalogue?.brand || item.brand || "",
+            uom: item.catalogue?.uom || item.uom || "unit",
+            image_path: item.catalogue?.image_path || item.image_path || null,
+            qty: item.qty || 1,
+            estimated_price: item.estimated_price || 0,
+          }));
+        setCart(items);
+        localStorage.setItem("huntr_cart", JSON.stringify(items));
+      }
+      localStorage.removeItem("ai_pr_draft");
+    } else {
+      const savedCart = localStorage.getItem("huntr_cart");
+      if (savedCart) {
+        const items = JSON.parse(savedCart).map((i: any) => ({
+          ...i,
+          estimated_price: i.estimated_price || 0
+        }));
+        setCart(items);
       }
     }
   }, []);

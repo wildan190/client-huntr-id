@@ -114,6 +114,17 @@
 
   /* Layout */
   --ui-layout-padding: 32px;
+
+  /* Charts & inset surfaces */
+  --ui-bg-inset:       rgba(255, 255, 255, 0.05);
+  --ui-progress-track: #374151;
+  --ui-chart-grid:     rgba(255, 255, 255, 0.05);
+  --ui-chart-axis:     #6b7280;
+  --ui-chart-tooltip-bg:     rgba(15, 10, 6, 0.92);
+  --ui-chart-tooltip-border: rgba(249, 115, 22, 0.30);
+  --ui-chart-tooltip-text:   #f3f4f6;
+  --ui-chart-legend:     #9ca3af;
+  --ui-chart-pie-stroke: rgba(255, 255, 255, 0.10);
 }
 
 /* ── Global Elements Standarization ───────────────────────────────────────── */
@@ -217,4 +228,15 @@ select {
 
   /* Layout */
   --ui-layout-padding: 32px;
+
+  /* Charts & inset surfaces */
+  --ui-bg-inset:       rgba(0, 0, 0, 0.04);
+  --ui-progress-track: #e5e7eb;
+  --ui-chart-grid:     rgba(0, 0, 0, 0.08);
+  --ui-chart-axis:     #6b7280;
+  --ui-chart-tooltip-bg:     rgba(255, 252, 248, 0.98);
+  --ui-chart-tooltip-border: rgba(0, 0, 0, 0.10);
+  --ui-chart-tooltip-text:   #111827;
+  --ui-chart-legend:     #6b7280;
+  --ui-chart-pie-stroke: rgba(255, 255, 255, 0.85);
 }

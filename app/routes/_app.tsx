@@ -63,8 +63,20 @@ export default function AppShell() {
   const [pageTitle, setPageTitle] = useState("Huntr.id");
   const [pageSubtitle, setPageSubtitle] = useState("");
 
-  const [user, setUser] = useState<any>(null);
-  const [activeCompany, setActiveCompany] = useState<any>(null);
+  const [user, setUser] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const session = localStorage.getItem("user_session");
+      return session ? JSON.parse(session) : null;
+    }
+    return null;
+  });
+  const [activeCompany, setActiveCompany] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const session = localStorage.getItem("active_company");
+      return session ? JSON.parse(session) : null;
+    }
+    return null;
+  });
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
@@ -87,11 +99,15 @@ export default function AppShell() {
     if (companySession) {
       setActiveCompany(JSON.parse(companySession));
     }
+    
+    const isGuestRoute = pathname === "/" || pathname.startsWith("/marketplace/");
     if (!userSession) {
+      if (isGuestRoute) return;
       navigate("/login");
       return;
     }
     if (!companySession) {
+      if (isGuestRoute) return;
       navigate("/select-company");
       return;
     }
@@ -101,8 +117,22 @@ export default function AppShell() {
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
     const companySession = localStorage.getItem("active_company");
-    if (!userSession) { navigate("/login"); return; }
-    if (!companySession) { navigate("/select-company"); return; }
+    const isGuestRoute = pathname === "/" || pathname.startsWith("/marketplace/");
+
+    if (!userSession) {
+      if (isGuestRoute) {
+        setUser(null);
+        setActiveCompany(null);
+        return;
+      }
+      navigate("/login");
+      return;
+    }
+    if (!companySession) {
+      if (isGuestRoute) return;
+      navigate("/select-company");
+      return;
+    }
     // Update state in case company switched via another tab
     setUser(JSON.parse(userSession));
     setActiveCompany(JSON.parse(companySession));
@@ -441,6 +471,11 @@ export default function AppShell() {
   // Context passed down to child Layout wrappers
   const shellContext: AppShellContext = { setPageTitle, setPageSubtitle };
 
+  const isGuestRoute = pathname === "/" || pathname.startsWith("/marketplace/");
+  if (!user && isGuestRoute) {
+    return <Outlet context={shellContext} />;
+  }
+
   return (
     <div className="huntr-app-shell">
       {/* NotificationSound lives HERE — never re-mounts between navigations */}
@@ -516,7 +551,7 @@ export default function AppShell() {
               <div className="huntr-header-company-badge">
                 <Building2 size={11} />
                 <span>{activeCompany.name}</span>
-                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(249,115,22,0.2)", fontSize: 10, color: "#fdba74", flexShrink: 0 }}>
+                <span style={{ padding: "1px 6px", borderRadius: 99, background: "rgba(249,115,22,0.2)", fontSize: 10, color: "var(--ui-text-brand)", flexShrink: 0 }}>
                   {activeCompany.status || "pending"}
                 </span>
               </div>

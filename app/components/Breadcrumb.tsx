@@ -22,7 +22,11 @@ export default function Breadcrumb() {
       {paths.map((path, idx) => {
         const isLast = idx === paths.length - 1;
         const to = `/${paths.slice(0, idx + 1).join("/")}`;
-        const name = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " ");
+        const override =
+          typeof window !== "undefined" ? sessionStorage.getItem(`breadcrumb:${to}`) : null;
+        const name =
+          (isLast && override) ||
+          path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " ");
 
         return (
           <React.Fragment key={path}>

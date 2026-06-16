@@ -2,6 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Layout from "../components/Layout";
 import ThemeToggle from "../components/ThemeToggle";
+
+const chartTooltipStyle = (accent?: string) => ({
+  contentStyle: {
+    backgroundColor: "var(--ui-chart-tooltip-bg)",
+    border: accent ?? "1px solid var(--ui-chart-tooltip-border)",
+    borderRadius: "12px",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+  },
+  itemStyle: { color: "var(--ui-chart-tooltip-text)" },
+  labelStyle: { color: "var(--ui-chart-legend)" },
+});
 import { getCatalogues } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import { 
@@ -957,15 +968,14 @@ function BuyerDashboard({ user, activeCompany }: { user: any, activeCompany: any
                       dataKey="value"
                     >
                       {spendData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(255,255,255,0.1)" strokeWidth={2} />
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="var(--ui-chart-pie-stroke)" strokeWidth={2} />
                       ))}
                     </Pie>
                     <Tooltip 
                       formatter={(value) => [formatRupiah(value), "Total Spend"]}
-                      contentStyle={{ backgroundColor: "rgba(0,0,0,0.8)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: "12px" }}
-                      itemStyle={{ color: "#fff" }}
+                      {...chartTooltipStyle("1px solid rgba(249,115,22,0.35)")}
                     />
-                    <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px', color: '#9ca3af' }} />
+                    <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: "12px", color: "var(--ui-chart-legend)" }} />
                   </RechartsPieChart>
                 </ResponsiveContainer>
               </div>
@@ -985,14 +995,11 @@ function BuyerDashboard({ user, activeCompany }: { user: any, activeCompany: any
               <div style={{ height: 250, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={performanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} domain={[80, 100]} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: "rgba(0,0,0,0.8)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "12px" }}
-                      itemStyle={{ color: "#fff" }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
+                    <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} domain={[80, 100]} />
+                    <Tooltip {...chartTooltipStyle("1px solid rgba(34,197,94,0.35)")} />
+                    <Legend wrapperStyle={{ fontSize: "12px", color: "var(--ui-chart-legend)" }} />
                     <Bar dataKey="otd" name="On-Time Delivery (%)" fill="#4ade80" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="fillRate" name="Fill Rate (%)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -1035,13 +1042,10 @@ function BuyerDashboard({ user, activeCompany }: { user: any, activeCompany: any
               <div style={{ height: 250, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart data={cycleTimeData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} domain={[0, 4]} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: "rgba(0,0,0,0.8)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: "12px" }}
-                      itemStyle={{ color: "#fff" }}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
+                    <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} domain={[0, 4]} />
+                    <Tooltip {...chartTooltipStyle("1px solid rgba(59,130,246,0.35)")} />
                     <Line type="monotone" dataKey="time" name="Cycle Time (Days)" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4, fill: "#2563eb", strokeWidth: 2 }} activeDot={{ r: 6 }} />
                   </RechartsLineChart>
                 </ResponsiveContainer>
@@ -1087,13 +1091,12 @@ function BuyerDashboard({ user, activeCompany }: { user: any, activeCompany: any
                         <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatRupiah} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
+                    <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatRupiah} />
                     <Tooltip 
                       formatter={(value) => [formatRupiah(value), "Savings"]}
-                      contentStyle={{ backgroundColor: "rgba(0,0,0,0.8)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: "12px" }}
-                      itemStyle={{ color: "#fff" }}
+                      {...chartTooltipStyle("1px solid rgba(245,158,11,0.35)")}
                     />
                     <Area type="monotone" dataKey="savings" name="Cost Savings" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
                   </AreaChart>

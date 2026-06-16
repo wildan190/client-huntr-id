@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
-import { Package, ShoppingCart, ArrowLeft } from "lucide-react";
+import { addItemToCart, getCartItemCount, loadCart } from "../lib/cart";
+import { Package, ShoppingCart, ArrowLeft, ArrowRight } from "lucide-react";
 
 interface CatalogueItem {
   id: string;
@@ -51,7 +52,6 @@ function SpecificationsBlock({ text }: { text: string | undefined }) {
     );
   }
 
-  // Paragraph-formatted: split by common separators like ";" or "-" at the start of line
   return (
     <p style={{ margin: 0, fontSize: 14, lineHeight: 1.8, color: "var(--ui-text-primary)" }}>
       {text}
@@ -66,12 +66,20 @@ export default function MarketplaceDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const [cartCount, setCartCount] = useState(0);
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
     setIsGuest(!userSession);
+    setCartCount(getCartItemCount(loadCart()));
 
+    const onCartUpdate = () => setCartCount(getCartItemCount(loadCart()));
+    window.addEventListener("huntr-cart-updated", onCartUpdate);
+    return () => window.removeEventListener("huntr-cart-updated", onCartUpdate);
+  }, []);
+
+  useEffect(() => {
     if (!id) {
       setError("Product not found.");
       setLoading(false);
@@ -88,6 +96,7 @@ export default function MarketplaceDetail() {
         if (product) {
           setItem(product);
           setError(null);
+          sessionStorage.setItem(`/marketplace/${id}`, product.name);
         } else {
           setError("Product data is empty.");
         }
@@ -98,17 +107,13 @@ export default function MarketplaceDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const addToCart = (catalogueItem: CatalogueItem) => {
+  const handleAddToCart = (catalogueItem: CatalogueItem) => {
     try {
-      const currentCart = JSON.parse(localStorage.getItem("huntr_cart") || "[]");
-      const existing = currentCart.find((i: any) => i.id === catalogueItem.id);
-      const nextCart = existing
-        ? currentCart.map((i: any) => i.id === catalogueItem.id ? { ...i, qty: i.qty + 1 } : i)
-        : [...currentCart, { ...catalogueItem, qty: 1, estimated_price: 0 }];
-      localStorage.setItem("huntr_cart", JSON.stringify(nextCart));
-      setCartMessage("Product successfully added to cart.");
-      window.setTimeout(() => setCartMessage(null), 3200);
-    } catch (err) {
+      addItemToCart(catalogueItem);
+      setCartCount(getCartItemCount(loadCart()));
+      setCartMessage("Product added to cart.");
+      window.setTimeout(() => setCartMessage(null), 4000);
+    } catch {
       setCartMessage("Unable to add product to cart right now.");
     }
   };
@@ -117,8 +122,10 @@ export default function MarketplaceDetail() {
     ? getAssetUrl(item.image_path)
     : (item?.image || null);
 
+  const pageTitle = item?.name || "Marketplace Product";
+
   return (
-    <Layout title="Marketplace Product" subtitle="Product details from vendor catalog.">
+    <Layout title={pageTitle} subtitle="Product details from vendor catalog.">
       <style>{`
         @media (max-width: 768px) {
           .mp-detail-grid { grid-template-columns: 1fr !important; }
@@ -126,21 +133,79 @@ export default function MarketplaceDetail() {
         }
       `}</style>
 
-      <div style={{ width: "100%", maxWidth: 1100, margin: "0 auto" }}>
-        {/* Back button */}
-        <button
-          type="button"
-          onClick={() => isGuest ? navigate("/") : navigate("/marketplace")}
+      <div style={{ width: "100%" }}>
+        <div
           style={{
-            marginBottom: 28, padding: "9px 16px", borderRadius: 10,
-            background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-            color: "var(--ui-text-secondary)", cursor: "pointer", fontWeight: 700,
-            display: "flex", alignItems: "center", gap: 8, fontSize: 14,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 28,
+            flexWrap: "wrap",
           }}
         >
-          <ArrowLeft size={16} />
-          {isGuest ? "Back to Home" : "Back to Marketplace"}
-        </button>
+          <button
+            type="button"
+            onClick={() => (isGuest ? navigate("/") : navigate("/marketplace"))}
+            style={{
+              padding: "9px 16px",
+              borderRadius: 10,
+              background: "var(--ui-bg-input)",
+              border: "1px solid var(--ui-border-input)",
+              color: "var(--ui-text-secondary)",
+              cursor: "pointer",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 14,
+            }}
+          >
+            <ArrowLeft size={16} />
+            {isGuest ? "Back to Home" : "Back to Marketplace"}
+          </button>
+
+          {!isGuest && (
+            <Link
+              to="/cart"
+              style={{
+                padding: "9px 16px",
+                borderRadius: 10,
+                background: "var(--ui-bg-card)",
+                border: "1px solid var(--ui-border-badge)",
+                color: "var(--ui-text-brand)",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              <ShoppingCart size={16} />
+              View Cart
+              {cartCount > 0 && (
+                <span
+                  style={{
+                    minWidth: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    background: "#f59e0b",
+                    color: "#fff",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 6px",
+                  }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          )}
+        </div>
 
         {loading && (
           <div style={{ textAlign: "center", padding: 80, color: "var(--ui-text-muted)" }}>
@@ -155,10 +220,9 @@ export default function MarketplaceDetail() {
 
         {!loading && !error && item && (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            {/* Title block */}
             <div>
               <div style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-                {item.category || "General"} • {item.company?.name || "Global"}
+                {item.category || "General"}
               </div>
               <h1 style={{ margin: "0 0 4px", fontSize: "clamp(22px, 5vw, 34px)", fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>
                 {item.name}
@@ -166,16 +230,17 @@ export default function MarketplaceDetail() {
               <div style={{ fontSize: 13, color: "var(--ui-text-muted)" }}>SKU: {item.item_code}</div>
             </div>
 
-            {/* Image + Info grid */}
             <div className="mp-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24, alignItems: "start" }}>
-              {/* Image */}
               <div
                 className="mp-image-box"
                 style={{
-                  borderRadius: 24, overflow: "hidden",
+                  borderRadius: 24,
+                  overflow: "hidden",
                   background: "var(--ui-bg-card)",
                   minHeight: "clamp(240px, 40vw, 480px)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   border: "1px solid var(--ui-border)",
                 }}
               >
@@ -194,9 +259,7 @@ export default function MarketplaceDetail() {
                 )}
               </div>
 
-              {/* Right panel */}
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {/* Price */}
                 {item.price && item.price > 0 ? (
                   <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 20, border: "1px solid var(--ui-border)" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
@@ -209,7 +272,6 @@ export default function MarketplaceDetail() {
                   </div>
                 ) : null}
 
-                {/* Details */}
                 <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 20, border: "1px solid var(--ui-border)", display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     Product Details
@@ -218,7 +280,7 @@ export default function MarketplaceDetail() {
                     { label: "SKU / Item Code", value: item.item_code },
                     { label: "Category", value: item.category || "General" },
                     { label: "Unit of Measure", value: item.uom },
-                    ...(item.company ? [{ label: "Vendor", value: item.company.name }] : []),
+                    ...(item.company?.name ? [{ label: "Vendor", value: item.company.name }] : []),
                   ].map(({ label, value }) => (
                     <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 14 }}>
                       <span style={{ color: "var(--ui-text-muted)", flexShrink: 0 }}>{label}</span>
@@ -227,10 +289,14 @@ export default function MarketplaceDetail() {
                   ))}
                 </div>
 
-                {/* CTA */}
                 {cartMessage ? (
-                  <div style={{ color: "#d1fae5", background: "rgba(16,185,129,0.15)", padding: 14, borderRadius: 14, border: "1px solid rgba(16,185,129,0.25)", fontSize: 14 }}>
-                    {cartMessage}
+                  <div style={{ color: "#065f46", background: "rgba(16,185,129,0.12)", padding: 14, borderRadius: 14, border: "1px solid rgba(16,185,129,0.25)", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                    <span>{cartMessage}</span>
+                    {!isGuest && (
+                      <Link to="/cart" style={{ color: "#059669", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13 }}>
+                        Go to Cart <ArrowRight size={14} />
+                      </Link>
+                    )}
                   </div>
                 ) : null}
 
@@ -239,34 +305,74 @@ export default function MarketplaceDetail() {
                     type="button"
                     onClick={() => navigate("/login")}
                     style={{
-                      width: "100%", padding: "15px 18px", borderRadius: 16,
+                      width: "100%",
+                      padding: "15px 18px",
+                      borderRadius: 16,
                       background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                      border: "none", color: "#fff", fontWeight: 700, cursor: "pointer",
-                      fontSize: 15, boxShadow: "0 8px 24px rgba(249,115,22,0.25)",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      border: "none",
+                      color: "#fff",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontSize: 15,
+                      boxShadow: "0 8px 24px rgba(249,115,22,0.25)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
                     }}
                   >
                     <ShoppingCart size={18} /> Login to Create PR
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => addToCart(item)}
-                    style={{
-                      width: "100%", padding: "15px 18px", borderRadius: 16,
-                      background: "linear-gradient(135deg,#10b981,#059669)",
-                      border: "none", color: "#fff", fontWeight: 700, cursor: "pointer",
-                      fontSize: 15, boxShadow: "0 8px 24px rgba(16,185,129,0.25)",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    }}
-                  >
-                    <ShoppingCart size={18} /> Add to Cart
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleAddToCart(item)}
+                      style={{
+                        width: "100%",
+                        padding: "15px 18px",
+                        borderRadius: 16,
+                        background: "linear-gradient(135deg,#10b981,#059669)",
+                        border: "none",
+                        color: "#fff",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        fontSize: 15,
+                        boxShadow: "0 8px 24px rgba(16,185,129,0.25)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <ShoppingCart size={18} /> Add to Cart
+                    </button>
+                    <Link
+                      to="/cart"
+                      style={{
+                        width: "100%",
+                        padding: "13px 18px",
+                        borderRadius: 16,
+                        background: "var(--ui-bg-input)",
+                        border: "1px solid var(--ui-border)",
+                        color: "var(--ui-text-primary)",
+                        fontWeight: 700,
+                        fontSize: 14,
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      View Cart ({cartCount})
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Specifications block — full width below */}
             <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 24, border: "1px solid var(--ui-border)" }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
                 Specifications

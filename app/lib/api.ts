@@ -16,4 +16,5 @@ export * from "./api/catalogue";
 export * from "./api/orders";
 export * from "./api/communication";
 export * from "./api/payment";
+export * from "./api/ai";
 // End of barrel file

@@ -1,35 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Layout from "../components/Layout";
 import { getCatalogues } from "../lib/api";
-import { ShoppingCart, Search, Filter, Plus, Minus, Trash2, CheckCircle2, Loader2, Package, X } from "lucide-react";
+import { aiSearch, aiGeneratePr, isAiQuery, aiCompareText } from "../lib/api/ai";
+import AiInsightCard from "../components/AiInsightCard";
+import AiCompareModal from "../components/AiCompareModal";
+import {
+  ShoppingCart, Search, Filter, Plus, Minus, Trash2,
+  CheckCircle2, Loader2, Package, X, Sparkles, GitCompare,
+} from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 import { useNavigate } from "react-router";
 import { getAssetUrl } from "../lib/assets";
+import {
+  loadCart,
+  saveCart,
+  addItemToCart as addItemToCartLib,
+  updateCartQty as updateCartQtyLib,
+  removeCartItem as removeCartItemLib,
+  getCartItemCount,
+} from "../lib/cart";
 
 export default function Marketplace() {
   const navigate = useNavigate();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<any[]>(() => loadCart());
+  const skipCartPersist = useRef(true);
   const [showCart, setShowCart] = useState(false);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
+  // AI state
+  const [aiMode, setAiMode] = useState(false);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiIntent, setAiIntent] = useState<any>(null);
+  const [aiInsightDismissed, setAiInsightDismissed] = useState(false);
+  const [isGeneratingPr, setIsGeneratingPr] = useState(false);
+  const [comparisonText, setComparisonText] = useState<string | null>(null);
+  const [isLoadingComparison, setIsLoadingComparison] = useState(false);
+
+  // Compare state
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
   const CACHE_KEY = "huntr_marketplace_cache";
-  const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+  const CACHE_TTL = 10 * 60 * 1000;
 
   const loadCachedItems = () => {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return false;
-
     try {
       const parsed = JSON.parse(cached);
       if (!parsed?.items) return false;
-
       const age = Date.now() - (parsed.timestamp || 0);
       if (age > CACHE_TTL) return false;
-
       setItems(parsed.items);
       setLoading(false);
       return true;
@@ -39,10 +64,7 @@ export default function Marketplace() {
   };
 
   const saveItemsToCache = (items: any[]) => {
-    localStorage.setItem(
-      CACHE_KEY,
-      JSON.stringify({ items, timestamp: Date.now() })
-    );
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ items, timestamp: Date.now() }));
   };
 
   useEffect(() => {
@@ -50,32 +72,35 @@ export default function Marketplace() {
     if (companySession) {
       const comp = JSON.parse(companySession);
       setActiveCompany(comp);
-      if (comp.type === 'vendor') {
-        navigate("/");
-      }
+      if (comp.type === "vendor") navigate("/");
     }
-
     const hasCache = loadCachedItems();
-    if (!hasCache) {
-      fetchItems();
-    } else {
-      // Reload in the background if we have a cache to keep data fresh
-      fetchItems(false);
-    }
-
-    const savedCart = localStorage.getItem("huntr_cart");
-    if (savedCart) setCart(JSON.parse(savedCart));
+    if (!hasCache) fetchItems();
+    else fetchItems(false);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("huntr_cart", JSON.stringify(cart));
+    if (skipCartPersist.current) {
+      skipCartPersist.current = false;
+      return;
+    }
+    saveCart(cart);
   }, [cart]);
+
+  useEffect(() => {
+    const onCartUpdate = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (Array.isArray(detail)) setCart(detail);
+      else setCart(loadCart());
+    };
+    window.addEventListener("huntr-cart-updated", onCartUpdate);
+    return () => window.removeEventListener("huntr-cart-updated", onCartUpdate);
+  }, []);
 
   const fetchItems = async (showLoader = true) => {
     try {
       if (showLoader) setLoading(true);
       const res = await getCatalogues({ search: searchTerm });
-      // Extract data correctly from Laravel response
       const data = res.data?.data || res.data || res || [];
       setItems(data);
       saveItemsToCache(data);
@@ -86,40 +111,115 @@ export default function Marketplace() {
     }
   };
 
+  const fetchItemsAi = async (query: string) => {
+    try {
+      setLoading(true);
+      setAiMode(true);
+      setAiInsightDismissed(false);
+      setComparisonText(null);
+      setIsLoadingComparison(false);
+      const res = await aiSearch(query);
+      if (res.success && res.data) {
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setItems(data);
+        setAiSummary(res.ai_summary || null);
+        const intent = res.intent || null;
+        setAiIntent(intent);
+
+        // Jika AI mendeteksi intent comparison, fetch comparison text secara async
+        if (intent?.is_comparison) {
+          setIsLoadingComparison(true);
+          aiCompareText(query)
+            .then((r: any) => {
+              if (r.success && r.markdown) {
+                setComparisonText(r.markdown);
+              }
+            })
+            .catch(() => {})
+            .finally(() => setIsLoadingComparison(false));
+        }
+      } else {
+        // AI gagal, fallback ke normal search
+        setAiMode(false);
+        setAiSummary(null);
+        setAiIntent(null);
+        await fetchItems();
+      }
+    } catch {
+      setAiMode(false);
+      setAiSummary(null);
+      setAiIntent(null);
+      await fetchItems();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced search effect
   useEffect(() => {
+    if (!searchTerm) {
+      setAiMode(false);
+      setAiSummary(null);
+      setAiIntent(null);
+      setComparisonText(null);
+      setIsLoadingComparison(false);
+      const timer = setTimeout(() => fetchItems(), 300);
+      return () => clearTimeout(timer);
+    }
+
     const timer = setTimeout(() => {
-      fetchItems();
-    }, 500);
+      if (isAiQuery(searchTerm)) {
+        fetchItemsAi(searchTerm);
+      } else {
+        setAiMode(false);
+        setAiSummary(null);
+        setAiIntent(null);
+        setComparisonText(null);
+        setIsLoadingComparison(false);
+        fetchItems();
+      }
+    }, 800);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const addToCart = (item: any) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
+  const handleGeneratePr = async () => {
+    setIsGeneratingPr(true);
+    try {
+      const ids = compareIds.length > 0 ? compareIds : items.slice(0, 10).map((i) => i.id);
+      const res = await aiGeneratePr(searchTerm, ids);
+      if (res.success && res.draft) {
+        localStorage.setItem("ai_pr_draft", JSON.stringify(res.draft));
+        navigate("/checkout?from=ai");
       }
-      return [...prev, { ...item, qty: 1, estimated_price: 0 }];
-    });
+    } catch (e) {
+      console.error("Failed to generate PR", e);
+    } finally {
+      setIsGeneratingPr(false);
+    }
+  };
+
+  const addToCart = (item: any) => {
+    const next = addItemToCartLib(item);
+    setCart(next);
   };
 
   const updateQty = (id: string, delta: number) => {
-    setCart(prev => prev.map(i => {
-      if (i.id === id) {
-        const newQty = Math.max(1, i.qty + delta);
-        return { ...i, qty: newQty };
-      }
-      return i;
-    }));
+    const next = updateCartQtyLib(id, delta);
+    setCart(next);
   };
 
   const removeFromCart = (id: string) => {
-    setCart(prev => prev.filter(i => i.id !== id));
+    const next = removeCartItemLib(id);
+    setCart(next);
   };
 
-  const filteredItems = items;
-
-  const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price) * item.qty), 0);
+  const toggleCompare = (id: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(id)) return prev.filter((i) => i !== id);
+      if (prev.length >= 5) return prev; // max 5
+      return [...prev, id];
+    });
+  };
 
   const cartPanel = (
     <div style={{
@@ -136,41 +236,33 @@ export default function Marketplace() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "4px 8px", borderRadius: 8 }}>
-            {cart.length} items
+            {getCartItemCount(cart)} items
           </span>
           {isMobile && (
-            <button
-              type="button"
-              onClick={() => setShowCart(false)}
-              aria-label="Close cart"
-              style={{
-                width: 36, height: 36, borderRadius: 10, background: "var(--ui-bg-input)",
-                border: "1px solid var(--ui-border)", color: "var(--ui-text-muted)",
-                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
+            <button type="button" onClick={() => setShowCart(false)} aria-label="Close cart"
+              style={{ width: 36, height: 36, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border)", color: "var(--ui-text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <X size={18} />
             </button>
           )}
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: isMobile ? "none" : "400px", overflowY: "auto", paddingRight: 4 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: isMobile ? "none" : "360px", overflowY: "auto", paddingRight: 4 }}>
         {cart.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)" }}>
             <ShoppingCart size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
             <div style={{ fontSize: 13 }}>Your cart is empty</div>
           </div>
         ) : (
-          cart.map(item => (
+          cart.map((item) => (
             <div key={item.id} style={{ display: "flex", gap: 12 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{item.name}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)" }}>{item.name}</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button type="button" aria-label="Decrease quantity" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Minus size={12} /></button>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", minWidth: 20, textAlign: "center", transition: "color 0.3s ease" }}>{item.qty}</span>
-                <button type="button" aria-label="Increase quantity" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer", transition: "all 0.3s ease" }}><Plus size={12} /></button>
+                <button type="button" aria-label="Decrease quantity" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer" }}><Minus size={12} /></button>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", minWidth: 20, textAlign: "center" }}>{item.qty}</span>
+                <button type="button" aria-label="Increase quantity" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer" }}><Plus size={12} /></button>
                 <button type="button" aria-label="Remove item from cart" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
               </div>
             </div>
@@ -179,8 +271,37 @@ export default function Marketplace() {
       </div>
 
       {cart.length > 0 && (
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
-          <button 
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* AI Generate PR button */}
+          {aiMode && (
+            <button
+              onClick={handleGeneratePr}
+              disabled={isGeneratingPr}
+              style={{
+                width: "100%", padding: "12px", borderRadius: 14,
+                background: isGeneratingPr ? "rgba(168,85,247,0.3)" : "linear-gradient(135deg,#a855f7,#6366f1)",
+                color: "#fff", fontWeight: 800, border: "none", cursor: isGeneratingPr ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 13,
+                boxShadow: "0 6px 16px rgba(168,85,247,0.25)",
+              }}
+            >
+              <Sparkles size={16} />
+              {isGeneratingPr ? "AI Menyiapkan PR..." : "Auto-create PR dengan AI"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => { setShowCart(false); navigate("/cart"); }}
+            style={{
+              width: "100%", padding: "12px", borderRadius: 14,
+              background: "var(--ui-bg-input)", color: "var(--ui-text-primary)",
+              fontWeight: 700, border: "1px solid var(--ui-border)", cursor: "pointer",
+              fontSize: 13,
+            }}
+          >
+            View Full Cart
+          </button>
+          <button
             onClick={() => { setShowCart(false); navigate("/checkout"); }}
             style={{
               width: "100%", padding: "14px", borderRadius: 14,
@@ -201,20 +322,45 @@ export default function Marketplace() {
     <Layout title="Marketplace" subtitle="Discover items and services from our trusted vendors.">
       <div className="huntr-split-layout" style={{ paddingBottom: isMobile ? 88 : 0 }}>
         <div className="huntr-split-layout-main">
+          {/* Search Bar */}
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
             <div style={{ flex: 1, position: "relative" }}>
-              <Search style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }} size={18} />
-              <input 
-                type="text" 
-                placeholder="Search items, codes, or vendors..." 
+              {/* AI mode indicator in search */}
+              {aiMode ? (
+                <Sparkles
+                  style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#a855f7", transition: "color 0.3s ease" }}
+                  size={18}
+                />
+              ) : (
+                <Search
+                  style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}
+                  size={18}
+                />
+              )}
+              <input
+                type="text"
+                placeholder="Cari produk atau deskripsikan kebutuhan Anda... (AI akan membantu)"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: "100%", padding: "12px 12px 12px 42px", borderRadius: 14,
-                  background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                  color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
+                  background: "var(--ui-bg-input)",
+                  border: aiMode ? "1px solid rgba(168,85,247,0.4)" : "1px solid var(--ui-border-input)",
+                  color: "var(--ui-text-primary)", outline: "none", fontSize: 14,
+                  transition: "all 0.3s ease",
+                  boxShadow: aiMode ? "0 0 0 3px rgba(168,85,247,0.1)" : "none",
                 }}
               />
+              {aiMode && (
+                <div style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  fontSize: 10, fontWeight: 900, color: "#a855f7",
+                  background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)",
+                  padding: "3px 8px", borderRadius: 20,
+                }}>
+                  ✦ AI Mode
+                </div>
+              )}
             </div>
             <button style={{
               padding: "0 18px", borderRadius: 14, background: "var(--ui-bg-input)",
@@ -225,55 +371,175 @@ export default function Marketplace() {
             </button>
           </div>
 
+          {/* AI Insight Card */}
+          {aiMode && aiSummary && !aiInsightDismissed && (
+            <AiInsightCard
+              summary={aiSummary}
+              totalFound={items.length}
+              query={searchTerm}
+              catalogueIds={items.slice(0, 10).map((i) => i.id)}
+              onGeneratePr={handleGeneratePr}
+              onDismiss={() => setAiInsightDismissed(true)}
+              isGenerating={isGeneratingPr}
+              comparisonAnalysis={comparisonText}
+              isComparison={!!aiIntent?.is_comparison || isLoadingComparison}
+              specs={aiIntent?.specs ?? []}
+            />
+          )}
+
+          {/* Compare floating bar */}
+          {compareIds.length >= 2 && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.08))",
+              border: "1px solid rgba(99,102,241,0.25)", borderRadius: 14,
+              padding: "12px 18px", marginBottom: 20,
+              animation: "fadeSlideIn 0.3s ease",
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+                <GitCompare size={16} color="#6366f1" />
+                <span style={{ color: "#6366f1" }}>{compareIds.length} produk</span> dipilih untuk dibandingkan
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => setCompareIds([])}
+                  style={{ padding: "6px 12px", borderRadius: 10, background: "none", border: "1px solid rgba(99,102,241,0.2)", color: "var(--ui-text-muted)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                  Reset
+                </button>
+                <button onClick={() => setShowCompareModal(true)}
+                  style={{
+                    padding: "6px 16px", borderRadius: 10,
+                    background: "linear-gradient(135deg, #6366f1, #a855f7)",
+                    border: "none", color: "#fff", fontSize: 12, fontWeight: 800, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 6,
+                    boxShadow: "0 4px 12px rgba(99,102,241,0.3)",
+                  }}>
+                  <Sparkles size={12} /> Bandingkan dengan AI
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Product Grid */}
           {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-              <Loader2 className="animate-spin" size={32} color="#f59e0b" />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 80, gap: 16 }}>
+              {aiMode ? (
+                <>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, #f97316, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", animation: "pulse 1.5s ease-in-out infinite" }}>
+                    <Sparkles size={26} color="#fff" />
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 4 }}>Huntr AI is thinking...</div>
+                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>Menganalisis kebutuhan dan mencari produk terbaik</div>
+                  </div>
+                </>
+              ) : (
+                <Loader2 className="animate-spin" size={32} color="#f59e0b" />
+              )}
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))", gap: "clamp(12px, 3vw, 20px)" }}>
-              {filteredItems.map(item => (
-                <div 
-                  key={item.id} 
-                  onClick={() => navigate(`/marketplace/${item.id}`)}
-                  style={{
-                    background: "var(--ui-bg-card)", borderRadius: 20, border: "1px solid var(--ui-border)",
-                    padding: 16, display: "flex", flexDirection: "column", gap: 12, transition: "all 0.3s ease",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
-                    {item.image_path ? (
-                      <img 
-                        src={getAssetUrl(item.image_path)} 
-                        alt={item.name} 
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        onError={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          img.style.display = "none";
-                          const parent = img.parentElement;
-                          if (parent) {
-                            parent.style.display = "flex";
-                            parent.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ui-text-muted);opacity:0.5;font-size:12px;"><svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='18' height='18' rx='3'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='M21 15l-5-5L5 21'/></svg><span>No image</span></div>`;
-                          }
+              {items.map((item) => {
+                const isSelected = compareIds.includes(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => navigate(`/marketplace/${item.id}`)}
+                    style={{
+                      background: "var(--ui-bg-card)", borderRadius: 20,
+                      border: isSelected ? "2px solid rgba(99,102,241,0.5)" : "1px solid var(--ui-border)",
+                      padding: 16, display: "flex", flexDirection: "column", gap: 12,
+                      transition: "all 0.3s ease", cursor: "pointer",
+                      boxShadow: isSelected ? "0 0 0 3px rgba(99,102,241,0.1)" : "none",
+                    }}
+                  >
+                    <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                      {item.image_path ? (
+                        <img
+                          src={getAssetUrl(item.image_path)}
+                          alt={item.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <Package size={36} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.35 }} />
+                      )}
+                      {/* Compare checkbox */}
+                      <button
+                        type="button"
+                        aria-label={isSelected ? "Hapus dari perbandingan" : "Tambah ke perbandingan"}
+                        onClick={(e) => { e.stopPropagation(); toggleCompare(item.id); }}
+                        style={{
+                          position: "absolute", top: 8, left: 8,
+                          width: 26, height: 26, borderRadius: 8,
+                          background: isSelected ? "linear-gradient(135deg, #6366f1, #a855f7)" : "rgba(0,0,0,0.4)",
+                          border: isSelected ? "none" : "1px solid rgba(255,255,255,0.2)",
+                          color: "#fff", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          backdropFilter: "blur(4px)",
+                          transition: "all 0.2s ease",
+                          boxShadow: isSelected ? "0 2px 8px rgba(99,102,241,0.4)" : "none",
                         }}
-                      />
-                    ) : (
-                      <Package size={36} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.35 }} />
-                    )}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.category || "General"}</div>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", transition: "color 0.3s ease", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</h3>
-                  </div>
-                  <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                      <button 
+                      >
+                        {isSelected ? <CheckCircle2 size={14} /> : <GitCompare size={12} />}
+                      </button>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        {item.category || "General"}
+                      </div>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {item.name}
+                      </h3>
+                      {item.brand && (
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>{item.brand}</div>
+                      )}
+
+                      {/* AI Re-ranking Badge & Explanation */}
+                      {item.ai_score !== undefined && (
+                        <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <span style={{ 
+                              fontSize: 10, 
+                              fontWeight: 900, 
+                              color: item.ai_score >= 80 ? "#f97316" : "var(--ui-text-secondary)",
+                              background: item.ai_score >= 80 ? "rgba(249,115,22,0.12)" : "rgba(255,255,255,0.06)",
+                              padding: "2px 6px",
+                              borderRadius: 6,
+                              border: item.ai_score >= 80 ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border-input)"
+                            }}>
+                              🤖 {item.ai_score}% Match
+                            </span>
+                          </div>
+                          {item.ai_explanation && (
+                            <div style={{ 
+                              fontSize: 11, 
+                              color: "var(--ui-text-muted)", 
+                              lineHeight: 1.4,
+                              fontStyle: "italic",
+                              borderLeft: "2px solid rgba(249,115,22,0.3)",
+                              paddingLeft: 6,
+                              marginTop: 2
+                            }}>
+                              {item.ai_explanation}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                      <button
                         type="button"
                         aria-label="Add to cart"
                         onClick={(e) => { e.stopPropagation(); addToCart(item); }}
                         style={{
-                          width: 36, height: 36, borderRadius: 10, background: "rgba(249,115,22,0.15)",
-                          border: "none", color: "#f97316", cursor: "pointer",
+                          width: 36, height: 36, borderRadius: 10,
+                          background: "rgba(249,115,22,0.15)", border: "none",
+                          color: "#f97316", cursor: "pointer",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           transition: "all 0.2s ease",
                         }}
@@ -282,17 +548,19 @@ export default function Marketplace() {
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
+        {/* Sidebar */}
         <div className={`huntr-split-layout-aside${isMobile ? " huntr-split-layout-aside--mobile-hidden" : ""}`}>
           <div className="huntr-sticky-panel">{cartPanel}</div>
         </div>
       </div>
 
+      {/* Mobile cart */}
       {isMobile && (
         <>
           <div
@@ -303,25 +571,30 @@ export default function Marketplace() {
           <div className={`huntr-cart-drawer${showCart ? " huntr-cart-drawer--open" : ""}`}>
             {cartPanel}
           </div>
-          <button
-            type="button"
-            className="huntr-cart-fab"
-            onClick={() => setShowCart(true)}
-            aria-label={`Open cart, ${cart.length} items`}
-          >
+          <button type="button" className="huntr-cart-fab" onClick={() => setShowCart(true)} aria-label={`Open cart, ${cart.length} items`}>
             <ShoppingCart size={22} />
             {cart.length > 0 && (
-              <span style={{
-                position: "absolute", top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10,
-                background: "var(--ui-bg-page)", border: "2px solid #f59e0b", color: "#f59e0b",
-                fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
+              <span style={{ position: "absolute", top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10, background: "var(--ui-bg-page)", border: "2px solid #f59e0b", color: "#f59e0b", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {cart.length > 9 ? "9+" : cart.length}
               </span>
             )}
           </button>
         </>
       )}
+
+      {/* AI Compare Modal */}
+      {showCompareModal && compareIds.length >= 2 && (
+        <AiCompareModal
+          catalogueIds={compareIds}
+          onClose={() => setShowCompareModal(false)}
+          onAddToCart={(item) => { addToCart(item); setShowCompareModal(false); }}
+        />
+      )}
+
+      <style>{`
+        @keyframes fadeSlideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.05); opacity:0.85; } }
+      `}</style>
     </Layout>
   );
 }
