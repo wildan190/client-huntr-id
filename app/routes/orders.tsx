@@ -282,8 +282,8 @@ export default function Orders() {
       const response = await apiPost(endpoint, data);
       
       // Optimistically update local state before refetching
-      if (response?.data?.do || response?.data?.bast) {
-        const signedDoc = response.data.do || response.data.bast;
+      if (response?.do || response?.bast) {
+        const signedDoc = response.do || response.bast;
         setOrders(prevOrders => prevOrders.map(po => {
           if (type === 'do') {
             return {
