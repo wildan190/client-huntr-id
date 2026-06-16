@@ -1,13 +1,157 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router";
 import Layout from "../components/Layout";
+import QRCode from "qrcode";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
-  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard, Signature, AlertCircle, Download
+  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard, Signature, AlertCircle, Download, QrCode
 } from "lucide-react";
 import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl, arrangeDelivery, publishInvoice } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import PaymentModal from "../components/PaymentModal";
+
+// QR Code Display Component
+const QRCodeDisplay = ({ text, generateQR }: { text: string; generateQR: (t: string) => Promise<string | null> }) => {
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [showQR, setShowQR] = useState(false);
+
+  useEffect(() => {
+    if (showQR) {
+      generateQR(text).then(url => setQrUrl(url));
+    }
+  }, [showQR, text, generateQR]);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setShowQR(!showQR)}
+        style={{
+          padding: "6px 10px",
+          borderRadius: 8,
+          background: "var(--ui-bg-input)",
+          border: "1px solid var(--ui-border-input)",
+          color: "var(--ui-text-secondary)",
+          fontSize: 11,
+          fontWeight: 700,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          transition: "all 0.2s ease"
+        }}
+      >
+        <QrCode size={14} />
+        QR Code
+      </button>
+      {showQR && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            right: 0,
+            marginTop: 8,
+            padding: 12,
+            background: "var(--ui-bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--ui-border-input)",
+            zIndex: 10,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.2)"
+          }}
+        >
+          {qrUrl ? (
+            <img src={qrUrl} alt="QR Code" style={{ width: 128, height: 128 }} />
+          ) : (
+            <div style={{ width: 128, height: 128, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ui-text-muted)", fontSize: 12 }}>
+              Generating...
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Signature Buttons Component
+const SignatureButtons = ({
+  docType,
+  docId,
+  handedBySigned,
+  receivedBySigned,
+  onSign,
+  processingId,
+  user,
+  company
+}: {
+  docType: 'bast' | 'do';
+  docId: string;
+  handedBySigned: boolean;
+  receivedBySigned: boolean;
+  onSign: (type: 'bast' | 'do', id: string, role: 'handed-by' | 'received-by') => Promise<void>;
+  processingId: string | null;
+  user: any;
+  company: any;
+}) => {
+  const isManager = user?.role === 'manager' || company?.owner_id === user?.id;
+  const isVendor = company.type === 'vendor';
+  const isBuyer = company.type === 'buyer';
+
+  const renderButton = (
+    role: 'handed-by' | 'received-by',
+    label: string,
+    signed: boolean,
+    isYourParty: boolean
+  ) => (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", textAlign: "center" }}>{label}</div>
+      {signed ? (
+        <div style={{
+          padding: "8px 12px",
+          borderRadius: 10,
+          background: "rgba(34,197,94,0.1)",
+          border: "1px solid rgba(34,197,94,0.3)",
+          color: "#22c55e",
+          fontSize: 12,
+          fontWeight: 800,
+          textAlign: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 4
+        }}>
+          <CheckCircle2 size={14} />
+          Signed
+        </div>
+      ) : (
+        <button
+          onClick={() => onSign(docType, docId, role)}
+          disabled={processingId === docId || !isYourParty || !isManager}
+          style={{
+            padding: "8px 12px",
+            borderRadius: 10,
+            background: isYourParty && isManager ? "var(--huntr-orange)" : "var(--ui-bg-input)",
+            border: "none",
+            color: isYourParty && isManager ? "#fff" : "var(--ui-text-muted)",
+            fontSize: 11,
+            fontWeight: 800,
+            textAlign: "center",
+            cursor: isYourParty && isManager ? "pointer" : "not-allowed",
+            opacity: isYourParty && isManager ? 1 : 0.5,
+            transition: "all 0.2s ease"
+          }}
+        >
+          {processingId === docId ? <Loader2 size={14} className="animate-spin" /> : (isYourParty && isManager ? "Sign" : "-")}
+        </button>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
+      {renderButton('handed-by', isVendor ? 'Vendor (You)' : 'Vendor', handedBySigned, isVendor)}
+      {renderButton('received-by', isBuyer ? 'Buyer (You)' : 'Buyer', receivedBySigned, isBuyer)}
+    </div>
+  );
+};
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -96,6 +240,81 @@ export default function Orders() {
       console.error("Failed to fetch orders", err);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const generateQRCode = useCallback(async (text: string) => {
+    try {
+      return await QRCode.toDataURL(text, { width: 128 });
+    } catch (err) {
+      console.error("QR code generation error:", err);
+      return null;
+    }
+  }, []);
+
+  const handleSignDocument = async (
+    type: 'bast' | 'do', 
+    id: string, 
+    role: 'handed-by' | 'received-by'
+  ) => {
+    if (!user || !company) return;
+    setProcessingId(id);
+    setError(null);
+    try {
+      let endpoint = '';
+      let data: any = {};
+      if (type === 'bast') {
+        endpoint = `/api/basts/${id}/sign-${role}`;
+        if (role === 'handed-by') {
+          data = { handed_by_user_id: user.id, handed_by_name: user.name, handed_by_position: "Manager" };
+        } else if (role === 'received-by') {
+          data = { received_by_user_id: user.id, received_by_name: user.name, received_by_position: "Manager" };
+        }
+      } else { // do
+        endpoint = `/api/do/${id}/sign-${role}`;
+        if (role === 'handed-by') {
+          data = { handed_by_user_id: user.id, handed_by_name: user.name, handed_by_position: "Manager" };
+        } else if (role === 'received-by') {
+          data = { received_by_user_id: user.id, received_by_name: user.name, received_by_position: "Manager" };
+        }
+      }
+      
+      const response = await apiPost(endpoint, data);
+      
+      // Optimistically update local state before refetching
+      if (response?.data?.do || response?.data?.bast) {
+        const signedDoc = response.data.do || response.data.bast;
+        setOrders(prevOrders => prevOrders.map(po => {
+          if (type === 'do') {
+            return {
+              ...po,
+              delivery_orders: po.delivery_orders?.map((d: any) => 
+                d.id === id ? signedDoc : d
+              ) || []
+            };
+          } else {
+            return {
+              ...po,
+              basts: po.basts?.map((b: any) => 
+                b.id === id ? signedDoc : b
+              ) || []
+            };
+          }
+        }));
+      }
+      
+      setSuccessMessage(`✓ Signed successfully as ${role}!`);
+      
+      // Force refresh from server to ensure data consistency
+      if (company) {
+        await fetchOrders(company.id, currentPage, searchQuery, activeTab);
+      }
+      
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Failed to sign document");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -872,6 +1091,42 @@ export default function Orders() {
                         )}
                       </div>
 
+                      {/* Delivery Order (DO) Signatures & QR Section */}
+                      {po.delivery_orders && po.delivery_orders.length > 0 && (
+                        <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                            <Package size={16} color="#3b82f6" />
+                            Delivery Order (DO) Signatures
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                            {po.delivery_orders.map((doItem: any) => (
+                              <div key={doItem.id} style={{ 
+                                padding: "16px", borderRadius: 12, background: "var(--ui-bg-card)", 
+                                border: "1px solid var(--ui-border-input)", display: "flex", flexDirection: "column", gap: 12
+                              }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#3b82f6" }}>
+                                    {doItem.do_number}
+                                  </span>
+                                  <QRCodeDisplay text={getFullApiUrl(`/api/do/${doItem.id}/print`)} generateQR={generateQRCode} />
+                                </div>
+                                
+                                <SignatureButtons 
+                                  docType="do" 
+                                  docId={doItem.id} 
+                                  handedBySigned={!!doItem.handed_by_signed_at} 
+                                  receivedBySigned={!!doItem.received_by_signed_at} 
+                                  onSign={handleSignDocument} 
+                                  processingId={processingId}
+                                  user={user}
+                                  company={company}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* BAST Section */}
                       {company.type === 'vendor' && ['delivered', 'completed', 'done', 'paid'].includes(po.status) && (
                         <div style={{ marginTop: 24, padding: 20, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 16 }}>
@@ -929,12 +1184,12 @@ export default function Orders() {
                           BAST Documents for this PO
                         </div>
                         {po.basts && po.basts.length > 0 ? (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                             {po.basts.map((bast: any) => (
                               <div key={bast.id} style={{ 
-                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", 
+                                padding: "16px", borderRadius: 12, background: "var(--ui-bg-card)", 
                                 border: "1px solid var(--ui-border-input)",
-                                display: "flex", flexDirection: "column", gap: 8
+                                display: "flex", flexDirection: "column", gap: 12
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <span style={{ 
@@ -943,11 +1198,26 @@ export default function Orders() {
                                   }}>
                                     📋 {bast.bast_number}
                                   </span>
+                                  <QRCodeDisplay 
+                                    text={getFullApiUrl(`/api/basts/${bast.id}/pdf`)} 
+                                    generateQR={generateQRCode} 
+                                  />
                                 </div>
 
                                 <div style={{ fontSize: 12, color: "var(--ui-text-secondary)" }}>
                                   Date: {bast.bast_date} • Issued by: {bast.handed_by_name || "N/A"}
                                 </div>
+
+                                <SignatureButtons 
+                                  docType="bast" 
+                                  docId={bast.id} 
+                                  handedBySigned={!!bast.handed_by_signed_at} 
+                                  receivedBySigned={!!bast.received_by_signed_at} 
+                                  onSign={handleSignDocument} 
+                                  processingId={processingId}
+                                  user={user}
+                                  company={company}
+                                />
 
                                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                                   <button

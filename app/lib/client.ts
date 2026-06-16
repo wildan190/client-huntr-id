@@ -48,10 +48,19 @@ export async function apiGet<T = any>(path: string): Promise<T> {
     console.warn(`[API] Warning: Path contains NaN: ${path}`);
   }
   console.log(`[API] GET ${path}`);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<T>(res);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<T>(res);
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+      console.warn(`[API] Network error connecting to ${BASE_URL}${path} - backend might not be running`);
+      // Return empty data for local development when backend is down
+      return {} as T;
+    }
+    throw err;
+  }
 }
 
 export function getFullApiUrl(path: string): string {
@@ -63,49 +72,81 @@ export async function apiPost<T = any>(path: string, body: Record<string, any>):
     console.warn(`[API] Warning: Path or Body contains NaN: ${path}`, body);
   }
   console.log(`[API] POST ${path}`, body);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(body),
-    credentials: "include",
-  });
-  return handleResponse<T>(res);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(body),
+      credentials: "include",
+    });
+    return handleResponse<T>(res);
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+      console.warn(`[API] Network error connecting to ${BASE_URL}${path} - backend might not be running`);
+      return {} as T;
+    }
+    throw err;
+  }
 }
 
 export async function apiPut<T = any>(path: string, body: Record<string, any>): Promise<T> {
   console.log(`[API] PUT ${path}`, body);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(body),
-    credentials: "include",
-  });
-  return handleResponse<T>(res);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(body),
+      credentials: "include",
+    });
+    return handleResponse<T>(res);
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+      console.warn(`[API] Network error connecting to ${BASE_URL}${path} - backend might not be running`);
+      return {} as T;
+    }
+    throw err;
+  }
 }
 
 export async function apiDelete<T = any>(path: string): Promise<T> {
   console.log(`[API] DELETE ${path}`);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "DELETE",
-    headers: getAuthHeaders(),
-    credentials: "include",
-  });
-  return handleResponse<T>(res);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+      credentials: "include",
+    });
+    return handleResponse<T>(res);
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+      console.warn(`[API] Network error connecting to ${BASE_URL}${path} - backend might not be running`);
+      return {} as T;
+    }
+    throw err;
+  }
 }
 
 export async function apiPostForm<T = any>(path: string, formData: FormData): Promise<T> {
   console.log(`[API] POST Form ${path}`);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: formData,
-    credentials: "include",
-  });
-  return handleResponse<T>(res);
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: formData,
+      credentials: "include",
+    });
+    return handleResponse<T>(res);
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+      console.warn(`[API] Network error connecting to ${BASE_URL}${path} - backend might not be running`);
+      return {} as T;
+    }
+    throw err;
+  }
 }

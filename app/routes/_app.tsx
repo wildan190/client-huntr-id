@@ -37,7 +37,8 @@ import {
 import Breadcrumb from "../components/Breadcrumb";
 import NotificationSound from "../components/NotificationSound";
 import ThemeToggle from "../components/ThemeToggle";
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/api";
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead, switchRole } from "../lib/api";
+import { SessionManager } from "../lib/session";
 import { useTheme } from "../context/ThemeContext";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 import { useEventBus } from "../lib/EventBus";
@@ -46,6 +47,8 @@ import { useEventBus } from "../lib/EventBus";
 export interface AppShellContext {
   setPageTitle: (t: string) => void;
   setPageSubtitle: (s: string) => void;
+  user: any;
+  company: any;
 }
 
 export function useAppShell() {
@@ -71,6 +74,7 @@ export default function AppShell() {
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
+  const [roleSwitching, setRoleSwitching] = useState(false); // For role switch loading state
 
   useEffect(() => {
     setIsClient(true);
@@ -82,6 +86,19 @@ export default function AppShell() {
     if (companySession) {
       setActiveCompany(JSON.parse(companySession));
     }
+    
+    // Subscribe to session changes
+    const unsubscribe = SessionManager.subscribe(() => {
+      const userSession = localStorage.getItem("user_session");
+      const companySession = localStorage.getItem("active_company");
+      if (userSession) setUser(JSON.parse(userSession));
+      if (companySession) setActiveCompany(JSON.parse(companySession));
+    });
+    
+    // Wrap to ensure we don't return boolean
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // Sidebar scroll — persists forever because this component never unmounts
@@ -358,6 +375,25 @@ export default function AppShell() {
     navigate("/select-company");
   };
 
+  const handleRoleSwitch = async (role: string) => {
+    if (!user) return;
+    try {
+      setRoleSwitching(true);
+      const res = await switchRole(role);
+      console.log("Role switched successfully:", res);
+      // Force update the local state
+      const updatedUser = SessionManager.getUser();
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+    } catch (err) {
+      console.error("Failed to switch role", err);
+      alert("Gagal beralih peran! Silakan coba lagi.");
+    } finally {
+      setRoleSwitching(false);
+    }
+  };
+
   const closeSidebar = () => setSidebarOpen(false);
   const handleNavClick = () => { if (isMobile) closeSidebar(); };
 
@@ -402,12 +438,16 @@ export default function AppShell() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{activeCompany.name}</div>
-              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>{activeCompany.type}</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>
+                {activeCompany.type}
+              </div>
             </div>
           </div>
-          <button onClick={handleSwitchCompany} style={{ width: "100%", marginTop: 8, padding: "5px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: "pointer", background: "var(--ui-switch-bg)", border: "1px solid var(--ui-switch-border)", color: "var(--ui-switch-text)", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-            <ArrowLeftRight size={10} /> Switch Company
-          </button>
+          <div style={{ marginTop: 8 }}>
+            <button onClick={handleSwitchCompany} style={{ width: "100%", padding: "5px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: "pointer", background: "var(--ui-switch-bg)", border: "1px solid var(--ui-switch-border)", color: "var(--ui-switch-text)", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+              <ArrowLeftRight size={10} /> Switch Company
+            </button>
+          </div>
         </div>
       )}
 
@@ -456,6 +496,42 @@ export default function AppShell() {
       {/* User panel */}
       {user && (
         <div style={{ padding: "14px 18px", borderTop: "1px solid var(--ui-border-subtle)", display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Role switcher - LOCAL ONLY */}
+          {import.meta.env.DEV && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Debug: Switch Role
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(() => {
+                  const buyerRoles = ["manager", "buyer", "finance"];
+                  const vendorRoles = ["manager", "admin", "finance"];
+                  const roles = isBuyerComp ? buyerRoles : vendorRoles;
+                  return roles.map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => handleRoleSwitch(role)}
+                      disabled={roleSwitching || user.role === role}
+                      style={{
+                        padding: "4px 6px",
+                        borderRadius: 6,
+                        fontSize: 9,
+                        fontWeight: 600,
+                        background: user.role === role ? "rgba(249, 115, 22, 0.2)" : "var(--ui-bg-input)",
+                        border: user.role === role ? "1px solid rgba(249,115,22,0.4)" : "1px solid var(--ui-border-input)",
+                        color: user.role === role ? "#f97316" : "var(--ui-text-muted)",
+                        cursor: user.role === role ? "not-allowed" : "pointer",
+                        textTransform: "capitalize",
+                        transition: "all 0.15s ease"
+                      }}
+                    >
+                      {role}
+                    </button>
+                  ));
+                })()}
+              </div>
+            </div>
+          )}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Theme: {isAuto ? "🔄 Auto" : isDark ? "🌙 Dark" : "☀️ Light"}
@@ -480,7 +556,7 @@ export default function AppShell() {
   );
 
   // Context passed down to child Layout wrappers
-  const shellContext: AppShellContext = { setPageTitle, setPageSubtitle };
+  const shellContext: AppShellContext = { setPageTitle, setPageSubtitle, user, company: activeCompany };
 
   const isGuestRoute = pathname === "/" || pathname.startsWith("/marketplace/");
   

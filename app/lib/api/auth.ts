@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from "../client";
-import { saveOtpSession, loadOtpSession, getDeviceIdentity } from "../session";
+import { saveOtpSession, loadOtpSession, getDeviceIdentity, SessionManager } from "../session";
 import { normalizeWhatsapp, isValidWhatsapp, normalizeOtp } from "../whatsapp";
 
 /**
@@ -94,4 +94,17 @@ export const verifyOtp = async (payload: { whatsapp?: string; otp: string; otp_t
 
   const whatsapp = normalizeWhatsapp(payload.whatsapp || session?.whatsapp || "");
   return apiPost("/api/auth/otp/verify", { whatsapp, otp });
+};
+
+export const switchRole = async (role: string) => {
+  const res = await apiPost("/api/role-switch", { role });
+  
+  // Update user in local storage
+  const currentUser = SessionManager.getUser();
+  if (currentUser) {
+    const updatedUser = { ...currentUser, ...res.user };
+    SessionManager.setUser(updatedUser);
+  }
+  
+  return res;
 };

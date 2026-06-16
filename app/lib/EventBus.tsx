@@ -48,34 +48,39 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
     if (!echo || listenersInitialized.current) return;
     listenersInitialized.current = true;
 
-    console.log('EventBusProvider: Setting up Reverb listeners...');
+    try {
+      console.log('EventBusProvider: Setting up Reverb listeners...');
 
-    // Listen to public test-channel
-    const testChannel = echo.channel('test-channel');
-    testChannel.listen('.communication.websocket.broadcast', (data: any) => {
-      console.log('EventBusProvider: Received message on test-channel:', data);
-      emit({
-        type: data.data?.type || 'unknown',
-        data: data
+      // Listen to public test-channel
+      const testChannel = echo.channel('test-channel');
+      testChannel.listen('.communication.websocket.broadcast', (data: any) => {
+        console.log('EventBusProvider: Received message on test-channel:', data);
+        emit({
+          type: data.data?.type || 'unknown',
+          data: data
+        });
       });
-    });
 
-    return () => {
-      if (echo) {
-        try {
-          echo.leave('test-channel');
-          if (currentUserIdRef.current) {
-            echo.leave(`App.Models.User.${currentUserIdRef.current}`);
-            echo.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
+      return () => {
+        if (echo) {
+          try {
+            echo.leave('test-channel');
+            if (currentUserIdRef.current) {
+              echo.leave(`App.Models.User.${currentUserIdRef.current}`);
+              echo.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
+            }
+            if (currentCompanyIdRef.current) {
+              echo.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
+            }
+          } catch (err) {
+            console.log('EventBusProvider: Error leaving channels:', err);
           }
-          if (currentCompanyIdRef.current) {
-            echo.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
-          }
-        } catch (err) {
-          console.log('EventBusProvider: Error leaving channels:', err);
         }
-      }
-    };
+      };
+    } catch (err) {
+      console.log('EventBusProvider: Error setting up test channel:', err);
+      return undefined;
+    }
   }, [emit]);
 
   // Handle user changes (login/logout) using SessionManager
