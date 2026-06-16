@@ -10,6 +10,33 @@ import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, 
 import { getAssetUrl } from "../lib/assets";
 import PaymentModal from "../components/PaymentModal";
 
+type SignatureMeta = {
+  name?: string;
+  position?: string;
+  signed_at?: string;
+};
+
+const buildSignatureQrPayload = (
+  docType: 'bast' | 'do',
+  docId: string,
+  role: 'handed-by' | 'received-by',
+  meta?: SignatureMeta
+) => {
+  const verifyPath = docType === 'do'
+    ? `/api/do/${docId}/print`
+    : `/api/basts/${docId}/pdf`;
+
+  return JSON.stringify({
+    platform: 'huntr.id',
+    doc_type: docType,
+    doc_id: docId,
+    role,
+    signer: meta?.name,
+    signed_at: meta?.signed_at,
+    verify_url: getFullApiUrl(verifyPath),
+  });
+};
+
 // QR Code Display Component
 const QRCodeDisplay = ({ text, generateQR }: { text: string; generateQR: (t: string) => Promise<string | null> }) => {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -71,25 +98,62 @@ const QRCodeDisplay = ({ text, generateQR }: { text: string; generateQR: (t: str
   );
 };
 
+const SignatureQrInline = ({
+  payload,
+  generateQR,
+}: {
+  payload: string;
+  generateQR: (t: string) => Promise<string | null>;
+}) => {
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    generateQR(payload).then(url => setQrUrl(url));
+  }, [payload, generateQR]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 8 }}>
+      {qrUrl ? (
+        <img
+          src={qrUrl}
+          alt="Signature QR"
+          style={{ width: 88, height: 88, borderRadius: 8, border: "1px solid var(--ui-border-input)", background: "var(--ui-bg-card)", padding: 4 }}
+        />
+      ) : (
+        <div style={{ width: 88, height: 88, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ui-text-muted)", fontSize: 10 }}>
+          QR...
+        </div>
+      )}
+      <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 600 }}>Scan to verify signature</div>
+    </div>
+  );
+};
+
 // Signature Buttons Component
 const SignatureButtons = ({
   docType,
   docId,
   handedBySigned,
   receivedBySigned,
+  handedByMeta,
+  receivedByMeta,
   onSign,
   processingId,
   user,
-  company
+  company,
+  generateQR,
 }: {
   docType: 'bast' | 'do';
   docId: string;
   handedBySigned: boolean;
   receivedBySigned: boolean;
+  handedByMeta?: SignatureMeta;
+  receivedByMeta?: SignatureMeta;
   onSign: (type: 'bast' | 'do', id: string, role: 'handed-by' | 'received-by') => Promise<void>;
   processingId: string | null;
   user: any;
   company: any;
+  generateQR: (t: string) => Promise<string | null>;
 }) => {
   const isManager = user?.role === 'manager' || company?.owner_id === user?.id;
   const isVendor = company.type === 'vendor';
@@ -99,13 +163,14 @@ const SignatureButtons = ({
     role: 'handed-by' | 'received-by',
     label: string,
     signed: boolean,
-    isYourParty: boolean
+    isYourParty: boolean,
+    meta?: SignatureMeta
   ) => (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
       <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", textAlign: "center" }}>{label}</div>
       {signed ? (
         <div style={{
-          padding: "8px 12px",
+          padding: "10px 12px",
           borderRadius: 10,
           background: "rgba(34,197,94,0.1)",
           border: "1px solid rgba(34,197,94,0.3)",
@@ -114,12 +179,29 @@ const SignatureButtons = ({
           fontWeight: 800,
           textAlign: "center",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
           gap: 4
         }}>
-          <CheckCircle2 size={14} />
-          Signed
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+            <CheckCircle2 size={14} />
+            Signed
+          </div>
+          {meta?.name && (
+            <div style={{ fontSize: 11, color: "var(--ui-text-primary)", fontWeight: 700 }}>{meta.name}</div>
+          )}
+          {meta?.position && (
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 600 }}>{meta.position}</div>
+          )}
+          {meta?.signed_at && (
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 600 }}>
+              {new Date(meta.signed_at).toLocaleString()}
+            </div>
+          )}
+          <SignatureQrInline
+            payload={buildSignatureQrPayload(docType, docId, role, meta)}
+            generateQR={generateQR}
+          />
         </div>
       ) : (
         <button
@@ -147,8 +229,8 @@ const SignatureButtons = ({
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
-      {renderButton('handed-by', isVendor ? 'Vendor (You)' : 'Vendor', handedBySigned, isVendor)}
-      {renderButton('received-by', isBuyer ? 'Buyer (You)' : 'Buyer', receivedBySigned, isBuyer)}
+      {renderButton('handed-by', isVendor ? 'Vendor (You)' : 'Vendor', handedBySigned, isVendor, handedByMeta)}
+      {renderButton('received-by', isBuyer ? 'Buyer (You)' : 'Buyer', receivedBySigned, isBuyer, receivedByMeta)}
     </div>
   );
 };
@@ -1115,11 +1197,22 @@ export default function Orders() {
                                   docType="do" 
                                   docId={doItem.id} 
                                   handedBySigned={!!doItem.handed_by_signed_at} 
-                                  receivedBySigned={!!doItem.received_by_signed_at} 
+                                  receivedBySigned={!!doItem.received_by_signed_at}
+                                  handedByMeta={{
+                                    name: doItem.handed_by_name,
+                                    position: doItem.handed_by_position,
+                                    signed_at: doItem.handed_by_signed_at,
+                                  }}
+                                  receivedByMeta={{
+                                    name: doItem.received_by_name,
+                                    position: doItem.received_by_position,
+                                    signed_at: doItem.received_by_signed_at,
+                                  }}
                                   onSign={handleSignDocument} 
                                   processingId={processingId}
                                   user={user}
                                   company={company}
+                                  generateQR={generateQRCode}
                                 />
                               </div>
                             ))}
@@ -1212,11 +1305,22 @@ export default function Orders() {
                                   docType="bast" 
                                   docId={bast.id} 
                                   handedBySigned={!!bast.handed_by_signed_at} 
-                                  receivedBySigned={!!bast.received_by_signed_at} 
+                                  receivedBySigned={!!bast.received_by_signed_at}
+                                  handedByMeta={{
+                                    name: bast.handed_by_name,
+                                    position: bast.handed_by_position,
+                                    signed_at: bast.handed_by_signed_at,
+                                  }}
+                                  receivedByMeta={{
+                                    name: bast.received_by_name,
+                                    position: bast.received_by_position,
+                                    signed_at: bast.received_by_signed_at,
+                                  }}
                                   onSign={handleSignDocument} 
                                   processingId={processingId}
                                   user={user}
                                   company={company}
+                                  generateQR={generateQRCode}
                                 />
 
                                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
