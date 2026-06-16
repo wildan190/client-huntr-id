@@ -971,6 +971,59 @@ export default function Orders() {
                           </div>
                         )}
                       </div>
+
+                      {/* E-Faktur Section */}
+                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                          <FileText size={16} color="#3b82f6" />
+                          E-Faktur Pajak for this PO
+                        </div>
+                        {po.efakturs && po.efakturs.length > 0 ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {po.efakturs.map((ef: any) => (
+                              <div key={ef.id} style={{ 
+                                padding: "12px 16px", borderRadius: 12, background: "var(--ui-bg-card)", 
+                                border: "1px solid var(--ui-border-input)",
+                                display: "flex", flexDirection: "column", gap: 8
+                              }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ 
+                                    fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                                    color: "#3b82f6" 
+                                  }}>
+                                    📄 {ef.nofa || "NOFA PENDING"}
+                                  </span>
+                                  <span style={{ 
+                                    fontSize: 11, fontWeight: 800,
+                                    background: ef.status === "APPROVED" ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", 
+                                    color: ef.status === "APPROVED" ? "#22c55e" : "#f97316",
+                                    padding: "2px 8px",
+                                    borderRadius: 8
+                                  }}>
+                                    {ef.status}
+                                  </span>
+                                </div>
+
+                                <div style={{ fontSize: 12, color: "var(--ui-text-secondary)" }}>
+                                  Tanggal: {ef.tanggal_faktur} • DPP: Rp {ef.dpp?.toLocaleString?.() || "N/A"} • PPN: Rp {ef.ppn?.toLocaleString?.() || "N/A"}
+                                </div>
+
+                                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                  <span style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>
+                                    E-Faktur will be available for download via Pajak.io dashboard.
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ textAlign: "center", padding: "16px 0", border: "1px dashed var(--ui-border-input)", borderRadius: 12 }}>
+                            <p style={{ margin: 0, fontSize: 12, color: "var(--ui-text-muted)" }}>
+                              No e-Faktur issued yet. E-Faktur will be generated automatically after BAST is fully signed.
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     
                     </div>
                   </div>
