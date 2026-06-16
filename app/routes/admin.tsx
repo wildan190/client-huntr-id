@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Building2, ShieldCheck, LogOut, CheckCircle2, XCircle,
   Clock, Eye, FileText, ChevronDown, ChevronUp, Search,
-  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink, Trash2,
+  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink, Trash2, Pencil,
 } from "lucide-react";
 import {
   adminLogin,
@@ -10,6 +10,7 @@ import {
   adminAuditCompany,
   adminGetCatalogue,
   adminCreateCatalogueItem,
+  adminUpdateCatalogueItem,
   adminDeleteCatalogueItem,
   adminGetTransactions,
   adminGetEscrowSummary
@@ -473,6 +474,7 @@ function AdminCatalogueTab() {
   const [catalogues, setCatalogues] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
 
   const fetchCatalogues = async () => {
     setIsLoading(true);
@@ -493,6 +495,9 @@ function AdminCatalogueTab() {
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fd = new FormData(e.target as HTMLFormElement);
+    const image = fd.get("image");
+    if (image instanceof File && image.size === 0) fd.delete("image");
+
     try {
       await adminCreateCatalogueItem(fd);
       setShowAddModal(false);
@@ -502,6 +507,27 @@ function AdminCatalogueTab() {
         icon: 'error',
         title: 'Error!',
         text: "Failed to create product"
+      });
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    const fd = new FormData(e.target as HTMLFormElement);
+    const image = fd.get("image");
+    if (image instanceof File && image.size === 0) fd.delete("image");
+
+    try {
+      await adminUpdateCatalogueItem(editingItem.id, fd);
+      setEditingItem(null);
+      fetchCatalogues();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "Failed to update product"
       });
     }
   };
@@ -532,39 +558,51 @@ function AdminCatalogueTab() {
                 <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
                   Rp {item.price?.toLocaleString()} / {item.uom}
                 </div>
-                <button
-                  onClick={async () => {
-                    const result = await Swal.fire({
-                      icon: 'question',
-                      title: 'Delete Product?',
-                      text: `Delete product "${item.name}"?`,
-                      showCancelButton: true,
-                      confirmButtonText: 'Yes, Delete',
-                      cancelButtonText: 'Cancel'
-                    });
-                    if (!result.isConfirmed) return;
-                    
-                    try {
-                      await adminDeleteCatalogueItem(item.id);
-                      fetchCatalogues();
-                    } catch (err) {
-                      Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: "Failed to delete product"
+                <div style={{ marginTop: "auto", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flexShrink: 0 }}>
+                  <button
+                    onClick={() => setEditingItem(item)}
+                    style={{
+                      width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                      fontWeight: 700, background: "rgba(59,130,246,0.1)", color: "#3b82f6",
+                      border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}
+                  >
+                    <Pencil size={13} /> Edit
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const result = await Swal.fire({
+                        icon: 'question',
+                        title: 'Delete Product?',
+                        text: `Delete product "${item.name}"?`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Delete',
+                        cancelButtonText: 'Cancel'
                       });
-                    }
-                  }}
-                  style={{
-                    marginTop: "auto", paddingTop: 16, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
-                    fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
-                    border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    flexShrink: 0,
-                  }}
-                >
-                  <Trash2 size={13} /> Delete Product
-                </button>
+                      if (!result.isConfirmed) return;
+                      
+                      try {
+                        await adminDeleteCatalogueItem(item.id);
+                        fetchCatalogues();
+                      } catch (err) {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Error!',
+                          text: "Failed to delete product"
+                        });
+                      }
+                    }}
+                    style={{
+                      width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                      fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
+                      border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}
+                  >
+                    <Trash2 size={13} /> Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -638,6 +676,56 @@ function AdminCatalogueTab() {
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
                 <button type="button" onClick={() => setShowAddModal(false)} style={{ padding: "10px 16px", borderRadius: 10, background: "transparent", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", fontWeight: 700 }}>Cancel</button>
                 <button type="submit" style={{ padding: "10px 16px", borderRadius: 10, background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700 }}>Add Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingItem && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)", zIndex: 1000,
+          display: "flex", alignItems: "center", justifyContent: "center"
+        }}>
+          <div style={{ background: "var(--ui-bg-card)", padding: 32, borderRadius: 20, width: "100%", maxWidth: 500 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Edit Product</div>
+            <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Product Name</label>
+                <input name="name" required defaultValue={editingItem.name || ""} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Item Code</label>
+                  <input name="item_code" defaultValue={editingItem.item_code || ""} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Brand</label>
+                  <input name="brand" defaultValue={editingItem.brand || ""} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Category</label>
+                  <input name="category" defaultValue={editingItem.category || ""} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>UOM</label>
+                  <input name="uom" required defaultValue={editingItem.uom || "Pc"} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Specifications</label>
+                <textarea name="specifications" rows={3} defaultValue={editingItem.specifications || ""} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", resize: "vertical" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Replace Image</label>
+                <input name="image" type="file" accept="image/*" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
+                <button type="button" onClick={() => setEditingItem(null)} style={{ padding: "10px 16px", borderRadius: 10, background: "transparent", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", fontWeight: 700 }}>Cancel</button>
+                <button type="submit" style={{ padding: "10px 16px", borderRadius: 10, background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700 }}>Save Changes</button>
               </div>
             </form>
           </div>

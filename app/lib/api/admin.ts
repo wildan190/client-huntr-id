@@ -37,6 +37,9 @@ export const adminGetCatalogue = (params?: { page?: number; per_page?: number; s
 export const adminCreateCatalogueItem = (payload: FormData) =>
   apiPostForm("/api/admin/catalogues", payload);
 
+export const adminUpdateCatalogueItem = (id: string, payload: FormData) =>
+  apiPostForm(`/api/admin/catalogues/${id}`, payload);
+
 export const adminDeleteCatalogueItem = (id: string) =>
   apiDelete(`/api/admin/catalogues/${id}`);
 
