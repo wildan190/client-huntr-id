@@ -25,15 +25,17 @@ function getSystemTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // null = follow system (auto), string = manual override
-  const [manual, setManual] = useState<Theme | null>(() => {
-    if (typeof window === "undefined") return null;
-    return (localStorage.getItem("huntr_theme") as Theme | null) || null;
-  });
+  const [isClient, setIsClient] = useState(false);
+  const [manual, setManual] = useState<Theme | null>(null);
+  const [systemTheme, setSystemTheme] = useState<Theme>("dark");
 
-  const [systemTheme, setSystemTheme] = useState<Theme>(getSystemTheme);
-
-  // Listen for OS theme changes
   useEffect(() => {
+    setIsClient(true);
+    const savedTheme = localStorage.getItem("huntr_theme") as Theme | null;
+    setManual(savedTheme || null);
+    setSystemTheme(getSystemTheme());
+    
+    // Listen for OS theme changes
     const mq = window.matchMedia("(prefers-color-scheme: light)");
     const handler = (e: MediaQueryListEvent) => {
       setSystemTheme(e.matches ? "light" : "dark");

@@ -63,25 +63,26 @@ export default function AppShell() {
   const [pageTitle, setPageTitle] = useState("Huntr.id");
   const [pageSubtitle, setPageSubtitle] = useState("");
 
-  const [user, setUser] = useState<any>(() => {
-    if (typeof window !== "undefined") {
-      const session = localStorage.getItem("user_session");
-      return session ? JSON.parse(session) : null;
-    }
-    return null;
-  });
-  const [activeCompany, setActiveCompany] = useState<any>(() => {
-    if (typeof window !== "undefined") {
-      const session = localStorage.getItem("active_company");
-      return session ? JSON.parse(session) : null;
-    }
-    return null;
-  });
+  const [isClient, setIsClient] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [activeCompany, setActiveCompany] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setIsClient(true);
+    const userSession = localStorage.getItem("user_session");
+    const companySession = localStorage.getItem("active_company");
+    if (userSession) {
+      setUser(JSON.parse(userSession));
+    }
+    if (companySession) {
+      setActiveCompany(JSON.parse(companySession));
+    }
+  }, []);
 
   // Sidebar scroll — persists forever because this component never unmounts
   const navScrollRef = React.useRef<HTMLDivElement>(null);
@@ -482,6 +483,12 @@ export default function AppShell() {
   const shellContext: AppShellContext = { setPageTitle, setPageSubtitle };
 
   const isGuestRoute = pathname === "/" || pathname.startsWith("/marketplace/");
+  
+  if (!isClient) {
+    // Render a placeholder that matches server output exactly
+    return <Outlet context={shellContext} />;
+  }
+
   if (!user && isGuestRoute) {
     return <Outlet context={shellContext} />;
   }
