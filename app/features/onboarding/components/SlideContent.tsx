@@ -71,13 +71,13 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="flex flex-col gap-1.5">
-              <FormLabel>Jenis Industri</FormLabel>
+              <FormLabel>Jenis Industri *</FormLabel>
               <select
                 value={formData.industry_type}
                 onChange={e => updateField("industry_type", e.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
               >
-                <option value="" className="bg-[var(--ui-bg-page)]">Select Industry...</option>
+                <option value="" className="bg-[var(--ui-bg-page)]">Pilih Jenis Industri...</option>
                 <option value="Technology" className="bg-[var(--ui-bg-page)]">Technology</option>
                 <option value="Manufacturing" className="bg-[var(--ui-bg-page)]">Manufacturing</option>
                 <option value="Logistics" className="bg-[var(--ui-bg-page)]">Logistics</option>
@@ -188,6 +188,50 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
     case 5:
       return (
         <SlideSection title="Upload Data" subtitle="Import Initial Data" icon={<UploadCloud size={22} className="text-emerald-500" />} accentColor="#10b981">
+          {/* Penjelasan upload data berdasarkan tipe perusahaan */}
+          <div className="p-5 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] mb-6">
+            <p className="text-sm text-[var(--ui-text-primary)] font-medium">
+              {formData.type === "buyer" 
+                ? "Silahkan upload historical purchase order anda disini untuk proses pembuatan analisa laporan pembelian anda dan proses migrasi data yang lebih cepat."
+                : "Silahkan upload List product catalog anda disini untuk proses pembuatan online catalog dan proses migrasi data yang lebih cepat."
+              }
+            </p>
+          </div>
+          
+          {/* Template Excel Download */}
+          <div className="mb-6">
+            <h4 className="text-sm font-bold text-[var(--ui-text-primary)] mb-3">Template Standard Excel</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <a 
+                href="/assets/templates/buyer-purchase-order-template.xlsx" 
+                download
+                className="p-4 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] hover:border-[var(--ui-border-input-focus)] transition-all flex items-center gap-3 group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <FileSpreadsheet size={20} className="text-emerald-500" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-[var(--ui-text-primary)]">Template Purchase Order (Buyer)</div>
+                  <div className="text-xs text-[var(--ui-text-muted)]">Format standard untuk data pembelian</div>
+                </div>
+              </a>
+              <a 
+                href="/assets/templates/vendor-catalog-template.xlsx" 
+                download
+                className="p-4 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] hover:border-[var(--ui-border-input-focus)] transition-all flex items-center gap-3 group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <FileSpreadsheet size={20} className="text-blue-500" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-[var(--ui-text-primary)]">Template Product Catalog (Vendor)</div>
+                  <div className="text-xs text-[var(--ui-text-muted)]">Format standard untuk katalog produk</div>
+                </div>
+              </a>
+            </div>
+          </div>
+          
+          {/* Upload Area */}
           <div className="p-8 md:p-12 border-2 border-dashed border-[var(--ui-border-input)] rounded-3xl text-center bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] transition-all group">
             <div className="w-16 h-16 rounded-2xl bg-[var(--ui-bg-input)] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
               <FileSpreadsheet size={32} className="text-[var(--ui-text-muted)]" />

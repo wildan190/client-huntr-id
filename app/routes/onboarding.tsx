@@ -48,19 +48,22 @@ export default function Onboarding() {
    * Local validation before moving to next slide
    */
   const validateCurrentSlide = (): string | null => {
+    console.log(`[DEBUG] Validating slide ${vm.slide}, industry_type: "${vm.formData.industry_type}", trimmed: "${vm.formData.industry_type.trim()}"`);
+    
     if (vm.slide === 1) {
-      if (!vm.formData.company_name.trim()) return "Company name is required.";
-      if (!vm.formData.type) return "Please select your business type.";
+      if (!vm.formData.company_name.trim()) return "Nama perusahaan wajib diisi.";
+      if (!vm.formData.type) return "Pilih tipe bisnis (Buyer/Vendor).";
+      if (!vm.formData.industry_type.trim()) return "Jenis industri wajib dipilih.";
       // NPWP verification only required for Indonesia
       if (isIndonesia() && !vm.npwpVerifiedData) {
-        return "Please verify NPWP before continuing.";
+        return "Harap verifikasi NPWP sebelum melanjutkan.";
       }
     }
     if (vm.slide === 4 && vm.uploadedDocs.length === 0) {
-      return "Please upload at least one legal document.";
+      return "Harap upload minimal satu dokumen legalitas.";
     }
     if (vm.slide === 5 && !vm.selectedFile) {
-      return "Please select a CSV or Excel file to import.";
+      return "Pilih file CSV atau Excel untuk diimport.";
     }
     return null;
   };

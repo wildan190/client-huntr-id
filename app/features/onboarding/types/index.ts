@@ -32,4 +32,15 @@ export interface NpwpVerifiedData {
   alamat: string;
   statusWp: string;
   statusSpt: string;
+  // Field tambahan untuk auto-fill
+  city?: string;
+  regency?: string;
+  zip_code?: string;
+  provincy_country?: string;
+  bank_name?: string;
+  bank_account?: string;
+  bank_account_name?: string;
+  industry_type?: string;
+  phone?: string;
+  email?: string;
 }

@@ -89,11 +89,23 @@ export const useOnboardingViewModel = () => {
       setNpwpVerifiedData(data);
       
       // Auto-fill form berdasarkan data NPWP yang valid
+      // Data NPWP sudah memiliki semua field yang dibutuhkan
       setFormData(prev => ({
         ...prev,
-        company_name: prev.company_name || data.nama,
-        address: prev.address || data.alamat,
-        // ... field lainnya bisa ditambahkan sesuai kebutuhan
+        company_name: prev.company_name || data.nama || "",
+        email: prev.email || data.email || user?.email || "",
+        phone: prev.phone || data.phone || user?.whatsapp || "",
+        industry_type: prev.industry_type || data.industry_type || "",
+        // Address fields
+        address: prev.address || data.alamat || "",
+        provincy_country: prev.provincy_country || data.provincy_country || "",
+        city: prev.city || data.city || "",
+        regency: prev.regency || data.regency || "",
+        zip_code: prev.zip_code || data.zip_code || "",
+        // Banking fields
+        bank_name: prev.bank_name || data.bank_name || "",
+        bank_account: prev.bank_account || data.bank_account || "",
+        bank_account_name: prev.bank_account_name || data.bank_account_name || "",
       }));
     } catch (err: any) {
       setError(err.message);
