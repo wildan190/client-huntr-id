@@ -120,7 +120,6 @@ export default function Login() {
       {!show2FA ? (
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-form__header">
-            <img src="/assets/img/logo/emblem.jpg" alt="Huntr Logo" className="auth-logo" />
             <h1 className="auth-heading">Welcome back</h1>
             <p className="auth-subheading">Sign in to access your procurement dashboard</p>
           </div>

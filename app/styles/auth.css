@@ -329,21 +329,9 @@
   }
 }
 
+/* Logo sudah dipindah ke visual section, styling di sini dihapus */
 .auth-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  object-fit: cover;
-}
-
-@media (min-width: 768px) {
-  .auth-logo {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-  }
+  display: none;
 }
 
 .auth-heading {
@@ -659,4 +647,486 @@
   font-size: 11px;
   color: #34d399;
   font-weight: 600;
+}
+/* ── Logo besar di visual section ─────────────────────────────────────────── */
+
+.auth-visual__logo-container {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  z-index: 10;
+}
+
+.auth-visual__logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .auth-visual__logo-container {
+    left: 32px;
+    top: 32px;
+  }
+  
+  .auth-visual__logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+  }
+}
+
+.auth-visual__logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Informasi tambahan untuk register ────────────────────────────────────── */
+
+.auth-visual__additional-info {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-steps {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.auth-steps__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-steps__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.auth-step:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-step__number {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #f97316, #fbbf24);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.auth-step__text {
+  font-size: 13px;
+  color: #e5e7eb;
+  line-height: 1.4;
+}
+
+.auth-documents {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.auth-documents__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-documents__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-document-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.auth-document-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-document-item__icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.auth-document-item__text {
+  font-size: 12px;
+  color: #e5e7eb;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .auth-visual__logo-container {
+    left: 12px;
+    top: 12px;
+  }
+  
+  .auth-visual__logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+  }
+  
+  .auth-visual__additional-info {
+    margin-top: 16px;
+    gap: 16px;
+  }
+  
+  .auth-steps,
+  .auth-documents {
+    padding: 12px;
+  }
+  
+  .auth-step__text,
+  .auth-document-item__text {
+    font-size: 11px;
+  }
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .auth-steps,
+[data-theme="light"] .auth-documents {
+  background: rgba(111, 66, 193, 0.15);
+  border: 1px solid rgba(111, 66, 193, 0.25);
+}
+
+[data-theme="light"] .auth-step {
+  background: rgba(111, 66, 193, 0.1);
+}
+
+[data-theme="light"] .auth-step:hover {
+  background: rgba(111, 66, 193, 0.15);
+}
+
+[data-theme="light"] .auth-step__text {
+  color: #374151;
+}
+
+[data-theme="light"] .auth-document-item {
+  background: rgba(111, 66, 193, 0.1);
+}
+
+[data-theme="light"] .auth-document-item:hover {
+  background: rgba(111, 66, 193, 0.15);
+}
+
+[data-theme="light"] .auth-document-item__text {
+  color: #374151;
+}
+/* ── Perbaikan visual untuk informasi tambahan ───────────────────────────── */
+
+.auth-visual__content {
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+/* Adjust untuk memastikan konten lebih readable */
+@media (min-width: 768px) {
+  .auth-visual__content {
+    max-width: 450px;
+    padding-bottom: 40px;
+  }
+}
+
+/* Perbaikan untuk light theme */
+[data-theme="light"] .auth-visual__title {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .auth-visual__text {
+  color: #e5e7eb;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Perbaikan spacing untuk mobile */
+@media (max-width: 767px) {
+  .auth-visual__content {
+    padding-bottom: 20px;
+  }
+  
+  .auth-visual__additional-info {
+    display: none; /* Sembunyikan di mobile untuk ruang terbatas */
+  }
+}
+
+/* Hover effects untuk dokumen */
+.auth-document-item {
+  cursor: help;
+  position: relative;
+}
+
+.auth-document-item:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: rgba(15, 10, 6, 0.95);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 20;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Tooltip untuk dokumen */
+.auth-document-item[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+}
+
+/* Animasi untuk steps */
+.auth-step__number {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-step:hover .auth-step__number {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+/* ── Perbaikan spacing untuk logo dan konten ─────────────────────────────── */
+
+/* Geser konten ke bawah agar tidak tertutup logo */
+.auth-visual__content {
+  padding-top: 80px; /* Space untuk logo */
+}
+
+@media (min-width: 768px) {
+  .auth-visual__content {
+    padding-top: 100px; /* Space lebih besar untuk desktop */
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-visual__content {
+    padding-top: 60px; /* Space lebih kecil untuk mobile */
+  }
+}
+
+/* Perbaikan untuk info tambahan register */
+.auth-visual__additional-info {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Perbaikan untuk features agar lebih kompak */
+.auth-visual__features {
+  margin-top: 12px;
+}
+/* ── Styling khusus untuk register (dokumen saja) ────────────────────────── */
+
+.auth-visual__documents-only {
+  padding-top: 40px; /* Kurangi padding karena tidak ada title dan text */
+}
+
+@media (min-width: 768px) {
+  .auth-visual__documents-only {
+    padding-top: 60px;
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-visual__documents-only {
+    padding-top: 30px;
+  }
+}
+
+/* Perbaikan untuk dokumen agar lebih kompak */
+.auth-documents {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.auth-documents__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .auth-documents {
+  background: rgba(111, 66, 193, 0.15);
+  border: 1px solid rgba(111, 66, 193, 0.25);
+}
+
+[data-theme="light"] .auth-documents__title {
+  color: #4f46e5; /* Warna lebih gelap untuk light theme */
+  text-shadow: none;
+}
+
+[data-theme="light"] .auth-document-item__text {
+  color: #374151; /* Warna abu-abu gelap untuk light theme */
+}
+
+[data-theme="light"] .auth-document-item__icon {
+  color: #6b7280; /* Warna icon abu-abu untuk light theme */
+}
+/* ── Perbaikan untuk icon dan teks dokumen ───────────────────────────────── */
+
+.auth-document-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db; /* Warna icon default untuk dark theme */
+  flex-shrink: 0;
+}
+
+.auth-document-item__text {
+  font-size: 12px;
+  color: #ffffff; /* Warna putih untuk dark theme agar lebih jelas */
+  line-height: 1.4;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+/* Tambahkan spacing yang lebih baik */
+.auth-documents__list {
+  gap: 10px;
+}
+
+.auth-document-item {
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+/* Perbaikan tooltip untuk light theme */
+[data-theme="light"] .auth-document-item:hover::after {
+  background: rgba(79, 70, 229, 0.95);
+  color: #fff;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+/* Perbaikan visual untuk mobile */
+@media (max-width: 767px) {
+  .auth-document-item__icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .auth-document-item__icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .auth-document-item__text {
+    font-size: 11px;
+  }
+}
+/* ── Sembunyikan dokumen di mobile view ────────────────────────────────── */
+
+.auth-documents--desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .auth-documents--desktop-only {
+    display: block;
+  }
+}
+
+/* Untuk register di mobile, sembunyikan hanya dokumen, bukan gambar */
+@media (max-width: 767px) {
+  /* Hanya sembunyikan dokumen, bukan seluruh content */
+  .auth-card--register .auth-documents--desktop-only {
+    display: none;
+  }
+  
+  /* Untuk login di mobile, tetap tampilkan semua content */
+  .auth-card--login .auth-visual__content {
+    display: block;
+  }
+  
+  /* Adjust padding untuk register di mobile (karena dokumen disembunyikan) */
+  .auth-card--register .auth-visual__documents-only {
+    padding-top: 0;
+  }
+  
+  .auth-card--register .auth-visual__content {
+    padding-top: 60px; /* Space untuk logo saja, dokumen disembunyikan */
+  }
+}
+/* Memastikan gambar gedung tetap optimal di mobile */
+@media (max-width: 767px) {
+  .auth-card--register .auth-visual__img {
+    object-position: center 40%; /* Adjust posisi gambar untuk mobile */
+  }
+  
+  /* Overlay sedikit lebih terang untuk mobile agar gambar terlihat */
+  .auth-card--register .auth-visual__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 10, 6, 0.65) 0%,
+      rgba(15, 10, 6, 0.82) 100%
+    );
+  }
+  
+  /* Light theme adjustment untuk mobile */
+  [data-theme="light"] .auth-card--register .auth-visual__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(111, 66, 193, 0.15) 0%,
+      rgba(111, 66, 193, 0.25) 100%
+    );
+  }
 }

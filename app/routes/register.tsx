@@ -161,7 +161,6 @@ export default function Register() {
     >
       <form className="auth-form">
         <div className="auth-form__header">
-          <img src="/assets/img/logo/emblem.jpg" alt="Huntr Logo" className="auth-logo" />
           <h1 className="auth-heading">Create Account</h1>
           <p className="auth-subheading">Register and verify your workspace identity</p>
         </div>
