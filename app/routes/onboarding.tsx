@@ -48,8 +48,6 @@ export default function Onboarding() {
    * Local validation before moving to next slide
    */
   const validateCurrentSlide = (): string | null => {
-    console.log(`[DEBUG] Validating slide ${vm.slide}, industry_type: "${vm.formData.industry_type}", trimmed: "${vm.formData.industry_type.trim()}"`);
-    
     if (vm.slide === 1) {
       if (!vm.formData.company_name.trim()) return "Nama perusahaan wajib diisi.";
       if (!vm.formData.type) return "Pilih tipe bisnis (Buyer/Vendor).";

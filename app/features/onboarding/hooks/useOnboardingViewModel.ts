@@ -48,7 +48,7 @@ export const useOnboardingViewModel = () => {
       type: "buyer", industry_type: "", about: "", region: "",
       provincy_country: "", regency: "", city: "",
       zip_code: "", address: "", bank_name: "", bank_account: "",
-      bank_account_name: "",
+      bank_account_name: "", country: "",
     });
     setNpwpVerifiedData(null);
     setUploadedDocs([]);
@@ -106,6 +106,8 @@ export const useOnboardingViewModel = () => {
         bank_name: prev.bank_name || data.bank_name || "",
         bank_account: prev.bank_account || data.bank_account || "",
         bank_account_name: prev.bank_account_name || data.bank_account_name || "",
+        // Country tetap sama (tidak diubah dari NPWP)
+        country: prev.country || "ID", // Default ke Indonesia jika belum diisi
       }));
     } catch (err: any) {
       setError(err.message);

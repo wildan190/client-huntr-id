@@ -133,14 +133,16 @@ export default function MarketplaceDetail() {
         }
       `}</style>
 
-      <div style={{ width: "100%" }}>
+      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             gap: 12,
-            marginBottom: 28,
+            margin: "0 0 32px 0",
+            padding: "12px 0",
+            borderBottom: "1px solid var(--ui-border)",
             flexWrap: "wrap",
           }}
         >
@@ -148,20 +150,29 @@ export default function MarketplaceDetail() {
             type="button"
             onClick={() => (isGuest ? navigate("/") : navigate("/marketplace"))}
             style={{
-              padding: "9px 16px",
-              borderRadius: 10,
+              padding: "10px 18px",
+              borderRadius: 12,
               background: "var(--ui-bg-input)",
               border: "1px solid var(--ui-border-input)",
-              color: "var(--ui-text-secondary)",
+              color: "var(--ui-text-primary)",
               cursor: "pointer",
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
               gap: 8,
               fontSize: 14,
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--ui-bg-input-focus)";
+              e.currentTarget.style.borderColor = "var(--ui-border-input-focus)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--ui-bg-input)";
+              e.currentTarget.style.borderColor = "var(--ui-border-input)";
             }}
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={18} />
             {isGuest ? "Back to Home" : "Back to Marketplace"}
           </button>
 
@@ -169,35 +180,44 @@ export default function MarketplaceDetail() {
             <Link
               to="/cart"
               style={{
-                padding: "9px 16px",
-                borderRadius: 10,
+                padding: "10px 18px",
+                borderRadius: 12,
                 background: "var(--ui-bg-card)",
                 border: "1px solid var(--ui-border-badge)",
                 color: "var(--ui-text-brand)",
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 10,
                 fontSize: 14,
                 textDecoration: "none",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--ui-bg-input)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--ui-bg-card)";
+                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              <ShoppingCart size={16} />
+              <ShoppingCart size={18} />
               View Cart
               {cartCount > 0 && (
                 <span
                   style={{
-                    minWidth: 20,
-                    height: 20,
-                    borderRadius: 10,
+                    minWidth: 24,
+                    height: 24,
+                    borderRadius: 12,
                     background: "#f59e0b",
                     color: "#fff",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 800,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "0 6px",
+                    padding: "0 8px",
                   }}
                 >
                   {cartCount}
@@ -219,29 +239,30 @@ export default function MarketplaceDetail() {
         )}
 
         {!loading && !error && item && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
             <div>
-              <div style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+              <div style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
                 {item.category || "General"}
               </div>
-              <h1 style={{ margin: "0 0 4px", fontSize: "clamp(22px, 5vw, 34px)", fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>
+              <h1 style={{ margin: "0 0 8px", fontSize: "clamp(24px, 5vw, 38px)", fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>
                 {item.name}
               </h1>
-              <div style={{ fontSize: 13, color: "var(--ui-text-muted)" }}>SKU: {item.item_code}</div>
+              <div style={{ fontSize: 14, color: "var(--ui-text-muted)", marginBottom: 12 }}>SKU: {item.item_code}</div>
             </div>
 
-            <div className="mp-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24, alignItems: "start" }}>
+            <div className="mp-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 32, alignItems: "start" }}>
               <div
                 className="mp-image-box"
                 style={{
                   borderRadius: 24,
                   overflow: "hidden",
                   background: "var(--ui-bg-card)",
-                  minHeight: "clamp(240px, 40vw, 480px)",
+                  minHeight: "clamp(280px, 50vh, 520px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   border: "1px solid var(--ui-border)",
+                  boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
                 }}
               >
                 {imageUrl ? (
@@ -272,8 +293,8 @@ export default function MarketplaceDetail() {
                   </div>
                 ) : null}
 
-                <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 20, border: "1px solid var(--ui-border)", display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 24, border: "1px solid var(--ui-border)", display: "flex", flexDirection: "column", gap: 16, boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", paddingBottom: 12, borderBottom: "1px solid var(--ui-border)" }}>
                     Product Details
                   </div>
                   {[
@@ -282,9 +303,9 @@ export default function MarketplaceDetail() {
                     { label: "Unit of Measure", value: item.uom },
                     ...(item.company?.name ? [{ label: "Vendor", value: item.company.name }] : []),
                   ].map(({ label, value }) => (
-                    <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 14 }}>
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 16, fontSize: 14, padding: "6px 0" }}>
                       <span style={{ color: "var(--ui-text-muted)", flexShrink: 0 }}>{label}</span>
-                      <span style={{ color: "var(--ui-text-primary)", fontWeight: 600, textAlign: "right" }}>{value}</span>
+                      <span style={{ color: "var(--ui-text-primary)", fontWeight: 600, textAlign: "right", maxWidth: "200px" }}>{value}</span>
                     </div>
                   ))}
                 </div>
@@ -373,11 +394,13 @@ export default function MarketplaceDetail() {
               </div>
             </div>
 
-            <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 24, border: "1px solid var(--ui-border)" }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+            <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 28, border: "1px solid var(--ui-border)", marginTop: 16, boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20, paddingBottom: 12, borderBottom: "1px solid var(--ui-border)" }}>
                 Specifications
               </div>
-              <SpecificationsBlock text={item.specifications} />
+              <div style={{ padding: "8px 0" }}>
+                <SpecificationsBlock text={item.specifications} />
+              </div>
             </div>
           </div>
         )}
