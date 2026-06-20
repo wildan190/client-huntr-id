@@ -754,7 +754,7 @@ function VendorEbiddingDashboard({ user, activeCompany }: { user: any, activeCom
 
   return (
     <Layout title="Vendor E-Bidding Dashboard" subtitle="Pantau tender aktif, draft proposal, dan submisi yang sedang berjalan.">
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24, paddingBottom: 32, boxSizing: "border-box" }}>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16, paddingBottom: 24, boxSizing: "border-box" }}>
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, alignItems: "stretch" }}>
           <WeatherWidget embedded />
           <CurrencyWidget embedded />
@@ -783,7 +783,7 @@ function VendorEbiddingDashboard({ user, activeCompany }: { user: any, activeCom
           />
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: 20, alignItems: "start" }}>
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 20, alignItems: "start" }}>
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
             <div style={{ padding: 20, borderBottom: "1px solid var(--ui-border)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -805,12 +805,12 @@ function VendorEbiddingDashboard({ user, activeCompany }: { user: any, activeCom
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ textAlign: "left", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ui-text-muted)" }}>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>Tender</th>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>Buyer</th>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>Status</th>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>Submisi</th>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>Deadline</th>
-                    <th style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }} />
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }}>Tender</th>
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }}>Buyer</th>
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }}>Status</th>
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }}>Submisi</th>
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }}>Deadline</th>
+                    <th style={{ padding: "10px 14px", borderBottom: "1px solid var(--ui-border)" }} />
                   </tr>
                 </thead>
                 <tbody>
@@ -825,57 +825,57 @@ function VendorEbiddingDashboard({ user, activeCompany }: { user: any, activeCom
                   ) : (
                     tableRows.map(({ rfq, proposal, ranking, submittedAt, deadlineText, status }) => (
                       <tr key={rfq.id} style={{ borderBottom: "1px solid var(--ui-border-subtle)" }}>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", lineHeight: 1.4 }}>{rfq.title}</div>
-                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{rfq.items?.length || 0} item</div>
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", lineHeight: 1.4, fontSize: 13 }}>{rfq.title}</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>{rfq.items?.length || 0} item</div>
                         </td>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>{rfq.company?.name || "Buyer"}</div>
-                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>RFQ {String(rfq.id).slice(0, 8)}</div>
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{rfq.company?.name || "Buyer"}</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>RFQ {String(rfq.id).slice(0, 8)}</div>
                         </td>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top" }}>
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                           <span style={{
-                            padding: "6px 10px",
+                            padding: "4px 8px",
                             borderRadius: 999,
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: 800,
                             background: status === "Draft" ? "rgba(59,130,246,0.12)" : status === "Submitted" ? "rgba(249,115,22,0.12)" : "rgba(34,197,94,0.12)",
                             color: status === "Draft" ? "#60a5fa" : status === "Submitted" ? "#f59e0b" : "#34d399",
                           }}>
                             {status}
                           </span>
-                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 8 }}>
-                            {proposal ? `Winner status: ${proposal.winner_status || "submitted"}` : "Belum ada proposal dikirim"}
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 6 }}>
+                            {proposal ? `Winner: ${proposal.winner_status || "submitted"}` : "No proposal"}
                           </div>
                         </td>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>{proposal ? `Rp ${Number(proposal.price_offer || 0).toLocaleString("id-ID")}` : "Draft"}</div>
-                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>
-                            {ranking ? `Rank #${ranking.rank}` : submittedAt === "-" ? "Belum disubmit" : `Dikirim ${submittedAt}`}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{proposal ? `Rp ${Number(proposal.price_offer || 0).toLocaleString("id-ID")}` : "Draft"}</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                            {ranking ? `Rank #${ranking.rank}` : submittedAt === "-" ? "Not submitted" : `Sent ${submittedAt}`}
                           </div>
                         </td>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>{deadlineText}</div>
-                          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>
-                            {proposal ? `Submitted ${submittedAt}` : "Siap disiapkan sebagai draft"}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{deadlineText}</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                            {proposal ? `Sent ${submittedAt}` : "Ready"}
                           </div>
                         </td>
-                        <td style={{ padding: "16px 20px", verticalAlign: "top", textAlign: "right" }}>
+                        <td style={{ padding: "12px 14px", verticalAlign: "top", textAlign: "right" }}>
                           <button
                             type="button"
                             onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
                             style={{
-                              padding: "8px 12px",
-                              borderRadius: 10,
+                              padding: "6px 10px",
+                              borderRadius: 8,
                               border: "1px solid rgba(249,115,22,0.22)",
                               background: "rgba(249,115,22,0.08)",
                               color: "#f59e0b",
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: 800,
                               cursor: "pointer",
                             }}
                           >
-                            {proposal ? "Lihat Proposal" : "Buka Tender"}
+                            {proposal ? "Lihat" : "Buka"}
                           </button>
                         </td>
                       </tr>
@@ -887,28 +887,28 @@ function VendorEbiddingDashboard({ user, activeCompany }: { user: any, activeCom
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Company</div>
-              <div style={{ fontSize: 20, fontWeight: 900, marginTop: 6, color: "var(--ui-text-primary)" }}>{activeCompany?.name}</div>
-              <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 6 }}>{user?.name}</div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Company</div>
+              <div style={{ fontSize: 16, fontWeight: 900, marginTop: 4, color: "var(--ui-text-primary)" }}>{activeCompany?.name}</div>
+              <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 4 }}>{user?.name}</div>
             </div>
 
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Quick Stats</div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Quick Stats</div>
               <MiniStat label="Open Tenders" value={String(openRfqs.length)} />
               <MiniStat label="Proposal Drafts" value={String(Math.max(openRfqs.length - vendorProposals.length, 0))} />
               <MiniStat label="Submitted Proposals" value={String(vendorProposals.length)} />
             </div>
 
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Submission Focus</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Submission Focus</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
                   "Review item scope and deadline first",
                   "Keep draft pricing ready before closing time",
                   "Open proposal detail from the table when the tender is live",
                 ].map((item) => (
-                  <div key={item} style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ui-text-secondary)", padding: "10px 12px", borderRadius: 12, background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.08)" }}>
+                  <div key={item} style={{ fontSize: 12, lineHeight: 1.4, color: "var(--ui-text-secondary)", padding: "6px 10px", borderRadius: 10, background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.08)" }}>
                     {item}
                   </div>
                 ))}
@@ -944,21 +944,21 @@ function SummaryWidget({
     <div style={{
       background: "var(--ui-bg-card)",
       border: "1px solid var(--ui-border)",
-      borderRadius: 20,
-      padding: 20,
+      borderRadius: 14,
+      padding: "12px 16px",
       display: "flex",
       flexDirection: "column",
-      gap: 14,
-      minHeight: 150,
+      gap: 8,
+      minHeight: 110,
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</div>
-        <div style={{ width: 36, height: 36, borderRadius: 12, background: accentStyles.bg, color: accentStyles.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon size={18} />
+        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: accentStyles.bg, color: accentStyles.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon size={16} />
         </div>
       </div>
-      <div style={{ fontSize: 34, fontWeight: 900, lineHeight: 1, color: "var(--ui-text-primary)" }}>{value}</div>
-      <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.5 }}>{hint}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1, color: "var(--ui-text-primary)" }}>{value}</div>
+      <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", lineHeight: 1.4 }}>{hint}</div>
     </div>
   );
 }

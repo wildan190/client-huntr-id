@@ -325,6 +325,92 @@ export default function Orders() {
     }
   };
 
+  const exportToExcel = () => {
+    if (orders.length === 0) return;
+    const headers = [
+      "PO Number", 
+      "Tender Title", 
+      "Vendor Name", 
+      "Order Date", 
+      "PO Status", 
+      "PO Currency", 
+      "PO Total Amount", 
+      "PO Created By",
+      "PO Approved By",
+      "DO Handed By",
+      "DO Received By",
+      "BAST Handed By",
+      "BAST Received By",
+      "Item Name", 
+      "Item Code", 
+      "Item Qty", 
+      "Item UOM", 
+      "Item Unit Price", 
+      "Item Tax", 
+      "Item Subtotal"
+    ];
+    
+    const rows: any[] = [];
+    
+    orders.forEach(po => {
+      const doHandedBy = po.delivery_orders?.map((d: any) => d.handed_by_name || "").filter(Boolean).join("; ") || "";
+      const doReceivedBy = po.delivery_orders?.map((d: any) => d.received_by_name || "").filter(Boolean).join("; ") || "";
+      const bastHandedBy = po.basts?.map((b: any) => b.handed_by_name || "").filter(Boolean).join("; ") || "";
+      const bastReceivedBy = po.basts?.map((b: any) => b.received_by_name || "").filter(Boolean).join("; ") || "";
+
+      const basePoInfo = [
+        po.po_number || "",
+        po.rfq?.title || "Purchase Order",
+        po.vendor_name || "",
+        po.order_date || new Date(po.created_at).toLocaleDateString(),
+        po.status || "issued",
+        po.currency || "IDR",
+        po.total_amount || 0,
+        po.created_by || "System",
+        po.approved_by || "",
+        doHandedBy,
+        doReceivedBy,
+        bastHandedBy,
+        bastReceivedBy
+      ];
+      
+      if (po.items && po.items.length > 0) {
+        po.items.forEach((item: any) => {
+          rows.push([
+            ...basePoInfo,
+            item.inventory_name || "",
+            item.inventory_code || "",
+            item.qty || 0,
+            item.uom || "",
+            item.unit_price || 0,
+            item.tax_amount || 0,
+            item.total_amount || 0
+          ]);
+        });
+      } else {
+        rows.push([
+          ...basePoInfo,
+          "", "", 0, "", 0, 0, 0
+        ]);
+      }
+    });
+
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `purchase_orders_detailed_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const generateQRCode = useCallback(async (text: string) => {
     try {
       return await QRCode.toDataURL(text, { width: 128 });
@@ -603,6 +689,19 @@ export default function Orders() {
               }}
             >
               <UploadCloud size={18} /> Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
+            </button>
+
+            <button
+              onClick={exportToExcel}
+              disabled={orders.length === 0}
+              style={{
+                background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)",
+                borderRadius: 14, padding: "0 20px", display: "flex", alignItems: "center", gap: 10,
+                cursor: orders.length === 0 ? "not-allowed" : "pointer", color: "#22c55e", fontWeight: 700, fontSize: 13,
+                opacity: orders.length === 0 ? 0.6 : 1, transition: "all 0.3s ease"
+              }}
+            >
+              <FileSpreadsheet size={18} /> Export to Excel
             </button>
 
             <button
