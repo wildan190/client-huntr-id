@@ -66,7 +66,24 @@ const INITIAL_CATALOGUE = [
   { id: "3", item_code: "CAT-003", name: "4K IPS Design Monitor", category: "Hardware", uom: "unit", price: 6000000 },
 ];
 
-const CATEGORIES = ["All", "Hardware", "Furniture", "Software", "Office Supplies", "Services"];
+const CATEGORIES = [
+  "All",
+  "Hardware",
+  "Software",
+  "Furniture",
+  "Office Supplies",
+  "Services",
+  "Spareparts",
+  "Electronics",
+  "Mechanical",
+  "Chemicals",
+  "Construction",
+  "Stationery",
+  "Pantry & F&B",
+  "Logistics",
+  "Marketing",
+  "Other"
+];
 
 const VENDOR_DASHBOARD_HINTS = [
   "Monitoring tender aktif",
@@ -130,31 +147,49 @@ function GuestMarketplaceView() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchItems();
+    fetchItems(1);
   }, [activeCategory]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchItems();
+      fetchItems(1);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const fetchItems = async () => {
+  const fetchItems = async (pageNum = 1) => {
     try {
       setLoading(true);
       const res = await getCatalogues({ 
         search: searchTerm, 
-        category: activeCategory === "All" ? undefined : activeCategory 
+        category: activeCategory === "All" ? undefined : activeCategory,
+        page: pageNum
       });
-      setItems(res.data || []);
+      const data = res.data || res || [];
+      if (res && res.data && Array.isArray(res.data)) {
+        setItems(res.data);
+        setCurrentPage(res.current_page || 1);
+        setTotalPages(res.last_page || 1);
+      } else {
+        setItems(Array.isArray(data) ? data : []);
+        setCurrentPage(1);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to fetch guest items", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    fetchItems(newPage);
   };
 
   return (
@@ -531,6 +566,65 @@ function GuestMarketplaceView() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32 }}>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 10,
+                border: "1px solid var(--ui-border)",
+                background: "var(--ui-bg-card)",
+                color: "var(--ui-text-primary)",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                opacity: currentPage === 1 ? 0.5 : 1,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  border: currentPage === pageNum ? "none" : "1px solid var(--ui-border)",
+                  background: currentPage === pageNum ? "linear-gradient(135deg,#f97316,#f59e0b)" : "var(--ui-bg-card)",
+                  color: currentPage === pageNum ? "#fff" : "var(--ui-text-primary)",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 10,
+                border: "1px solid var(--ui-border)",
+                background: "var(--ui-bg-card)",
+                color: "var(--ui-text-primary)",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                opacity: currentPage === totalPages ? 0.5 : 1,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              Next
+            </button>
           </div>
         )}
       </section>

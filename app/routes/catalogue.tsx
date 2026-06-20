@@ -7,6 +7,24 @@ import {
 } from "lucide-react";
 import { getAssetUrl } from "../lib/assets";
 
+const PRODUCT_CATEGORIES = [
+  "Hardware",
+  "Software",
+  "Furniture",
+  "Office Supplies",
+  "Services",
+  "Spareparts",
+  "Electronics",
+  "Mechanical",
+  "Chemicals",
+  "Construction",
+  "Stationery",
+  "Pantry & F&B",
+  "Logistics",
+  "Marketing",
+  "Other"
+];
+
 export default function Catalogue() {
   const [company, setCompany] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -18,7 +36,7 @@ export default function Catalogue() {
   const [items, setItems] = useState<any[]>([]);
   const [itemsLoading, setItemsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Manual Entry Form State
   const [showForm, setShowForm] = useState(false);
@@ -135,19 +153,26 @@ export default function Catalogue() {
                   <button 
                     onClick={() => {
                       setEditingItem(null);
-                      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", keywords: "", uom: "Pc" });
+                      setFormData({ 
+                        item_code: "HTR-" + Math.floor(100000 + Math.random() * 900000), 
+                        name: "", 
+                        category: PRODUCT_CATEGORIES[0], 
+                        brand: "", 
+                        specifications: "", 
+                        keywords: "", 
+                        uom: "Pc" 
+                      });
                       setProductImage(null);
-                      setShowForm(!showForm);
+                      setShowForm(true);
                     }}
               style={{
                 padding: "12px 24px", borderRadius: 14, border: "none",
-                background: showForm ? "var(--ui-bg-input)" : "var(--huntr-gradient)",
-                color: showForm ? "var(--ui-text-secondary)" : "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                background: "var(--huntr-gradient)",
+                color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 10, transition: "all 0.2s",
-                borderWidth: showForm ? 1 : 0, borderStyle: "solid", borderColor: "var(--ui-border)",
               }}
             >
-              {showForm ? <><X size={18} /> Close Form</> : <><Plus size={18} /> Add New Item</>}
+              <Plus size={18} /> Add New Item
             </button>
           </div>
 
@@ -173,42 +198,114 @@ export default function Catalogue() {
           </div>
         </div>
 
-        {/* Manual Entry Form */}
+        {/* Manual Entry Form Modal */}
         {showForm && (
-          <div className="glass-panel" style={{ padding: 32, borderRadius: 24, border: "1px solid var(--ui-border-badge)", background: "var(--ui-bg-card)" }}>
-            <h3 style={{ margin: "0 0 24px 0", fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>{editingItem ? "Edit Product" : "Add New Product"}</h3>
-            <form onSubmit={handleManualSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
-              <Field label="Item Code" value={formData.item_code} onChange={(v:any) => setFormData({...formData, item_code: v})} placeholder="e.g. SKA-001" required />
-              <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
-              <Field label="Category" value={formData.category} onChange={(v:any) => setFormData({...formData, category: v})} placeholder="e.g. Spareparts" />
-              <Field label="Brand (Optional)" value={formData.brand} onChange={(v:any) => setFormData({...formData, brand: v})} placeholder="e.g. Bosch, Siemens" />
-              <Field label="Keywords / Tags" value={formData.keywords} onChange={(v:any) => setFormData({...formData, keywords: v})} placeholder="e.g. pump, hydraulic, industrial" />
-              <Field label="UOM" value={formData.uom} onChange={(v:any) => setFormData({...formData, uom: v})} placeholder="e.g. Pc, Box" required />
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={lbl}>Product Image</label>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={e => setProductImage(e.target.files?.[0] || null)}
-                  style={{ ...inputStyle, marginTop: 6 }} 
-                />
-              </div>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={lbl}>Specifications</label>
-                <textarea 
-                  value={formData.specifications} 
-                  onChange={e => setFormData({...formData, specifications: e.target.value})}
-                  placeholder="Detailed description..."
-                  style={{ ...inputStyle, height: 80, marginTop: 6, resize: "none" }}
-                />
-              </div>
-              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 12 }}>
-                <button type="button" onClick={() => setShowForm(false)} style={{ padding: "12px 24px", borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-bg-input)", color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
-                <button type="submit" disabled={loading} style={primaryBtn}>
-                  {loading ? <Loader2 className="animate-spin" size={18} /> : "Save Product"}
-                </button>
-              </div>
-            </form>
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: 16,
+          }}>
+            <div className="glass-panel" style={{ 
+              width: "100%", 
+              maxWidth: 680, 
+              maxHeight: "90vh", 
+              overflowY: "auto", 
+              padding: 32, 
+              borderRadius: 24, 
+              border: "1px solid var(--ui-border-badge)", 
+              background: "var(--ui-bg-card)",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+              position: "relative"
+            }}>
+              <button 
+                type="button" 
+                onClick={() => setShowForm(false)} 
+                style={{ 
+                  position: "absolute", 
+                  top: 24, 
+                  right: 24, 
+                  background: "none", 
+                  border: "none", 
+                  color: "var(--ui-text-muted)", 
+                  cursor: "pointer" 
+                }}
+              >
+                <X size={20} />
+              </button>
+              
+              <h3 style={{ margin: "0 0 24px 0", fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)" }}>
+                {editingItem ? "Edit Product" : "Add New Product"}
+              </h3>
+              
+              <form onSubmit={handleManualSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
+                <Field label="Item Code" value={formData.item_code} onChange={(v:any) => setFormData({...formData, item_code: v})} placeholder="e.g. HTR-123456" required />
+                <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
+                
+                {/* Category Dropdown Select */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label style={lbl}>Category</label>
+                  <select 
+                    value={formData.category} 
+                    onChange={e => setFormData({...formData, category: e.target.value})}
+                    style={inputStyle}
+                    required
+                  >
+                    {PRODUCT_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <Field label="Brand (Optional)" value={formData.brand} onChange={(v:any) => setFormData({...formData, brand: v})} placeholder="e.g. Bosch, Siemens" />
+                <Field label="Keywords / Tags" value={formData.keywords} onChange={(v:any) => setFormData({...formData, keywords: v})} placeholder="e.g. pump, hydraulic, industrial" />
+                
+                {/* UOM Dropdown Select */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label style={lbl}>UOM</label>
+                  <select 
+                    value={formData.uom} 
+                    onChange={e => setFormData({...formData, uom: e.target.value})}
+                    style={inputStyle}
+                    required
+                  >
+                    {["Pc", "Box", "Pack", "Kg", "Litre", "Meter", "Unit", "Set", "Roll"].map(uom => (
+                      <option key={uom} value={uom}>{uom}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={lbl}>Product Image</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => setProductImage(e.target.files?.[0] || null)}
+                    style={{ ...inputStyle, marginTop: 6 }} 
+                  />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={lbl}>Specifications</label>
+                  <textarea 
+                    value={formData.specifications} 
+                    onChange={e => setFormData({...formData, specifications: e.target.value})}
+                    placeholder="Detailed description..."
+                    style={{ ...inputStyle, height: 80, marginTop: 6, resize: "none" }}
+                  />
+                </div>
+                <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 12 }}>
+                  <button type="button" onClick={() => setShowForm(false)} style={{ padding: "12px 24px", borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-bg-input)", color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
+                  <button type="submit" disabled={loading} style={primaryBtn}>
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : "Save Product"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -282,20 +379,20 @@ export default function Catalogue() {
                   </div>
                   <div style={{ marginTop: "auto", paddingTop: 16, borderTop: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>UOM: <strong style={{ color: "var(--ui-text-secondary)" }}>{item.uom}</strong></span>
-                        <button type="button" onClick={() => {
-                          setEditingItem(item);
-                          setShowForm(true);
-                          setProductImage(null);
-                        setFormData({
-                            item_code: item.item_code || "",
-                            name: item.name || "",
-                            category: item.category || "",
-                            brand: item.brand || "",
-                            specifications: item.specifications || "",
-                            keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
-                            uom: item.uom || "Pc",
-                          });
-                        }} style={{ background: "none", border: "none", color: "var(--ui-text-brand)", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    <button type="button" onClick={() => {
+                      setEditingItem(item);
+                      setShowForm(true);
+                      setProductImage(null);
+                      setFormData({
+                        item_code: item.item_code || "",
+                        name: item.name || "",
+                        category: item.category || PRODUCT_CATEGORIES[0],
+                        brand: item.brand || "",
+                        specifications: item.specifications || "",
+                        keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
+                        uom: item.uom || "Pc",
+                      });
+                    }} style={{ background: "none", border: "none", color: "var(--ui-text-brand)", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       Edit <ChevronRight size={14} />
                     </button>
                   </div>
@@ -329,15 +426,15 @@ export default function Catalogue() {
                           setEditingItem(item);
                           setShowForm(true);
                           setProductImage(null);
-                        setFormData({
-                              item_code: item.item_code || "",
-                              name: item.name || "",
-                              category: item.category || "",
-                              brand: item.brand || "",
-                              specifications: item.specifications || "",
-                              keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
-                              uom: item.uom || "Pc",
-                            });
+                          setFormData({
+                            item_code: item.item_code || "",
+                            name: item.name || "",
+                            category: item.category || PRODUCT_CATEGORIES[0],
+                            brand: item.brand || "",
+                            specifications: item.specifications || "",
+                            keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
+                            uom: item.uom || "Pc",
+                          });
                         }} style={{ background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", padding: "8px 16px", borderRadius: 10, color: "var(--ui-text-primary)", fontSize: 12, cursor: "pointer" }}>Edit</button>
                       </td>
                     </tr>

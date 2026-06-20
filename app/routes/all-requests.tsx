@@ -104,53 +104,137 @@ export default function AllRequests() {
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Try adjusting your filters or check back later.</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
-            {filteredRequests.map(req => (
-              <div key={req.id} style={{
-                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                padding: 24, display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 10px", borderRadius: 8, background: "rgba(34,197,94,0.1)", color: "#22c55e", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", transition: "all 0.3s ease" }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} /> Active RFQ
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, transition: "color 0.3s ease" }}>#{req.id ? String(req.id).substring(0, 8).toUpperCase() : ""}</div>
-                </div>
-
-                <div>
-                  <h3 style={{ margin: "0 0 8px", fontSize: 17, fontWeight: 800, color: "var(--ui-text-primary)", lineHeight: 1.4, transition: "color 0.3s ease" }}>{req.title}</h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>
-                    <Building2 size={13} /> {req.company?.name}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 16, padding: "16px", background: "var(--ui-bg-input)", borderRadius: 16, transition: "all 0.3s ease" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", marginBottom: 4, transition: "color 0.3s ease" }}>Items</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--ui-text-primary)", fontWeight: 600, transition: "color 0.3s ease" }}>
-                      <Package size={14} color="#f59e0b" /> {req.items?.length || 0} Categories
+          <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
+            {filteredRequests.map(req => {
+              const companyInitial = req.company?.name ? req.company.name.charAt(0).toUpperCase() : "B";
+              const formattedDate = new Date(req.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+              });
+              
+              return (
+                <div key={req.id} style={{
+                  background: "var(--ui-bg-card)", 
+                  borderRadius: 24, 
+                  border: "1px solid var(--ui-border)",
+                  padding: 24, 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  gap: 16, 
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                }}>
+                  {/* Feed Header */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      {/* Avatar */}
+                      <div style={{ 
+                        width: 44, 
+                        height: 44, 
+                        borderRadius: "50%", 
+                        background: "linear-gradient(135deg, #f97316, #f59e0b)", 
+                        color: "#fff", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        fontWeight: 700,
+                        fontSize: 16,
+                        boxShadow: "0 4px 10px rgba(249,115,22,0.2)"
+                      }}>
+                        {companyInitial}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14 }}>
+                          {req.company?.name || "Buyer Organization"}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>
+                          Published • {formattedDate}
+                        </div>
+                      </div>
+                    </div>
+                    {/* RFQ Code */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                      <span style={{ 
+                        padding: "4px 10px", 
+                        borderRadius: 99, 
+                        background: "rgba(34,197,94,0.12)", 
+                        color: "#22c55e", 
+                        fontSize: 10, 
+                        fontWeight: 800, 
+                        textTransform: "uppercase", 
+                        letterSpacing: "0.05em",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4
+                      }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} /> Active RFQ
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontFamily: "monospace" }}>
+                        #{String(req.id).substring(0, 8).toUpperCase()}
+                      </span>
                     </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", marginBottom: 4, transition: "color 0.3s ease" }}>Posted On</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--ui-text-primary)", fontWeight: 600, transition: "color 0.3s ease" }}>
-                      <Calendar size={14} color="#f59e0b" /> {new Date(req.created_at).toLocaleDateString()}
+
+                  {/* Feed Content */}
+                  <div style={{ borderTop: "1px solid var(--ui-border-subtle)", paddingTop: 16 }}>
+                    <h3 style={{ margin: "0 0 10px", fontSize: 18, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.4 }}>
+                      {req.title}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-secondary)", lineHeight: 1.6 }}>
+                      Requesting bids for product catalog items in this RFQ. Review details below to place a proposal offer.
+                    </p>
+                  </div>
+
+                  {/* Feed Stats / Meta */}
+                  <div style={{ display: "flex", gap: 16, padding: "14px 16px", background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Package size={16} color="#f97316" />
+                      <div>
+                        <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Required Items</div>
+                        <div style={{ fontSize: 13, color: "var(--ui-text-primary)", fontWeight: 700, marginTop: 1 }}>
+                          {req.items?.length || 0} Categories
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Calendar size={16} color="#f97316" />
+                      <div>
+                        <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Open Since</div>
+                        <div style={{ fontSize: 13, color: "var(--ui-text-primary)", fontWeight: 700, marginTop: 1 }}>
+                          {new Date(req.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <button 
-                  onClick={() => navigate(`/rfq/${req.id}`)}
-                  style={{
-                    width: "100%", padding: "12px", borderRadius: 12, background: "rgba(249,115,22,0.1)",
-                    border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", fontWeight: 700, fontSize: 13,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all 0.3s ease"
-                  }}
-                >
-                  View Details & Bid <ChevronRight size={16} />
-                </button>
-              </div>
-            ))}
+                  {/* Feed Footer Actions */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid var(--ui-border-subtle)", paddingTop: 16 }}>
+                    <button 
+                      onClick={() => navigate(`/rfq/${req.id}`)}
+                      style={{
+                        padding: "10px 24px", 
+                        borderRadius: 12, 
+                        background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                        border: "none", 
+                        color: "#fff", 
+                        fontWeight: 700, 
+                        fontSize: 13,
+                        cursor: "pointer", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        gap: 8, 
+                        boxShadow: "0 6px 14px rgba(249,115,22,0.2)",
+                        transition: "all 0.3s ease"
+                      }}
+                    >
+                      View Details & Bid <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

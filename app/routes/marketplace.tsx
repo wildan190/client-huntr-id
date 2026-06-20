@@ -1,6 +1,25 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Layout from "../components/Layout";
 import { getCatalogues } from "../lib/api";
+
+const PRODUCT_CATEGORIES = [
+  "All",
+  "Hardware",
+  "Software",
+  "Furniture",
+  "Office Supplies",
+  "Services",
+  "Spareparts",
+  "Electronics",
+  "Mechanical",
+  "Chemicals",
+  "Construction",
+  "Stationery",
+  "Pantry & F&B",
+  "Logistics",
+  "Marketing",
+  "Other"
+];
 import { aiSearch, aiGeneratePr, isAiQuery, aiCompareText } from "../lib/api/ai";
 import AiInsightCard from "../components/AiInsightCard";
 import AiCompareModal from "../components/AiCompareModal";
@@ -30,6 +49,11 @@ export default function Marketplace() {
   const [showCart, setShowCart] = useState(false);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
+  
+  // Pagination & Category states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   // AI state
   const [aiMode, setAiMode] = useState(false);
@@ -74,10 +98,8 @@ export default function Marketplace() {
       setActiveCompany(comp);
       if (comp.type === "vendor") navigate("/");
     }
-    const hasCache = loadCachedItems();
-    if (!hasCache) fetchItems();
-    else fetchItems(false);
-  }, []);
+    fetchItems(true, 1, activeCategory);
+  }, [activeCategory]);
 
   useEffect(() => {
     if (skipCartPersist.current) {
@@ -97,18 +119,35 @@ export default function Marketplace() {
     return () => window.removeEventListener("huntr-cart-updated", onCartUpdate);
   }, []);
 
-  const fetchItems = async (showLoader = true) => {
+  const fetchItems = async (showLoader = true, pageNum = 1, categoryName = "All") => {
     try {
       if (showLoader) setLoading(true);
-      const res = await getCatalogues({ search: searchTerm });
-      const data = res.data?.data || res.data || res || [];
-      setItems(data);
-      saveItemsToCache(data);
+      const res = await getCatalogues({ 
+        search: searchTerm, 
+        page: pageNum,
+        category: categoryName === "All" ? undefined : categoryName
+      });
+      const data = res.data || res || [];
+      if (res && res.data && Array.isArray(res.data)) {
+        setItems(res.data);
+        setCurrentPage(res.current_page || 1);
+        setTotalPages(res.last_page || 1);
+      } else {
+        setItems(Array.isArray(data) ? data : []);
+        setCurrentPage(1);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to fetch marketplace items", err);
     } finally {
       if (showLoader) setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    fetchItems(true, newPage, activeCategory);
   };
 
   const fetchItemsAi = async (query: string) => {
@@ -163,7 +202,7 @@ export default function Marketplace() {
       setAiIntent(null);
       setComparisonText(null);
       setIsLoadingComparison(false);
-      const timer = setTimeout(() => fetchItems(), 300);
+      const timer = setTimeout(() => fetchItems(true, 1, activeCategory), 300);
       return () => clearTimeout(timer);
     }
 
@@ -176,11 +215,11 @@ export default function Marketplace() {
         setAiIntent(null);
         setComparisonText(null);
         setIsLoadingComparison(false);
-        fetchItems();
+        fetchItems(true, 1, activeCategory);
       }
     }, 800);
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, activeCategory]);
 
   const handleGeneratePr = async () => {
     setIsGeneratingPr(true);
@@ -371,6 +410,34 @@ export default function Marketplace() {
             </button>
           </div>
 
+          {/* Category Filter Tabs */}
+          <div style={{ display: "flex", gap: "clamp(6px, 2vw, 10px)", overflowX: "auto", paddingBottom: 16, marginBottom: 24, scrollbarWidth: "none" }}>
+            {PRODUCT_CATEGORIES.map(cat => (
+              <button 
+                key={cat}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: "8px 16px", 
+                  borderRadius: 12, 
+                  fontSize: 13, 
+                  fontWeight: 600,
+                  background: activeCategory === cat ? "rgba(249,115,22,0.15)" : "var(--ui-bg-card)",
+                  border: "1px solid",
+                  borderColor: activeCategory === cat ? "rgba(249,115,22,0.3)" : "var(--ui-border)",
+                  color: activeCategory === cat ? "#fb923c" : "var(--ui-text-secondary)",
+                  cursor: "pointer", 
+                  whiteSpace: "nowrap", 
+                  transition: "all 0.2s"
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
           {/* AI Insight Card */}
           {aiMode && aiSummary && !aiInsightDismissed && (
             <AiInsightCard
@@ -494,9 +561,17 @@ export default function Marketplace() {
                       <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)", margin: "4px 0", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {item.name}
                       </h3>
-                      {item.brand && (
-                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>{item.brand}</div>
-                      )}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
+                        {item.brand && (
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Brand: <strong style={{ color: "var(--ui-text-secondary)" }}>{item.brand}</strong></div>
+                        )}
+                        {item.company?.name && (
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Vendor: <strong style={{ color: "var(--ui-text-secondary)" }}>{item.company.name}</strong></div>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: "#f97316", marginTop: 8 }}>
+                        {item.price > 0 ? `Rp ${Number(item.price).toLocaleString("id-ID")}` : "Request Quote"}
+                      </div>
 
                       {/* AI Re-ranking Badge & Explanation */}
                       {item.ai_score !== undefined && (
@@ -550,6 +625,65 @@ export default function Marketplace() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32 }}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 10,
+                  border: "1px solid var(--ui-border)",
+                  background: "var(--ui-bg-card)",
+                  color: "var(--ui-text-primary)",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    border: currentPage === pageNum ? "none" : "1px solid var(--ui-border)",
+                    background: currentPage === pageNum ? "linear-gradient(135deg,#f97316,#f59e0b)" : "var(--ui-bg-card)",
+                    color: currentPage === pageNum ? "#fff" : "var(--ui-text-primary)",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 10,
+                  border: "1px solid var(--ui-border)",
+                  background: "var(--ui-bg-card)",
+                  color: "var(--ui-text-primary)",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

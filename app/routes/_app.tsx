@@ -211,7 +211,7 @@ export default function AppShell() {
 
       // Procurement (Buyer)
       ...(isBuyerComp && (isManager || isBuyerRole) ? [
-        { to: "/marketplace", label: "Marketplace", Icon: Package, section: "procurement" },
+        { to: "/marketplace", label: "Huntr Catalog", Icon: Package, section: "procurement" },
       ] : []),
       ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
         { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement", badge: "pendingNewProposals" },
