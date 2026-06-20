@@ -28,7 +28,9 @@ export class SessionManager {
 
   static subscribe(callback: () => void) {
     this.subscribers.add(callback);
-    return () => this.subscribers.delete(callback);
+    return () => {
+      this.subscribers.delete(callback);
+    };
   }
 
   private static notify() {

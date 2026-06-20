@@ -10,54 +10,104 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
+let sessionSubscriptionInstalled = false;
 
-if (typeof window !== 'undefined') {
+function getReverbConfig() {
   const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
   const reverbHost = import.meta.env.VITE_REVERB_HOST;
 
-  // Only initialize Echo if ALL required Reverb config is present
-  if (reverbKey && reverbHost && reverbKey.length > 0 && reverbHost.length > 0) {
-    try {
-      window.Pusher = Pusher;
-
-      const authToken = SessionManager.getToken() || '';
-
-      echo = new Echo<any>({
-        broadcaster: 'reverb',
-        key: reverbKey,
-        wsHost: reverbHost,
-        wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-        wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-        forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-        enabledTransports: ['ws', 'wss'],
-        authEndpoint: `${import.meta.env.VITE_API_URL || 'http://localhost:8443'}/api/broadcasting/auth`,
-        auth: {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            Accept: 'application/json'
-          },
-        },
-      });
-
-      // Disable ALL Pusher logging to prevent WebSocket error spam
-      Pusher.logToConsole = false;
-
-      // Subscribe to session changes to update auth token dynamically
-      SessionManager.subscribe(() => {
-        if (echo) {
-          const newToken = SessionManager.getToken() || '';
-          (echo as any).options.auth.headers.Authorization = `Bearer ${newToken}`;
-        }
-      });
-
-      console.log('Echo: Successfully initialized');
-    } catch (err) {
-      console.log('Echo: Initialization failed - skipping', err);
-      echo = null;
-    }
-  } else {
-    console.log('Echo: Skipping initialization - no Reverb config found');
+  if (!reverbKey || !reverbHost || reverbKey.length === 0 || reverbHost.length === 0) {
+    return null;
   }
+
+  return {
+    reverbKey,
+    reverbHost,
+    apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:8443',
+  };
+}
+
+function installSessionWatcher() {
+  if (sessionSubscriptionInstalled) return;
+  sessionSubscriptionInstalled = true;
+
+  SessionManager.subscribe(() => {
+    const token = SessionManager.getToken();
+
+    if (!token) {
+      if (echo) {
+        try {
+          echo.disconnect();
+        } catch {
+          // ignore disconnect errors during logout/session clear
+        }
+        echo = null;
+      }
+      return;
+    }
+
+    if (echo) {
+      (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
+      return;
+    }
+
+    ensureEcho();
+  });
+}
+
+export function ensureEcho() {
+  if (typeof window === 'undefined') return null;
+
+  const config = getReverbConfig();
+  const authToken = SessionManager.getToken();
+
+  if (!config || !authToken) {
+    return null;
+  }
+
+  if (echo) {
+    (echo as any).options.auth.headers.Authorization = `Bearer ${authToken}`;
+    return echo;
+  }
+
+  try {
+    window.Pusher = Pusher;
+    Pusher.logToConsole = false;
+
+    echo = new Echo<any>({
+      broadcaster: 'reverb',
+      key: config.reverbKey,
+      wsHost: config.reverbHost,
+      wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+      wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+      forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+      enabledTransports: ['ws', 'wss'],
+      authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+      auth: {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: 'application/json',
+        },
+      },
+    });
+
+    installSessionWatcher();
+
+    console.log('Echo: Successfully initialized');
+    return echo;
+  } catch (err) {
+    console.log('Echo: Initialization failed - skipping', err);
+    echo = null;
+    return null;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  installSessionWatcher();
+}
+
+export function getEcho() {
+  return echo;
 }
 
 export default echo;

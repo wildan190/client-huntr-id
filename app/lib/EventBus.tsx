@@ -1,6 +1,6 @@
 // @refresh reset
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import echo from '../lib/echo';
+import { ensureEcho, getEcho } from '../lib/echo';
 import { SessionManager } from './session';
 
 export interface NotificationEvent {
@@ -35,6 +35,10 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
   const currentUserIdRef = useRef<string | number | null>(null);
   const currentCompanyIdRef = useRef<string | number | null>(null);
   const listenersInitialized = useRef(false);
+  const authStateRef = useRef<{ userId: string | number | null; companyId: string | number | null }>({
+    userId: null,
+    companyId: null,
+  });
 
   const emit = useCallback((event: NotificationEvent) => {
     setLastEvent(event);
@@ -44,14 +48,14 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  useEffect(() => {
+  const ensurePublicListeners = useCallback(() => {
+    const echo = ensureEcho();
     if (!echo || listenersInitialized.current) return;
     listenersInitialized.current = true;
 
     try {
       console.log('EventBusProvider: Setting up Reverb listeners...');
 
-      // Listen to public test-channel
       const testChannel = echo.channel('test-channel');
       testChannel.listen('.communication.websocket.broadcast', (data: any) => {
         console.log('EventBusProvider: Received message on test-channel:', data);
@@ -60,38 +64,43 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
           data: data
         });
       });
-
-      return () => {
-        if (echo) {
-          try {
-            echo.leave('test-channel');
-            if (currentUserIdRef.current) {
-              echo.leave(`App.Models.User.${currentUserIdRef.current}`);
-              echo.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
-            }
-            if (currentCompanyIdRef.current) {
-              echo.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
-            }
-          } catch (err) {
-            console.log('EventBusProvider: Error leaving channels:', err);
-          }
-        }
-      };
     } catch (err) {
       console.log('EventBusProvider: Error setting up test channel:', err);
-      return undefined;
     }
   }, [emit]);
 
+  useEffect(() => {
+    ensurePublicListeners();
+
+    return () => {
+      const activeEcho = getEcho();
+      if (activeEcho) {
+        try {
+          activeEcho.leave('test-channel');
+          if (currentUserIdRef.current) {
+            activeEcho.leave(`App.Models.User.${currentUserIdRef.current}`);
+            activeEcho.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
+          }
+          if (currentCompanyIdRef.current) {
+            activeEcho.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
+          }
+        } catch (err) {
+          console.log('EventBusProvider: Error leaving channels:', err);
+        }
+      }
+    };
+  }, [ensurePublicListeners]);
+
   // Handle user changes (login/logout) using SessionManager
   useEffect(() => {
-    if (!echo) return;
-
     const updateUserChannels = () => {
+      const echo = ensureEcho();
       const user = SessionManager.getUser();
       const newUserId = user?.id || null;
       const company = SessionManager.getCompany();
       const newCompanyId = company?.id || null;
+
+      authStateRef.current = { userId: newUserId, companyId: newCompanyId };
 
       const handleNotification = (data: any) => {
         let eventType = 'unknown';
@@ -105,6 +114,19 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
       };
 
       // Handle User Channel
+      if (!echo) {
+        if (currentUserIdRef.current) {
+          currentUserIdRef.current = null;
+        }
+        if (currentCompanyIdRef.current) {
+          currentCompanyIdRef.current = null;
+        }
+        listenersInitialized.current = false;
+        return;
+      }
+
+      ensurePublicListeners();
+
       if (currentUserIdRef.current !== newUserId) {
         if (currentUserIdRef.current) {
           try {
