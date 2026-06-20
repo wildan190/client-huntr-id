@@ -666,6 +666,10 @@ function AdminCatalogueTab() {
                 </div>
               </div>
               <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Keywords / Tags (Optional)</label>
+                <textarea name="keywords" rows={3} placeholder="e.g. pump, hydraulic, industrial" style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", resize: "vertical" }} />
+              </div>
+              <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Specifications (Optional)</label>
                 <textarea name="specifications" rows={3} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", resize: "vertical" }} />
               </div>
@@ -714,6 +718,10 @@ function AdminCatalogueTab() {
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>UOM</label>
                   <input name="uom" required defaultValue={editingItem.uom || "Pc"} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
                 </div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Keywords / Tags</label>
+                <textarea name="keywords" defaultValue={Array.isArray(editingItem.keywords) ? editingItem.keywords.join(", ") : (editingItem.keywords || "")} rows={3} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)", resize: "vertical" }} />
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Specifications</label>

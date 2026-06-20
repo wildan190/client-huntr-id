@@ -91,6 +91,17 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
             </div>
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <FormLabel>Keywords / Tags</FormLabel>
+            <textarea
+              value={formData.keywords}
+              onChange={e => updateField("keywords", e.target.value)}
+              placeholder="Contoh: industrial pump, hydraulic, spare parts"
+              className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm resize-none"
+              rows={3}
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Field label="Telepon" value={formData.phone} onChange={(v:any) => updateField("phone", v)} />
             <Field label="Email" value={formData.email} onChange={(v:any) => updateField("email", v)} type="email" />

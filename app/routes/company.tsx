@@ -263,6 +263,9 @@ export default function CompanyDetails() {
                       <div className="md:col-span-2">
                         <EditField label="About" value={vm.editForm.about} textarea onChange={v => vm.setEditForm({...vm.editForm, about: v})} />
                       </div>
+                      <div className="md:col-span-2">
+                        <EditField label="Keywords / Tags" value={vm.editForm.keywords} textarea onChange={v => vm.setEditForm({...vm.editForm, keywords: v})} />
+                      </div>
                     </>
                   ) : (
                     <>
@@ -271,6 +274,7 @@ export default function CompanyDetails() {
                       <DisplayField label="Tax ID" value={vm.company.formatted_tax_id || vm.company.tax_id} />
                       <DisplayField label="Email Address" value={vm.company.email} />
                       <DisplayField label="Phone Number" value={vm.company.phone} />
+                      <DisplayField label="Keywords / Tags" value={Array.isArray(vm.company.keywords) ? vm.company.keywords.join(", ") : vm.company.keywords} />
                       <div className="md:col-span-2">
                         <DisplayField label="Business Biography" value={vm.company.about || "No profile details added yet."} />
                       </div>

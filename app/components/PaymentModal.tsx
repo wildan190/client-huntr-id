@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, CreditCard, QrCode, Building2, Wallet, Loader2, CheckCircle2, Copy, RefreshCw, AlertCircle, ChevronRight } from "lucide-react";
+import { X, CreditCard, Building2, Loader2, CheckCircle2, Copy, RefreshCw, AlertCircle, ChevronRight } from "lucide-react";
 import { initiatePayment, getPaymentStatus } from "../lib/api";
 
 interface PaymentModalProps {
@@ -91,10 +91,12 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
   };
 
   const paymentMethods = [
-    { id: "qris", label: "QRIS", icon: <QrCode size={18} />, description: "Scan with e-wallet" },
     { id: "bca_va", label: "BCA VA", icon: <Building2 size={18} />, description: "m-BCA / ATM" },
+    { id: "cimb_va", label: "CIMB Niaga VA", icon: <Building2 size={18} />, description: "Octo / ATM" },
+    { id: "permata_va", label: "Permata VA", icon: <Building2 size={18} />, description: "Permata Mobile / ATM" },
+    { id: "bri_va", label: "BRI VA", icon: <Building2 size={18} />, description: "BRImo / ATM" },
+    { id: "bni_va", label: "BNI VA", icon: <Building2 size={18} />, description: "BNI Mobile / ATM" },
     { id: "mandiri_va", label: "Mandiri Bill", icon: <Building2 size={18} />, description: "Livin' / ATM" },
-    { id: "dana", label: "DANA", icon: <Wallet size={18} />, description: "Direct pay" },
   ];
 
   const copyToClipboard = (text: string) => {
@@ -237,13 +239,6 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
 
               {!isSuccess && (
                 <div className="w-full flex flex-col gap-4">
-                  {paymentData.payment_method === 'qris' && paymentData.payment_info.qr_url && (
-                    <div className="bg-white p-4 rounded-[28px] self-center shadow-inner">
-                      <img src={paymentData.payment_info.qr_url} alt="QRIS" className="w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]" />
-                      <div className="mt-3 py-2 px-4 bg-gray-100 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-tighter">Scan with any e-wallet</div>
-                    </div>
-                  )}
-
                   {paymentData.payment_method.includes('_va') && (
                     <div className="w-full bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] p-6 rounded-[24px] flex flex-col gap-4">
                       <div>
@@ -270,19 +265,6 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
                     </div>
                   )}
 
-                  {paymentData.payment_method === 'dana' && paymentData.payment_info.checkout_url && (
-                    <div className="w-full bg-blue-500/5 border border-blue-500/10 p-6 rounded-[24px] text-center">
-                      <p className="text-xs text-[var(--ui-text-primary)] font-bold mb-4 px-2 line-clamp-2">Authorize the payment on your DANA account</p>
-                      <a 
-                        href={paymentData.payment_info.checkout_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 py-3 px-6 rounded-xl bg-[#008CFF] text-white text-sm font-black shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 transition-all"
-                      >
-                        <Wallet size={16} /> Open DANA Wallet
-                      </a>
-                    </div>
-                  )}
                 </div>
               )}
 

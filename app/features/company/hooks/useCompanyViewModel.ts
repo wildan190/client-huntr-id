@@ -55,6 +55,7 @@ export const useCompanyViewModel = () => {
       bank_account: found.bank_account || "",
       bank_account_name: found.bank_account_name || "",
       about: found.about || "",
+      keywords: Array.isArray(found.keywords) ? found.keywords.join(", ") : (found.keywords || ""),
       industry_type: found.industry_type || "",
     });
   }, []);

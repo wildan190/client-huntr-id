@@ -23,7 +23,7 @@ export const useOnboardingViewModel = () => {
   // --- State: Form Data ---
   const [formData, setFormData] = useState<CompanyFormData>({
     company_name: "", tax_id: "", country: "ID", email: "", phone: "",
-    type: "buyer", industry_type: "", about: "", region: "",
+    type: "buyer", industry_type: "", about: "", keywords: "", region: "",
     provincy_country: "", regency: "", city: "",
     zip_code: "", address: "", bank_name: "", bank_account: "",
     bank_account_name: "",
@@ -45,7 +45,7 @@ export const useOnboardingViewModel = () => {
     setSlide(1);
     setFormData({
       company_name: "", tax_id: "", email: user?.email || "", phone: user?.whatsapp || "",
-      type: "buyer", industry_type: "", about: "", region: "",
+      type: "buyer", industry_type: "", about: "", keywords: "", region: "",
       provincy_country: "", regency: "", city: "",
       zip_code: "", address: "", bank_name: "", bank_account: "",
       bank_account_name: "", country: "",
@@ -106,6 +106,7 @@ export const useOnboardingViewModel = () => {
         bank_name: prev.bank_name || data.bank_name || "",
         bank_account: prev.bank_account || data.bank_account || "",
         bank_account_name: prev.bank_account_name || data.bank_account_name || "",
+        keywords: prev.keywords || (Array.isArray((data as any).keywords) ? (data as any).keywords.join(", ") : ((data as any).keywords || "")),
         // Country tetap sama (tidak diubah dari NPWP)
         country: prev.country || "ID", // Default ke Indonesia jika belum diisi
       }));

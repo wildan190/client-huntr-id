@@ -28,6 +28,7 @@ export default function Catalogue() {
     category: "",
     brand: "",
     specifications: "",
+    keywords: "",
     uom: "Pc",
   });
   const [productImage, setProductImage] = useState<File | null>(null);
@@ -72,6 +73,7 @@ export default function Catalogue() {
       fd.append("category", formData.category);
       fd.append("brand", formData.brand);
       fd.append("specifications", formData.specifications);
+      fd.append("keywords", formData.keywords);
       fd.append("uom", formData.uom);
       fd.append("price", "0");
       if (productImage) {
@@ -84,7 +86,7 @@ export default function Catalogue() {
         await createCatalogue(fd);
       }
       setShowForm(false);
-      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", uom: "Pc" });
+      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", keywords: "", uom: "Pc" });
       setProductImage(null);
       setEditingItem(null);
       fetchItems(company.id);
@@ -133,7 +135,7 @@ export default function Catalogue() {
                   <button 
                     onClick={() => {
                       setEditingItem(null);
-                      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", uom: "Pc" });
+                      setFormData({ item_code: "", name: "", category: "", brand: "", specifications: "", keywords: "", uom: "Pc" });
                       setProductImage(null);
                       setShowForm(!showForm);
                     }}
@@ -180,6 +182,7 @@ export default function Catalogue() {
               <Field label="Product Name" value={formData.name} onChange={(v:any) => setFormData({...formData, name: v})} placeholder="e.g. Hydraulic Pump" required />
               <Field label="Category" value={formData.category} onChange={(v:any) => setFormData({...formData, category: v})} placeholder="e.g. Spareparts" />
               <Field label="Brand (Optional)" value={formData.brand} onChange={(v:any) => setFormData({...formData, brand: v})} placeholder="e.g. Bosch, Siemens" />
+              <Field label="Keywords / Tags" value={formData.keywords} onChange={(v:any) => setFormData({...formData, keywords: v})} placeholder="e.g. pump, hydraulic, industrial" />
               <Field label="UOM" value={formData.uom} onChange={(v:any) => setFormData({...formData, uom: v})} placeholder="e.g. Pc, Box" required />
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={lbl}>Product Image</label>
@@ -283,12 +286,13 @@ export default function Catalogue() {
                           setEditingItem(item);
                           setShowForm(true);
                           setProductImage(null);
-                          setFormData({
+                        setFormData({
                             item_code: item.item_code || "",
                             name: item.name || "",
                             category: item.category || "",
                             brand: item.brand || "",
                             specifications: item.specifications || "",
+                            keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
                             uom: item.uom || "Pc",
                           });
                         }} style={{ background: "none", border: "none", color: "var(--ui-text-brand)", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
@@ -325,11 +329,13 @@ export default function Catalogue() {
                           setEditingItem(item);
                           setShowForm(true);
                           setProductImage(null);
-                          setFormData({
+                        setFormData({
                               item_code: item.item_code || "",
                               name: item.name || "",
                               category: item.category || "",
+                              brand: item.brand || "",
                               specifications: item.specifications || "",
+                              keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : (item.keywords || ""),
                               uom: item.uom || "Pc",
                             });
                         }} style={{ background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", padding: "8px 16px", borderRadius: 10, color: "var(--ui-text-primary)", fontSize: 12, cursor: "pointer" }}>Edit</button>

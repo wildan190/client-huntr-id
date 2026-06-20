@@ -418,9 +418,9 @@ export default function Orders() {
     }
   };
 
-  const handleArrangeDelivery = async (poId: string) => {
+  const handleArrangeDelivery = async (poId: string, buyerAddress?: string) => {
     if (!company) return;
-    const tracking = window.prompt("Enter Tracking Number / Resi (Optional):");
+    const tracking = window.prompt(`Enter Tracking Number / Resi (Optional)\nDelivery point: ${buyerAddress || "Buyer company address"}`);
     if (tracking === null) return; // User cancelled
     
     setProcessingId(poId);
@@ -829,7 +829,7 @@ export default function Orders() {
 
                     {company.type === 'vendor' && po.status === 'paid' && (
                       <button
-                        onClick={() => handleArrangeDelivery(po.id)}
+                        onClick={() => handleArrangeDelivery(po.id, po.buyer_address)}
                         disabled={processingId === po.id}
                         style={{
                           background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 12,
@@ -951,6 +951,11 @@ export default function Orders() {
                                       Tracking / Resi: {doItem.tracking_number}
                                     </span>
                                   )}
+                                  {doItem.delivery_address && (
+                                    <span style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                      Delivery Point: {doItem.delivery_address}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             ))}
@@ -978,6 +983,9 @@ export default function Orders() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                           <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Category: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_category || "N/A"}</strong></div>
                           <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Type: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_type || "N/A"}</strong></div>
+                          <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>
+                            Delivery Point: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.buyer_address || "N/A"}</strong>
+                          </div>
                           <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Department: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.department || "N/A"}</strong></div>
                         </div>
                       </div>
@@ -1187,14 +1195,20 @@ export default function Orders() {
                                 border: "1px solid var(--ui-border-input)", display: "flex", flexDirection: "column", gap: 12
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#3b82f6" }}>
-                                    {doItem.do_number}
-                                  </span>
-                                  <QRCodeDisplay text={getFullApiUrl(`/api/do/${doItem.id}/print`)} generateQR={generateQRCode} />
+                                <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#3b82f6" }}>
+                                  {doItem.do_number}
+                                </span>
+                                <QRCodeDisplay text={getFullApiUrl(`/api/do/${doItem.id}/print`)} generateQR={generateQRCode} />
+                              </div>
+
+                              {doItem.delivery_address && (
+                                <div style={{ fontSize: 11, color: "var(--ui-text-muted)", lineHeight: 1.5 }}>
+                                  Delivery point: {doItem.delivery_address}
                                 </div>
-                                
-                                <SignatureButtons 
-                                  docType="do" 
+                              )}
+                              
+                              <SignatureButtons 
+                                docType="do" 
                                   docId={doItem.id} 
                                   handedBySigned={!!doItem.handed_by_signed_at} 
                                   receivedBySigned={!!doItem.received_by_signed_at}

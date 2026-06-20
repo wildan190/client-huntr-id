@@ -7,6 +7,7 @@ export interface CompanyFormData {
   type: string;
   industry_type: string;
   about: string;
+  keywords: string;
   region: string;
   provincy_country: string;
   regency: string;
