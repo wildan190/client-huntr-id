@@ -4,6 +4,7 @@ export default [
   // ── SEO / Search Engine feeds ──────────────────────────────────────────────
   route("robots.txt", "routes/robots.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
+  route("sitemap.xsl", "routes/sitemap-style.tsx"),
 
   // ── Public / standalone routes (no persistent shell) ──────────────────────
   route("login", "routes/login.tsx"),
