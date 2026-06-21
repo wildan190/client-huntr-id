@@ -15,6 +15,19 @@ export async function loader() {
 
   const baseUrl = "https://app.huntr.id";
 
+  const escapeXml = (unsafe: string) => {
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+      switch (c) {
+        case "<": return "&lt;";
+        case ">": return "&gt;";
+        case "&": return "&amp;";
+        case "'": return "&apos;";
+        case '"': return "&quot;";
+        default: return c;
+      }
+    });
+  };
+
   const urls = [
     { loc: `${baseUrl}/`, changefreq: "daily", priority: "1.0" },
     { loc: `${baseUrl}/marketplace`, changefreq: "daily", priority: "0.8" },
@@ -30,17 +43,18 @@ export async function loader() {
   ${urls
     .map(
       (u) => `<url>
-    <loc>${u.loc}</loc>
+    <loc>${escapeXml(u.loc)}</loc>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`
     )
     .join("\n  ")}
-</urlset>`;
+</urlset>`.trim();
 
   return new Response(xml, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }
