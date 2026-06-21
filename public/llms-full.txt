@@ -1,0 +1,28 @@
+# Huntr.id - Full Enterprise E-Procurement Specification
+
+This document provides a comprehensive overview of the Huntr.id platform for developers, AI assistants, and integration crawlers.
+
+## Architecture & Modules
+
+### 1. Public Marketplace & Catalogues
+- Guest users can search and filter through vendor products by category.
+- Path: `/` (Guest View), `/marketplace`, `/marketplace/:id`
+- Features responsive product grids, images, estimated pricing, specifications, and SKU/item details.
+
+### 2. Buyer Portal (E-Procurement Workflow)
+- **Purchase Requisitions (PR)**: Create, submit, and review PRs. Path: `/my-pr`, `/my-pr/:id`
+- **Request for Quotes (RFQ)**: Multi-vendor tender creation. Path: `/rfq`, `/rfq/:id`
+- **Approvals & Finance**: Multi-level company approval flow for PRs, RFQs, and POs. Path: `/approvals`, `/finance`
+- **Receipts & BAST**: Goods receipting and Berita Acara Serah Terima (BAST). Path: `/receipts`, `/bast`
+- **E-Faktur & Invoicing**: Tax invoice matching. Path: `/efaktur`
+
+### 3. Vendor Portal (E-Bidding Workflow)
+- **Tender Participation**: Monitor open RFQs, submit proposals, track real-time pricing rankings. Path: `/proposals`, `/negotiation`
+- **Catalogue Management**: Import (CSV/Excel) and manage active product listings. Path: `/catalogue`
+- **Order Fulfilment**: Track PO status and upload delivery receipts. Path: `/orders`
+
+## System Integration Details
+- **Production Domain**: `app.huntr.id`
+- **API Protocol**: JSON API client with Bearer Token auth via session headers.
+- **Websockets Sync**: Laravel Echo integration (Pusher & Reverb) for live bidding and notifications.
+- **Localisation**: IDR Currency formatting, Indonesian localization (WIB/WITA/WIT support).

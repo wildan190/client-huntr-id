@@ -1,9 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import type { MetaFunction } from "react-router";
 import Layout from "../components/Layout";
 import ThemeToggle from "../components/ThemeToggle";
 import CurrencyWidget from "../components/CurrencyWidget";
 import WeatherWidget from "../components/WeatherWidget";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Huntr.id - Enterprise B2B E-Procurement Ecosystem" },
+    { name: "description", content: "Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem." },
+    { name: "keywords", content: "e-procurement, procurement, B2B, vendor marketplace, RFQ, purchase order, Indonesia B2B" },
+    { rel: "canonical", href: "https://app.huntr.id/" },
+    // Open Graph
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://app.huntr.id/" },
+    { property: "og:title", content: "Huntr.id - Enterprise B2B E-Procurement Ecosystem" },
+    { property: "og:description", content: "Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem." },
+    { property: "og:image", content: "https://app.huntr.id/assets/img/logo/emblem.jpg" },
+    // Twitter Card
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:url", content: "https://app.huntr.id/" },
+    { name: "twitter:title", content: "Huntr.id - Enterprise B2B E-Procurement Ecosystem" },
+    { name: "twitter:description", content: "Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem." },
+    { name: "twitter:image", content: "https://app.huntr.id/assets/img/logo/emblem.jpg" },
+  ];
+};
+
 
 const chartTooltipStyle = (accent?: string) => ({
   contentStyle: {
@@ -194,6 +217,33 @@ function GuestMarketplaceView() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--ui-bg-page-grad)", color: "var(--ui-text-primary)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "@id": "https://app.huntr.id/#organization",
+                "name": "Huntr.id",
+                "url": "https://app.huntr.id/",
+                "logo": "https://app.huntr.id/assets/img/logo/emblem.jpg",
+                "description": "Enterprise B2B E-Procurement Ecosystem connecting verified vendors and buyers."
+              },
+              {
+                "@type": "WebSite",
+                "@id": "https://app.huntr.id/#website",
+                "url": "https://app.huntr.id/",
+                "name": "Huntr.id",
+                "publisher": {
+                  "@id": "https://app.huntr.id/#organization"
+                }
+              }
+            ]
+          })
+        }}
+      />
       {/* ── Guest Header ────────────────────────────────────────────────── */}
       <header style={{
         padding: "clamp(12px, 4vw, 20px) clamp(16px, 5vw, 40px)", 

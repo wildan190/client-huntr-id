@@ -1,6 +1,10 @@
 import { type RouteConfig, index, route, layout } from "@react-router/dev/routes";
 
 export default [
+  // ── SEO / Search Engine feeds ──────────────────────────────────────────────
+  route("robots.txt", "routes/robots.tsx"),
+  route("sitemap.xml", "routes/sitemap.tsx"),
+
   // ── Public / standalone routes (no persistent shell) ──────────────────────
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),

@@ -1,0 +1,15 @@
+# Huntr.id
+
+Huntr.id is a high-fidelity enterprise B2B E-Procurement ecosystem that connects verified vendors, streamlines the RFQ process, and manages purchase orders in one platform.
+
+## Key Features
+- **Guest Marketplace**: View product catalogue from verified vendors.
+- **Buyer Portal**: Handle Purchase Requisitions (PR), Request for Quotes (RFQ), vendor bidding comparison, and purchase orders.
+- **Vendor Portal**: Participate in e-bidding, submit proposals, track wins, and manage catalogue items.
+- **Unified Dashboard**: Live metrics, currency charts, weather widgets, and negotiation tools.
+
+## Tech Stack
+- Frontend: React Router v7 (SSR), TypeScript, Vite.
+- Styling: Custom responsive CSS variables & TailwindCSS.
+- Backend: Laravel API backend.
+- Domain: https://app.huntr.id

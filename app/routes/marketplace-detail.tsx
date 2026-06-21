@@ -1,10 +1,65 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams, useLoaderData } from "react-router";
 import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import { addItemToCart, getCartItemCount, loadCart } from "../lib/cart";
 import { Package, ShoppingCart, ArrowLeft, ArrowRight } from "lucide-react";
+import type { Route } from "./+types/marketplace-detail";
+
+export async function loader({ params }: Route.LoaderArgs) {
+  if (!params.id) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  try {
+    const response = await getCatalogue(params.id);
+    let product = response;
+    if (response && typeof response === "object" && "data" in response) {
+      product = response.data;
+    }
+    return { product };
+  } catch (err) {
+    console.error("Failed to load product details in loader", err);
+    return { product: null };
+  }
+}
+
+export function meta({ data }: Route.MetaArgs) {
+  const product = data?.product;
+  if (!product) {
+    return [
+      { title: "Product Not Found | Huntr.id" },
+      { name: "description", content: "The requested product catalogue item was not found." },
+    ];
+  }
+
+  const title = `${product.name} | Huntr.id`;
+  const description = product.specifications || `Buy ${product.name} on Huntr.id. ${product.category || "General"} product from vendor.`;
+  const canonical = `https://app.huntr.id/marketplace/${product.id}`;
+  const imageUrl = product.image_path
+    ? getAssetUrl(product.image_path)
+    : (product.image || "https://app.huntr.id/assets/img/logo/emblem.jpg");
+
+  return [
+    { title },
+    { name: "description", content: description.substring(0, 160) },
+    { rel: "canonical", href: canonical },
+    // Open Graph
+    { property: "og:type", content: "og:product" },
+    { property: "og:url", content: canonical },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description.substring(0, 160) },
+    { property: "og:image", content: imageUrl },
+    // Twitter Card
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:url", content: canonical },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description.substring(0, 160) },
+    { name: "twitter:image", content: imageUrl },
+  ];
+}
+
 
 interface CatalogueItem {
   id: string;
@@ -60,10 +115,11 @@ function SpecificationsBlock({ text }: { text: string | undefined }) {
 }
 
 export default function MarketplaceDetail() {
+  const loaderData = useLoaderData<typeof loader>();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [item, setItem] = useState<CatalogueItem | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [item, setItem] = useState<CatalogueItem | null>(loaderData?.product || null);
+  const [loading, setLoading] = useState(!loaderData?.product);
   const [error, setError] = useState<string | null>(null);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
@@ -82,6 +138,12 @@ export default function MarketplaceDetail() {
   useEffect(() => {
     if (!id) {
       setError("Product not found.");
+      setLoading(false);
+      return;
+    }
+
+    if (loaderData?.product && String(loaderData.product.id) === id) {
+      setItem(loaderData.product);
       setLoading(false);
       return;
     }
@@ -105,11 +167,11 @@ export default function MarketplaceDetail() {
         setError("Failed to load product details. Please try again.");
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, loaderData]);
 
   const handleAddToCart = (catalogueItem: CatalogueItem) => {
     try {
-      addItemToCart(catalogueItem);
+      addItemToCart(catalogueItem as any);
       setCartCount(getCartItemCount(loadCart()));
       setCartMessage("Product added to cart.");
       window.setTimeout(() => setCartMessage(null), 4000);
@@ -124,8 +186,39 @@ export default function MarketplaceDetail() {
 
   const pageTitle = item?.name || "Marketplace Product";
 
+  const productSchema = item ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": item.name,
+    "image": imageUrl || undefined,
+    "description": item.specifications || `Product details for ${item.name}`,
+    "sku": item.item_code,
+    "category": item.category || "General",
+    ...(item.price && item.price > 0 ? {
+      "offers": {
+        "@type": "Offer",
+        "price": item.price,
+        "priceCurrency": "IDR",
+        "availability": "https://schema.org/InStock",
+        "url": `https://app.huntr.id/marketplace/${item.id}`
+      }
+    } : {}),
+    ...(item.company?.name ? {
+      "brand": {
+        "@type": "Brand",
+        "name": item.company.name
+      }
+    } : {})
+  } : null;
+
   return (
     <Layout title={pageTitle} subtitle="Product details from vendor catalog.">
+      {productSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        />
+      )}
       <style>{`
         @media (max-width: 768px) {
           .mp-detail-grid { grid-template-columns: 1fr !important; }

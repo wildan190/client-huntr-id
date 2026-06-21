@@ -397,7 +397,7 @@ export default function Orders() {
 
     const csvContent = "\uFEFF" + [
       headers.join(","),
-      ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+      ...rows.map(e => e.map((val: any) => `"${String(val).replace(/"/g, '""')}"`).join(","))
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
