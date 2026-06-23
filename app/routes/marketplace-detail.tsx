@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import { addItemToCart, getCartItemCount, loadCart } from "../lib/cart";
-import { Package, ShoppingCart, ArrowLeft, ArrowRight, X } from "lucide-react";
+import { Package, ShoppingCart, ArrowLeft, ArrowRight, X, CheckCircle2 } from "lucide-react";
 import type { Route } from "./+types/marketplace-detail";
 
 export async function loader({ params }: Route.LoaderArgs) {
