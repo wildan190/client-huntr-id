@@ -33,7 +33,9 @@ import {
   MessageSquare,
   Briefcase,
   FileText,
+  ShoppingCart,
 } from "lucide-react";
+import { loadCart, getCartLineCount } from "../lib/cart";
 import Breadcrumb from "../components/Breadcrumb";
 import NotificationSound from "../components/NotificationSound";
 import ThemeToggle from "../components/ThemeToggle";
@@ -75,6 +77,17 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
   const [roleSwitching, setRoleSwitching] = useState(false); // For role switch loading state
+  const [cartCount, setCartCount] = useState(0);
+
+  // Update cart count when cart changes
+  useEffect(() => {
+    const updateCart = () => {
+      setCartCount(getCartLineCount());
+    };
+    updateCart();
+    window.addEventListener("huntr-cart-updated", updateCart);
+    return () => window.removeEventListener("huntr-cart-updated", updateCart);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -596,9 +609,61 @@ export default function AppShell() {
           </div>
 
           <div className="huntr-header-actions">
+            {/* Cart Button (Desktop Only) */}
+            {!isMobile && (
+              <button
+                type="button"
+                onClick={() => navigate("/cart")}
+                aria-label={`Go to cart, ${cartCount} items`}
+                style={{
+                  position: "relative",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  background: "var(--ui-toggle-bg)",
+                  border: "1px solid var(--ui-toggle-border)",
+                  color: cartCount > 0 ? "#fb923c" : "var(--ui-text-muted)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s",
+                  marginRight: 8
+                }}
+              >
+                <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -4,
+                    minWidth: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    background: "#f59e0b",
+                    border: "2px solid var(--ui-notif-badge-border)",
+                    color: "#fff",
+                    fontSize: 9,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px"
+                  }}>
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
+              </button>
+            )}
             {/* Notification Bell */}
             <div style={{ position: "relative" }}>
-              <button ref={notifButtonRef} onClick={() => setShowNotifications(!showNotifications)}
+              <button ref={notifButtonRef} onClick={() => {
+                if (isMobile) {
+                  navigate("/notifications");
+                } else {
+                  setShowNotifications(!showNotifications);
+                }
+              }}
                 style={{ position: "relative", width: 40, height: 40, borderRadius: 12, background: "var(--ui-toggle-bg)", border: "1px solid var(--ui-toggle-border)", color: unreadCount > 0 ? "#fb923c" : "var(--ui-text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>
                 <Bell size={18} fill={unreadCount > 0 ? "rgba(249,115,22,0.2)" : "none"} />
                 {unreadCount > 0 && (

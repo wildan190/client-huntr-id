@@ -18,6 +18,7 @@ import {
   getCartItemCount,
   type CartItem,
 } from "../lib/cart";
+import { getAssetUrl } from "../lib/assets";
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -58,55 +59,7 @@ export default function CartPage() {
       subtitle="Review items before creating a Purchase Request."
     >
       <div style={{ width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-            marginBottom: 24,
-            flexWrap: "wrap",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => navigate("/marketplace")}
-            style={{
-              padding: "9px 16px",
-              borderRadius: 10,
-              background: "var(--ui-bg-input)",
-              border: "1px solid var(--ui-border-input)",
-              color: "var(--ui-text-secondary)",
-              cursor: "pointer",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 14,
-            }}
-          >
-            <ArrowLeft size={16} /> Continue Shopping
-          </button>
 
-          {cart.length > 0 && (
-            <button
-              type="button"
-              onClick={handleClear}
-              style={{
-                padding: "9px 16px",
-                borderRadius: 10,
-                background: "rgba(239,68,68,0.08)",
-                border: "1px solid rgba(239,68,68,0.2)",
-                color: "#f87171",
-                cursor: "pointer",
-                fontWeight: 700,
-                fontSize: 13,
-              }}
-            >
-              Clear Cart
-            </button>
-          )}
-        </div>
 
         <div
           style={{
@@ -182,6 +135,32 @@ export default function CartPage() {
                       flexWrap: "wrap",
                     }}
                   >
+                    <div style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 12,
+                      background: "var(--ui-bg-card)",
+                      overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}>
+                      {item.image_path ? (
+                        <img
+                          src={getAssetUrl(item.image_path)}
+                          alt={item.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <Package size={24} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.4 }} />
+                      )}
+                    </div>
+
                     <div style={{ flex: 1, minWidth: 180 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)" }}>
                         {item.name}

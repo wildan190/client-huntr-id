@@ -51,6 +51,7 @@ export async function apiGet<T = any>(path: string): Promise<T> {
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
       headers: getAuthHeaders(),
+      credentials: "include",
     });
     return handleResponse<T>(res);
   } catch (err) {

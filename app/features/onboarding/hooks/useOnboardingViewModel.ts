@@ -27,6 +27,7 @@ export const useOnboardingViewModel = () => {
     provincy_country: "", regency: "", city: "",
     zip_code: "", address: "", bank_name: "", bank_account: "",
     bank_account_name: "",
+    hq_addresses: [""],
   });
 
   // --- State: Verifikasi & Dokumen ---
@@ -49,6 +50,7 @@ export const useOnboardingViewModel = () => {
       provincy_country: "", regency: "", city: "",
       zip_code: "", address: "", bank_name: "", bank_account: "",
       bank_account_name: "", country: "",
+      hq_addresses: [""],
     });
     setNpwpVerifiedData(null);
     setUploadedDocs([]);
@@ -76,6 +78,34 @@ export const useOnboardingViewModel = () => {
    */
   const updateField = useCallback((k: keyof CompanyFormData, v: string) => {
     setFormData(prev => ({ ...prev, [k]: v }));
+  }, []);
+
+  /**
+   * Mengupdate HQ Addresses array secara dinamis
+   */
+  const updateHqAddress = useCallback((index: number, value: string) => {
+    setFormData(prev => {
+      const newAddresses = [...prev.hq_addresses];
+      newAddresses[index] = value;
+      return { ...prev, hq_addresses: newAddresses };
+    });
+  }, []);
+
+  /**
+   * Menambah HQ Address baru
+   */
+  const addHqAddress = useCallback(() => {
+    setFormData(prev => ({ ...prev, hq_addresses: [...prev.hq_addresses, ""] }));
+  }, []);
+
+  /**
+   * Menghapus HQ Address
+   */
+  const removeHqAddress = useCallback((index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      hq_addresses: prev.hq_addresses.filter((_, i) => i !== index)
+    }));
   }, []);
 
   /**
@@ -169,6 +199,9 @@ export const useOnboardingViewModel = () => {
 
     // Actions
     updateField,
+    updateHqAddress,
+    addHqAddress,
+    removeHqAddress,
     handleVerifyNpwp,
     handleDocUpload,
     handleCompanySubmit,

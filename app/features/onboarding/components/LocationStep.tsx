@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { FormLabel, Field } from "./OnboardingUI";
+import { FormLabel } from "./OnboardingUI";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { 
   PROVINCES, 
@@ -7,10 +7,14 @@ import {
   getDistrictsByCity,
   getPostalCodesByCity,
 } from "../data/locationData";
+import { Plus, X } from "lucide-react";
 
 interface LocationStepProps {
   formData: any;
   updateField: (key: string, value: string) => void;
+  updateHqAddress: (index: number, value: string) => void;
+  addHqAddress: () => void;
+  removeHqAddress: (index: number) => void;
 }
 
 /**
@@ -19,7 +23,13 @@ interface LocationStepProps {
  * Provides hierarchical select dropdowns for Indonesian provinces, cities, and districts
  * with postal code selection and address autocomplete integration.
  */
-export const LocationStep: React.FC<LocationStepProps> = ({ formData, updateField }) => {
+export const LocationStep: React.FC<LocationStepProps> = ({ 
+  formData, 
+  updateField, 
+  updateHqAddress, 
+  addHqAddress, 
+  removeHqAddress 
+}) => {
   // Get available cities based on selected province
   const citiesList = useMemo(() => {
     return getCitiesByProvince(formData.provincy_country);
@@ -143,6 +153,40 @@ export const LocationStep: React.FC<LocationStepProps> = ({ formData, updateFiel
         value={formData.address} 
         onChange={(v: any) => updateField("address", v)} 
       />
+
+      {/* HQ Addresses */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <FormLabel>HQ/Office Addresses</FormLabel>
+          <button
+            type="button"
+            onClick={addHqAddress}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-bold hover:bg-orange-500/20 transition-all"
+          >
+            <Plus size={16} /> Add Address
+          </button>
+        </div>
+        {formData.hq_addresses?.map((addr: string, idx: number) => (
+          <div key={idx} className="flex gap-2">
+            <input
+              type="text"
+              value={addr}
+              onChange={(e) => updateHqAddress(idx, e.target.value)}
+              placeholder={`HQ Address ${idx + 1}`}
+              className="flex-1 px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm"
+            />
+            {formData.hq_addresses.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeHqAddress(idx)}
+                className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

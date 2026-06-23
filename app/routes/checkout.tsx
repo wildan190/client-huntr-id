@@ -159,6 +159,110 @@ export default function Checkout() {
             <ArrowLeft size={16} /> Back to Marketplace
           </button>
 
+          {/* ─── Item Summary (TOP) ─── */}
+          <section style={{ borderRadius: 20, border: "1px solid var(--ui-border)", overflow: "hidden" }}>
+            {/* Card Header */}
+            <div style={{
+              background: "linear-gradient(135deg, rgba(249,115,22,0.12), rgba(245,158,11,0.08))",
+              borderBottom: "1px solid rgba(249,115,22,0.15)",
+              padding: "16px 24px",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#f97316,#f59e0b)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Package size={18} color="#fff" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "var(--ui-text-primary)" }}>Item Summary</div>
+                  <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 1 }}>{cart.length} item{cart.length !== 1 ? "s" : ""} dalam permintaan ini</div>
+                </div>
+              </div>
+              {cartTotal > 0 && (
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Est. Total</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#f97316" }}>IDR {cartTotal.toLocaleString()}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Item Rows */}
+            <div style={{ background: "var(--ui-bg-card)", display: "flex", flexDirection: "column" }}>
+              {cart.map((item, idx) => (
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 14,
+                    padding: "14px 24px",
+                    borderBottom: idx < cart.length - 1 ? "1px solid var(--ui-border-subtle)" : "none",
+                  }}
+                >
+                  {/* Thumbnail */}
+                  <div style={{ width: 52, height: 52, borderRadius: 10, background: "var(--ui-bg-input)", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item.image_path ? (
+                      <img src={getAssetUrl(item.image_path)} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <Package size={22} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.4 }} />
+                    )}
+                  </div>
+
+                  {/* Name & Code */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>{item.item_code || "—"}</div>
+                  </div>
+
+                  {/* Qty badge */}
+                  <div style={{ flexShrink: 0, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>
+                    ×{item.qty} {item.uom || "pc"}
+                  </div>
+
+                  {/* Est. Price input */}
+                  <div style={{ flexShrink: 0, width: 150 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", marginBottom: 4 }}>Est. Price</div>
+                    <div style={{ position: "relative" }}>
+                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "var(--ui-text-muted)", pointerEvents: "none" }}>IDR</span>
+                      <input
+                        type="number"
+                        value={item.estimated_price === 0 ? "" : item.estimated_price}
+                        placeholder="0"
+                        onChange={(e) => updateEstimatedPrice(item.id, Number(e.target.value))}
+                        style={{
+                          width: "100%", padding: "7px 8px 7px 32px", borderRadius: 8, boxSizing: "border-box",
+                          background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
+                          color: "var(--ui-text-primary)", fontSize: 12, outline: "none",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Line total */}
+                  <div style={{ flexShrink: 0, textAlign: "right", minWidth: 80 }}>
+                    {item.estimated_price > 0 ? (
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)" }}>
+                        IDR {(Number(item.estimated_price) * item.qty).toLocaleString()}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>—</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer total */}
+            {cartTotal > 0 && (
+              <div style={{
+                padding: "12px 24px",
+                background: "rgba(249,115,22,0.04)",
+                borderTop: "1px solid rgba(249,115,22,0.12)",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}>
+                <span style={{ fontSize: 13, color: "var(--ui-text-secondary)", fontWeight: 600 }}>Estimasi Total Keseluruhan</span>
+                <span style={{ fontSize: 15, fontWeight: 900, color: "#f97316" }}>IDR {cartTotal.toLocaleString()}</span>
+              </div>
+            )}
+          </section>
+
           <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
             <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
               <ClipboardList size={20} color="var(--huntr-orange)" /> Request Details
@@ -255,62 +359,6 @@ export default function Checkout() {
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-
-          <section style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)", padding: 32 }}>
-            <h3 style={{ margin: "0 0 24px", fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
-              <Package size={20} color="var(--huntr-orange)" /> Item Summary
-            </h3>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {cart.map(item => (
-                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: 16 }}>
-                  <div style={{ width: 64, height: 64, borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    {item.image_path ? (
-                      <img 
-                        src={getAssetUrl(item.image_path)} 
-                        alt={item.name} 
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    ) : (
-                      <img 
-                        src={`https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80`} 
-                        alt={item.name} 
-                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }}
-                      />
-                    )}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{item.item_code}</div>
-                  </div>
-                  <div style={{ display: "flex", flex: 1, gap: 16, alignItems: "center", justifyContent: "flex-end" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 140 }}>
-                      <label style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase" }}>Estimated Price</label>
-                      <div style={{ position: "relative" }}>
-                        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "var(--ui-text-muted)" }}>IDR</span>
-                        <input 
-                          type="number"
-                          value={item.estimated_price}
-                          onChange={(e) => updateEstimatedPrice(item.id, Number(e.target.value))}
-                          style={{
-                            width: "100%", padding: "8px 8px 8px 34px", borderRadius: 8,
-                            background: "var(--ui-bg-input)", border: `1px solid var(--ui-border-input)`,
-                            color: "var(--ui-text-primary)", fontSize: 12, outline: "none"
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right", minWidth: 100 }}>
-                      {item.estimated_price > 0 && (
-                          <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>IDR {(Number(item.estimated_price || 0) * item.qty).toLocaleString()}</div>
-                        )}
-                        <div style={{ fontSize: 11, color: "var(--ui-text-secondary)" }}>Qty: {item.qty}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </section>
         </div>

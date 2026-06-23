@@ -66,9 +66,9 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-orange-400">
             <PieChart size={24} /> Analisis Pengeluaran (Spend Analysis)
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             
-            <div className="glass-panel p-5 lg:col-span-1 border-l-4 border-l-orange-500" style={{ background: "var(--ui-bg-card)", borderTop: "1px solid var(--ui-border)", borderRight: "1px solid var(--ui-border)", borderBottom: "1px solid var(--ui-border)", borderRadius: "0 16px 16px 0" }}>
+            <div className="glass-panel p-5 md:col-span-1 border-l-4 border-l-orange-500" style={{ background: "var(--ui-bg-card)", borderTop: "1px solid var(--ui-border)", borderRight: "1px solid var(--ui-border)", borderBottom: "1px solid var(--ui-border)", borderRadius: "0 16px 16px 0" }}>
               <div className="flex justify-between items-start mb-2">
                 <span className="text-xs text-gray-400 font-semibold uppercase">Total Pengeluaran</span>
                 <DollarSign size={16} className="text-orange-400" />
@@ -84,7 +84,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
               <div className="text-xs text-red-400 flex items-center gap-1">Off-contract purchases</div>
             </div>
 
-            <div className="glass-panel p-5 lg:col-span-2" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
               <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Pengeluaran per Departemen</h3>
               <div style={{ height: 250, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -101,25 +101,23 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 lg:col-span-1">
-              <div className="glass-panel p-5 bg-gradient-to-br from-red-500/5 to-transparent h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-400 font-semibold uppercase">Average Defect Rate</span>
-                  <AlertTriangle size={16} className="text-red-400" />
-                </div>
-                <div className="text-3xl font-bold text-white mb-1">2.1%</div>
-                <div className="text-xs text-gray-500 mt-1">Target: &lt;2.0%</div>
-                <div className="w-full bg-gray-800 h-1.5 mt-4 rounded-full overflow-hidden"><div className="bg-red-500 h-full" style={{width: '15%'}}></div></div>
+            <div className="glass-panel p-5 bg-gradient-to-br from-red-500/5 to-transparent h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-xs text-gray-400 font-semibold uppercase">Average Defect Rate</span>
+                <AlertTriangle size={16} className="text-red-400" />
               </div>
+              <div className="text-3xl font-bold text-white mb-1">2.1%</div>
+              <div className="text-xs text-gray-500 mt-1">Target: &lt;2.0%</div>
+              <div className="w-full bg-gray-800 h-1.5 mt-4 rounded-full overflow-hidden"><div className="bg-red-500 h-full" style={{width: '15%'}}></div></div>
+            </div>
 
-              <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-400 font-semibold uppercase">Lead Time Avg</span>
-                  <Clock size={16} className="text-blue-400" />
-                </div>
-                <div className="text-3xl font-bold text-white mb-1">7.2 Days</div>
-                <div className="text-xs text-gray-500 mt-1">From PO Creation to Goods Receipt</div>
+            <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-xs text-gray-400 font-semibold uppercase">Lead Time Avg</span>
+                <Clock size={16} className="text-blue-400" />
               </div>
+              <div className="text-3xl font-bold text-white mb-1">7.2 Days</div>
+              <div className="text-xs text-gray-500 mt-1">From PO Creation to Goods Receipt</div>
             </div>
           </div>
         </section>
@@ -129,9 +127,9 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">
             <Activity size={24} /> Efisiensi Operasional (Operational Efficiency)
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             
-            <div className="glass-panel p-5 lg:col-span-2" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
               <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Rata-rata Waktu Siklus PO (Hari)</h3>
               <div style={{ height: 250, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -146,21 +144,19 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 lg:col-span-1">
-              <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-400 font-semibold uppercase">PO vs PR Workload</span>
-                  <ClipboardList size={16} className="text-blue-400" />
-                </div>
-                <div className="flex justify-between items-center text-sm font-medium mt-3">
-                  <span className="text-gray-400">Active PO (In-Transit):</span> <span className="text-orange-400">8</span>
-                </div>
-                <div className="flex justify-between items-center text-sm font-medium mt-2">
-                  <span className="text-gray-400">Unprocessed PRs:</span> <span className="text-white">24</span>
-                </div>
-                <div className="flex justify-between items-center text-sm font-medium mt-2 pt-2 border-t border-white/10">
-                  <span className="text-gray-400">Average POs/Staff/Mo:</span> <span className="text-pink-400 font-bold">45</span>
-                </div>
+            <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-xs text-gray-400 font-semibold uppercase">PO vs PR Workload</span>
+                <ClipboardList size={16} className="text-blue-400" />
+              </div>
+              <div className="flex justify-between items-center text-sm font-medium mt-3">
+                <span className="text-gray-400">Active PO (In-Transit):</span> <span className="text-orange-400">8</span>
+              </div>
+              <div className="flex justify-between items-center text-sm font-medium mt-2">
+                <span className="text-gray-400">Unprocessed PRs:</span> <span className="text-white">24</span>
+              </div>
+              <div className="flex justify-between items-center text-sm font-medium mt-2 pt-2 border-t border-white/10">
+                <span className="text-gray-400">Average POs/Staff/Mo:</span> <span className="text-pink-400 font-bold">45</span>
               </div>
             </div>
 
@@ -172,9 +168,9 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-yellow-400">
             <LineChart size={24} /> Keuangan & Penghematan (Financial)
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             
-            <div className="glass-panel p-5 lg:col-span-2" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
+            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
               <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Kumulatif Penghematan Cost (YTD)</h3>
               <div style={{ height: 250, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -198,16 +194,14 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 lg:col-span-1">
-              <div className="glass-panel p-6 flex flex-col justify-center gap-2 h-full" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20 }}>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-2">
-                  <ArrowDownCircle size={24} color="#fff" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400 font-semibold uppercase mb-1">Purchase Price Variance (PPV)</div>
-                  <div className="text-3xl font-bold text-emerald-400">- Rp 450M</div>
-                  <div className="text-xs text-gray-500 mt-2 leading-relaxed">Below budget limit. Favorable variance achieved through bulk volume negotiation.</div>
-                </div>
+            <div className="glass-panel p-6 flex flex-col justify-center gap-2 h-full" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20 }}>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-2">
+                <ArrowDownCircle size={24} color="#fff" />
+              </div>
+              <div>
+                <div className="text-xs text-gray-400 font-semibold uppercase mb-1">Purchase Price Variance (PPV)</div>
+                <div className="text-3xl font-bold text-emerald-400">- Rp 450M</div>
+                <div className="text-xs text-gray-500 mt-2 leading-relaxed">Below budget limit. Favorable variance achieved through bulk volume negotiation.</div>
               </div>
             </div>
 

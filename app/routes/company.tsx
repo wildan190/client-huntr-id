@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from "../components/Layout";
 import { 
-  Building2, MapPin, CreditCard, FileText, Users, Plus, 
+  Building2, MapPin, CreditCard, FileText, Users, Plus, X,
   ChevronLeft, RefreshCw, Loader2, AlertCircle, Camera,
   ShieldCheck, Activity, Award, BarChart3, Download, CheckCircle2
 } from "lucide-react";
@@ -11,6 +11,35 @@ import { getAssetUrl } from "../lib/assets";
 
 export default function CompanyDetails() {
   const vm = useCompanyViewModel();
+  const [profileBannerDismissed, setProfileBannerDismissed] = React.useState(false);
+
+  const statusColor: any = {
+    approved: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    pending: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    rejected: "text-red-500 bg-red-500/10 border-red-500/20",
+  };
+
+  const tabs = [
+    { id: "profile", label: "Identity", icon: Building2 },
+    { id: "location", label: "Location", icon: MapPin },
+    { id: "banking", label: "Banking", icon: CreditCard },
+    { id: "documents", label: "Legal Docs", icon: ShieldCheck },
+    { id: "performance", label: "Performance", icon: Activity },
+    { id: "team", label: "Team", icon: Users },
+  ];
+
+  // Check for missing fields
+  const missingFields = React.useMemo(() => {
+    if (!vm.company) return [];
+    const fields = [];
+    if (!vm.company.logo_path) fields.push("Logo");
+    if (!vm.company.address) fields.push("Full Address");
+    if (!vm.company.bank_name) fields.push("Bank Details");
+    if (!vm.company.documents || vm.company.documents.length === 0) fields.push("Legal Documents");
+    if (!vm.company.hq_addresses || (Array.isArray(vm.company.hq_addresses) && vm.company.hq_addresses.length === 0)) fields.push("HQ Addresses");
+    if (!vm.company.about) fields.push("About the Company");
+    return fields;
+  }, [vm.company]);
 
   if (vm.loading) {
     return (
@@ -94,24 +123,32 @@ export default function CompanyDetails() {
     );
   }
 
-  const statusColor: any = {
-    approved: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
-    pending: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-    rejected: "text-red-500 bg-red-500/10 border-red-500/20",
-  };
-
-  const tabs = [
-    { id: "profile", label: "Identity", icon: Building2 },
-    { id: "location", label: "Location", icon: MapPin },
-    { id: "banking", label: "Banking", icon: CreditCard },
-    { id: "documents", label: "Legal Docs", icon: ShieldCheck },
-    { id: "performance", label: "Performance", icon: Activity },
-    { id: "team", label: "Team", icon: Users },
-  ];
-
   return (
     <Layout title={vm.company.name} subtitle="Company Workspace Profile">
       <div className="flex flex-col gap-8 w-full">
+        {/* Missing Fields Banner */}
+        {!profileBannerDismissed && missingFields.length > 0 && (
+          <div className="p-6 rounded-[32px] bg-amber-500/10 border border-amber-500/20 flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h4 className="text-sm font-black text-amber-500 uppercase tracking-widest mb-2">Complete Your Profile</h4>
+              <p className="text-sm text-[var(--ui-text-primary)] mb-3">Fill in these details to unlock full features:</p>
+              <div className="flex flex-wrap gap-2">
+                {missingFields.map((field) => (
+                  <span key={field} className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold">
+                    {field}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setProfileBannerDismissed(true)}
+              className="p-2 rounded-2xl hover:bg-amber-500/20 transition-all text-amber-500"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        )}
+
         {/* Header Section */}
         <div className="flex justify-between items-start flex-wrap gap-6">
           <div className="flex items-center gap-6">
@@ -159,9 +196,6 @@ export default function CompanyDetails() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={() => vm.setShowCompanyWorkspace(false)} className="px-6 py-2.5 rounded-xl bg-[var(--ui-bg-input)] text-[var(--ui-text-primary)] text-sm font-bold border border-[var(--ui-border)] flex items-center gap-2 hover:bg-[var(--ui-bg-input-hover)] transition-all">
-              <ChevronLeft size={16} /> Switch
-            </button>
             <div className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest ${statusColor[vm.company.status] || "text-gray-500 bg-gray-500/10 border-gray-500/20"}`}>
               {vm.company.status}
             </div>
@@ -285,26 +319,90 @@ export default function CompanyDetails() {
             )}
 
             {vm.activeTab === "location" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-500">
-                {vm.isEditing ? (
-                  <>
-                    <EditField label="Province" value={vm.editForm.provincy_country} onChange={v => vm.setEditForm({...vm.editForm, provincy_country: v})} />
-                    <EditField label="City" value={vm.editForm.city} onChange={v => vm.setEditForm({...vm.editForm, city: v})} />
-                    <EditField label="Zip Code" value={vm.editForm.zip_code} onChange={v => vm.setEditForm({...vm.editForm, zip_code: v})} />
-                    <div className="md:col-span-2">
-                      <EditField label="Full Address" value={vm.editForm.address} textarea onChange={v => vm.setEditForm({...vm.editForm, address: v})} />
+              <div className="space-y-10 animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {vm.isEditing ? (
+                    <>
+                      <EditField label="Province" value={vm.editForm.provincy_country} onChange={v => vm.setEditForm({...vm.editForm, provincy_country: v})} />
+                      <EditField label="City" value={vm.editForm.city} onChange={v => vm.setEditForm({...vm.editForm, city: v})} />
+                      <EditField label="Zip Code" value={vm.editForm.zip_code} onChange={v => vm.setEditForm({...vm.editForm, zip_code: v})} />
+                      <div className="md:col-span-2">
+                        <EditField label="Full Address" value={vm.editForm.address} textarea onChange={v => vm.setEditForm({...vm.editForm, address: v})} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <DisplayField label="Province / Country" value={vm.company.provincy_country} />
+                      <DisplayField label="City" value={vm.company.city} />
+                      <DisplayField label="Zip Code" value={vm.company.zip_code} />
+                      <div className="md:col-span-2">
+                        <DisplayField label="Full Business Address" value={vm.company.address} />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* HQ Addresses */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-lg font-black text-[var(--ui-text-primary)] m-0">HQ / Office Addresses</h4>
+                      <p className="text-sm text-[var(--ui-text-muted)] mt-1">Manage all your office locations</p>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <DisplayField label="Province / Country" value={vm.company.provincy_country} />
-                    <DisplayField label="City" value={vm.company.city} />
-                    <DisplayField label="Zip Code" value={vm.company.zip_code} />
-                    <div className="md:col-span-2">
-                      <DisplayField label="Full Business Address" value={vm.company.address} />
+                    {vm.isEditing && (
+                      <button
+                        type="button"
+                        onClick={vm.addHqAddress}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 text-sm font-bold hover:bg-orange-500/20 transition-all"
+                      >
+                        <Plus size={16} /> Add Location
+                      </button>
+                    )}
+                  </div>
+
+                  {vm.isEditing ? (
+                    <div className="space-y-3">
+                      {vm.editForm.hq_addresses?.map((addr: string, idx: number) => (
+                        <div key={idx} className="flex gap-3">
+                          <textarea
+                            value={addr}
+                            onChange={e => vm.updateHqAddress(idx, e.target.value)}
+                            placeholder={`HQ Address ${idx + 1}`}
+                            rows={2}
+                            className="flex-1 px-5 py-4 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all resize-vertical"
+                          />
+                          {vm.editForm.hq_addresses.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => vm.removeHqAddress(idx)}
+                              className="px-4 py-2 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <div className="space-y-3">
+                      {!vm.company.hq_addresses || (Array.isArray(vm.company.hq_addresses) && vm.company.hq_addresses.length === 0) ? (
+                        <div className="p-8 rounded-[32px] bg-[var(--ui-bg-input)] border-2 border-dashed border-[var(--ui-border)] text-center">
+                          <p className="text-sm text-[var(--ui-text-muted)]">No office locations added yet</p>
+                        </div>
+                      ) : (
+                        (Array.isArray(vm.company.hq_addresses) ? vm.company.hq_addresses : [vm.company.hq_addresses]).map((addr: string, idx: number) => (
+                          <div key={idx} className="p-6 rounded-[32px] bg-[var(--ui-bg-input)] border border-[var(--ui-border)]">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MapPin size={16} className="text-orange-500" />
+                              <span className="text-xs font-black uppercase tracking-widest text-orange-500">Location {idx + 1}</span>
+                            </div>
+                            <p className="text-sm text-[var(--ui-text-primary)]">{addr}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -379,7 +477,7 @@ export default function CompanyDetails() {
                   <h3 className="text-xl font-black text-[var(--ui-text-primary)] m-0">Corporate Performance</h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {vm.company.type === 'buyer' ? (
                     <>
                       <StatCard icon={FileText} label="Total PR Created" value={vm.company.stats?.total_pr || 0} color="orange" />

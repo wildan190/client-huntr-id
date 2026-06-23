@@ -25,7 +25,7 @@ import AiInsightCard from "../components/AiInsightCard";
 import AiCompareModal from "../components/AiCompareModal";
 import {
   ShoppingCart, Search, Filter, Plus, Minus, Trash2,
-  CheckCircle2, Loader2, Package, X, Sparkles, GitCompare,
+  CheckCircle2, Loader2, Package, X, Sparkles, GitCompare, ArrowRight,
 } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 import { useNavigate } from "react-router";
@@ -46,7 +46,6 @@ export default function Marketplace() {
   const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState<any[]>(() => loadCart());
   const skipCartPersist = useRef(true);
-  const [showCart, setShowCart] = useState(false);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
   
@@ -67,6 +66,45 @@ export default function Marketplace() {
   // Compare state
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
+
+  // Qty modal & toast state
+  const [qtyModalItem, setQtyModalItem] = useState<any | null>(null);
+  const [qtyValue, setQtyValue] = useState(1);
+  const [toast, setToast] = useState<{ name: string } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pagination helper function
+  const getPaginationPages = (total: number, current: number): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (total <= maxVisible) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+      return pages;
+    }
+
+    // Always show first page
+    pages.push(1);
+
+    const startPage = Math.max(2, current - 1);
+    const endPage = Math.min(total - 1, current + 1);
+
+    if (startPage > 2) {
+      pages.push("...");
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < total - 1) {
+      pages.push("...");
+    }
+
+    // Always show last page
+    pages.push(total);
+    return pages;
+  };
 
   const CACHE_KEY = "huntr_marketplace_cache";
   const CACHE_TTL = 10 * 60 * 1000;
@@ -237,9 +275,24 @@ export default function Marketplace() {
     }
   };
 
-  const addToCart = (item: any) => {
-    const next = addItemToCartLib(item);
+  const openQtyModal = (item: any) => {
+    setQtyModalItem(item);
+    setQtyValue(1);
+  };
+
+  const confirmAddToCart = () => {
+    if (!qtyModalItem) return;
+    const next = addItemToCartLib(qtyModalItem, qtyValue);
     setCart(next);
+    setQtyModalItem(null);
+    // Show toast
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ name: qtyModalItem.name });
+    toastTimerRef.current = setTimeout(() => setToast(null), 3500);
+  };
+
+  const addToCart = (item: any) => {
+    openQtyModal(item);
   };
 
   const updateQty = (id: string, delta: number) => {
@@ -260,107 +313,11 @@ export default function Marketplace() {
     });
   };
 
-  const cartPanel = (
-    <div style={{
-      background: "var(--ui-bg-card)", backdropFilter: "blur(10px)",
-      borderRadius: 24, border: "1px solid var(--ui-border)",
-      padding: 24, display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#f97316,#f59e0b)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <ShoppingCart size={20} color="#fff" />
-          </div>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>Your Cart</h3>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "4px 8px", borderRadius: 8 }}>
-            {getCartItemCount(cart)} items
-          </span>
-          {isMobile && (
-            <button type="button" onClick={() => setShowCart(false)} aria-label="Close cart"
-              style={{ width: 36, height: 36, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border)", color: "var(--ui-text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <X size={18} />
-            </button>
-          )}
-        </div>
-      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: isMobile ? "none" : "360px", overflowY: "auto", paddingRight: 4 }}>
-        {cart.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ui-text-muted)" }}>
-            <ShoppingCart size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
-            <div style={{ fontSize: 13 }}>Your cart is empty</div>
-          </div>
-        ) : (
-          cart.map((item) => (
-            <div key={item.id} style={{ display: "flex", gap: 12 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)" }}>{item.name}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button type="button" aria-label="Decrease quantity" onClick={() => updateQty(item.id, -1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer" }}><Minus size={12} /></button>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)", minWidth: 20, textAlign: "center" }}>{item.qty}</span>
-                <button type="button" aria-label="Increase quantity" onClick={() => updateQty(item.id, 1)} style={{ width: 24, height: 24, borderRadius: 6, background: "var(--ui-bg-input)", border: "none", color: "var(--ui-text-secondary)", cursor: "pointer" }}><Plus size={12} /></button>
-                <button type="button" aria-label="Remove item from cart" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 4, color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 4 }}><Trash2 size={14} /></button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {cart.length > 0 && (
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
-          {/* AI Generate PR button */}
-          {aiMode && (
-            <button
-              onClick={handleGeneratePr}
-              disabled={isGeneratingPr}
-              style={{
-                width: "100%", padding: "12px", borderRadius: 14,
-                background: isGeneratingPr ? "rgba(168,85,247,0.3)" : "linear-gradient(135deg,#a855f7,#6366f1)",
-                color: "#fff", fontWeight: 800, border: "none", cursor: isGeneratingPr ? "not-allowed" : "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 13,
-                boxShadow: "0 6px 16px rgba(168,85,247,0.25)",
-              }}
-            >
-              <Sparkles size={16} />
-              {isGeneratingPr ? "AI Menyiapkan PR..." : "Auto-create PR dengan AI"}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => { setShowCart(false); navigate("/cart"); }}
-            style={{
-              width: "100%", padding: "12px", borderRadius: 14,
-              background: "var(--ui-bg-input)", color: "var(--ui-text-primary)",
-              fontWeight: 700, border: "1px solid var(--ui-border)", cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            View Full Cart
-          </button>
-          <button
-            onClick={() => { setShowCart(false); navigate("/checkout"); }}
-            style={{
-              width: "100%", padding: "14px", borderRadius: 14,
-              background: "linear-gradient(135deg,#f97316,#f59e0b)",
-              color: "#fff", fontWeight: 700, border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-              boxShadow: "0 8px 20px rgba(249,115,22,0.3)",
-            }}
-          >
-            Create PR <CheckCircle2 size={18} />
-          </button>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <Layout title="Marketplace" subtitle="Discover items and services from our trusted vendors.">
-      <div className="huntr-split-layout" style={{ paddingBottom: isMobile ? 88 : 0 }}>
-        <div className="huntr-split-layout-main">
+      <div style={{ paddingBottom: isMobile ? 88 : 0 }}>
           {/* Search Bar */}
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
             <div style={{ flex: 1, position: "relative" }}>
@@ -627,7 +584,7 @@ export default function Marketplace() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32 }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32, flexWrap: "wrap" }}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -645,24 +602,38 @@ export default function Marketplace() {
               >
                 Previous
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    border: currentPage === pageNum ? "none" : "1px solid var(--ui-border)",
-                    background: currentPage === pageNum ? "linear-gradient(135deg,#f97316,#f59e0b)" : "var(--ui-bg-card)",
-                    color: currentPage === pageNum ? "#fff" : "var(--ui-text-primary)",
-                    cursor: "pointer",
-                    fontSize: 13,
-                    fontWeight: 700,
-                  }}
-                >
-                  {pageNum}
-                </button>
+              {getPaginationPages(totalPages, currentPage).map((page, index) => (
+                typeof page === "string" ? (
+                  <span
+                    key={`ellipsis-${index}`}
+                    style={{
+                      padding: "0 8px",
+                      color: "var(--ui-text-muted)",
+                      fontSize: 18,
+                      fontWeight: 700
+                    }}
+                  >
+                    {page}
+                  </span>
+                ) : (
+                  <button
+                    key={`page-${page}`}
+                    onClick={() => handlePageChange(page)}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      border: currentPage === page ? "none" : "1px solid var(--ui-border)",
+                      background: currentPage === page ? "linear-gradient(135deg,#f97316,#f59e0b)" : "var(--ui-bg-card)",
+                      color: currentPage === page ? "#fff" : "var(--ui-text-primary)",
+                      cursor: "pointer",
+                      fontSize: 13,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {page}
+                  </button>
+                )
               ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
@@ -683,34 +654,41 @@ export default function Marketplace() {
               </button>
             </div>
           )}
-        </div>
-
-        {/* Sidebar */}
-        <div className={`huntr-split-layout-aside${isMobile ? " huntr-split-layout-aside--mobile-hidden" : ""}`}>
-          <div className="huntr-sticky-panel">{cartPanel}</div>
-        </div>
       </div>
 
-      {/* Mobile cart */}
+      {/* Cart icon button (Mobile Only FAB) */}
       {isMobile && (
-        <>
-          <div
-            className={`huntr-cart-drawer-backdrop${showCart ? " huntr-cart-drawer-backdrop--visible" : ""}`}
-            onClick={() => setShowCart(false)}
-            aria-hidden={!showCart}
-          />
-          <div className={`huntr-cart-drawer${showCart ? " huntr-cart-drawer--open" : ""}`}>
-            {cartPanel}
-          </div>
-          <button type="button" className="huntr-cart-fab" onClick={() => setShowCart(true)} aria-label={`Open cart, ${cart.length} items`}>
-            <ShoppingCart size={22} />
-            {cart.length > 0 && (
-              <span style={{ position: "absolute", top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10, background: "var(--ui-bg-page)", border: "2px solid #f59e0b", color: "#f59e0b", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {cart.length > 9 ? "9+" : cart.length}
-              </span>
-            )}
-          </button>
-        </>
+        <button
+          type="button"
+          className="huntr-cart-fab"
+          onClick={() => navigate("/cart")}
+          aria-label={`Go to cart, ${cart.length} items`}
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            background: "linear-gradient(135deg,#f97316,#f59e0b)",
+            border: "none",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 8px 24px rgba(249,115,22,0.4)",
+            zIndex: 1000,
+            transition: "all 0.2s"
+          }}
+        >
+          <ShoppingCart size={22} />
+          {cart.length > 0 && (
+            <span style={{ position: "absolute", top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10, background: "var(--ui-bg-page)", border: "2px solid #f59e0b", color: "#f59e0b", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {cart.length > 9 ? "9+" : cart.length}
+            </span>
+          )}
+        </button>
       )}
 
       {/* AI Compare Modal */}
@@ -722,9 +700,107 @@ export default function Marketplace() {
         />
       )}
 
+      {/* Quantity Modal */}
+      {qtyModalItem && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1200, padding: 16 }}
+          onClick={() => setQtyModalItem(null)}
+        >
+          <div
+            style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, width: "100%", maxWidth: 320, padding: "20px 20px 16px", display: "flex", flexDirection: "column", gap: 16, boxShadow: "0 12px 40px rgba(0,0,0,0.25)", boxSizing: "border-box", overflow: "hidden" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>Tambah ke Keranjang</div>
+                <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {qtyModalItem.name}
+                </div>
+              </div>
+              <button onClick={() => setQtyModalItem(null)} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", padding: 0, lineHeight: 0 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Qty Stepper */}
+            <div style={{ display: "flex", alignItems: "center", gap: 0, border: "1px solid var(--ui-border)", borderRadius: 10, overflow: "hidden" }}>
+              <button
+                onClick={() => setQtyValue(Math.max(1, qtyValue - 1))}
+                style={{ width: 40, height: 40, border: "none", borderRight: "1px solid var(--ui-border)", background: "var(--ui-bg-input)", color: "var(--ui-text-primary)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >
+                <Minus size={15} />
+              </button>
+              <input
+                type="number"
+                value={qtyValue}
+                onChange={(e) => setQtyValue(Math.max(1, parseInt(e.target.value) || 1))}
+                min={1}
+                style={{ flex: 1, minWidth: 0, textAlign: "center", background: "transparent", border: "none", color: "var(--ui-text-primary)", fontSize: 16, fontWeight: 700, outline: "none", padding: "0 8px" }}
+              />
+              <button
+                onClick={() => setQtyValue(qtyValue + 1)}
+                style={{ width: 40, height: 40, border: "none", borderLeft: "1px solid var(--ui-border)", background: "var(--ui-bg-input)", color: "var(--ui-text-primary)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >
+                <Plus size={15} />
+              </button>
+            </div>
+
+            {/* UOM hint */}
+            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", textAlign: "center", marginTop: -8 }}>
+              satuan: <strong>{qtyModalItem.uom || "unit"}</strong>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => setQtyModalItem(null)}
+                style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "1px solid var(--ui-border-input)", background: "transparent", color: "var(--ui-text-secondary)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmAddToCart}
+                style={{ flex: 2, padding: "10px 0", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#f97316,#f59e0b)", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                <ShoppingCart size={14} /> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 32, right: 32,
+          background: "var(--ui-bg-card)",
+          border: "1px solid rgba(16,185,129,0.25)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+          padding: "14px 20px", borderRadius: 16,
+          display: "flex", alignItems: "center", gap: 12,
+          zIndex: 1300, fontSize: 14, fontWeight: 600,
+          color: "var(--ui-text-primary)",
+          animation: "toastIn 0.3s ease",
+          maxWidth: 340,
+        }}>
+          <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0 }} />
+          <span style={{ flex: 1, lineHeight: 1.4 }}>
+            <strong style={{ color: "var(--ui-text-primary)" }}>{toast.name}</strong> berhasil ditambahkan ke keranjang!
+          </span>
+          <button
+            onClick={() => navigate("/cart")}
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", color: "#f97316", fontWeight: 800, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", padding: 0 }}
+          >
+            Lihat <ArrowRight size={12} />
+          </button>
+        </div>
+      )}
+
       <style>{`
         @keyframes fadeSlideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.05); opacity:0.85; } }
+        @keyframes toastIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
       `}</style>
     </Layout>
   );

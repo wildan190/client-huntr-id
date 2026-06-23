@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import { addItemToCart, getCartItemCount, loadCart } from "../lib/cart";
-import { Package, ShoppingCart, ArrowLeft, ArrowRight } from "lucide-react";
+import { Package, ShoppingCart, ArrowLeft, ArrowRight, X } from "lucide-react";
 import type { Route } from "./+types/marketplace-detail";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -124,6 +124,8 @@ export default function MarketplaceDetail() {
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [isGuest, setIsGuest] = useState(false);
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -170,10 +172,17 @@ export default function MarketplaceDetail() {
   }, [id, loaderData]);
 
   const handleAddToCart = (catalogueItem: CatalogueItem) => {
+    setQuantity(1); // Reset to 1 when opening modal
+    setShowQuantityModal(true);
+  };
+
+  const confirmAddToCart = () => {
     try {
-      addItemToCart(catalogueItem as any);
+      if (!item) return;
+      addItemToCart(item as any, quantity); // Use the second parameter for quantity
       setCartCount(getCartItemCount(loadCart()));
       setCartMessage("Product added to cart.");
+      setShowQuantityModal(false);
       window.setTimeout(() => setCartMessage(null), 4000);
     } catch {
       setCartMessage("Unable to add product to cart right now.");
@@ -226,99 +235,63 @@ export default function MarketplaceDetail() {
         }
       `}</style>
 
-      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            margin: "0 0 32px 0",
-            padding: "12px 0",
-            borderBottom: "1px solid var(--ui-border)",
-            flexWrap: "wrap",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => (isGuest ? navigate("/") : navigate("/marketplace"))}
-            style={{
-              padding: "10px 18px",
-              borderRadius: 12,
-              background: "var(--ui-bg-input)",
-              border: "1px solid var(--ui-border-input)",
-              color: "var(--ui-text-primary)",
-              cursor: "pointer",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 14,
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--ui-bg-input-focus)";
-              e.currentTarget.style.borderColor = "var(--ui-border-input-focus)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--ui-bg-input)";
-              e.currentTarget.style.borderColor = "var(--ui-border-input)";
-            }}
-          >
-            <ArrowLeft size={18} />
-            {isGuest ? "Back to Home" : "Back to Marketplace"}
-          </button>
+      {/* Quantity Modal */}
+      {showQuantityModal && item && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }} onClick={() => setShowQuantityModal(false)}>
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, width: "100%", maxWidth: 400, padding: 24, display: "flex", flexDirection: "column", gap: 20 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "var(--ui-text-primary)" }}>Pilih Jumlah</h3>
+                <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--ui-text-muted)" }}>Berapa {item.uom} yang ingin Anda tambahkan?</p>
+              </div>
+              <button onClick={() => setShowQuantityModal(false)} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
 
-          {!isGuest && (
-            <Link
-              to="/cart"
-              style={{
-                padding: "10px 18px",
-                borderRadius: 12,
-                background: "var(--ui-bg-card)",
-                border: "1px solid var(--ui-border-badge)",
-                color: "var(--ui-text-brand)",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                fontSize: 14,
-                textDecoration: "none",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--ui-bg-input)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--ui-bg-card)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <ShoppingCart size={18} />
-              View Cart
-              {cartCount > 0 && (
-                <span
-                  style={{
-                    minWidth: 24,
-                    height: 24,
-                    borderRadius: 12,
-                    background: "#f59e0b",
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "0 8px",
-                  }}
-                >
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          )}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--ui-bg-input)", borderRadius: 16, padding: 12, border: "1px solid var(--ui-border)" }}>
+              <button 
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                style={{ width: 40, height: 40, borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", fontSize: 20, fontWeight: 800, cursor: "pointer" }}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                min={1}
+                style={{ flex: 1, textAlign: "center", background: "transparent", border: "none", color: "var(--ui-text-primary)", fontSize: 24, fontWeight: 800, outline: "none" }}
+              />
+              <button 
+                onClick={() => setQuantity(quantity + 1)}
+                style={{ width: 40, height: 40, borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", fontSize: 20, fontWeight: 800, cursor: "pointer" }}
+              >
+                +
+              </button>
+            </div>
+
+            <div style={{ display: "flex", gap: 12 }}>
+              <button 
+                onClick={() => setShowQuantityModal(false)}
+                style={{ flex: 1, padding: 14, borderRadius: 14, border: "1px solid var(--ui-border-input)", background: "var(--ui-bg-input)", color: "var(--ui-text-secondary)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+              >
+                Batal
+              </button>
+              <button 
+                onClick={confirmAddToCart}
+                style={{ flex: 2, padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 8px 24px rgba(16,185,129,0.25)" }}
+              >
+                <ShoppingCart size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+                Tambahkan ke Keranjang
+              </button>
+            </div>
+          </div>
         </div>
+      )}
+
+      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+
 
         {loading && (
           <div style={{ textAlign: "center", padding: 80, color: "var(--ui-text-muted)" }}>
@@ -402,16 +375,18 @@ export default function MarketplaceDetail() {
                   ))}
                 </div>
 
-                {cartMessage ? (
-                  <div style={{ color: "#065f46", background: "rgba(16,185,129,0.12)", padding: 14, borderRadius: 14, border: "1px solid rgba(16,185,129,0.25)", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                    <span>{cartMessage}</span>
-                    {!isGuest && (
-                      <Link to="/cart" style={{ color: "#059669", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13 }}>
-                        Go to Cart <ArrowRight size={14} />
-                      </Link>
-                    )}
-                  </div>
-                ) : null}
+      {/* Toast Notification */}
+      {cartMessage && (
+        <div style={{ position: "fixed", bottom: 32, right: 32, background: "var(--ui-bg-card)", border: "1px solid rgba(16,185,129,0.25)", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: "16px 20px", borderRadius: 16, display: "flex", alignItems: "center", gap: 12, zIndex: 1000, color: "var(--ui-text-primary)", fontSize: 14, fontWeight: 600 }}>
+          <CheckCircle2 size={20} color="#10b981" />
+          <span>{cartMessage}</span>
+          {!isGuest && (
+            <Link to="/cart" style={{ color: "#f59e0b", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13, marginLeft: 8 }}>
+              Go to Cart <ArrowRight size={14} />
+            </Link>
+          )}
+        </div>
+      )}
 
                 {isGuest ? (
                   <button
@@ -437,7 +412,6 @@ export default function MarketplaceDetail() {
                     <ShoppingCart size={18} /> Login to Create PR
                   </button>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     <button
                       type="button"
                       onClick={() => handleAddToCart(item)}
@@ -460,28 +434,6 @@ export default function MarketplaceDetail() {
                     >
                       <ShoppingCart size={18} /> Add to Cart
                     </button>
-                    <Link
-                      to="/cart"
-                      style={{
-                        width: "100%",
-                        padding: "13px 18px",
-                        borderRadius: 16,
-                        background: "var(--ui-bg-input)",
-                        border: "1px solid var(--ui-border)",
-                        color: "var(--ui-text-primary)",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      View Cart ({cartCount})
-                    </Link>
-                  </div>
                 )}
               </div>
             </div>

@@ -57,6 +57,7 @@ export const useCompanyViewModel = () => {
       about: found.about || "",
       keywords: Array.isArray(found.keywords) ? found.keywords.join(", ") : (found.keywords || ""),
       industry_type: found.industry_type || "",
+      hq_addresses: Array.isArray(found.hq_addresses) ? found.hq_addresses : (found.hq_addresses ? [found.hq_addresses] : [""]),
     });
   }, []);
 
@@ -171,6 +172,37 @@ export const useCompanyViewModel = () => {
     }
   };
 
+  /**
+   * Mengupdate HQ Addresses array secara dinamis
+   */
+  const updateHqAddress = useCallback((index: number, value: string) => {
+    setEditForm((prev: { hq_addresses: any; }) => {
+      const newAddresses = [...(prev.hq_addresses || [""])];
+      newAddresses[index] = value;
+      return { ...prev, hq_addresses: newAddresses };
+    });
+  }, []);
+
+  /**
+   * Menambah HQ Address baru
+   */
+  const addHqAddress = useCallback(() => {
+    setEditForm((prev: { hq_addresses: any; }) => ({
+      ...prev,
+      hq_addresses: [...(prev.hq_addresses || [""]), ""]
+    }));
+  }, []);
+
+  /**
+   * Menghapus HQ Address
+   */
+  const removeHqAddress = useCallback((index: number) => {
+    setEditForm((prev: { hq_addresses: any; }) => ({
+      ...prev,
+      hq_addresses: (prev.hq_addresses || [""]).filter((_: any, i: number) => i !== index)
+    }));
+  }, []);
+
   return {
     navigate,
     activeTab, setActiveTab,
@@ -179,6 +211,7 @@ export const useCompanyViewModel = () => {
     isEditing, setIsEditing, editForm, setEditForm, updateError, updatingCompany, handleSaveCompany,
     logoUploading, logoError, logoInputRef, handleLogoUpload,
     teamMembers, teamLoading, isInviting, inviteForm, setInviteForm, handleInviteUser, inviteError, inviteSuccess,
+    updateHqAddress, addHqAddress, removeHqAddress,
     openCompanyWorkspace: (workspace: any) => {
       setShowCompanyWorkspace(true);
       setSelectedWorkspace(workspace);

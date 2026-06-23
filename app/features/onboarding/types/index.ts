@@ -17,6 +17,7 @@ export interface CompanyFormData {
   bank_name: string;
   bank_account: string;
   bank_account_name: string;
+  hq_addresses: string[];
 }
 
 export interface UploadedDoc {

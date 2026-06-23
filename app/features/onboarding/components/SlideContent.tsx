@@ -133,7 +133,13 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
     case 2:
       return (
         <SlideSection title="Location" subtitle="Business address" icon={<MapPin size={22} className="text-amber-500" />} accentColor="#f59e0b">
-          <LocationStep formData={formData} updateField={updateField} />
+          <LocationStep 
+            formData={formData} 
+            updateField={updateField} 
+            updateHqAddress={vm.updateHqAddress}
+            addHqAddress={vm.addHqAddress}
+            removeHqAddress={vm.removeHqAddress}
+          />
         </SlideSection>
       );
 

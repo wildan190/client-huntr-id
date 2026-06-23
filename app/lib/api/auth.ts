@@ -49,10 +49,25 @@ export const logout = () => apiPost("/api/auth/logout", {});
 
 export const getAuthenticatedUser = () => apiGet("/api/user");
 
-// No more CSRF cookie needed - using bearer tokens
 export const getCsrfCookie = async () => {
-  console.log("[API] CSRF cookie not needed - using bearer tokens");
+  try {
+    const response = await fetch(`${resolveBaseUrl()}/sanctum/csrf-cookie`, {
+      credentials: 'include',
+    });
+    console.log("[API] CSRF cookie initialized");
+    return response;
+  } catch (err) {
+    console.warn("[API] Failed to fetch CSRF cookie:", err);
+  }
 };
+
+function resolveBaseUrl(): string {
+  let url = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  if (url.includes(":8443") && url.startsWith("http://")) {
+    url = url.replace("http://", "https://");
+  }
+  return url.replace(/\/$/, "");
+}
 
 export const sendOtp = async (payload: { whatsapp: string }) => {
   const whatsapp = normalizeWhatsapp(payload.whatsapp);
