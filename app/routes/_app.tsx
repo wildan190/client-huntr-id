@@ -14,6 +14,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
 import {
   LayoutDashboard,
+  ListTodo,
   Building2,
   Package,
   ClipboardList,
@@ -220,7 +221,8 @@ export default function AppShell() {
       { to: "/company", label: "Company", Icon: Building2, section: "settings", badge: "companyAlerts" },
       { to: "/account", label: "Settings", Icon: Settings, section: "settings", badge: "accountAlerts" },
     ] : [
-      { to: "/", label: "Dashboard", Icon: LayoutDashboard, section: "main", badge: "totalUnread" },
+      { to: "/", label: "Dashboard", Icon: LayoutDashboard, section: "main" },
+      { to: "/tasks", label: "Tasks", Icon: ListTodo, section: "main", badge: "totalUnread" },
 
       // Procurement (Buyer)
       ...(isBuyerComp && (isManager || isBuyerRole) ? [

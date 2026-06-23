@@ -42,3 +42,15 @@ export const markAllNotificationsAsRead = (userId: number) => {
   
   return apiPost(`/api/notifications/read-all`, payload);
 };
+
+export const clearAllNotifications = (userId: number) => {
+  const activeCompanyStr = localStorage.getItem('active_company');
+  const companyId = activeCompanyStr ? JSON.parse(activeCompanyStr).id : null;
+
+  const payload: any = { user_id: userId };
+  if (companyId) {
+    payload.company_id = companyId;
+  }
+
+  return apiPost(`/api/notifications/clear-all`, payload);
+};

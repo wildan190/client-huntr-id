@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/api";
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead, clearAllNotifications } from "../lib/api";
 import { Bell, CheckCircle2, Clock, ExternalLink, Loader2, Mail, MailOpen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
@@ -53,6 +53,16 @@ export default function Notifications() {
       console.error("Failed to mark all as read", err);
     }
   };
+  const handleClearAll = async () => {
+    if (!user) return;
+    if (!window.confirm("Hapus semua notifikasi? Tindakan ini tidak dapat dibatalkan.")) return;
+    try {
+      await clearAllNotifications(user.id);
+      setNotifications([]);
+    } catch (err) {
+      console.error("Failed to clear notifications", err);
+    }
+  };
 
   return (
     <Layout title="Notifications" subtitle="Stay updated with your latest activities and requests.">
@@ -64,18 +74,34 @@ export default function Notifications() {
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", display: "flex", alignItems: "center", gap: 10, transition: "color 0.3s ease" }}>
             <Bell size={20} color="#f59e0b" /> Recent Activity
           </h3>
-          <button 
-            onClick={handleReadAll}
-            disabled={notifications.every(n => n.read_at)}
-            style={{
-              padding: "8px 16px", borderRadius: 10, background: "rgba(249,115,22,0.1)",
-              border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", fontSize: 13,
-              fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-              opacity: notifications.every(n => n.read_at) ? 0.5 : 1, transition: "all 0.3s ease"
-            }}
-          >
-            <MailOpen size={14} /> Mark all as read
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={handleReadAll}
+              disabled={notifications.length === 0 || notifications.every(n => n.read_at)}
+              style={{
+                padding: "8px 16px", borderRadius: 10, background: "rgba(249,115,22,0.1)",
+                border: "1px solid rgba(249,115,22,0.2)", color: "#fb923c", fontSize: 13,
+                fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                opacity: (notifications.length === 0 || notifications.every(n => n.read_at)) ? 0.4 : 1,
+                transition: "all 0.3s ease"
+              }}
+            >
+              <MailOpen size={14} /> Mark all as read
+            </button>
+            <button
+              onClick={handleClearAll}
+              disabled={notifications.length === 0}
+              style={{
+                padding: "8px 16px", borderRadius: 10, background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 13,
+                fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                opacity: notifications.length === 0 ? 0.4 : 1,
+                transition: "all 0.3s ease"
+              }}
+            >
+              <Trash2 size={14} /> Clear All
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -83,7 +109,7 @@ export default function Notifications() {
             <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : notifications.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "100px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
             <Bell size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
             <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No notifications yet</h3>
           </div>

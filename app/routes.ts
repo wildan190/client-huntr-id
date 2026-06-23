@@ -46,6 +46,7 @@ export default [
     route("notifications", "routes/notifications.tsx"),
     route("account", "routes/account.tsx"),
     route("pr-audit", "routes/pr-audit.tsx"),
+    route("tasks", "routes/tasks.tsx"),
     // Catch-all for well-known and other non-route paths
     route("*", "routes/404.tsx"),
   ]),
