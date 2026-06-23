@@ -45,6 +45,7 @@ export default [
     route("efaktur", "routes/efaktur.tsx"),
     route("notifications", "routes/notifications.tsx"),
     route("account", "routes/account.tsx"),
+    route("pr-audit", "routes/pr-audit.tsx"),
     // Catch-all for well-known and other non-route paths
     route("*", "routes/404.tsx"),
   ]),

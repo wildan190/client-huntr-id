@@ -496,13 +496,9 @@ export default function MyPurchaseRequisitionDetail() {
 
               <aside className="pr-detail-aside" style={{ display: "grid", gap: 20 }}>
                 <div className="pr-detail-sticky" style={{ padding: 24, borderRadius: 28, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Delivery Address</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <DetailRow label="Address" value={request.company?.address || "Not specified"} />
-                    <DetailRow label="City" value={request.company?.city || "Not specified"} />
-                    <DetailRow label="Regency" value={request.company?.regency || "Not specified"} />
-                    <DetailRow label="Province" value={request.company?.provincy_country || "Not specified"} />
-                    <DetailRow label="Zip Code" value={request.company?.zip_code || "Not specified"} />
+                  <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.2, color: "#94a3b8", marginBottom: 16 }}>Delivery Point</div>
+                  <div style={{ fontSize: 14, color: "var(--ui-text-primary)", lineHeight: 1.6, padding: 16, borderRadius: 16, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    {request.delivery_point || request.company?.address || "Not specified"}
                   </div>
                 </div>
 

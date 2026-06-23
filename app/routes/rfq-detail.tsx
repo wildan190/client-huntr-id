@@ -942,7 +942,7 @@ export default function RfqDetail() {
                      <Calendar size={16} /> Published {new Date(rfq.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                    </div>
                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ui-text-muted)", fontSize: 14 }}>
-                     <MapPin size={16} /> {rfq.company?.address || "Location not specified"}
+                     <MapPin size={16} /> {rfq.delivery_point || rfq.company?.address || "Delivery location not specified"}
                    </div>
                 </div>
               </div>
@@ -1032,6 +1032,16 @@ export default function RfqDetail() {
                     Submit Proposal <ArrowLeft size={18} style={{ transform: "rotate(180deg)" }} />
                   </button>
                 )}
+              </div>
+
+              {/* Delivery Point */}
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                  <MapPin size={14} /> Delivery Point
+                </div>
+                <div style={{ fontSize: 13, color: "var(--ui-text-primary)", lineHeight: 1.6 }}>
+                  {rfq.delivery_point || rfq.company?.address || "Not specified"}
+                </div>
               </div>
 
               {/* Security Box */}

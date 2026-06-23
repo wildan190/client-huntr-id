@@ -219,6 +219,9 @@ export default function AppShell() {
       ...(isBuyerComp && isManager ? [
         { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" },
       ] : []),
+      ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
+        { to: "/pr-audit", label: "PR Audit Log", Icon: History, section: "procurement" },
+      ] : []),
 
       // Vendor
       ...(isVendorComp ? [

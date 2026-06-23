@@ -394,7 +394,6 @@ export default function MarketplaceDetail() {
                     { label: "SKU / Item Code", value: item.item_code },
                     { label: "Category", value: item.category || "General" },
                     { label: "Unit of Measure", value: item.uom },
-                    ...(item.company?.name ? [{ label: "Vendor", value: item.company.name }] : []),
                   ].map(({ label, value }) => (
                     <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 16, fontSize: 14, padding: "6px 0" }}>
                       <span style={{ color: "var(--ui-text-muted)", flexShrink: 0 }}>{label}</span>

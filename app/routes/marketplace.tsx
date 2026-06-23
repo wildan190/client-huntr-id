@@ -565,9 +565,6 @@ export default function Marketplace() {
                         {item.brand && (
                           <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Brand: <strong style={{ color: "var(--ui-text-secondary)" }}>{item.brand}</strong></div>
                         )}
-                        {item.company?.name && (
-                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Vendor: <strong style={{ color: "var(--ui-text-secondary)" }}>{item.company.name}</strong></div>
-                        )}
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: "#f97316", marginTop: 8 }}>
                         {item.price > 0 ? `Rp ${Number(item.price).toLocaleString("id-ID")}` : "Request Quote"}

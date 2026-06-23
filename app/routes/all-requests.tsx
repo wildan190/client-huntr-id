@@ -98,7 +98,7 @@ export default function AllRequests() {
             <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
             <Search size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
             <h3 style={{ margin: 0, fontSize: 16, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>No active requests found</h3>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Try adjusting your filters or check back later.</p>

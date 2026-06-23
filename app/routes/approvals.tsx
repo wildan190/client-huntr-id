@@ -106,7 +106,7 @@ export default function Approvals() {
               <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
             </div>
           ) : requests.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
               <CheckCircle2 size={32} style={{ opacity: 0.1, marginBottom: 16 }} />
               <p style={{ margin: 0, fontSize: 14, color: "var(--ui-text-muted)" }}>No PRs awaiting approval.</p>
             </div>
@@ -170,7 +170,7 @@ export default function Approvals() {
               <Loader2 className="animate-spin" size={32} color="var(--huntr-orange)" />
             </div>
           ) : awardedProposals.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border)" }}>
               <Trophy size={32} style={{ opacity: 0.1, marginBottom: 16 }} />
               <p style={{ margin: 0, fontSize: 14, color: "var(--ui-text-muted)" }}>No winners awaiting PO approval.</p>
             </div>

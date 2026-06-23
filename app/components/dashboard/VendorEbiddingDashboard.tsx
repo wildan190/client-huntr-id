@@ -261,21 +261,6 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
               <MiniStat label="Proposal Drafts" value={String(Math.max(openRfqs.length - vendorProposals.length, 0))} />
               <MiniStat label="Submitted Proposals" value={String(vendorProposals.length)} />
             </div>
-
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Submission Focus</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  "Review item scope and deadline first",
-                  "Keep draft pricing ready before closing time",
-                  "Open proposal detail from the table when the tender is live",
-                ].map((item) => (
-                  <div key={item} style={{ fontSize: 12, lineHeight: 1.4, color: "var(--ui-text-secondary)", padding: "6px 10px", borderRadius: 10, background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.08)" }}>
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       </div>

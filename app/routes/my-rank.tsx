@@ -289,8 +289,8 @@ const itemDetailStyle: React.CSSProperties = {
 };
 
 const emptyStateStyle: React.CSSProperties = {
-  textAlign: "center", padding: 80, background: "var(--ui-bg-card)",
-  borderRadius: 24, border: "1px dashed var(--ui-border)"
+  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+  padding: 80, background: "var(--ui-bg-card)", borderRadius: 24, border: "1px dashed var(--ui-border)"
 };
 
 const errorBoxStyle: React.CSSProperties = {

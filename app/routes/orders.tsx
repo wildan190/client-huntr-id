@@ -831,10 +831,10 @@ export default function Orders() {
         {/* PO Table/List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {orders.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
-              <FileText size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-              <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase orders found</h3>
-            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
+            <FileText size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+            <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase orders found</h3>
+          </div>
           ) : (
             orders.map(po => (
               <div key={po.id} style={{

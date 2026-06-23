@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { createRfq } from "../lib/api";
-import { ClipboardList, CheckCircle2, ArrowLeft, Loader2, Package, AlertCircle, FileText, Calendar, Paperclip } from "lucide-react";
+import { ClipboardList, CheckCircle2, ArrowLeft, Loader2, Package, AlertCircle, FileText, Calendar, Paperclip, MapPin } from "lucide-react";
 import { useNavigate } from "react-router";
 import { getAssetUrl } from "../lib/assets";
 
@@ -17,6 +17,7 @@ export default function Checkout() {
   const [prDesc, setPrDesc] = useState("");
   const [prDuration, setPrDuration] = useState(7);
   const [prDocument, setPrDocument] = useState<File | null>(null);
+  const [deliveryPoint, setDeliveryPoint] = useState("");
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -26,6 +27,9 @@ export default function Checkout() {
     if (companySession) {
       const comp = JSON.parse(companySession);
       setActiveCompany(comp);
+      if (comp.address) {
+        setDeliveryPoint(comp.address);
+      }
       if (comp.type === 'vendor') {
         navigate("/");
         return;
@@ -98,6 +102,7 @@ export default function Checkout() {
       formData.append("description", prDesc);
       formData.append("duration_days", prDuration.toString());
       formData.append("status", "pending_approval");
+      formData.append("delivery_point", deliveryPoint);
       
       if (prDocument) {
         formData.append("document", prDocument);
@@ -184,6 +189,22 @@ export default function Checkout() {
                   style={{
                     padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
                     border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14, resize: "none"
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} /> Delivery Point *</div>
+                </label>
+                <textarea 
+                  placeholder="e.g. Jl. Sudirman No. 123, Jakarta" 
+                  value={deliveryPoint}
+                  onChange={e => setDeliveryPoint(e.target.value)}
+                  rows={3}
+                  style={{
+                    padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                    border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14, resize: "vertical"
                   }}
                 />
               </div>
