@@ -139,6 +139,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .huntr-breadcrumb-scroll {
@@ -273,6 +274,38 @@
 /* ── Mobile breakpoint ───────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+  /*
+   * On mobile the sidebar is a fixed overlay — the page content no longer needs
+   * to be trapped inside a height:100dvh flex container. Let the browser's own
+   * document scroll handle vertical scrolling so it always reaches the bottom
+   * and momentum/rubber-banding work natively.
+   */
+  .huntr-app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    flex-direction: column;
+  }
+
+  .huntr-main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .huntr-main-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Page content scrolls with the document — no inner overflow scroll needed */
+  .huntr-page-content {
+    overflow: visible;
+    overscroll-behavior-y: auto;
+    /* Add bottom padding so content doesn't hide behind nav/safe-area */
+    padding-bottom: calc(var(--ui-layout-padding) + env(safe-area-inset-bottom, 0px));
+  }
+
   .huntr-sidebar-backdrop {
     display: block;
     position: fixed;
