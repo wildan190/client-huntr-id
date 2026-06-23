@@ -549,9 +549,6 @@ export default function AppShell() {
             </div>
           )}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Theme: {isAuto ? "🔄 Auto" : isDark ? "🌙 Dark" : "☀️ Light"}
-            </div>
             <ThemeToggle />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
