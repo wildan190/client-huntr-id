@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { apiGet } from "../lib/api";
 import { 
-  ClipboardList, Calendar, User, Search, Loader2, 
+  ClipboardList, User, Search, Loader2, 
   Clock, CheckCircle2, XCircle, ChevronRight 
 } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -13,6 +13,8 @@ export default function PurchaseRequisitionAudit() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCompany, setActiveCompany] = useState<any>(null);
+  // Map dari rfq.id ke proposal pemenang
+  const [winnerMap, setWinnerMap] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const companySession = localStorage.getItem("active_company");
@@ -35,7 +37,37 @@ export default function PurchaseRequisitionAudit() {
     try {
       const response = await apiGet(`/api/rfqs?company_id=${comp.id}`);
       const data = response?.data || response || [];
-      setRequests(Array.isArray(data) ? data : []);
+      const rfqs = Array.isArray(data) ? data : [];
+      setRequests(rfqs);
+
+      // Fetch rankings untuk setiap RFQ lalu ambil pemenangnya
+      const winnerEntries = await Promise.all(
+        rfqs.map(async (rfq: any) => {
+          try {
+            // Coba dari proposals dalam response dulu
+            const fromProposals = (rfq.proposals || []).find(
+              (p: any) => p.winner_status === "approved" || p.winner_status === "awarded"
+            );
+            if (fromProposals) return [String(rfq.id), fromProposals];
+
+            // Jika tidak ada, fetch dari rankings endpoint
+            const rankings = await apiGet(`/api/rfqs/${rfq.id}/rankings`);
+            const rankList: any[] = Array.isArray(rankings) ? rankings : (rankings?.rankings || []);
+            const winnerRank = rankList.find(
+              (r: any) => r.is_winner || r.proposal?.winner_status === "approved" || r.proposal?.winner_status === "awarded"
+            );
+            return [String(rfq.id), winnerRank?.proposal || null];
+          } catch {
+            return [String(rfq.id), null];
+          }
+        })
+      );
+
+      const map: Record<string, any> = {};
+      winnerEntries.forEach(([id, proposal]) => {
+        if (proposal) map[id as string] = proposal;
+      });
+      setWinnerMap(map);
     } catch (err) {
       console.error("Failed to fetch PR audit logs", err);
     } finally {
@@ -51,6 +83,18 @@ export default function PurchaseRequisitionAudit() {
       case "rejected": return { bg: "rgba(239,68,68,0.1)", color: "#f87171", icon: XCircle, label: "Rejected" };
       default: return { bg: "rgba(107,114,128,0.1)", color: "#9ca3af", icon: Clock, label: status };
     }
+  };
+
+  /** Cari proposal pemenang dari winnerMap atau proposals di request */
+  const getWinner = (req: any) => {
+    // 1. Coba cari dari proposals yang di-load langsung di object req
+    const winner = (req.proposals || []).find(
+      (p: any) => p.winner_status === "approved" || p.winner_status === "awarded"
+    );
+    if (winner) return winner;
+
+    // 2. Fallback ke winnerMap jika ada
+    return winnerMap[String(req.id)] || null;
   };
 
   const filteredRequests = requests.filter(r => 
@@ -96,6 +140,7 @@ export default function PurchaseRequisitionAudit() {
             {filteredRequests.map(req => {
               const status = getStatusStyle(req.status);
               const StatusIcon = status.icon;
+              const winner = getWinner(req);
               
               return (
                 <div key={req.id} style={{
@@ -143,6 +188,28 @@ export default function PurchaseRequisitionAudit() {
                       subValue={req.approved_at ? new Date(req.approved_at).toLocaleString() : "-"}
                       highlight={!!req.approved_by}
                     />
+
+                    {/* Won By */}
+                    <AuditRow 
+                      icon={
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={winner ? "#f59e0b" : "#9ca3af"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                        </svg>
+                      }
+                      label="Dimenangkan oleh"
+                      value={
+                        winner
+                          ? (winner.company?.name || "Vendor Terpilih")
+                          : "Belum ada pemenang"
+                      }
+                      subValue={
+                        winner
+                          ? `Rp ${Number(winner.price_offer).toLocaleString("id-ID")} · ${winner.winner_status.toUpperCase()}`
+                          : req.status === "active" ? "Tender masih berlangsung" : "-"
+                      }
+                      highlight={!!winner}
+                      highlightColor={winner ? "amber" : undefined}
+                    />
                     
                     {/* Company */}
                     <AuditRow 
@@ -167,14 +234,21 @@ function AuditRow({
   label, 
   value, 
   subValue, 
-  highlight = false 
+  highlight = false,
+  highlightColor = "green"
 }: { 
   icon: React.ReactNode; 
   label: string; 
   value: string; 
   subValue: string; 
-  highlight?: boolean; 
+  highlight?: boolean;
+  highlightColor?: "green" | "amber";
 }) {
+  const isAmber = highlightColor === "amber";
+  const highlightBg = isAmber ? "rgba(245,158,11,0.07)" : "rgba(34,197,94,0.06)";
+  const highlightBorder = isAmber ? "1px solid rgba(245,158,11,0.2)" : "1px solid rgba(34,197,94,0.15)";
+  const highlightTextColor = isAmber ? "#f59e0b" : "#22c55e";
+
   return (
     <div style={{ 
       display: "flex", 
@@ -182,13 +256,13 @@ function AuditRow({
       gap: 12, 
       padding: "12px", 
       borderRadius: 12, 
-      background: highlight ? "rgba(34,197,94,0.06)" : "var(--ui-bg-input)",
-      border: highlight ? "1px solid rgba(34,197,94,0.15)" : "1px solid var(--ui-border-input)"
+      background: highlight ? highlightBg : "var(--ui-bg-input)",
+      border: highlight ? highlightBorder : "1px solid var(--ui-border-input)"
     }}>
       <div style={{ marginTop: 2 }}>{icon}</div>
       <div>
         <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: highlight ? "#22c55e" : "var(--ui-text-primary)", marginBottom: 2 }}>{value}</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: highlight ? highlightTextColor : "var(--ui-text-primary)", marginBottom: 2 }}>{value}</div>
         {subValue && <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>{subValue}</div>}
       </div>
     </div>

@@ -137,7 +137,17 @@ export default function Approvals() {
                     </div>
                   </div>
 
-                  <div className="huntr-action-card-actions">
+                  <div className="huntr-action-card-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <button 
+                      onClick={() => navigate(`/my-pr/${req.id}`)}
+                      style={{
+                        padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
+                        border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer"
+                      }}
+                    >
+                      Review Detail
+                    </button>
                     <button 
                       onClick={() => handleApprove(req.id)}
                       disabled={processingId === req.id}
@@ -205,7 +215,17 @@ export default function Approvals() {
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>{proposal.payment_term}</div>
                   </div>
 
-                  <div className="huntr-action-card-actions">
+                  <div className="huntr-action-card-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <button 
+                      onClick={() => navigate(`/my-pr/${proposal.rfq_id}`)}
+                      style={{
+                        padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
+                        border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer"
+                      }}
+                    >
+                      Compare & Review
+                    </button>
                     <button 
                       onClick={() => handleApproveWinner(proposal.id)}
                       disabled={processingId === proposal.id}

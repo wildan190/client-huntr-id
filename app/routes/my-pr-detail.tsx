@@ -622,6 +622,43 @@ export default function MyPurchaseRequisitionDetail() {
                       {request.status === "rejected" && "This request was rejected and needs a revision before resubmission."}
                     </div>
                   </div>
+                  {request.status === "pending_approval" && activeCompany?.owner_id === localStorage.getItem("user_session") ? null : (
+                    request.status === "pending_approval" && (
+                      <button
+                        onClick={async () => {
+                          const userSession = localStorage.getItem("user_session");
+                          const user = userSession ? JSON.parse(userSession) : null;
+                          if (!user) return;
+                          try {
+                            await apiPost(`/api/rfqs/${request.id}/approve`, { manager_id: user.id });
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Approved!',
+                              text: '✓ PR Approved & Published as Global RFQ.',
+                              timer: 2000,
+                              showConfirmButton: false
+                            });
+                            // Reload detail
+                            getRfq(request.id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
+                          } catch (err) {
+                            console.error(err);
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Error',
+                              text: 'Failed to approve. Check permissions.'
+                            });
+                          }
+                        }}
+                        style={{
+                          width: "100%", marginTop: 14, padding: "10px", borderRadius: 10,
+                          background: "#22c55e", border: "none", color: "#fff", fontWeight: 800,
+                          fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                        }}
+                      >
+                        <CheckCircle2 size={14} /> Approve & Publish PR
+                      </button>
+                    )
+                  )}
                 </div>
 
                 <div style={{ padding: 16, borderRadius: 16, background: "var(--ui-bg-card)", border: `1px solid var(--ui-border)` }}>
@@ -666,6 +703,40 @@ export default function MyPurchaseRequisitionDetail() {
                             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-primary)" }}>{winner.delivery_days} days</span>
                           </div>
                         </div>
+                        {winner.winner_status === 'awarded' && activeCompany?.owner_id !== localStorage.getItem("user_session") && (
+                          <button
+                            onClick={async () => {
+                              const userSession = localStorage.getItem("user_session");
+                              const user = userSession ? JSON.parse(userSession) : null;
+                              if (!user) return;
+                              try {
+                                await apiPost(`/api/proposals/${winner.id}/approve`, { user_id: user.id });
+                                Swal.fire({
+                                  icon: 'success',
+                                  title: 'Approved!',
+                                  text: '✓ Winner approved and PO generated.',
+                                  timer: 2000,
+                                  showConfirmButton: false
+                                });
+                                getRfq(request.id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
+                              } catch (err) {
+                                console.error(err);
+                                Swal.fire({
+                                  icon: 'error',
+                                  title: 'Error',
+                                  text: 'Failed to approve winner.'
+                                });
+                              }
+                            }}
+                            style={{
+                              width: "100%", marginTop: 8, padding: "10px", borderRadius: 10,
+                              background: "var(--huntr-orange)", border: "none", color: "#fff", fontWeight: 800,
+                              fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                            }}
+                          >
+                            <CheckCircle2 size={14} /> Approve & Generate PO
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>

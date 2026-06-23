@@ -218,10 +218,15 @@ export default function Rfq() {
                 <div style={{ textAlign: "center", padding: 40, color: "#4b5563", fontSize: 13 }}>No RFQs found.</div>
               ) : (
                 rfqs.map(rfq => (
-                  <div key={rfq.id} style={{
-                    background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 12
-                  }}>
+                  <div 
+                    key={rfq.id} 
+                    onClick={() => window.location.href = `/rfq/${rfq.id}`}
+                    style={{
+                      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 12,
+                      cursor: "pointer", transition: "all 0.2s ease"
+                    }}
+                  >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280" }}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""} · {new Date(rfq.created_at).toLocaleDateString()}</div>
@@ -238,7 +243,10 @@ export default function Rfq() {
                       {/* Manager Approval Button */}
                       {rfq.status === 'draft' && user?.role === 'manager' && (
                         <button
-                          onClick={() => handleApproveRfq(rfq.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApproveRfq(rfq.id);
+                          }}
                           style={{
                             background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.3)",
                             borderRadius: 8, padding: "6px 12px", color: "#34d399",

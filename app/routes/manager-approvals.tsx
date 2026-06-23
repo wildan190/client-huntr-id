@@ -49,9 +49,17 @@ export default function ManagerApprovals() {
 
   const fetchAwaitingApprovals = async () => {
     setLoading(true);
+    const activeCompStr = localStorage.getItem("active_company");
+    if (!activeCompStr) {
+      setError("No active company context found.");
+      setLoading(false);
+      return;
+    }
+    const comp = JSON.parse(activeCompStr);
+    
     try {
-      // Fetch all proposals with winner_status = 'awarded'
-      const response = await apiGet("/api/proposals/manager/awaiting-approval");
+      // Fetch all proposals with winner_status = 'awarded' passing company_id
+      const response = await apiGet(`/api/proposals/manager/awaiting-approval?company_id=${comp.id}`);
       setApprovals(response.proposals || []);
     } catch (err: any) {
       setError(err.message || "Failed to fetch approvals");

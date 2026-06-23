@@ -117,7 +117,7 @@ export default function MyPurchaseRequisitions() {
               const StatusIcon = status.icon;
               return (
                 <div key={req.id} className="huntr-action-card" style={{ background: "var(--ui-bg-card)", borderRadius: 12, border: "1px solid var(--ui-border)", transition: "all 0.3s ease", position: "relative", cursor: "pointer" }}>
-                  <div onClick={() => navigate(`/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
+                  <div onClick={() => navigate(req.status === 'active' ? `/rfq/${req.id}` : `/my-pr/${req.id}`)} style={{ position: "absolute", inset: 0, cursor: "pointer", zIndex: 0 }} />
                   <div style={{ flex: 1, position: "relative", zIndex: 1, padding: "14px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>
@@ -143,7 +143,7 @@ export default function MyPurchaseRequisitions() {
                       <StatusIcon size={12} /> {status.label}
                     </div>
 
-                    <button onClick={(e) => { e.stopPropagation(); navigate(`/my-pr/${req.id}`); }} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 1, transition: "all 0.3s ease" }}>
+                    <button onClick={(e) => { e.stopPropagation(); navigate(req.status === 'active' ? `/rfq/${req.id}` : `/my-pr/${req.id}`); }} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 1, transition: "all 0.3s ease" }}>
                       <ChevronRight size={16} />
                     </button>
                   </div>

@@ -139,7 +139,14 @@ export const useCompanyViewModel = () => {
     setUpdatingCompany(true);
     setUpdateError(null);
     try {
-      const res = await updateCompany(company.id, editForm);
+      // Serialize hq_addresses as JSON string for backend compatibility
+      const payload = {
+        ...editForm,
+        hq_addresses: Array.isArray(editForm.hq_addresses)
+          ? editForm.hq_addresses.filter((a: string) => a.trim() !== "")
+          : [],
+      };
+      const res = await updateCompany(company.id, payload);
       const updated = res.company || res;
       syncActiveCompany(updated);
       setIsEditing(false);

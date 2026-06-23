@@ -369,7 +369,7 @@ export default function Proposals() {
     if (!activeCompany || !selectedRfq) return;
 
     // Prevent double submit
-    if (isProcessing.current) {
+    if (isProcessing.current || loading) {
       console.warn("Request already in progress");
       return;
     }
@@ -403,16 +403,17 @@ export default function Proposals() {
       setVendorSubmittedRfqIds(prev => selectedRfq ? [...new Set([...prev, selectedRfq.id])] : prev);
       setSelectedRfq(null);
       setHasSubmittedForSelectedRfq(false);
-      setForm({ delivery_days: "", warranty_months: "12", payment_term: "30 days", document: null, items: [] });
+      setForm({ delivery_days: "7", warranty_months: "12", payment_term: "30 days", document: null, items: [] });
       setTimeout(() => setResult(null), 5000);
       fetchOpenTenders();
     } catch (err: any) {
       setError(err.message || "Failed to submit proposal");
+      isProcessing.current = false;
     } finally {
       setLoading(false);
       setTimeout(() => {
         isProcessing.current = false;
-      }, 500);
+      }, 1000);
     }
   };
 
