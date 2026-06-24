@@ -477,11 +477,17 @@ function AdminCatalogueTab() {
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [search, setSearch] = useState("");
 
-  const fetchCatalogues = async (s = search) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [perPage] = useState(12);
+
+  const fetchCatalogues = async (page = currentPage, s = search) => {
     setIsLoading(true);
     try {
-      const res = await adminGetCatalogue({ search: s });
+      const res = await adminGetCatalogue({ page, per_page: perPage, search: s });
       setCatalogues(res.data || []);
+      setCurrentPage(res.current_page || 1);
+      setTotalPages(res.last_page || 1);
     } catch (err) {
       console.error(err);
     } finally {
@@ -491,7 +497,7 @@ function AdminCatalogueTab() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchCatalogues(search);
+      fetchCatalogues(1, search);
     }, 400);
     return () => clearTimeout(timer);
   }, [search]);
@@ -623,6 +629,46 @@ function AdminCatalogueTab() {
             </div>
           ))}
           {catalogues.length === 0 && <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 40, color: "var(--ui-text-muted)" }}>No products found</div>}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 32 }}>
+          <button
+            onClick={() => {
+              const prev = Math.max(1, currentPage - 1);
+              fetchCatalogues(prev);
+            }}
+            disabled={currentPage === 1}
+            style={{
+              padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+              background: currentPage === 1 ? "var(--ui-bg-input)" : "rgba(249,115,22,0.15)",
+              color: currentPage === 1 ? "var(--ui-text-muted)" : "#f97316",
+              border: "none", cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              transition: "all 0.2s"
+            }}
+          >
+            Previous
+          </button>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-muted)" }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => {
+              const next = Math.min(totalPages, currentPage + 1);
+              fetchCatalogues(next);
+            }}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+              background: currentPage === totalPages ? "var(--ui-bg-input)" : "rgba(249,115,22,0.15)",
+              color: currentPage === totalPages ? "var(--ui-text-muted)" : "#f97316",
+              border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+              transition: "all 0.2s"
+            }}
+          >
+            Next
+          </button>
         </div>
       )}
 
