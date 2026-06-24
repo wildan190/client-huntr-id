@@ -4,9 +4,9 @@ import Layout from "../components/Layout";
 import QRCode from "qrcode";
 import {
   FileText, RefreshCw, ChevronDown, ChevronRight, Loader2,
-  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard, Signature, AlertCircle, Download, QrCode
+  Calendar, Building, User, CheckCircle2, ChevronLeft, Package, Clock, UploadCloud, FileSpreadsheet, X, Search, ReceiptText, CreditCard, Signature, AlertCircle, Download, QrCode, Truck, BoxIcon, MapPin, ArrowRight
 } from "lucide-react";
-import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl, arrangeDelivery, publishInvoice } from "../lib/api";
+import { getOrders, uploadCompanyDocument, importHistoricalPo, importCatalogue, getCsrfCookie, apiPost, getFullApiUrl, arrangeDelivery, publishInvoice, updatePoTrackingStatus } from "../lib/api";
 import { getAssetUrl } from "../lib/assets";
 import PaymentModal from "../components/PaymentModal";
 
@@ -539,6 +539,40 @@ export default function Orders() {
     }
   };
 
+  const handleUpdateTrackingStatus = async (
+    poId: string,
+    status: 'packing' | 'in_transit' | 'delivered',
+    currentPoStatus: string
+  ) => {
+    if (!company) return;
+
+    // For in_transit, also prompt for tracking/resi number if not yet set
+    let note: string | undefined;
+    if (status === 'in_transit') {
+      const resi = window.prompt('Enter Tracking Number / Resi (optional):');
+      if (resi === null) return; // cancelled
+      if (resi) note = resi;
+    }
+
+    setProcessingId(poId);
+    setError(null);
+    try {
+      await updatePoTrackingStatus(poId, company.id, status, note);
+      const labels: Record<string, string> = {
+        packing: 'Goods Being Packed',
+        in_transit: 'In Transit',
+        delivered: 'Goods Delivered',
+      };
+      setSuccessMessage(`✓ Status updated: ${labels[status]}! Buyer has been notified.`);
+      fetchOrders(company.id, currentPage, searchQuery, activeTab);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update tracking status');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const handleIssueBast = async (poId: string) => {
     if (!company || !user) return;
     setIssuingBastId(poId);
@@ -926,6 +960,41 @@ export default function Orders() {
                       </button>
                     )}
 
+                    {/* Vendor tracking action buttons */}
+                    {company.type === 'vendor' && po.status === 'confirmed' && (
+                      <button
+                        onClick={() => handleUpdateTrackingStatus(po.id, 'packing', po.status)}
+                        disabled={processingId === po.id}
+                        style={{
+                          background: "linear-gradient(135deg,#8b5cf6,#7c3aed)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: processingId === po.id ? "wait" : "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(139,92,246,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <Package size={12} />}
+                        Mark as Packing
+                      </button>
+                    )}
+
+                    {company.type === 'vendor' && po.status === 'packing' && (
+                      <button
+                        onClick={() => handleArrangeDelivery(po.id, po.buyer_address)}
+                        disabled={processingId === po.id}
+                        style={{
+                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: processingId === po.id ? "wait" : "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(59,130,246,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
+                        Arrange Delivery
+                      </button>
+                    )}
+
                     {company.type === 'vendor' && po.status === 'paid' && (
                       <button
                         onClick={() => handleArrangeDelivery(po.id, po.buyer_address)}
@@ -938,8 +1007,25 @@ export default function Orders() {
                           boxShadow: "0 4px 12px rgba(59,130,246,0.2)", transition: "all 0.2s ease",
                         }}
                       >
-                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <Package size={12} />}
+                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
                         Arrange Delivery
+                      </button>
+                    )}
+
+                    {company.type === 'vendor' && po.status === 'in_transit' && (
+                      <button
+                        onClick={() => handleUpdateTrackingStatus(po.id, 'delivered', po.status)}
+                        disabled={processingId === po.id}
+                        style={{
+                          background: "linear-gradient(135deg,#22c55e,#16a34a)", border: "none", borderRadius: 12,
+                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          cursor: processingId === po.id ? "wait" : "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          boxShadow: "0 4px 12px rgba(34,197,94,0.2)", transition: "all 0.2s ease",
+                        }}
+                      >
+                        {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                        Mark as Delivered
                       </button>
                     )}
 
@@ -979,29 +1065,136 @@ export default function Orders() {
                     display: "flex", flexDirection: "column", gap: 32,
                     boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)", transition: "all 0.3s ease"
                   }}>
-                    {/* Upper Detail Grid */}
+                    {/* 5-Step Order Progress Timeline */}
                     <div style={{ background: "rgba(249,115,22,0.05)", padding: 20, borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", marginBottom: 24 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Order Progress</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
-                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#4ade80", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>✓</div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-primary)" }}>PO Issued</span>
-                          <div style={{ position: "absolute", top: 12, left: "50%", width: "100%", height: 2, background: po.status === 'confirmed' ? "#4ade80" : "rgba(255,255,255,0.1)", zIndex: 0 }} />
-                        </div>
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
-                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: po.status === 'confirmed' ? "#4ade80" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>
-                            {po.status === 'confirmed' ? "✓" : "2"}
-                          </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: po.status === 'confirmed' ? "var(--ui-text-primary)" : "var(--ui-text-muted)" }}>Vendor Confirmed</span>
-                          <div style={{ position: "absolute", top: 12, left: "50%", width: "100%", height: 2, background: (po.invoices && po.invoices.length > 0) ? "#4ade80" : "rgba(255,255,255,0.1)", zIndex: 0 }} />
-                        </div>
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
-                          <div style={{ width: 24, height: 24, borderRadius: "50%", background: (po.invoices && po.invoices.length > 0) ? "#4ade80" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, zIndex: 1 }}>
-                            {(po.invoices && po.invoices.length > 0) ? "✓" : "3"}
-                          </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: (po.invoices && po.invoices.length > 0) ? "var(--ui-text-primary)" : "var(--ui-text-muted)" }}>Invoice Ready</span>
-                        </div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span>Order Progress</span>
+                        {company.type === 'vendor' && (
+                          <a href="/track" target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: "#3b82f6", fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                            <MapPin size={10} /> Public Tracking Page
+                          </a>
+                        )}
                       </div>
+                      {(() => {
+                        const steps = [
+                          { key: 'issued',     label: 'PO Issued',           icon: FileText,      color: '#f59e0b' },
+                          { key: 'confirmed',  label: 'PO Confirmed',        icon: CheckCircle2,  color: '#f97316' },
+                          { key: 'paid',       label: 'Payment Received',    icon: CreditCard,    color: '#3b82f6' },
+                          { key: 'packing',    label: 'Goods Being Packed',  icon: Package,       color: '#8b5cf6' },
+                          { key: 'in_transit', label: 'In Transit',          icon: Truck,         color: '#06b6d4' },
+                          { key: 'delivered',  label: 'Goods Delivered',     icon: CheckCircle2,  color: '#22c55e' },
+                        ];
+
+                        const statusOrder = ['issued','published','confirmed','paid','packing','in_transit','delivery','delivered','completed','done'];
+                        const currentIdx = statusOrder.indexOf(po.status);
+
+                        const isReached = (stepKey: string) => {
+                          const stepIdx = statusOrder.indexOf(stepKey);
+                          return stepIdx !== -1 && currentIdx >= stepIdx;
+                        };
+
+                        const timelineMap: Record<string, any> = {};
+                        (po.tracking_timeline || []).forEach((entry: any) => {
+                          timelineMap[entry.status] = entry;
+                        });
+
+                        return (
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 0, overflowX: "auto", paddingBottom: 4 }}>
+                            {steps.map((step, idx) => {
+                              const StepIcon = step.icon;
+                              const done = isReached(step.key);
+                              const isCurrent = po.status === step.key || (step.key === 'issued' && ['published','issued'].includes(po.status));
+                              const entry = timelineMap[step.key];
+                              const isLast = idx === steps.length - 1;
+
+                              return (
+                                <div key={step.key} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", minWidth: 80 }}>
+                                  {/* Connector line */}
+                                  {!isLast && (
+                                    <div style={{
+                                      position: "absolute", top: 16, left: "50%", width: "100%", height: 2,
+                                      background: isReached(steps[idx + 1]?.key) ? step.color : "var(--ui-border-input)",
+                                      transition: "background 0.4s ease", zIndex: 0
+                                    }} />
+                                  )}
+
+                                  {/* Step circle */}
+                                  <div style={{
+                                    width: 32, height: 32, borderRadius: "50%",
+                                    background: done ? step.color : "var(--ui-bg-input)",
+                                    border: `2px solid ${done ? step.color : 'var(--ui-border-input)'}`,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    zIndex: 1, position: "relative",
+                                    boxShadow: isCurrent ? `0 0 0 4px ${step.color}30` : 'none',
+                                    transition: "all 0.4s ease"
+                                  }}>
+                                    {done ? (
+                                      <StepIcon size={14} color="#fff" />
+                                    ) : (
+                                      <span style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 700 }}>{idx + 1}</span>
+                                    )}
+                                  </div>
+
+                                  {/* Step label */}
+                                  <div style={{ marginTop: 8, textAlign: "center", padding: "0 4px" }}>
+                                    <div style={{ fontSize: 10, fontWeight: 800, color: done ? step.color : "var(--ui-text-muted)", transition: "color 0.4s ease", lineHeight: 1.3 }}>
+                                      {step.label}
+                                    </div>
+                                    {entry?.timestamp && (
+                                      <div style={{ fontSize: 9, color: "var(--ui-text-muted)", marginTop: 3, fontWeight: 600 }}>
+                                        {new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+
+                      {/* Vendor Action Panel — next step prompt */}
+                      {company.type === 'vendor' && (() => {
+                        const nextActions: Record<string, { label: string; status: 'packing' | 'in_transit' | 'delivered'; color: string; description: string }> = {
+                          confirmed:  { label: 'Mark as Packing',    status: 'packing',    color: '#8b5cf6', description: 'Confirm that goods are being packed for shipment' },
+                          packing:    { label: 'Arrange Delivery',   status: 'in_transit', color: '#3b82f6', description: 'Enter tracking/resi number and dispatch goods' },
+                          in_transit: { label: 'Mark as Delivered',  status: 'delivered',  color: '#22c55e', description: 'Confirm that goods have been delivered to buyer' },
+                        };
+                        const action = nextActions[po.status];
+                        if (!action) return null;
+
+                        const handleClick = () => {
+                          if (action.status === 'in_transit') {
+                            handleArrangeDelivery(po.id, po.buyer_address);
+                          } else {
+                            handleUpdateTrackingStatus(po.id, action.status, po.status);
+                          }
+                        };
+
+                        return (
+                          <div style={{ marginTop: 16, padding: "12px 16px", background: `${action.color}15`, border: `1px solid ${action.color}30`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                            <div>
+                              <div style={{ fontSize: 11, fontWeight: 800, color: action.color }}>Next Action Required</div>
+                              <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 2 }}>{action.description}</div>
+                            </div>
+                            <button
+                              onClick={handleClick}
+                              disabled={processingId === po.id}
+                              style={{
+                                background: action.color, border: "none", borderRadius: 10,
+                                padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 11,
+                                cursor: processingId === po.id ? "wait" : "pointer",
+                                display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap",
+                                boxShadow: `0 4px 12px ${action.color}30`, transition: "all 0.2s ease",
+                                flexShrink: 0
+                              }}
+                            >
+                              {processingId === po.id ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
+                              {action.label}
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div className="huntr-grid-2col" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" }}>

@@ -62,3 +62,25 @@ export const publishInvoice = (invoiceId: string | number, companyId: string | n
 
 export const approveInvoice = (invoiceId: string | number, companyId: string | number) => 
   apiPost(`/api/invoices/${invoiceId}/approve`, { company_id: companyId });
+
+// --- Tracking ---
+/** Vendor advances the PO tracking status (packing / in_transit / delivered) */
+export const updatePoTrackingStatus = (
+  poId: string | number,
+  companyId: string | number,
+  status: 'packing' | 'in_transit' | 'delivered',
+  note?: string
+) =>
+  apiPost(`/api/orders/${poId}/update-tracking-status`, {
+    company_id: companyId,
+    status,
+    note,
+  });
+
+/** Public tracking — no auth required */
+export const publicTrackShipment = (params: { po_number?: string; tracking_number?: string }) => {
+  const qs = new URLSearchParams();
+  if (params.po_number) qs.set('po_number', params.po_number);
+  if (params.tracking_number) qs.set('tracking_number', params.tracking_number);
+  return apiGet(`/api/track?${qs.toString()}`);
+};
