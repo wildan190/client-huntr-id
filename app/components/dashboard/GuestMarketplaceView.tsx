@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Search, Package, Loader2, ChevronRight, ArrowRight } from "lucide-react";
+import { Search, Package, Loader2, ChevronRight, ArrowRight, Truck, ShieldCheck } from "lucide-react";
 import { getCatalogues } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
 import ThemeToggle from "../ThemeToggle";
@@ -131,31 +131,46 @@ export function GuestMarketplaceView() {
             <div style={{ fontSize: "clamp(7px, 2vw, 9px)", color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "clamp(8px, 2vw, 12px)", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 10px)", alignItems: "center" }}>
+          {/* Quick access links */}
+          <Link to="/track" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "8px 14px", borderRadius: 10,
+            background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
+            color: "#60a5fa", textDecoration: "none", fontSize: 12, fontWeight: 700,
+            whiteSpace: "nowrap",
+          }}>
+            <Truck size={13} /> Track Order
+          </Link>
+          <Link to="/verify" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "8px 14px", borderRadius: 10,
+            background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
+            color: "#4ade80", textDecoration: "none", fontSize: 12, fontWeight: 700,
+            whiteSpace: "nowrap",
+          }}>
+            <ShieldCheck size={13} /> Verify Doc
+          </Link>
           <Link to="/register" style={{
-            padding: "clamp(8px, 2vw, 10px) clamp(14px, 3vw, 24px)", 
-            borderRadius: 12, 
-            fontSize: "clamp(12px, 2.5vw, 14px)", 
+            padding: "clamp(8px, 2vw, 10px) clamp(14px, 3vw, 24px)",
+            borderRadius: 12,
+            fontSize: "clamp(12px, 2.5vw, 14px)",
             fontWeight: 700,
             background: "linear-gradient(135deg,#f97316,#f59e0b)",
-            color: "#fff", 
-            textDecoration: "none", 
+            color: "#fff",
+            textDecoration: "none",
             boxShadow: "0 10px 20px rgba(249,115,22,0.2)",
             whiteSpace: "nowrap"
           }}>Get Started</Link>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
+              width: 40, height: 40, borderRadius: 10,
               background: "var(--ui-bg-card)",
               border: "1px solid var(--ui-border)",
               color: "var(--ui-text-primary)",
               cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center",
               transition: "all 0.2s"
             }}
           >
@@ -227,7 +242,7 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* Sidebar Content */}
-        <div style={{ flex: 1, padding: "clamp(16px, 4vw, 20px)", display: "flex", flexDirection: "column", gap: "clamp(12px, 3vw, 16px)" }}>
+        <div style={{ flex: 1, padding: "clamp(16px, 4vw, 20px)", display: "flex", flexDirection: "column", gap: "clamp(10px, 2vw, 12px)" }}>
           {/* Theme Toggle */}
           <div style={{
             padding: "clamp(12px, 3vw, 16px)",
@@ -242,19 +257,35 @@ export function GuestMarketplaceView() {
             <ThemeToggle />
           </div>
 
+          {/* Track Order */}
+          <Link to="/track" onClick={() => setIsSidebarOpen(false)} style={{
+            padding: "clamp(12px, 3vw, 14px) clamp(14px, 3vw, 18px)",
+            borderRadius: 12, fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700,
+            color: "#60a5fa", textDecoration: "none",
+            background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
+            display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <Truck size={16} /> Track Order
+          </Link>
+
+          {/* Verify Document */}
+          <Link to="/verify" onClick={() => setIsSidebarOpen(false)} style={{
+            padding: "clamp(12px, 3vw, 14px) clamp(14px, 3vw, 18px)",
+            borderRadius: 12, fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700,
+            color: "#4ade80", textDecoration: "none",
+            background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+            display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <ShieldCheck size={16} /> Verify Document
+          </Link>
+
           {/* Sign In Link */}
           <Link to="/login" style={{
             padding: "clamp(12px, 3vw, 16px)",
-            borderRadius: 12,
-            fontSize: "clamp(12px, 2.5vw, 14px)",
-            fontWeight: 600,
-            color: "var(--ui-text-primary)",
-            textDecoration: "none",
-            transition: "all 0.2s",
-            background: "var(--ui-bg-card)",
-            border: "1px solid var(--ui-border)",
-            textAlign: "center",
-            cursor: "pointer"
+            borderRadius: 12, fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 600,
+            color: "var(--ui-text-primary)", textDecoration: "none", transition: "all 0.2s",
+            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+            textAlign: "center", cursor: "pointer"
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = "rgba(249,115,22,0.1)";
@@ -480,64 +511,85 @@ export function GuestMarketplaceView() {
           </div>
         )}
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32 }}>
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 10,
-                border: "1px solid var(--ui-border)",
-                background: "var(--ui-bg-card)",
-                color: "var(--ui-text-primary)",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                opacity: currentPage === 1 ? 0.5 : 1,
-                fontSize: 13,
-                fontWeight: 600,
-              }}
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+        {/* Smart Pagination */}
+        {totalPages > 1 && (() => {
+          // Build page list with ellipsis
+          const delta = 1;
+          const pages: (number | '...')[] = [];
+          const left = Math.max(2, currentPage - delta);
+          const right = Math.min(totalPages - 1, currentPage + delta);
+
+          pages.push(1);
+          if (left > 2) pages.push('...');
+          for (let i = left; i <= right; i++) pages.push(i);
+          if (right < totalPages - 1) pages.push('...');
+          if (totalPages > 1) pages.push(totalPages);
+
+          return (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 40 }}>
+              {/* Prev */}
               <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  border: currentPage === pageNum ? "none" : "1px solid var(--ui-border)",
-                  background: currentPage === pageNum ? "linear-gradient(135deg,#f97316,#f59e0b)" : "var(--ui-bg-card)",
-                  color: currentPage === pageNum ? "#fff" : "var(--ui-text-primary)",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
+                  display: "flex", alignItems: "center", gap: 4,
+                  padding: "9px 16px", borderRadius: 12,
+                  border: "1px solid var(--ui-border)",
+                  background: currentPage === 1 ? "transparent" : "var(--ui-bg-card)",
+                  color: currentPage === 1 ? "var(--ui-text-muted)" : "var(--ui-text-primary)",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  fontSize: 13, fontWeight: 700, transition: "all 0.2s",
+                  opacity: currentPage === 1 ? 0.4 : 1,
                 }}
               >
-                {pageNum}
+                ← Prev
               </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 10,
-                border: "1px solid var(--ui-border)",
-                background: "var(--ui-bg-card)",
-                color: "var(--ui-text-primary)",
-                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                opacity: currentPage === totalPages ? 0.5 : 1,
-                fontSize: 13,
-                fontWeight: 600,
-              }}
-            >
-              Next
-            </button>
-          </div>
-        )}
+
+              {/* Page numbers */}
+              {pages.map((p, i) =>
+                p === '...' ? (
+                  <span key={`ellipsis-${i}`} style={{ width: 36, textAlign: "center", color: "var(--ui-text-muted)", fontSize: 13, fontWeight: 700 }}>…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => handlePageChange(p as number)}
+                    style={{
+                      width: 38, height: 38, borderRadius: 12,
+                      border: currentPage === p ? "none" : "1px solid var(--ui-border)",
+                      background: currentPage === p
+                        ? "linear-gradient(135deg,#f97316,#f59e0b)"
+                        : "var(--ui-bg-card)",
+                      color: currentPage === p ? "#fff" : "var(--ui-text-primary)",
+                      cursor: "pointer", fontSize: 13, fontWeight: 800,
+                      boxShadow: currentPage === p ? "0 4px 12px rgba(249,115,22,0.3)" : "none",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+
+              {/* Next */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  padding: "9px 16px", borderRadius: 12,
+                  border: "1px solid var(--ui-border)",
+                  background: currentPage === totalPages ? "transparent" : "var(--ui-bg-card)",
+                  color: currentPage === totalPages ? "var(--ui-text-muted)" : "var(--ui-text-primary)",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  fontSize: 13, fontWeight: 700, transition: "all 0.2s",
+                  opacity: currentPage === totalPages ? 0.4 : 1,
+                }}
+              >
+                Next →
+              </button>
+            </div>
+          );
+        })()}
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
@@ -550,10 +602,10 @@ export function GuestMarketplaceView() {
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(clamp(150px, 40vw, 200px), 1fr))", gap: "clamp(20px, 5vw, 40px)" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-              <img 
-                src="/assets/img/logo/emblem.jpg" 
-                alt="Huntr Logo" 
-                style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} 
+              <img
+                src="/assets/img/logo/emblem.jpg"
+                alt="Huntr Logo"
+                style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }}
               />
               <span style={{ fontWeight: 800, fontSize: "clamp(14px, 3vw, 16px)", color: "var(--ui-text-logo)" }}>Huntr.id</span>
             </div>
@@ -565,6 +617,21 @@ export function GuestMarketplaceView() {
               <li><Link to="/marketplace" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Marketplace</Link></li>
               <li><Link to="/register" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Vendor Registration</Link></li>
               <li><Link to="/login" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none" }}>Buyer Portal</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Tools</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              <li>
+                <Link to="/track" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "#60a5fa", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Truck size={12} /> Track Order
+                </Link>
+              </li>
+              <li>
+                <Link to="/verify" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "#4ade80", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                  <ShieldCheck size={12} /> Verify Document
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

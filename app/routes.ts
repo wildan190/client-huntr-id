@@ -14,6 +14,7 @@ export default [
   route("admin", "routes/admin.tsx"),
   route("invite/accept", "routes/invite-accept.tsx"),
   route("track", "routes/tracking.tsx"),
+  route("verify", "routes/verify.tsx"),
 
   // ── Authenticated routes (inside persistent AppShell) ─────────────────────
   // _app.tsx renders the sidebar, header, notification sound, badge counts.
