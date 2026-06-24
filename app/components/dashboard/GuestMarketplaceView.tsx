@@ -132,24 +132,25 @@ export function GuestMarketplaceView() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 10px)", alignItems: "center" }}>
-          {/* Quick access links */}
-          <Link to="/track" style={{
-            display: "flex", alignItems: "center", gap: 6,
-            padding: "8px 14px", borderRadius: 10,
-            background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
-            color: "#60a5fa", textDecoration: "none", fontSize: 12, fontWeight: 700,
-            whiteSpace: "nowrap",
+          {/* Track Order — icon button */}
+          <Link to="/track" title="Track Order" style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+            padding: "6px 10px", borderRadius: 10,
+            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+            color: "var(--ui-text-muted)", textDecoration: "none",
           }}>
-            <Truck size={13} /> Track Order
+            <Truck size={16} color="#f97316" />
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Track</span>
           </Link>
-          <Link to="/verify" style={{
-            display: "flex", alignItems: "center", gap: 6,
-            padding: "8px 14px", borderRadius: 10,
-            background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
-            color: "#4ade80", textDecoration: "none", fontSize: 12, fontWeight: 700,
-            whiteSpace: "nowrap",
+          {/* Verify Doc — icon button */}
+          <Link to="/verify" title="Verify Document" style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+            padding: "6px 10px", borderRadius: 10,
+            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+            color: "var(--ui-text-muted)", textDecoration: "none",
           }}>
-            <ShieldCheck size={13} /> Verify Doc
+            <ShieldCheck size={16} color="#f59e0b" />
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Verify</span>
           </Link>
           <Link to="/register" style={{
             padding: "clamp(8px, 2vw, 10px) clamp(14px, 3vw, 24px)",
@@ -257,27 +258,27 @@ export function GuestMarketplaceView() {
             <ThemeToggle />
           </div>
 
-          {/* Track Order */}
-          <Link to="/track" onClick={() => setIsSidebarOpen(false)} style={{
-            padding: "clamp(12px, 3vw, 14px) clamp(14px, 3vw, 18px)",
-            borderRadius: 12, fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700,
-            color: "#60a5fa", textDecoration: "none",
-            background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
-            display: "flex", alignItems: "center", gap: 10,
-          }}>
-            <Truck size={16} /> Track Order
-          </Link>
-
-          {/* Verify Document */}
-          <Link to="/verify" onClick={() => setIsSidebarOpen(false)} style={{
-            padding: "clamp(12px, 3vw, 14px) clamp(14px, 3vw, 18px)",
-            borderRadius: 12, fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700,
-            color: "#4ade80", textDecoration: "none",
-            background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
-            display: "flex", alignItems: "center", gap: 10,
-          }}>
-            <ShieldCheck size={16} /> Verify Document
-          </Link>
+          {/* Quick tools row — icon + caption */}
+          <div style={{ display: "flex", gap: 10 }}>
+            <Link to="/track" onClick={() => setIsSidebarOpen(false)} style={{
+              flex: 1, padding: "14px 10px", borderRadius: 12,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-muted)", textDecoration: "none",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+            }}>
+              <Truck size={22} color="#f97316" />
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.03em" }}>Track Order</span>
+            </Link>
+            <Link to="/verify" onClick={() => setIsSidebarOpen(false)} style={{
+              flex: 1, padding: "14px 10px", borderRadius: 12,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-muted)", textDecoration: "none",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+            }}>
+              <ShieldCheck size={22} color="#f59e0b" />
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.03em" }}>Verify Doc</span>
+            </Link>
+          </div>
 
           {/* Sign In Link */}
           <Link to="/login" style={{
@@ -623,13 +624,13 @@ export function GuestMarketplaceView() {
             <h4 style={{ fontSize: "clamp(12px, 2.5vw, 14px)", fontWeight: 700, color: "var(--ui-text-primary)", marginBottom: 20 }}>Tools</h4>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
               <li>
-                <Link to="/track" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "#60a5fa", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
-                  <Truck size={12} /> Track Order
+                <Link to="/track" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Truck size={12} color="#f97316" /> Track Order
                 </Link>
               </li>
               <li>
-                <Link to="/verify" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "#4ade80", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
-                  <ShieldCheck size={12} /> Verify Document
+                <Link to="/verify" style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--ui-text-muted)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                  <ShieldCheck size={12} color="#f59e0b" /> Verify Document
                 </Link>
               </li>
             </ul>
