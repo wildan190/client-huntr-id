@@ -475,11 +475,12 @@ function AdminCatalogueTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [search, setSearch] = useState("");
 
-  const fetchCatalogues = async () => {
+  const fetchCatalogues = async (s = search) => {
     setIsLoading(true);
     try {
-      const res = await adminGetCatalogue();
+      const res = await adminGetCatalogue({ search: s });
       setCatalogues(res.data || []);
     } catch (err) {
       console.error(err);
@@ -489,8 +490,11 @@ function AdminCatalogueTab() {
   };
 
   useEffect(() => {
-    fetchCatalogues();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchCatalogues(search);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -545,6 +549,18 @@ function AdminCatalogueTab() {
         >
           Add Product
         </button>
+      </div>
+
+      <div style={{ display: "flex", gap: 14, marginBottom: 20 }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: "10px 16px" }}>
+          <Search size={15} color="var(--ui-text-muted)" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Cari katalog (nama produk, item code, nama perusahaan)…"
+            style={{ background: "none", border: "none", outline: "none", color: "var(--ui-text-primary)", width: "100%" }}
+          />
+        </div>
       </div>
 
       {isLoading ? <Loader2 className="animate-spin" /> : (
