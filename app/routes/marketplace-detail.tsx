@@ -290,7 +290,15 @@ export default function MarketplaceDetail() {
         </div>
       )}
 
-      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: isGuest ? "40px 20px 80px" : "20px" }}>
+        {isGuest && (
+          <div style={{ marginBottom: 24 }}>
+            <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--ui-text-muted)", textDecoration: "none", fontSize: 14, fontWeight: 600, transition: "color 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ui-text-primary)")} onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ui-text-muted)")}>
+              <ArrowLeft size={16} />
+              Kembali ke Katalog
+            </Link>
+          </div>
+        )}
 
 
         {loading && (
