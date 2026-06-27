@@ -26,6 +26,8 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const searchCache = useRef<Record<string, AddressOption[]>>({});
 
   /**
    * Fetch address suggestions from Geoapify
@@ -33,6 +35,12 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
   const fetchAddressSuggestions = async (searchText: string) => {
     if (searchText.trim().length < 3) {
       setSuggestions([]);
+      return;
+    }
+
+    if (searchCache.current[searchText]) {
+      setSuggestions(searchCache.current[searchText]);
+      setShowSuggestions(searchCache.current[searchText].length > 0);
       return;
     }
 
@@ -61,6 +69,7 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
         }))
         .filter((r: AddressOption) => r.address.trim().length > 0);
 
+      searchCache.current[searchText] = results;
       setSuggestions(results);
       setShowSuggestions(results.length > 0);
     } catch (error) {
@@ -78,8 +87,14 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
     const text = e.target.value;
     onChange(text);
     
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
     if (text.trim().length >= 3) {
-      fetchAddressSuggestions(text);
+      debounceTimer.current = setTimeout(() => {
+        fetchAddressSuggestions(text);
+      }, 500);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);

@@ -1,13 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useState } from "react";
 import { FormLabel } from "./OnboardingUI";
 import { AddressAutocomplete } from "./AddressAutocomplete";
-import { 
-  PROVINCES, 
-  getCitiesByProvince, 
+import { Plus, X } from "lucide-react";
+import {
+  PROVINCES,
+  getCitiesByProvince,
   getDistrictsByCity,
   getPostalCodesByCity,
-} from "../data/locationData";
-import { Plus, X } from "lucide-react";
+} from "../data/geolocation";
 
 interface LocationStepProps {
   formData: any;
@@ -17,151 +17,162 @@ interface LocationStepProps {
   removeHqAddress: (index: number) => void;
 }
 
-/**
- * LocationStep Component
- * 
- * Provides hierarchical select dropdowns for Indonesian provinces, cities, and districts
- * with postal code selection and address autocomplete integration.
- */
-export const LocationStep: React.FC<LocationStepProps> = ({ 
-  formData, 
-  updateField, 
-  updateHqAddress, 
-  addHqAddress, 
-  removeHqAddress 
+interface GeoDetails {
+  state?: string;
+  city?: string;
+  county?: string;
+  postcode?: string;
+}
+
+const selectClass =
+  "w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none";
+
+export const LocationStep: React.FC<LocationStepProps> = ({
+  formData,
+  updateField,
+  updateHqAddress,
+  addHqAddress,
+  removeHqAddress,
 }) => {
-  // Get available cities based on selected province
-  const citiesList = useMemo(() => {
-    return getCitiesByProvince(formData.provincy_country);
-  }, [formData.provincy_country]);
+  const [geoDetails, setGeoDetails] = useState<GeoDetails>({});
 
-  // Get available districts based on selected city
-  const districtsList = useMemo(() => {
-    return getDistrictsByCity(formData.city);
-  }, [formData.city]);
+  const citiesList = getCitiesByProvince(formData.provincy_country);
+  const districtsList = getDistrictsByCity(formData.city);
+  const postalCodesList = getPostalCodesByCity(formData.city);
 
-  // Get available postal codes based on selected city
-  const postalCodesList = useMemo(() => {
-    return getPostalCodesByCity(formData.city);
-  }, [formData.city]);
-
-  // Reset city and district when province changes
   const handleProvinceChange = (province: string) => {
     updateField("provincy_country", province);
-    updateField("city", ""); // Reset city
-    updateField("regency", ""); // Reset district
-    updateField("zip_code", ""); // Reset postal code
+    updateField("city", "");
+    updateField("regency", "");
+    updateField("zip_code", "");
   };
 
-  // Reset district and postal code when city changes
   const handleCityChange = (city: string) => {
     updateField("city", city);
-    updateField("regency", ""); // Reset district
-    updateField("zip_code", ""); // Reset postal code
+    updateField("regency", "");
+    updateField("zip_code", "");
   };
+
+  const handleAddressChange = (v: string, details?: any) => {
+    updateField("address", v);
+    if (details) {
+      const geo: GeoDetails = {
+        state: details.state,
+        city: details.city || details.county,
+        county: details.county,
+        postcode: details.postcode,
+      };
+      setGeoDetails(geo);
+      if (geo.state) updateField("provincy_country", geo.state);
+      if (geo.city) updateField("city", geo.city);
+      if (geo.county) updateField("regency", geo.county);
+      if (geo.postcode) updateField("zip_code", geo.postcode);
+    }
+  };
+
+  // Build option lists — Geoapify value is shown first if not already in the list
+  const buildOptions = (list: string[], geoValue?: string) => {
+    const opts = [...list];
+    if (geoValue && !opts.includes(geoValue)) {
+      opts.unshift(geoValue);
+    }
+    return opts;
+  };
+
+  const provinceOptions = buildOptions(PROVINCES, geoDetails.state);
+  const cityOptions = buildOptions(citiesList, geoDetails.city);
+  const districtOptions = buildOptions(districtsList, geoDetails.county);
+  const postalOptions = buildOptions(postalCodesList, geoDetails.postcode);
 
   return (
     <div className="space-y-5">
-      {/* Province Select */}
+      {/* Province */}
       <div className="flex flex-col gap-1.5">
         <FormLabel>Province *</FormLabel>
         <select
           value={formData.provincy_country}
-          onChange={e => handleProvinceChange(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
+          onChange={(e) => handleProvinceChange(e.target.value)}
+          className={selectClass}
         >
           <option value="" className="bg-[var(--ui-bg-page)]">Select Province...</option>
-          {PROVINCES.map(province => (
-            <option key={province} value={province} className="bg-[var(--ui-bg-page)]">
-              {province}
+          {provinceOptions.map((p) => (
+            <option key={p} value={p} className="bg-[var(--ui-bg-page)]">
+              {p}{geoDetails.state === p ? " ✓" : ""}
             </option>
           ))}
         </select>
       </div>
 
-      {/* City Select */}
+      {/* City & District */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="flex flex-col gap-1.5">
-          <FormLabel>City *</FormLabel>
+          <FormLabel>City / Regency *</FormLabel>
           <select
             value={formData.city}
-            onChange={e => handleCityChange(e.target.value)}
+            onChange={(e) => handleCityChange(e.target.value)}
             disabled={!formData.provincy_country}
-            className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${selectClass} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <option value="" className="bg-[var(--ui-bg-page)]">
               {formData.provincy_country ? "Select City..." : "Select Province First..."}
             </option>
-            {citiesList.map(city => (
-              <option key={city} value={city} className="bg-[var(--ui-bg-page)]">
-                {city}
+            {cityOptions.map((c) => (
+              <option key={c} value={c} className="bg-[var(--ui-bg-page)]">
+                {c}{geoDetails.city === c ? " ✓" : ""}
               </option>
             ))}
           </select>
         </div>
 
-        {/* District/Regency Select */}
         <div className="flex flex-col gap-1.5">
-          <FormLabel>District</FormLabel>
+          <FormLabel>District / Kecamatan</FormLabel>
           <select
             value={formData.regency}
-            onChange={e => updateField("regency", e.target.value)}
+            onChange={(e) => updateField("regency", e.target.value)}
             disabled={!formData.city}
-            className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${selectClass} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <option value="" className="bg-[var(--ui-bg-page)]">
               {formData.city ? "Select District..." : "Select City First..."}
             </option>
-            {districtsList.map(district => (
-              <option key={district} value={district} className="bg-[var(--ui-bg-page)]">
-                {district}
+            {districtOptions.map((d) => (
+              <option key={d} value={d} className="bg-[var(--ui-bg-page)]">
+                {d}{geoDetails.county === d ? " ✓" : ""}
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Postal Code Select */}
+      {/* Postal Code */}
       <div className="flex flex-col gap-1.5">
         <FormLabel>Postal Code</FormLabel>
-        {postalCodesList.length > 0 ? (
+        {postalOptions.length > 0 ? (
           <select
             value={formData.zip_code}
-            onChange={e => updateField("zip_code", e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
+            onChange={(e) => updateField("zip_code", e.target.value)}
+            className={selectClass}
           >
             <option value="" className="bg-[var(--ui-bg-page)]">Select Postal Code...</option>
-            {postalCodesList.map(code => (
+            {postalOptions.map((code) => (
               <option key={code} value={code} className="bg-[var(--ui-bg-page)]">
-                {code}
+                {code}{geoDetails.postcode === code ? " ✓" : ""}
               </option>
             ))}
           </select>
         ) : (
-          <input 
-            type="text" 
-            value={formData.zip_code} 
-            onChange={e => updateField("zip_code", e.target.value)} 
-            placeholder="E.g.: 40132" 
-            className="px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm"
+          <input
+            type="text"
+            value={formData.zip_code}
+            onChange={(e) => updateField("zip_code", e.target.value)}
+            placeholder="E.g.: 42213"
+            className={selectClass}
           />
         )}
       </div>
 
-      {/* Address Autocomplete */}
-      <AddressAutocomplete 
-        value={formData.address} 
-        onChange={(v: any, details?: any) => {
-          updateField("address", v);
-          if (details) {
-            // Attempt to populate the location fields from Geoapify
-            if (details.state) updateField("provincy_country", details.state);
-            if (details.city || details.county) updateField("city", details.city || details.county);
-            if (details.county) updateField("regency", details.county);
-            if (details.postcode) updateField("zip_code", details.postcode);
-          }
-        }} 
-      />
+      {/* Full Address — Geoapify Autocomplete */}
+      <AddressAutocomplete value={formData.address} onChange={handleAddressChange} />
 
       {/* HQ Addresses */}
       <div className="space-y-3">
