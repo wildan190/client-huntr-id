@@ -151,7 +151,16 @@ export const LocationStep: React.FC<LocationStepProps> = ({
       {/* Address Autocomplete */}
       <AddressAutocomplete 
         value={formData.address} 
-        onChange={(v: any) => updateField("address", v)} 
+        onChange={(v: any, details?: any) => {
+          updateField("address", v);
+          if (details) {
+            // Attempt to populate the location fields from Geoapify
+            if (details.state) updateField("provincy_country", details.state);
+            if (details.city || details.county) updateField("city", details.city || details.county);
+            if (details.county) updateField("regency", details.county);
+            if (details.postcode) updateField("zip_code", details.postcode);
+          }
+        }} 
       />
 
       {/* HQ Addresses */}

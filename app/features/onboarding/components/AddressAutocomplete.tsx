@@ -6,11 +6,16 @@ interface AddressOption {
   address: string;
   lat: number;
   lon: number;
+  state?: string;
+  county?: string;
+  city?: string;
+  postcode?: string;
+  country?: string;
 }
 
 interface AddressAutocompleteProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, details?: AddressOption) => void;
 }
 
 const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY || "";
@@ -48,6 +53,11 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
           address: result.formatted || result.address_line1 || "",
           lat: result.lat,
           lon: result.lon,
+          state: result.state,
+          county: result.county || result.district,
+          city: result.city || result.municipality || result.county,
+          postcode: result.postcode,
+          country: result.country_code ? result.country_code.toUpperCase() : result.country
         }))
         .filter((r: AddressOption) => r.address.trim().length > 0);
 
@@ -80,7 +90,7 @@ export const AddressAutocomplete = ({ value, onChange }: AddressAutocompleteProp
    * Handle suggestion click
    */
   const handleSelectSuggestion = (suggestion: AddressOption) => {
-    onChange(suggestion.address);
+    onChange(suggestion.address, suggestion);
     setShowSuggestions(false);
     setSuggestions([]);
   };
