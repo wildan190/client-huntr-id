@@ -35,7 +35,7 @@ export default function CompanyDetails() {
     if (!vm.company.logo_path) fields.push("Logo");
     if (!vm.company.address) fields.push("Full Address");
     if (!vm.company.bank_name) fields.push("Bank Details");
-    if (!vm.company.documents || vm.company.documents.length === 0) fields.push("Legal Documents");
+    if (!vm.company.documents || vm.company.documents.length === 0) fields.push("Company Documents");
     if (!vm.company.hq_addresses || (Array.isArray(vm.company.hq_addresses) && vm.company.hq_addresses.length === 0)) fields.push("HQ Addresses");
     if (!vm.company.about) fields.push("About the Company");
     return fields;
@@ -431,7 +431,7 @@ export default function CompanyDetails() {
                     <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500">
                       <ShieldCheck size={20} />
                     </div>
-                    <h3 className="text-xl font-black text-[var(--ui-text-primary)] m-0">Corporate Legal Documents</h3>
+                    <h3 className="text-xl font-black text-[var(--ui-text-primary)] m-0">Corporate Documents</h3>
                   </div>
                 </div>
 

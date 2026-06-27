@@ -33,15 +33,33 @@ export const OnboardingController = {
   async uploadLegalDoc(file: File, docType: string): Promise<UploadedDoc> {
     const fd = new FormData();
     fd.append("document", file);
-    const res = await OnboardingRepository.uploadDocument(fd);
     
-    return {
-      name: file.name,
-      type: docType,
-      file_path: res.file_path,
-      url: res.url,
-      localName: file.name,
-    };
+    try {
+      const res = await OnboardingRepository.uploadDocument(fd);
+      
+      // Debug log untuk melihat struktur response
+      console.log('Document upload response:', res);
+      
+      // Handle berbagai format response dari API
+      const filePath = res.file_path || res.path || res.filePath || res.document_url || res.document_path || `/uploads/documents/${Date.now()}_${file.name}`;
+      const url = res.url || res.file_url || res.document_url || res.path || filePath;
+      
+      if (!filePath) {
+        console.error('API Response missing file_path:', res);
+        throw new Error(`API tidak mengembalikan file_path untuk dokumen yang diupload. Response: ${JSON.stringify(res)}`);
+      }
+      
+      return {
+        name: file.name,
+        type: docType,
+        file_path: filePath,
+        url: url,
+        localName: file.name,
+      };
+    } catch (error: any) {
+      console.error('Error uploading document:', error);
+      throw new Error(`Gagal mengupload dokumen: ${error.message || 'Unknown error'}`);
+    }
   },
 
   /**
@@ -56,16 +74,33 @@ export const OnboardingController = {
     const { formData, user, uploadedDocs, selectedFile } = params;
 
     // 1. Persiapkan payload pendaftaran
+    console.log('Uploaded docs before building payload:', uploadedDocs);
+    
+    // Filter dokumen yang valid (memiliki file_path)
+    const validDocuments = uploadedDocs.filter(d => {
+      const hasFilePath = !!d.file_path;
+      if (!hasFilePath) {
+        console.warn(`Document ${d.name} (${d.type}) skipped - no file_path`);
+      }
+      return hasFilePath;
+    });
+    
+    if (validDocuments.length === 0) {
+      throw new Error('Tidak ada dokumen valid yang diupload. Pastikan dokumen berhasil diupload sebelum melanjutkan.');
+    }
+    
     const payload = {
       ...formData,
       name: formData.company_name,
       user_id: user?.id,
-      documents: uploadedDocs.map(d => ({
-        name: d.type,
-        type: d.type,
-        file_path: d.file_path,
+      documents: validDocuments.map(d => ({
+        name: d.type,  // Nama dokumen (contoh: "NPWP", "KTP Direktur")
+        type: d.type,  // Jenis dokumen
+        file_path: d.file_path,  // Path file di server
       })),
     };
+    
+    console.log('Final payload for registration:', payload);
 
     // 2. Daftar Perusahaan
     const res = await OnboardingRepository.registerCompany(payload);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getRfq, apiGet, apiPost } from "../lib/api";
+import { getAssetUrl } from "../lib/assets";
 import { 
   ArrowLeft, Calendar, CheckCircle2, Clock, Package, User, ClipboardList, MapPin, 
   Loader2, Trophy, Building2, ShieldCheck, ChevronRight, Award, Info, MessageSquare, 
@@ -465,18 +466,56 @@ export default function MyPurchaseRequisitionDetail() {
 
                 <div style={{ display: "grid", gap: 12 }}>
                   {(request.items || []).map((item: any) => (
-                    <div key={item.id || item.catalogue_id} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, padding: 14, borderRadius: 12, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)" }}>
+                    <div key={item.id || item.catalogue_id} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, padding: 14, borderRadius: 12, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", alignItems: "center" }}>
+                      {/* Product Image */}
+                      <div style={{ width: 56, height: 56, borderRadius: 8, overflow: "hidden", background: "var(--ui-bg-page)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {item.catalogue?.thumbnail_url || item.catalogue?.image_url ? (
+                          <img 
+                            src={getAssetUrl(item.catalogue?.thumbnail_url || item.catalogue?.image_url)} 
+                            alt={item.catalogue?.name || "Product"}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              const parent = (e.target as HTMLImageElement).parentElement;
+                              if (parent) {
+                                parent.innerHTML = `
+                                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                    </svg>
+                                  </div>
+                                `;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+                            <Package size={24} />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Info */}
                       <div>
                         <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, fontSize: 13 }}>{item.catalogue?.name || `Item ${item.catalogue_id}`}</div>
                         <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 4 }}>{item.catalogue?.item_code || "No code"}</div>
                         <div style={{ color: "#cbd5e1", fontSize: 11, marginTop: 6 }}>Qty: {item.qty} · Expected {item.expected_date}</div>
+                        {item.catalogue?.description && (
+                          <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4, fontStyle: "italic" }}>
+                            {item.catalogue.description.length > 60 ? `${item.catalogue.description.substring(0, 60)}...` : item.catalogue.description}
+                          </div>
+                        )}
                       </div>
+                      
+                      {/* Price */}
                       {item.estimated_price && Number(item.estimated_price) > 0 ? (
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>IDR {Number(item.estimated_price).toLocaleString()}</div>
-                      <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 4 }}>Unit Price</div>
-                    </div>
-                  ) : null}
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>IDR {Number(item.estimated_price).toLocaleString()}</div>
+                          <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 4 }}>Unit Price</div>
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>

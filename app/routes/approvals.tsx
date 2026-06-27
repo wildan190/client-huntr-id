@@ -76,12 +76,69 @@ export default function Approvals() {
     try {
       await apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: user.id });
       setRequests(prev => prev.filter(r => r.id !== rfqId));
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'PR has been approved and published.'
+      });
     } catch (err) {
       console.error("Failed to approve PR", err);
       Swal.fire({
         icon: 'error',
         title: 'Error!',
         text: "Failed to approve PR. Check console for details."
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (rfqId: string) => {
+    if (!user) return;
+    
+    const { value: reason } = await Swal.fire({
+      title: 'Reject Purchase Request',
+      input: 'textarea',
+      inputLabel: 'Reason for rejection',
+      inputPlaceholder: 'Please provide a reason for rejecting this PR...',
+      inputAttributes: {
+        'aria-label': 'Type your rejection reason here'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Reject',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to provide a reason for rejection!';
+        }
+        if (value.length < 10) {
+          return 'Reason must be at least 10 characters long';
+        }
+      }
+    });
+
+    if (!reason) return;
+
+    setProcessingId(rfqId);
+    try {
+      await apiPost(`/api/rfqs/${rfqId}/reject`, { 
+        manager_id: user.id,
+        rejection_reason: reason 
+      });
+      setRequests(prev => prev.filter(r => r.id !== rfqId));
+      Swal.fire({
+        icon: 'success',
+        title: 'Rejected!',
+        text: 'PR has been rejected.'
+      });
+    } catch (err) {
+      console.error("Failed to reject PR", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "Failed to reject PR. Check console for details."
       });
     } finally {
       setProcessingId(null);
@@ -143,10 +200,21 @@ export default function Approvals() {
                       style={{
                         padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
                         border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", fontWeight: 700,
-                        fontSize: 13, cursor: "pointer"
+                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
                       }}
                     >
-                      Review Detail
+                      <Package size={14} /> View Details
+                    </button>
+                    <button 
+                      onClick={() => handleReject(req.id)}
+                      disabled={processingId === req.id}
+                      style={{
+                        padding: "10px 16px", borderRadius: 12, background: "rgba(239,68,68,0.1)",
+                        border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
+                      }}
+                    >
+                      <XCircle size={14} /> Reject
                     </button>
                     <button 
                       onClick={() => handleApprove(req.id)}
@@ -225,6 +293,16 @@ export default function Approvals() {
                       }}
                     >
                       Compare & Review
+                    </button>
+                    <button 
+                      onClick={() => navigate(`/rfq/${proposal.rfq_id}`)}
+                      style={{
+                        padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
+                        border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", fontWeight: 700,
+                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
+                      }}
+                    >
+                      <Package size={14} /> View PR
                     </button>
                     <button 
                       onClick={() => handleApproveWinner(proposal.id)}

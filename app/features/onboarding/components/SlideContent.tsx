@@ -167,37 +167,97 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
 
     case 4:
       return (
-        <SlideSection title="Dokumen" subtitle="Dokumen legalitas" icon={<FileText size={22} className="text-orange-500" />} accentColor="#f59e0b">
+        <SlideSection title="Dokumen" subtitle="Dokumen perusahaan & legalitas" icon={<FileText size={22} className="text-orange-500" />} accentColor="#f59e0b">
+          {/* Informasi dokumen yang diperlukan */}
+          <div className="mb-4 p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
+            <p className="text-xs text-[var(--ui-text-secondary)] mb-1 font-medium">Dokumen yang direkomendasikan:</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md">NPWP</span>
+              <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md">KTP Direktur</span>
+              <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md">Akta Perusahaan</span>
+              <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md">NIB</span>
+              <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md">SIUP</span>
+            </div>
+            <p className="text-xs text-[var(--ui-text-muted)] mt-2">Upload minimal satu dokumen untuk verifikasi perusahaan</p>
+          </div>
+          
           <div className="flex gap-2">
             <select 
               value={docType} 
               onChange={e => setDocType(e.target.value)} 
               className="flex-1 px-4 py-3 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none"
             >
-              {["NPWP", "SIUP", "NIB"].map(t => <option key={t} value={t} className="bg-[var(--ui-bg-page)]">{t}</option>)}
+              {[
+                "NPWP", 
+                "SIUP", 
+                "NIB", 
+                "KTP Direktur", 
+                "Akta Perusahaan", 
+                "TDP (Tanda Daftar Perusahaan)",
+                "SKDP (Surat Keterangan Domisili Perusahaan)",
+                "Surat Izin Usaha Perdagangan (SIUP)",
+                "Surat Izin Usaha Industri (SIUI)",
+                "Other"
+              ].map(t => <option key={t} value={t} className="bg-[var(--ui-bg-page)]">{t}</option>)}
             </select>
             <button 
               onClick={() => docInputRef.current?.click()} 
-              className="w-12 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors shrink-0"
+              disabled={isUploadingDoc}
+              className={`w-12 h-12 rounded-xl text-white flex items-center justify-center transition-colors shrink-0 ${isUploadingDoc ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
             >
               {isUploadingDoc ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
             </button>
           </div>
-          <input ref={docInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && handleDocUpload(e.target.files[0], docType)} />
-          <div className="flex flex-col gap-3 mt-2">
-            {uploadedDocs.map((d: any, i: number) => (
-              <div key={i} className="p-4 bg-[var(--ui-bg-input)] border border-[var(--ui-border-subtle)] rounded-xl flex items-center justify-between group hover:border-[var(--ui-border-input)] transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                    <FileText size={16} className="text-orange-500" />
-                  </div>
-                  <span className="text-sm font-medium text-[var(--ui-text-primary)]">{d.name} <span className="text-[var(--ui-text-muted)] text-xs ml-1">({d.type})</span></span>
-                </div>
-                <button onClick={() => setUploadedDocs((p: any) => p.filter((_: any, idx: number) => idx !== i))} className="p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                  <X size={16} className="text-red-400" />
-                </button>
+          <input ref={docInputRef} type="file" className="hidden" onChange={e => {
+            if (e.target.files?.[0]) {
+              handleDocUpload(e.target.files[0], docType);
+              // Reset input file agar bisa upload file yang sama lagi
+              e.target.value = '';
+            }
+          }} />
+          
+          {vm.error && (
+            <div className="mt-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+              <div className="flex items-center gap-2 text-red-400 text-sm">
+                <AlertCircle size={14} />
+                <span>Gagal upload dokumen: {vm.error}</span>
               </div>
-            ))}
+            </div>
+          )}
+          <div className="flex flex-col gap-3 mt-2">
+            {uploadedDocs.length === 0 ? (
+              <div className="p-8 text-center border-2 border-dashed border-[var(--ui-border-input)] rounded-2xl">
+                <FileText size={32} className="mx-auto text-[var(--ui-text-muted)] mb-2" />
+                <p className="text-sm text-[var(--ui-text-secondary)]">Belum ada dokumen diupload</p>
+                <p className="text-xs text-[var(--ui-text-muted)] mt-1">Upload minimal satu dokumen perusahaan</p>
+              </div>
+            ) : (
+              uploadedDocs.map((d: any, i: number) => (
+                <div key={i} className="p-4 bg-[var(--ui-bg-input)] border border-[var(--ui-border-subtle)] rounded-xl flex items-center justify-between group hover:border-[var(--ui-border-input)] transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${d.file_path ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                      {d.file_path ? (
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                      ) : (
+                        <AlertCircle size={16} className="text-red-500" />
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-[var(--ui-text-primary)]">{d.name}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-[var(--ui-text-muted)]">({d.type})</span>
+                        {!d.file_path && (
+                          <span className="text-xs px-1.5 py-0.5 bg-red-500/10 text-red-400 rounded">Error: no file_path</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => setUploadedDocs((p: any) => p.filter((_: any, idx: number) => idx !== i))} className="p-2 hover:bg-red-500/10 rounded-lg transition-colors">
+                    <X size={16} className="text-red-400" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </SlideSection>
       );

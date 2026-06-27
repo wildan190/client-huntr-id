@@ -3,11 +3,13 @@ import { FormLabel } from "./OnboardingUI";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { Plus, X } from "lucide-react";
 import {
-  PROVINCES,
-  getCitiesByProvince,
-  getDistrictsByCity,
-  getPostalCodesByCity,
+  PROVINCES,                    // Array 38 nama provinsi
+  getCitiesByProvince,          // Fungsi: provinsi → kota
+  getDistrictsByCity,           // Fungsi: kota → kecamatan
+  getPostalCodesByCity,         // Fungsi: kota → kode pos
+  provinceDataMap               // Data lengkap semua provinsi
 } from "../data/geolocation";
+
 
 interface LocationStepProps {
   formData: any;

@@ -57,8 +57,17 @@ export default function Onboarding() {
         return "Harap verifikasi NPWP sebelum melanjutkan.";
       }
     }
-    if (vm.slide === 4 && vm.uploadedDocs.length === 0) {
-      return "Harap upload minimal satu dokumen legalitas.";
+    if (vm.slide === 4) {
+      // Cek ada dokumen yang diupload
+      if (vm.uploadedDocs.length === 0) {
+        return "Harap upload minimal satu dokumen perusahaan (NPWP, KTP Direktur, Akta Perusahaan, dll).";
+      }
+      
+      // Cek apakah semua dokumen memiliki file_path
+      const docsWithoutFilePath = vm.uploadedDocs.filter((d: any) => !d.file_path);
+      if (docsWithoutFilePath.length > 0) {
+        return `Beberapa dokumen gagal diupload (${docsWithoutFilePath.length} dokumen). Silahkan hapus dan upload ulang dokumen tersebut.`;
+      }
     }
     if (vm.slide === 5 && !vm.selectedFile) {
       return "Pilih file CSV atau Excel untuk diimport.";
