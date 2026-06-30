@@ -40,13 +40,19 @@ export const OnboardingController = {
       // Debug log untuk melihat struktur response
       console.log('Document upload response:', res);
       
+      // Type assertion untuk handle berbagai kemungkinan response
+      const response = res as any;
+      
       // Handle berbagai format response dari API
-      const filePath = res.file_path || res.path || res.filePath || res.document_url || res.document_path || `/uploads/documents/${Date.now()}_${file.name}`;
-      const url = res.url || res.file_url || res.document_url || res.path || filePath;
+      const filePath = response.file_path || response.path || response.filePath || 
+                       response.document_url || response.document_path || 
+                       `/uploads/documents/${Date.now()}_${file.name}`;
+      const url = response.url || response.file_url || response.document_url || 
+                  response.path || filePath;
       
       if (!filePath) {
-        console.error('API Response missing file_path:', res);
-        throw new Error(`API tidak mengembalikan file_path untuk dokumen yang diupload. Response: ${JSON.stringify(res)}`);
+        console.error('API Response missing file_path:', response);
+        throw new Error(`API tidak mengembalikan file_path untuk dokumen yang diupload. Response: ${JSON.stringify(response)}`);
       }
       
       return {

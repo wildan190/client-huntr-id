@@ -776,10 +776,12 @@ export default function Orders() {
               }} onClick={() => document.getElementById("csv-input")?.click()}>
                 <FileSpreadsheet size={48} color={importFile ? "#f59e0b" : "var(--ui-text-muted)"} style={{ marginBottom: 16, transition: "color 0.3s ease" }} />
                 <p style={{ color: importFile ? "var(--ui-text-primary)" : "var(--ui-text-secondary)", margin: 0, fontSize: 14, fontWeight: 600, transition: "color 0.3s ease" }}>
-                  {importFile ? importFile.name : "Click to select CSV file"}
+                  {importFile ? importFile.name : "Click to select Excel or CSV file"}
                 </p>
-                <p style={{ color: "var(--ui-text-muted)", fontSize: 12, marginTop: 8, transition: "color 0.3s ease" }}>Format must match user_story.md headers</p>
-                <input id="csv-input" type="file" accept=".csv" style={{ display: "none" }} onChange={e => setImportFile(e.target.files?.[0] || null)} />
+                <p style={{ color: "var(--ui-text-muted)", fontSize: 12, marginTop: 8, transition: "color 0.3s ease" }}>
+                  Supported formats: CSV, Excel (.xlsx, .xls, .xlsm, .ods)
+                </p>
+                <input id="csv-input" type="file" accept=".csv, .xlsx, .xls, .xlsm, .ods" style={{ display: "none" }} onChange={e => setImportFile(e.target.files?.[0] || null)} />
               </div>
 
               {importError && (

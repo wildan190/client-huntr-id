@@ -18,7 +18,7 @@ export const OnboardingRepository = {
   /**
    * Mengunggah dokumen legalitas perusahaan
    */
-  async uploadDocument(fd: FormData): Promise<{ file_path: string; url: string }> {
+  async uploadDocument(fd: FormData): Promise<any> {
     return apiPostForm("/api/companies/documents/upload", fd);
   },
 

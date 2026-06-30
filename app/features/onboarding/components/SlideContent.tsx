@@ -289,7 +289,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
                 </div>
                 <div>
                   <div className="text-sm font-medium text-[var(--ui-text-primary)]">Template Purchase Order (Buyer)</div>
-                  <div className="text-xs text-[var(--ui-text-muted)]">Format standard untuk data pembelian</div>
+                  <div className="text-xs text-[var(--ui-text-muted)]">Format Excel/CSV untuk data pembelian</div>
                 </div>
               </a>
               <a 
@@ -302,7 +302,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
                 </div>
                 <div>
                   <div className="text-sm font-medium text-[var(--ui-text-primary)]">Template Product Catalog (Vendor)</div>
-                  <div className="text-xs text-[var(--ui-text-muted)]">Format standard untuk katalog produk</div>
+                  <div className="text-xs text-[var(--ui-text-muted)]">Format Excel/CSV untuk katalog produk</div>
                 </div>
               </a>
             </div>
@@ -316,7 +316,7 @@ export const SlideContent = ({ vm, docType, setDocType, docInputRef, handleLogin
             <p className="text-sm text-[var(--ui-text-secondary)] mb-6">{selectedFile ? selectedFile.name : "Select an Excel or CSV file to import"}</p>
             <label className="inline-flex items-center px-6 py-3 bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] border border-[var(--ui-border-input)] rounded-xl text-sm font-bold text-[var(--ui-text-primary)] cursor-pointer transition-all">
               Choose File
-              <input type="file" accept=".csv, .xlsx, .xls" onChange={e => setSelectedFile(e.target.files?.[0] || null)} className="hidden" />
+              <input type="file" accept=".csv, .xlsx, .xls, .xlsm, .ods" onChange={e => setSelectedFile(e.target.files?.[0] || null)} className="hidden" />
             </label>
           </div>
         </SlideSection>
