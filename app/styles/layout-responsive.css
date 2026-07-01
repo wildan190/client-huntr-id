@@ -18,11 +18,12 @@
 }
 
 .huntr-sidebar {
-  width: 224px;
+  width: 280px;
   flex-shrink: 0;
   background: var(--ui-bg-sidebar);
   border-right: 1px solid var(--ui-border);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   padding: 22px 0;
@@ -49,6 +50,7 @@
   border-bottom: 1px solid var(--ui-border-subtle);
   background: var(--ui-bg-header);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -313,6 +315,7 @@
     background: rgba(0, 0, 0, 0.5);
     z-index: 199;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .huntr-sidebar {
@@ -426,6 +429,7 @@
     background: rgba(0, 0, 0, 0.5);
     z-index: 150;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .huntr-cart-drawer {

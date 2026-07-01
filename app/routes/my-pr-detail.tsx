@@ -520,6 +520,109 @@ export default function MyPurchaseRequisitionDetail() {
                   ))}
                 </div>
 
+                {/* Document Attachments Section */}
+                {(request.document_path || request.attachments?.length > 0) && (
+                  <div style={{ marginTop: 20, padding: 16, borderRadius: 12, background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                      <ClipboardList size={16} color="#22c55e" />
+                      <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Attached Documents</div>
+                    </div>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {/* Single document (legacy support) */}
+                      {request.document_path && (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 12, background: "var(--ui-bg-input)", borderRadius: 8, border: "1px solid var(--ui-border-input)" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: 6, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#22c55e" }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                              </svg>
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 13 }}>RFQ Document</div>
+                              <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 2 }}>Attached during RFQ creation</div>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => window.open(getAssetUrl(request.document_path), '_blank')}
+                            style={{ 
+                              background: "rgba(34,197,94,0.1)", 
+                              border: "1px solid rgba(34,197,94,0.2)", 
+                              borderRadius: 6, 
+                              padding: "6px 12px", 
+                              color: "#22c55e", 
+                              fontSize: 11, 
+                              fontWeight: 600, 
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4
+                            }}
+                          >
+                            View Document <ChevronRight size={12} />
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Multiple attachments (if available) */}
+                      {request.attachments && Array.isArray(request.attachments) && request.attachments.length > 0 && (
+                        <div style={{ display: "grid", gap: 8 }}>
+                          {request.attachments.map((attachment: any, idx: number) => (
+                            <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 12, background: "var(--ui-bg-input)", borderRadius: 8, border: "1px solid var(--ui-border-input)" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 6, background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#22c55e" }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                  </svg>
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 13 }}>{attachment.name || `Document ${idx + 1}`}</div>
+                                  <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 2 }}>{attachment.size ? `${attachment.size} KB` : 'Document'}</div>
+                                </div>
+                              </div>
+                              {attachment.url && (
+                                <button 
+                                  onClick={() => window.open(getAssetUrl(attachment.url), '_blank')}
+                                  style={{ 
+                                    background: "rgba(34,197,94,0.1)", 
+                                    border: "1px solid rgba(34,197,94,0.2)", 
+                                    borderRadius: 6, 
+                                    padding: "6px 12px", 
+                                    color: "#22c55e", 
+                                    fontSize: 11, 
+                                    fontWeight: 600, 
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4
+                                  }}
+                                >
+                                  View <ChevronRight size={12} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery Point Information */}
+                {request.delivery_point && (
+                  <div style={{ marginTop: 20, padding: 16, borderRadius: 12, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                      <MapPin size={16} color="#3b82f6" />
+                      <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Delivery Point</div>
+                    </div>
+                    <div style={{ color: "var(--ui-text-secondary)", fontSize: 13, lineHeight: 1.5 }}>
+                      {request.delivery_point}
+                    </div>
+                  </div>
+                )}
+
                 {rankings.length > 0 && (
                   <div style={{ marginTop: 24, padding: 16, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid var(--ui-border)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>

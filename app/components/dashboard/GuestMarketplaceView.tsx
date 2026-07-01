@@ -89,7 +89,7 @@ export function GuestMarketplaceView() {
                 "@id": "https://app.huntr.id/#organization",
                 "name": "Huntr.id",
                 "url": "https://app.huntr.id/",
-                "logo": "https://app.huntr.id/assets/img/logo/emblem.jpg",
+                "logo": "https://app.huntr.id/assets/img/logo/login-screen.png",
                 "description": "Enterprise B2B E-Procurement Ecosystem connecting verified vendors and buyers."
               },
               {
@@ -122,14 +122,10 @@ export function GuestMarketplaceView() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 2vw, 12px)" }}>
           <img 
-            src="/assets/img/logo/emblem.jpg" 
+            src="/assets/img/logo/sidebar.png" 
             alt="Huntr Logo" 
-            style={{ width: "clamp(32px, 8vw, 40px)", height: "clamp(32px, 8vw, 40px)", borderRadius: 10, objectFit: "cover" }} 
+            style={{ width: "clamp(120px, 30vw, 150px)", height: "clamp(32px, 8vw, 40px)", borderRadius: 0, objectFit: "contain" }} 
           />
-          <div>
-            <div style={{ fontWeight: 800, fontSize: "clamp(14px, 4vw, 16px)", letterSpacing: "-0.5px", color: "var(--ui-text-logo)" }}>Huntr.id</div>
-            <div style={{ fontSize: "clamp(7px, 2vw, 9px)", color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>E-PROCUREMENT</div>
-          </div>
         </div>
         <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 10px)", alignItems: "center" }}>
           {/* Track Order — icon button */}
@@ -604,11 +600,10 @@ export function GuestMarketplaceView() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
               <img
-                src="/assets/img/logo/emblem.jpg"
+                src="/assets/img/logo/sidebar.png"
                 alt="Huntr Logo"
-                style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }}
+                style={{ width: 120, height: 32, borderRadius: 0, objectFit: "contain" }}
               />
-              <span style={{ fontWeight: 800, fontSize: "clamp(14px, 3vw, 16px)", color: "var(--ui-text-logo)" }}>Huntr.id</span>
             </div>
             <p style={{ fontSize: "clamp(12px, 2vw, 13px)", color: "var(--ui-text-muted)", lineHeight: 1.6 }}>The most advanced e-procurement platform for enterprise business connectivity.</p>
           </div>

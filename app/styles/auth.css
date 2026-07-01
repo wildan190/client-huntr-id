@@ -46,17 +46,17 @@
 
 .auth-card {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1120px;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
   overflow: hidden;
   border-radius: 20px;
-  min-height: unset;
+  min-height: 720px;
   background: var(--ui-glass-bg);
   border: 1px solid var(--ui-glass-border);
-  box-shadow: var(--ui-glass-shadow);
+  box-shadow: none;
   transition: all 0.3s ease;
 }
 
@@ -68,24 +68,24 @@
   }
 
   .auth-card--register {
-    min-height: 680px;
+    min-height: 780px;
   }
 }
 
 @media (max-width: 767px) {
   .auth-card.glass-panel:hover {
     transform: none;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    box-shadow: none;
   }
 }
 
 .auth-visual {
   position: relative;
   order: -1;
-  min-height: 200px;
-  max-height: 240px;
+  min-height: 280px;
+  max-height: 360px;
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (min-width: 768px) {
@@ -105,9 +105,11 @@
 .auth-visual__img {
   width: 100%;
   height: 100%;
+  min-height: 100%;
   object-fit: cover;
-  object-position: center 35%;
+  object-position: center center;
   display: block;
+  background: transparent;
 }
 
 @media (min-width: 768px) {
@@ -121,20 +123,22 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(15, 10, 6, 0.72) 0%,
-    rgba(15, 10, 6, 0.58) 45%,
-    rgba(15, 10, 6, 0.96) 100%
+    rgba(2, 6, 23, 0.78) 0%,
+    rgba(2, 6, 23, 0.6) 42%,
+    rgba(2, 6, 23, 0.95) 100%
   );
   display: flex;
-  align-items: flex-end;
-  padding: 20px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 24px 20px 20px;
 }
 
 .auth-visual__overlay::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(15, 10, 6, 0.28);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
   pointer-events: none;
 }
 
@@ -142,56 +146,30 @@
   .auth-visual__overlay {
     background: linear-gradient(
       180deg,
-      rgba(8, 8, 20, 0.82) 0%,
-      rgba(8, 8, 20, 0.7) 35%,
-      rgba(8, 8, 20, 0.98) 100%
+      rgba(2, 6, 23, 0.84) 0%,
+      rgba(2, 6, 23, 0.72) 35%,
+      rgba(2, 6, 23, 0.98) 100%
     );
-    align-items: flex-end;
-    padding: 16px 20px 18px;
-  }
-
-  .auth-visual__overlay::before {
-    background: rgba(8, 8, 20, 0.42);
+    padding: 18px 16px 16px;
   }
 }
 
 [data-theme="light"] .auth-visual__overlay {
   background: linear-gradient(
     180deg,
-    rgba(111, 66, 193, 0.15) 0%,
-    rgba(111, 66, 193, 0.08) 45%,
-    rgba(111, 66, 193, 0.25) 100%
+    rgba(2, 6, 23, 0.8) 0%,
+    rgba(2, 6, 23, 0.7) 42%,
+    rgba(2, 6, 23, 0.94) 100%
   );
 }
 
 [data-theme="light"] .auth-visual__overlay::before {
-  background: rgba(111, 66, 193, 0.12);
-}
-
-@media (max-width: 767px) {
-  [data-theme="light"] .auth-visual__overlay {
-    background: linear-gradient(
-      180deg,
-      rgba(111, 66, 193, 0.18) 0%,
-      rgba(111, 66, 193, 0.12) 35%,
-      rgba(111, 66, 193, 0.22) 100%
-    );
-  }
-
-  [data-theme="light"] .auth-visual__overlay::before {
-    background: rgba(111, 66, 193, 0.15);
-  }
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
 }
 
 @media (min-width: 768px) {
   .auth-visual__overlay {
-    background: linear-gradient(
-      to bottom,
-      rgba(15, 15, 30, 0.2),
-      rgba(15, 15, 30, 0.92)
-    );
-    align-items: flex-end;
-    padding: 48px;
+    padding: 36px 32px 32px;
   }
 
   .auth-visual__overlay::before {
@@ -200,10 +178,14 @@
 }
 
 .auth-visual__content {
-  max-width: 400px;
+  max-width: 420px;
   position: relative;
   z-index: 1;
   width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .auth-visual__title {
@@ -224,12 +206,29 @@
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
-[data-theme="light"] .auth-visual__title {
-  color: #fff;
+[data-theme="light"] .auth-visual__title,
+[data-theme="light"] .auth-documents__title {
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 }
 
-[data-theme="light"] .auth-visual__text {
-  color: #e5e7eb;
+[data-theme="light"] .auth-visual__text,
+[data-theme="light"] .auth-document-item__text {
+  color: #f8fafc;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .auth-visual__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.80) 0%,
+    rgba(2, 6, 23, 0.70) 42%,
+    rgba(2, 6, 23, 0.94) 100%
+  );
+}
+
+[data-theme="light"] .auth-visual__overlay::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0));
 }
 
 @media (min-width: 768px) {
@@ -652,37 +651,45 @@
 
 .auth-visual__logo-container {
   position: absolute;
-  left: 20px;
-  top: 20px;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .auth-visual__logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
-  object-fit: cover;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  width: min(260px, 70vw);
+  height: auto;
+  max-height: 200px;
+  border-radius: 0;
+  object-fit: contain;
+  box-shadow: none;
+  border: none;
   transition: all 0.3s ease;
+  background: transparent;
+  padding: 0;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.24));
 }
 
 @media (min-width: 768px) {
   .auth-visual__logo-container {
-    left: 32px;
-    top: 32px;
+    top: 28px;
   }
   
   .auth-visual__logo {
-    width: 100px;
-    height: 100px;
-    border-radius: 20px;
+    width: min(320px, 36vw);
+    max-height: 240px;
   }
 }
 
 .auth-visual__logo:hover {
   transform: scale(1.05);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Informasi tambahan untuk register ────────────────────────────────────── */
@@ -700,6 +707,7 @@
   border-radius: 16px;
   padding: 16px;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .auth-steps__title {
@@ -752,11 +760,12 @@
 }
 
 .auth-documents {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 16px;
   padding: 16px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .auth-documents__title {
@@ -788,7 +797,7 @@
 }
 
 .auth-document-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .auth-document-item__icon {
@@ -804,15 +813,9 @@
 
 /* Responsive adjustments */
 @media (max-width: 767px) {
-  .auth-visual__logo-container {
-    left: 12px;
-    top: 12px;
-  }
-  
   .auth-visual__logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: min(220px, 78vw);
+    max-height: 160px;
   }
   
   .auth-visual__additional-info {
@@ -864,21 +867,25 @@
 /* ── Perbaikan visual untuk informasi tambahan ───────────────────────────── */
 
 .auth-visual__content {
-  max-width: 400px;
+  max-width: 420px;
   position: relative;
   z-index: 1;
   width: 100%;
+  margin-top: 132px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Adjust untuk memastikan konten lebih readable */
 @media (min-width: 768px) {
   .auth-visual__content {
     max-width: 450px;
-    padding-bottom: 40px;
+    margin-top: 156px;
+    padding-bottom: 24px;
   }
 }
 
-/* Perbaikan untuk light theme */
 [data-theme="light"] .auth-visual__title {
   color: #fff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -889,14 +896,14 @@
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Perbaikan spacing untuk mobile */
 @media (max-width: 767px) {
   .auth-visual__content {
-    padding-bottom: 20px;
+    margin-top: 112px;
+    padding-bottom: 10px;
   }
   
   .auth-visual__additional-info {
-    display: none; /* Sembunyikan di mobile untuk ruang terbatas */
+    display: none;
   }
 }
 
@@ -934,8 +941,7 @@
 }
 
 .auth-step:hover .auth-step__number {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+  transform: scale(1.05);
 }
 /* ── Perbaikan spacing untuk logo dan konten ─────────────────────────────── */
 
@@ -992,6 +998,7 @@
   border-radius: 16px;
   padding: 16px;
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .auth-documents__title {
@@ -1087,46 +1094,43 @@
 
 /* Untuk register di mobile, sembunyikan hanya dokumen, bukan gambar */
 @media (max-width: 767px) {
-  /* Hanya sembunyikan dokumen, bukan seluruh content */
   .auth-card--register .auth-documents--desktop-only {
     display: none;
   }
-  
-  /* Untuk login di mobile, tetap tampilkan semua content */
+
   .auth-card--login .auth-visual__content {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  /* Adjust padding untuk register di mobile (karena dokumen disembunyikan) */
+
   .auth-card--register .auth-visual__documents-only {
     padding-top: 0;
   }
-  
+
   .auth-card--register .auth-visual__content {
-    padding-top: 60px; /* Space untuk logo saja, dokumen disembunyikan */
+    padding-top: 0;
   }
 }
-/* Memastikan gambar gedung tetap optimal di mobile */
+
 @media (max-width: 767px) {
   .auth-card--register .auth-visual__img {
-    object-position: center 40%; /* Adjust posisi gambar untuk mobile */
+    object-position: center 40%;
   }
-  
-  /* Overlay sedikit lebih terang untuk mobile agar gambar terlihat */
+
   .auth-card--register .auth-visual__overlay {
     background: linear-gradient(
       180deg,
-      rgba(15, 10, 6, 0.65) 0%,
-      rgba(15, 10, 6, 0.82) 100%
+      rgba(2, 6, 23, 0.82) 0%,
+      rgba(2, 6, 23, 0.94) 100%
     );
   }
-  
-  /* Light theme adjustment untuk mobile */
+
   [data-theme="light"] .auth-card--register .auth-visual__overlay {
     background: linear-gradient(
       180deg,
-      rgba(111, 66, 193, 0.15) 0%,
-      rgba(111, 66, 193, 0.25) 100%
+      rgba(2, 6, 23, 0.82) 0%,
+      rgba(2, 6, 23, 0.94) 100%
     );
   }
 }

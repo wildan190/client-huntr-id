@@ -428,21 +428,12 @@ export default function AppShell() {
   const sidebarInner = (
     <>
       {/* Logo */}
-      <div style={{ padding: "0 18px 24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-            <img src="/assets/img/logo/emblem.jpg" alt="Huntr Logo"
-              style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-logo)", letterSpacing: "-0.3px" }}>Huntr.id</div>
-              <div style={{ fontSize: 8, color: "#f59e0b", letterSpacing: "0.08em", fontWeight: 600 }}>E-PROCUREMENT</div>
-            </div>
+      <div style={{ padding: "0 20px 24px", width: "100%", boxSizing: "border-box" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%" }}>
+            <img src="/assets/img/logo/sidebar.png" alt="Huntr Logo"
+              style={{ width: 260, height: 64, objectFit: "contain", flexShrink: 0, marginLeft: 0, display: "block" }} />
           </div>
-          {isMobile && (
-            <button type="button" className="huntr-sidebar-close" onClick={closeSidebar} aria-label="Close menu">
-              <X size={18} />
-            </button>
-          )}
         </div>
       </div>
 

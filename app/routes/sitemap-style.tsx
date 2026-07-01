@@ -40,10 +40,10 @@ export function loader() {
             gap: 12px;
           }
           .logo-img {
-            width: 40px;
+            width: 150px;
             height: 40px;
-            border-radius: 10px;
-            object-fit: cover;
+            border-radius: 0;
+            object-fit: contain;
           }
           .title {
             margin: 0;
@@ -158,7 +158,7 @@ export function loader() {
         <div class="container">
           <div class="header">
             <div class="logo-area">
-              <img src="/assets/img/logo/emblem.jpg" alt="Logo" class="logo-img"/>
+              <img src="/assets/img/logo/sidebar.png" alt="Logo" class="logo-img"/>
               <div>
                 <h1 class="title">Huntr.id</h1>
                 <div class="subtitle">XML Sitemap Feed</div>

@@ -19,6 +19,11 @@ export default function Rfq() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  
+  // New state for documents and delivery point
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [selectedDeliveryPoint, setSelectedDeliveryPoint] = useState<string>("");
+  const [companyAddresses, setCompanyAddresses] = useState<any[]>([]);
 
   // RFQ List state
   const [rfqs, setRfqs] = useState<any[]>([]);
@@ -32,6 +37,8 @@ export default function Rfq() {
       const comp = JSON.parse(activeComp);
       setActiveCompany(comp);
       fetchRfqs(comp.id);
+      // Load company addresses for delivery point
+      loadCompanyAddresses(comp.id);
     }
 
     const savedCart = localStorage.getItem("rfq_cart");
@@ -44,6 +51,63 @@ export default function Rfq() {
       })));
     }
   }, []);
+
+  const loadCompanyAddresses = async (companyId: number) => {
+    try {
+      // Get company details to extract addresses
+      const data = await apiGet(`/api/companies/my`);
+      const companies = Array.isArray(data) ? data : data.companies || [];
+      const currentCompany = companies.find((c: any) => c.id === companyId) || activeCompany;
+      
+      // Create addresses array from company data
+      const addresses = [];
+      
+      // Add main address
+      if (currentCompany?.address) {
+        addresses.push({
+          id: "main",
+          address: currentCompany.address,
+          name: "Main Address",
+          city: currentCompany.city,
+          regency: currentCompany.regency,
+          provincy_country: currentCompany.provincy_country
+        });
+      }
+      
+      // Add HQ addresses if available
+      if (currentCompany?.hq_addresses && Array.isArray(currentCompany.hq_addresses)) {
+        currentCompany.hq_addresses.forEach((hq: any, idx: number) => {
+          addresses.push({
+            id: `hq_${idx}`,
+            address: hq.address || hq,
+            name: hq.name || `HQ ${idx + 1}`,
+            city: hq.city,
+            regency: hq.regency
+          });
+        });
+      }
+      
+      setCompanyAddresses(addresses);
+      
+      // Set default delivery point if available
+      if (addresses.length > 0) {
+        setSelectedDeliveryPoint(addresses[0].id);
+      }
+    } catch (err) {
+      console.error("Failed to load company addresses", err);
+      // Fallback to using company basic address
+      if (activeCompany?.address) {
+        setCompanyAddresses([{ 
+          id: "main", 
+          address: activeCompany.address, 
+          name: "Main Address",
+          city: activeCompany.city,
+          regency: activeCompany.regency
+        }]);
+        setSelectedDeliveryPoint("main");
+      }
+    }
+  };
 
   const fetchRfqs = async (companyId: number) => {
     setRfqsLoading(true);
@@ -85,21 +149,33 @@ export default function Rfq() {
     
     setLoading(true); setError(null);
     try {
-      const data = await createRfq({
-        company_id: activeCompany.id,
-        title: form.title,
-        description: form.description,
-        duration_days: Number(form.duration_days || 7),
-        items: cartItems.map(it => ({
-          catalogue_id: it.catalogue_id,
-          qty: it.qty,
-          expected_date: it.expected_date,
-          estimated_price: it.price || 0, // Capture price at creation time
-        })),
-      });
+      // Create FormData to handle file upload
+      const formData = new FormData();
+      formData.append("company_id", activeCompany.id.toString());
+      formData.append("title", form.title);
+      formData.append("description", form.description || "");
+      formData.append("duration_days", (form.duration_days || "7").toString());
+      formData.append("delivery_point", selectedDeliveryPoint);
+      
+      // Add items as JSON string
+      const itemsData = cartItems.map(it => ({
+        catalogue_id: it.catalogue_id,
+        qty: it.qty,
+        expected_date: it.expected_date,
+        estimated_price: it.price || 0,
+      }));
+      formData.append("items", JSON.stringify(itemsData));
+      
+      // Add document if uploaded
+      if (documentFile) {
+        formData.append("document", documentFile);
+      }
+
+      const data = await createRfq(formData);
       setResult(data.rfq);
       localStorage.removeItem("rfq_cart");
       setCartItems([]);
+      setDocumentFile(null);
       fetchRfqs(activeCompany.id);
     } catch (err: any) {
       setError(err.message);
@@ -192,6 +268,65 @@ export default function Rfq() {
                     </div>
                   )}
                 </div>
+
+                {/* Document Upload Field */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={lbl}>Attach Document (Optional)</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                      onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                      style={{ 
+                        background: "rgba(0,0,0,0.3)", 
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 10, 
+                        padding: "8px 12px", 
+                        fontSize: 13, 
+                        color: "#fff",
+                        flex: 1,
+                        cursor: "pointer"
+                      }}
+                    />
+                    {documentFile && (
+                      <span style={{ fontSize: 12, color: "#34d399", fontWeight: 600 }}>
+                        ✓ {documentFile.name}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>
+                    Upload supporting documents (max 10MB): TOR, specification sheets, etc.
+                  </div>
+                </div>
+
+                {/* Delivery Point Selection */}
+                {companyAddresses.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={lbl}>Delivery Point</label>
+                    <select 
+                      value={selectedDeliveryPoint}
+                      onChange={(e) => setSelectedDeliveryPoint(e.target.value)}
+                      style={{ 
+                        ...inputStyle, 
+                        appearance: "auto",
+                        background: "rgba(0,0,0,0.3)",
+                        color: "#fff",
+                        fontSize: 13,
+                        padding: "10px 14px"
+                      }}
+                    >
+                      {companyAddresses.map((address, idx) => (
+                        <option key={address.id || idx} value={address.id}>
+                          {address.name || `Address ${idx + 1}`}: {address.address}
+                          {address.city && `, ${address.city}`}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>
+                      Select the delivery location from your company's HQ addresses
+                    </div>
+                  </div>
+                )}
 
                 {error && <ErrorBox message={error} />}
                 <button type="submit" disabled={loading || cartItems.length === 0} style={primaryBtn}>

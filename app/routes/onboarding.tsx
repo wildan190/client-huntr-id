@@ -123,9 +123,9 @@ export default function Onboarding() {
       <header className="sticky top-0 mb-8 w-full flex items-center justify-between z-10 py-2">
         <div className="flex items-center gap-3">
           <img 
-            src="/assets/img/logo/emblem.jpg" 
+            src="/assets/img/logo/sidebar.png" 
             alt="Huntr Logo" 
-            className="w-8 h-8 md:w-9 md:h-9 rounded-lg object-cover shadow-[0_4px_16px_rgba(249,115,22,0.35)]"
+            className="w-32 h-8 md:w-40 md:h-10 object-contain"
           />
           <div className="hidden sm:block">
             <div className="font-black text-sm md:text-base text-[var(--ui-text-primary)] tracking-tight">Huntr.id</div>

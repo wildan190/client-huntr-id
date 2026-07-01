@@ -16,13 +16,13 @@ export const meta: MetaFunction = () => {
     { property: "og:url", content: "https://app.huntr.id/" },
     { property: "og:title", content: "Huntr.id - Enterprise B2B E-Procurement Ecosystem" },
     { property: "og:description", content: "Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem." },
-    { property: "og:image", content: "https://app.huntr.id/assets/img/logo/emblem.jpg" },
+    { property: "og:image", content: "https://app.huntr.id/assets/img/logo/login-screen.png" },
     // Twitter Card
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:url", content: "https://app.huntr.id/" },
     { name: "twitter:title", content: "Huntr.id - Enterprise B2B E-Procurement Ecosystem" },
     { name: "twitter:description", content: "Connect with verified vendors, streamline your RFQ process, and manage purchase orders in one high-fidelity enterprise ecosystem." },
-    { name: "twitter:image", content: "https://app.huntr.id/assets/img/logo/emblem.jpg" },
+    { name: "twitter:image", content: "https://app.huntr.id/assets/img/logo/login-screen.png" },
   ];
 };
 

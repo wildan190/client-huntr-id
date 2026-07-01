@@ -39,7 +39,7 @@ export function meta({ data }: Route.MetaArgs) {
   const canonical = `https://app.huntr.id/marketplace/${product.id}`;
   const imageUrl = product.image_path
     ? getAssetUrl(product.image_path)
-    : (product.image || "https://app.huntr.id/assets/img/logo/emblem.jpg");
+    : (product.image || "https://app.huntr.id/assets/img/logo/login-screen.png");
 
   return [
     { title },
