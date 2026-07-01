@@ -89,7 +89,7 @@ export function GuestMarketplaceView() {
                 "@id": "https://app.huntr.id/#organization",
                 "name": "Huntr.id",
                 "url": "https://app.huntr.id/",
-                "logo": "https://app.huntr.id/assets/img/logo/login-screen.png",
+                "logo": "https://app.huntr.id/assets/img/logo/sidebar.png",
                 "description": "Enterprise B2B E-Procurement Ecosystem connecting verified vendors and buyers."
               },
               {

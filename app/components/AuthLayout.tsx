@@ -42,7 +42,7 @@ export default function AuthLayout({
           <div className="auth-visual__overlay">
             <div className="auth-visual__logo-container">
               <img
-                src="/assets/img/logo/login-screen.png"
+                src="/assets/img/logo/sidebar.png"
                 alt="HUNTR Logo"
                 className="auth-visual__logo"
               />
