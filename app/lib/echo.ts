@@ -16,14 +16,14 @@ function getReverbConfig() {
   const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
   const reverbHost = import.meta.env.VITE_REVERB_HOST;
 
-  if (!reverbKey || !reverbHost || reverbKey.length === 0 || reverbHost.length === 0) {
+  if (!reverbKey || !reverbHost) {
     return null;
   }
 
   return {
     reverbKey,
     reverbHost,
-    apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:8443',
+    apiUrl: import.meta.env.VITE_API_URL || 'https://api.huntr.id',
   };
 }
 
@@ -38,9 +38,7 @@ function installSessionWatcher() {
       if (echo) {
         try {
           echo.disconnect();
-        } catch {
-          // ignore disconnect errors during logout/session clear
-        }
+        } catch {}
         echo = null;
       }
       return;
@@ -61,9 +59,7 @@ export function ensureEcho() {
   const config = getReverbConfig();
   const authToken = SessionManager.getToken();
 
-  if (!config || !authToken) {
-    return null;
-  }
+  if (!config || !authToken) return null;
 
   if (echo) {
     (echo as any).options.auth.headers.Authorization = `Bearer ${authToken}`;
@@ -74,14 +70,23 @@ export function ensureEcho() {
     window.Pusher = Pusher;
     Pusher.logToConsole = false;
 
+    const isSecure = true; // karena kamu pakai HTTPS
+
     echo = new Echo<any>({
       broadcaster: 'reverb',
       key: config.reverbKey,
+
+      // 🔥 PENTING: jangan pakai port sama sekali
       wsHost: config.reverbHost,
-      wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-      wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-      forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+      forceTLS: isSecure,
+
+      // ❌ HAPUS total port (ini biang masalah :8080)
+      wsPort: undefined,
+      wssPort: undefined,
+
       enabledTransports: ['ws', 'wss'],
+
+      // lewat Nginx proxy /app
       authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
       auth: {
         headers: {
