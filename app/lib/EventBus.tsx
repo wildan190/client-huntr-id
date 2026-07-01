@@ -28,7 +28,7 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
 
   const currentUserId = useRef<string | number | null>(null);
   const currentCompanyId = useRef<string | number | null>(null);
-  const isPublicBound = useRef(false);
+  const publicBound = useRef(false);
 
   const emit = useCallback((event: NotificationEvent) => {
     setLastEvent(event);
@@ -41,47 +41,45 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /**
-   * PUBLIC CHANNEL (global event test / broadcast umum)
+   * SAFE PUBLIC CHANNEL
    */
-  const bindPublicChannel = useCallback((echo: any) => {
-    if (!echo || isPublicBound.current) return;
+  const bindPublic = useCallback((echo: any) => {
+    if (!echo || publicBound.current) return;
 
     try {
-      isPublicBound.current = true;
+      publicBound.current = true;
 
-      const channel = echo.channel('test-channel');
-
-      channel.listen('.communication.websocket.broadcast', (payload: any) => {
-        emit({
-          type: payload?.data?.type || 'unknown',
-          data: payload,
-        });
-      });
+      echo.channel('test-channel').listen(
+        '.communication.websocket.broadcast',
+        (payload: any) => {
+          emit({
+            type: payload?.data?.type || 'unknown',
+            data: payload,
+          });
+        }
+      );
     } catch (err) {
-      console.log('Public channel bind failed:', err);
-      isPublicBound.current = false;
+      console.log('Public bind failed:', err);
+      publicBound.current = false;
     }
   }, [emit]);
 
   /**
-   * USER + COMPANY CHANNELS
+   * PRIVATE CHANNELS
    */
-  const bindPrivateChannels = useCallback(() => {
+  const bindPrivate = useCallback(() => {
     const echo = ensureEcho();
+    if (!echo) return;
+
     const user = SessionManager.getUser();
     const company = SessionManager.getCompany();
-
-    if (!echo) return;
 
     const userId = user?.id ?? null;
     const companyId = company?.id ?? null;
 
-    // init public channel sekali
-    bindPublicChannel(echo);
+    bindPublic(echo);
 
-    /**
-     * USER CHANNEL
-     */
+    // USER CHANNEL
     if (userId !== currentUserId.current) {
       if (currentUserId.current) {
         try {
@@ -103,16 +101,14 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
               }
             );
         } catch (err) {
-          console.log('User channel bind error:', err);
+          console.log('User bind error:', err);
         }
       }
 
       currentUserId.current = userId;
     }
 
-    /**
-     * COMPANY CHANNEL
-     */
+    // COMPANY CHANNEL
     if (companyId !== currentCompanyId.current) {
       if (currentCompanyId.current) {
         try {
@@ -138,21 +134,21 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
               }
             );
         } catch (err) {
-          console.log('Company channel bind error:', err);
+          console.log('Company bind error:', err);
         }
       }
 
       currentCompanyId.current = companyId;
     }
-  }, [bindPublicChannel, emit]);
+  }, [bindPublic, emit]);
 
   /**
-   * INIT + SESSION WATCHER
+   * INIT
    */
   useEffect(() => {
-    bindPrivateChannels();
+    bindPrivate();
 
-    const unsubscribe = SessionManager.subscribe(() => {
+    const unsub = SessionManager.subscribe(() => {
       const token = SessionManager.getToken();
 
       if (!token) {
@@ -166,17 +162,17 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
 
         currentUserId.current = null;
         currentCompanyId.current = null;
-        isPublicBound.current = false;
+        publicBound.current = false;
 
         return;
       }
 
       ensureEcho();
-      bindPrivateChannels();
+      bindPrivate();
     });
 
-    return unsubscribe;
-  }, [bindPrivateChannels]);
+    return unsub;
+  }, [bindPrivate]);
 
   return (
     <EventBusContext.Provider value={{ lastEvent, emit }}>
@@ -189,26 +185,4 @@ export function useEventBus() {
   const ctx = useContext(EventBusContext);
   if (!ctx) throw new Error('useEventBus must be used inside provider');
   return ctx;
-}
-
-export function useEventBusListener(
-  types: string[],
-  handler: (event: NotificationEvent) => void
-) {
-  const { lastEvent } = useEventBus();
-  const lastId = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!lastEvent) return;
-
-    const eventId = lastEvent?.data?.id;
-
-    if (
-      types.includes(lastEvent.type) &&
-      eventId !== lastId.current
-    ) {
-      lastId.current = eventId;
-      handler(lastEvent);
-    }
-  }, [lastEvent, types, handler]);
 }

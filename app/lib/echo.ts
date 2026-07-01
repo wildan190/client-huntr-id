@@ -10,7 +10,6 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
-let sessionInstalled = false;
 
 function getConfig() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
@@ -25,30 +24,17 @@ function getConfig() {
   };
 }
 
-function installSessionWatcher() {
-  if (sessionInstalled) return;
-  sessionInstalled = true;
+/**
+ * 🔥 HARD RESET - penting biar gak kena "subscribe is not a function"
+ */
+function destroyEcho() {
+  if (echo) {
+    try {
+      echo.disconnect();
+    } catch {}
 
-  SessionManager.subscribe(() => {
-    const token = SessionManager.getToken();
-
-    if (!token) {
-      if (echo) {
-        try {
-          echo.disconnect();
-        } catch {}
-        echo = null;
-      }
-      return;
-    }
-
-    if (echo) {
-      (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
-      return;
-    }
-
-    ensureEcho();
-  });
+    echo = null;
+  }
 }
 
 export function ensureEcho() {
@@ -59,61 +45,40 @@ export function ensureEcho() {
 
   if (!config || !token) return null;
 
-  if (echo) {
-    (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
-    return echo;
-  }
+  // 🔥 always reset before recreate (FIX CORRUPT INSTANCE)
+  destroyEcho();
 
-  try {
+  // IMPORTANT: jangan override Pusher instance global berkali-kali
+  if (!window.Pusher) {
     window.Pusher = Pusher;
-    Pusher.logToConsole = false;
-
-    echo = new Echo<any>({
-      broadcaster: 'reverb',
-
-      key: config.key,
-
-      // =========================
-      // 🔥 IMPORTANT FIX (NO /app MODE)
-      // =========================
-      wsHost: config.host,
-      forceTLS: true,
-
-      wsPort: undefined,
-      wssPort: undefined,
-
-      // ❌ disable pusher-style path completely
-      enabledTransports: ['ws', 'wss'],
-
-      // 🔥 CRITICAL: paksa tanpa pusher endpoint path
-      cluster: undefined,
-
-      authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      },
-
-      // 🧨 INI KUNCI UTAMA (hilangkan /app)
-      client: Pusher,
-    });
-
-    installSessionWatcher();
-
-    console.log('Echo Reverb native initialized');
-
-    return echo;
-  } catch (e) {
-    console.error('Echo init failed', e);
-    echo = null;
-    return null;
   }
-}
 
-if (typeof window !== 'undefined') {
-  installSessionWatcher();
+  Pusher.logToConsole = false;
+
+  echo = new Echo({
+    broadcaster: 'reverb',
+
+    key: config.key,
+    wsHost: config.host,
+
+    forceTLS: true,
+
+    // 🔥 IMPORTANT: jangan pakai port manual
+    wsPort: undefined,
+    wssPort: undefined,
+
+    enabledTransports: ['ws', 'wss'],
+
+    authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+    auth: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    },
+  });
+
+  return echo;
 }
 
 export function getEcho() {
