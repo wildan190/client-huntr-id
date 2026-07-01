@@ -10,28 +10,35 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
-let installed = false;
+let sessionInstalled = false;
 
-function config() {
+function getConfig() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
   const host = import.meta.env.VITE_REVERB_HOST;
-  const apiUrl = import.meta.env.VITE_API_URL || 'https://api.huntr.id';
 
   if (!key || !host) return null;
 
-  return { key, host, apiUrl };
+  return {
+    key,
+    host,
+    apiUrl: import.meta.env.VITE_API_URL || 'https://api.huntr.id',
+  };
 }
 
 function installSessionWatcher() {
-  if (installed) return;
-  installed = true;
+  if (sessionInstalled) return;
+  sessionInstalled = true;
 
   SessionManager.subscribe(() => {
     const token = SessionManager.getToken();
 
     if (!token) {
-      echo?.disconnect();
-      echo = null;
+      if (echo) {
+        try {
+          echo.disconnect();
+        } catch {}
+        echo = null;
+      }
       return;
     }
 
@@ -47,43 +54,66 @@ function installSessionWatcher() {
 export function ensureEcho() {
   if (typeof window === 'undefined') return null;
 
-  const cfg = config();
+  const config = getConfig();
   const token = SessionManager.getToken();
 
-  if (!cfg || !token) return null;
+  if (!config || !token) return null;
 
-  if (echo) return echo;
+  if (echo) {
+    (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
+    return echo;
+  }
 
-  window.Pusher = Pusher;
-  Pusher.logToConsole = false;
+  try {
+    window.Pusher = Pusher;
+    Pusher.logToConsole = false;
 
-  echo = new Echo({
-    broadcaster: 'pusher',
+    echo = new Echo<any>({
+      broadcaster: 'reverb',
 
-    key: cfg.key,
+      key: config.key,
 
-    // 🔥 PENTING: direct Nginx WebSocket endpoint
-    wsHost: cfg.host,
-    wsPort: 443,
-    wssPort: 443,
-    forceTLS: true,
+      // =========================
+      // 🔥 IMPORTANT FIX (NO /app MODE)
+      // =========================
+      wsHost: config.host,
+      forceTLS: true,
 
-    enabledTransports: ['ws', 'wss'],
+      wsPort: undefined,
+      wssPort: undefined,
 
-    authEndpoint: `${cfg.apiUrl}/api/broadcasting/auth`,
-    auth: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
+      // ❌ disable pusher-style path completely
+      enabledTransports: ['ws', 'wss'],
+
+      // 🔥 CRITICAL: paksa tanpa pusher endpoint path
+      cluster: undefined,
+
+      authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+      auth: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
       },
-    },
-  });
 
+      // 🧨 INI KUNCI UTAMA (hilangkan /app)
+      client: Pusher,
+    });
+
+    installSessionWatcher();
+
+    console.log('Echo Reverb native initialized');
+
+    return echo;
+  } catch (e) {
+    console.error('Echo init failed', e);
+    echo = null;
+    return null;
+  }
+}
+
+if (typeof window !== 'undefined') {
   installSessionWatcher();
-
-  console.log('Echo initialized (production stable mode)');
-
-  return echo;
 }
 
 export function getEcho() {
