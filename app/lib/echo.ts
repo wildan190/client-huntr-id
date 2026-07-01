@@ -73,17 +73,15 @@ export function ensureEcho() {
       key: config.reverbKey,
 
       // =========================
-      // 🔥 FIX UTAMA DI SINI
+      // 🔥 CORE FIX (NO /app, NO :8080)
       // =========================
-
       wsHost: config.reverbHost,
       forceTLS: true,
 
-      // ❌ jangan pakai port sama sekali
       wsPort: undefined,
       wssPort: undefined,
 
-      // ❌ HAPUS path biar tidak bentrok /app
+      // ❌ IMPORTANT: jangan pakai path /app
       wsPath: '',
       wssPath: '',
 
@@ -100,10 +98,11 @@ export function ensureEcho() {
 
     installSessionWatcher();
 
-    console.log('Echo: Successfully initialized');
+    console.log('Echo: initialized successfully');
+
     return echo;
   } catch (err) {
-    console.log('Echo: Initialization failed - skipping', err);
+    console.log('Echo: Initialization failed', err);
     echo = null;
     return null;
   }
