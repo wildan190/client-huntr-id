@@ -16,9 +16,7 @@ function getReverbConfig() {
   const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
   const reverbHost = import.meta.env.VITE_REVERB_HOST;
 
-  if (!reverbKey || !reverbHost) {
-    return null;
-  }
+  if (!reverbKey || !reverbHost) return null;
 
   return {
     reverbKey,
@@ -70,23 +68,27 @@ export function ensureEcho() {
     window.Pusher = Pusher;
     Pusher.logToConsole = false;
 
-    const isSecure = true; // karena kamu pakai HTTPS
-
     echo = new Echo<any>({
       broadcaster: 'reverb',
       key: config.reverbKey,
 
-      // 🔥 PENTING: jangan pakai port sama sekali
-      wsHost: config.reverbHost,
-      forceTLS: isSecure,
+      // =========================
+      // 🔥 FIX UTAMA DI SINI
+      // =========================
 
-      // ❌ HAPUS total port (ini biang masalah :8080)
+      wsHost: config.reverbHost,
+      forceTLS: true,
+
+      // ❌ jangan pakai port sama sekali
       wsPort: undefined,
       wssPort: undefined,
 
+      // ❌ HAPUS path biar tidak bentrok /app
+      wsPath: '',
+      wssPath: '',
+
       enabledTransports: ['ws', 'wss'],
 
-      // lewat Nginx proxy /app
       authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
       auth: {
         headers: {
