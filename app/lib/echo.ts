@@ -10,33 +10,53 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
+let sessionInstalled = false;
 
+/**
+ * CONFIG SIMPLE (NO OVERENGINEERING)
+ */
 function getConfig() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
   const host = import.meta.env.VITE_REVERB_HOST;
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://api.huntr.id';
 
   if (!key || !host) return null;
 
-  return {
-    key,
-    host,
-    apiUrl: import.meta.env.VITE_API_URL || 'https://api.huntr.id',
-  };
+  return { key, host, apiUrl };
 }
 
 /**
- * 🔥 HARD RESET - penting biar gak kena "subscribe is not a function"
+ * SESSION WATCHER
  */
-function destroyEcho() {
-  if (echo) {
-    try {
-      echo.disconnect();
-    } catch {}
+function installSessionWatcher() {
+  if (sessionInstalled) return;
+  sessionInstalled = true;
 
-    echo = null;
-  }
+  SessionManager.subscribe(() => {
+    const token = SessionManager.getToken();
+
+    if (!token) {
+      if (echo) {
+        try {
+          echo.disconnect();
+        } catch {}
+        echo = null;
+      }
+      return;
+    }
+
+    if (echo) {
+      (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
+      return;
+    }
+
+    ensureEcho();
+  });
 }
 
+/**
+ * INIT ECHO (CLEAN REVERB MODE VIA NGINX)
+ */
 export function ensureEcho() {
   if (typeof window === 'undefined') return null;
 
@@ -45,40 +65,53 @@ export function ensureEcho() {
 
   if (!config || !token) return null;
 
-  // 🔥 always reset before recreate (FIX CORRUPT INSTANCE)
-  destroyEcho();
-
-  // IMPORTANT: jangan override Pusher instance global berkali-kali
-  if (!window.Pusher) {
-    window.Pusher = Pusher;
+  if (echo) {
+    (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
+    return echo;
   }
 
-  Pusher.logToConsole = false;
+  try {
+    window.Pusher = Pusher;
+    Pusher.logToConsole = false;
 
-  echo = new Echo({
-    broadcaster: 'reverb',
+    echo = new Echo<any>({
+      broadcaster: 'reverb',
 
-    key: config.key,
-    wsHost: config.host,
+      key: config.key,
 
-    forceTLS: true,
+      /**
+       * 🔥 IMPORTANT:
+       * - NO PORT
+       * - NO /app HARDCODE
+       * - LET NGINX HANDLE WS ROUTING
+       */
+      wsHost: config.host,
+      forceTLS: true,
+      enabledTransports: ['ws', 'wss'],
 
-    // 🔥 IMPORTANT: jangan pakai port manual
-    wsPort: undefined,
-    wssPort: undefined,
+      authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
 
-    enabledTransports: ['ws', 'wss'],
-
-    authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
-    auth: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
+      auth: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
       },
-    },
-  });
+    });
 
-  return echo;
+    installSessionWatcher();
+
+    console.log('Echo initialized (clean mode)');
+    return echo;
+  } catch (err) {
+    console.error('Echo init failed:', err);
+    echo = null;
+    return null;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  installSessionWatcher();
 }
 
 export function getEcho() {
