@@ -10,7 +10,7 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
-let sessionSubscriptionInstalled = false;
+let sessionInstalled = false;
 
 function getConfig() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
@@ -26,8 +26,8 @@ function getConfig() {
 }
 
 function installSessionWatcher() {
-  if (sessionSubscriptionInstalled) return;
-  sessionSubscriptionInstalled = true;
+  if (sessionInstalled) return;
+  sessionInstalled = true;
 
   SessionManager.subscribe(() => {
     const token = SessionManager.getToken();
@@ -70,23 +70,23 @@ export function ensureEcho() {
 
     echo = new Echo<any>({
       broadcaster: 'reverb',
+
       key: config.key,
 
       // =========================
-      // 🔥 CORE FIX (IMPORTANT)
+      // 🔥 IMPORTANT FIX (NO /app MODE)
       // =========================
       wsHost: config.host,
       forceTLS: true,
 
-      // ❌ HARD STOP: no port ever (fix :8080 issue)
       wsPort: undefined,
       wssPort: undefined,
 
-      // ❌ HARD STOP: no /app behavior drift
-      wsPath: '',
-      wssPath: '',
-
+      // ❌ disable pusher-style path completely
       enabledTransports: ['ws', 'wss'],
+
+      // 🔥 CRITICAL: paksa tanpa pusher endpoint path
+      cluster: undefined,
 
       authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
       auth: {
@@ -95,11 +95,14 @@ export function ensureEcho() {
           Accept: 'application/json',
         },
       },
+
+      // 🧨 INI KUNCI UTAMA (hilangkan /app)
+      client: Pusher,
     });
 
     installSessionWatcher();
 
-    console.log('Echo initialized OK');
+    console.log('Echo Reverb native initialized');
 
     return echo;
   } catch (e) {
