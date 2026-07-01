@@ -331,7 +331,9 @@ export default function MarketplaceDetail() {
                   borderRadius: 24,
                   overflow: "hidden",
                   background: "var(--ui-bg-card)",
-                  minHeight: "clamp(280px, 50vh, 520px)",
+                  width: "100%",
+                  minHeight: 420,
+                  maxHeight: 520,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -343,7 +345,7 @@ export default function MarketplaceDetail() {
                   <img
                     src={imageUrl}
                     alt={item.name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    style={{ maxWidth: "100%", maxHeight: "100%", width: "auto", height: "auto", objectFit: "contain", display: "block" }}
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 ) : (
