@@ -1,10 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { ChevronRight, Home } from "lucide-react";
 
 export default function Breadcrumb() {
   const { pathname } = useLocation();
   const paths = pathname.split("/").filter(Boolean);
+  const [breadcrumbOverrides, setBreadcrumbOverrides] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const overrides: Record<string, string> = {};
+    for (const key of Object.keys(sessionStorage)) {
+      if (key.startsWith("breadcrumb:")) {
+        overrides[key.replace("breadcrumb:", "")] = sessionStorage.getItem(key) ?? "";
+      }
+    }
+
+    setBreadcrumbOverrides(overrides);
+  }, [pathname]);
 
   if (paths.length === 0) {
     return null; // Don't show breadcrumb on home page if you don't want to, or show just Home.
@@ -22,8 +36,7 @@ export default function Breadcrumb() {
       {paths.map((path, idx) => {
         const isLast = idx === paths.length - 1;
         const to = `/${paths.slice(0, idx + 1).join("/")}`;
-        const override =
-          typeof window !== "undefined" ? sessionStorage.getItem(`breadcrumb:${to}`) : null;
+        const override = isLast ? breadcrumbOverrides[to] : undefined;
         const name =
           (isLast && override) ||
           path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " ");

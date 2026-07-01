@@ -143,6 +143,8 @@ export default function CompanyDetails() {
             <button
               onClick={() => setProfileBannerDismissed(true)}
               className="p-2 rounded-2xl hover:bg-amber-500/20 transition-all text-amber-500"
+              title="Dismiss profile banner"
+              aria-label="Dismiss profile banner"
             >
               <X size={20} />
             </button>
@@ -160,6 +162,8 @@ export default function CompanyDetails() {
                 <button 
                   onClick={() => document.getElementById('logo-upload')?.click()}
                   className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                  title="Upload company logo"
+                  aria-label="Upload company logo"
                 >
                   <Camera className="text-white" size={24} />
                 </button>
@@ -237,8 +241,11 @@ export default function CompanyDetails() {
                         ) : <Building2 size={32} className="text-[var(--ui-text-muted)]" />}
                       </div>
                       <button 
+                        type="button"
                         onClick={() => vm.logoInputRef.current?.click()}
                         className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"
+                        aria-label="Upload company logo"
+                        title="Upload company logo"
                       >
                         <Camera size={18} />
                       </button>
@@ -375,6 +382,8 @@ export default function CompanyDetails() {
                             <button
                               type="button"
                               onClick={() => vm.removeHqAddress(idx)}
+                              title="Remove location"
+                              aria-label="Remove location"
                               className="px-4 py-2 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all"
                             >
                               <X size={16} />

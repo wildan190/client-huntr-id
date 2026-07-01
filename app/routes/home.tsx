@@ -29,7 +29,7 @@ export const meta: MetaFunction = () => {
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [activeCompany, setActiveCompany] = useState<any>(null);
-  const [loading, setLoading] = useState(typeof window !== "undefined");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
