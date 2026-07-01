@@ -18,6 +18,7 @@ export default function Checkout() {
   const [prDuration, setPrDuration] = useState(7);
   const [prDocument, setPrDocument] = useState<File | null>(null);
   const [deliveryPoint, setDeliveryPoint] = useState("");
+  const [companyAddresses, setCompanyAddresses] = useState<{ id: string; label: string; value: string }[]>([]);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -27,9 +28,24 @@ export default function Checkout() {
     if (companySession) {
       const comp = JSON.parse(companySession);
       setActiveCompany(comp);
+
+      const addresses: { id: string; label: string; value: string }[] = [];
       if (comp.address) {
+        addresses.push({ id: "main", label: "Main Address", value: comp.address });
+      }
+      if (Array.isArray(comp.hq_addresses)) {
+        comp.hq_addresses.forEach((addr: any, idx: number) => {
+          const value = typeof addr === "string" ? addr : addr.address || "";
+          addresses.push({ id: `hq_${idx}`, label: `HQ ${idx + 1}`, value });
+        });
+      }
+      if (addresses.length > 0) {
+        setCompanyAddresses(addresses);
+        setDeliveryPoint(addresses[0].value);
+      } else if (comp.address) {
         setDeliveryPoint(comp.address);
       }
+
       if (comp.type === 'vendor') {
         navigate("/");
         return;
@@ -301,16 +317,33 @@ export default function Checkout() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} /> Delivery Point *</div>
                 </label>
-                <textarea 
-                  placeholder="e.g. Jl. Sudirman No. 123, Jakarta" 
-                  value={deliveryPoint}
-                  onChange={e => setDeliveryPoint(e.target.value)}
-                  rows={3}
-                  style={{
-                    padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
-                    border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14, resize: "vertical"
-                  }}
-                />
+                {companyAddresses.length > 0 ? (
+                  <select
+                    value={deliveryPoint}
+                    onChange={e => setDeliveryPoint(e.target.value)}
+                    style={{
+                      padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)",
+                      border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14,
+                    }}
+                  >
+                    {companyAddresses.map(address => (
+                      <option key={address.id} value={address.value}>
+                        {address.label}: {address.value}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <textarea 
+                    placeholder="e.g. Jl. Sudirman No. 123, Jakarta" 
+                    value={deliveryPoint}
+                    onChange={e => setDeliveryPoint(e.target.value)}
+                    rows={3}
+                    style={{
+                      padding: "14px 18px", borderRadius: 12, background: "var(--ui-bg-input)", 
+                      border: `1px solid var(--ui-border-input)`, color: "var(--ui-text-primary)", outline: "none", fontSize: 14, resize: "vertical"
+                    }}
+                  />
+                )}
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
