@@ -10,12 +10,9 @@ declare global {
 }
 
 let echo: Echo<any> | null = null;
-let sessionInstalled = false;
+let installed = false;
 
-/**
- * CONFIG SIMPLE (NO OVERENGINEERING)
- */
-function getConfig() {
+function config() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
   const host = import.meta.env.VITE_REVERB_HOST;
   const apiUrl = import.meta.env.VITE_API_URL || 'https://api.huntr.id';
@@ -25,23 +22,16 @@ function getConfig() {
   return { key, host, apiUrl };
 }
 
-/**
- * SESSION WATCHER
- */
 function installSessionWatcher() {
-  if (sessionInstalled) return;
-  sessionInstalled = true;
+  if (installed) return;
+  installed = true;
 
   SessionManager.subscribe(() => {
     const token = SessionManager.getToken();
 
     if (!token) {
-      if (echo) {
-        try {
-          echo.disconnect();
-        } catch {}
-        echo = null;
-      }
+      echo?.disconnect();
+      echo = null;
       return;
     }
 
@@ -54,64 +44,46 @@ function installSessionWatcher() {
   });
 }
 
-/**
- * INIT ECHO (CLEAN REVERB MODE VIA NGINX)
- */
 export function ensureEcho() {
   if (typeof window === 'undefined') return null;
 
-  const config = getConfig();
+  const cfg = config();
   const token = SessionManager.getToken();
 
-  if (!config || !token) return null;
+  if (!cfg || !token) return null;
 
-  if (echo) {
-    (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
-    return echo;
-  }
+  if (echo) return echo;
 
-  try {
-    window.Pusher = Pusher;
-    Pusher.logToConsole = false;
+  window.Pusher = Pusher;
+  Pusher.logToConsole = false;
 
-    echo = new Echo<any>({
-      broadcaster: 'reverb',
+  echo = new Echo({
+    broadcaster: 'pusher',
 
-      key: config.key,
+    key: cfg.key,
 
-      /**
-       * 🔥 IMPORTANT:
-       * - NO PORT
-       * - NO /app HARDCODE
-       * - LET NGINX HANDLE WS ROUTING
-       */
-      wsHost: config.host,
-      forceTLS: true,
-      enabledTransports: ['ws', 'wss'],
+    // 🔥 PENTING: direct Nginx WebSocket endpoint
+    wsHost: cfg.host,
+    wsPort: 443,
+    wssPort: 443,
+    forceTLS: true,
 
-      authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+    enabledTransports: ['ws', 'wss'],
 
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
+    authEndpoint: `${cfg.apiUrl}/api/broadcasting/auth`,
+    auth: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
       },
-    });
+    },
+  });
 
-    installSessionWatcher();
-
-    console.log('Echo initialized (clean mode)');
-    return echo;
-  } catch (err) {
-    console.error('Echo init failed:', err);
-    echo = null;
-    return null;
-  }
-}
-
-if (typeof window !== 'undefined') {
   installSessionWatcher();
+
+  console.log('Echo initialized (production stable mode)');
+
+  return echo;
 }
 
 export function getEcho() {

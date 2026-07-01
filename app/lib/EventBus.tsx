@@ -1,3 +1,4 @@
+// @refresh reset
 import React, {
   createContext,
   useContext,
@@ -23,10 +24,11 @@ interface EventBusContextType {
 const EventBusContext = createContext<EventBusContextType | null>(null);
 
 export function EventBusProvider({ children }: { children: React.ReactNode }) {
+  // 🔥 FIX TS ERROR: HARUS DI-TYPE JELAS
   const [lastEvent, setLastEvent] = useState<NotificationEvent | null>(null);
 
-  const currentUserId = useRef<string | number | null>(null);
-  const currentCompanyId = useRef<string | number | null>(null);
+  const userIdRef = useRef<string | number | null>(null);
+  const companyIdRef = useRef<string | number | null>(null);
   const publicBound = useRef(false);
 
   const emit = useCallback((event: NotificationEvent) => {
@@ -42,7 +44,7 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
   /**
    * PUBLIC CHANNEL
    */
-  const bindPublic = useCallback((echo: any) => {
+  const bindPublicChannel = useCallback((echo: any) => {
     if (!echo || publicBound.current) return;
 
     try {
@@ -57,7 +59,7 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
         });
       });
     } catch (err) {
-      console.log('Public bind failed:', err);
+      console.log('Public channel error:', err);
       publicBound.current = false;
     }
   }, [emit]);
@@ -65,7 +67,7 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
   /**
    * PRIVATE CHANNELS
    */
-  const bindPrivate = useCallback(() => {
+  const bindChannels = useCallback(() => {
     const echo = ensureEcho();
     if (!echo) return;
 
@@ -75,13 +77,13 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
     const userId = user?.id ?? null;
     const companyId = company?.id ?? null;
 
-    bindPublic(echo);
+    bindPublicChannel(echo);
 
-    // USER
-    if (userId !== currentUserId.current) {
-      if (currentUserId.current) {
+    // ================= USER =================
+    if (userId !== userIdRef.current) {
+      if (userIdRef.current) {
         try {
-          echo.leave(`App.Models.User.${currentUserId.current}`);
+          echo.leave(`App.Models.User.${userIdRef.current}`);
         } catch {}
       }
 
@@ -103,15 +105,15 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      currentUserId.current = userId;
+      userIdRef.current = userId;
     }
 
-    // COMPANY
-    if (companyId !== currentCompanyId.current) {
-      if (currentCompanyId.current) {
+    // ================= COMPANY =================
+    if (companyId !== companyIdRef.current) {
+      if (companyIdRef.current) {
         try {
           echo.leave(
-            `App.Domain.Company.Models.Company.${currentCompanyId.current}`
+            `App.Domain.Company.Models.Company.${companyIdRef.current}`
           );
         } catch {}
       }
@@ -134,40 +136,41 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      currentCompanyId.current = companyId;
+      companyIdRef.current = companyId;
     }
-  }, [bindPublic, emit]);
+  }, [bindPublicChannel, emit]);
 
   /**
-   * INIT
+   * INIT + SESSION WATCHER
    */
   useEffect(() => {
-    bindPrivate();
+    bindChannels();
 
     const unsubscribe = SessionManager.subscribe(() => {
       const token = SessionManager.getToken();
 
       if (!token) {
-        const e = getEcho();
-        if (e) {
+        const echo = getEcho();
+
+        if (echo) {
           try {
-            e.disconnect();
+            echo.disconnect();
           } catch {}
         }
 
-        currentUserId.current = null;
-        currentCompanyId.current = null;
+        userIdRef.current = null;
+        companyIdRef.current = null;
         publicBound.current = false;
 
         return;
       }
 
       ensureEcho();
-      bindPrivate();
+      bindChannels();
     });
 
     return unsubscribe;
-  }, [bindPrivate]);
+  }, [bindChannels]);
 
   return (
     <EventBusContext.Provider value={{ lastEvent, emit }}>
@@ -183,7 +186,7 @@ export function useEventBus() {
 }
 
 /**
- * 🔥 FIX ERROR BUILD: INI WAJIB ADA
+ * 🔥 FIX: EXPORTED PROPERLY (BIAR BUILD TIDAK ERROR)
  */
 export function useEventBusListener(
   types: string[],
