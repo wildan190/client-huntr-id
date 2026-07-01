@@ -1,25 +1,18 @@
 // @refresh reset
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
+
 import { ensureEcho, getEcho } from '../lib/echo';
 import { SessionManager } from './session';
 
 export interface NotificationEvent {
-  type: 
-    | 'pr.created'
-    | 'pr.approved'
-    | 'bid.new'
-    | 'negotiation.started'
-    | 'negotiation.responded'
-    | 'award.given'
-    | 'award.approved'
-    | 'po.confirmed'
-    | 'do.created'
-    | 'goods.received'
-    | 'rfq.published'
-    | 'payment.received'
-    | 'disbursement.completed'
-    | 'proposal_submitted'
-    | string;
+  type: string;
   data: any;
 }
 
@@ -32,163 +25,158 @@ const EventBusContext = createContext<EventBusContextType | null>(null);
 
 export function EventBusProvider({ children }: { children: React.ReactNode }) {
   const [lastEvent, setLastEvent] = useState<NotificationEvent | null>(null);
-  const currentUserIdRef = useRef<string | number | null>(null);
-  const currentCompanyIdRef = useRef<string | number | null>(null);
-  const listenersInitialized = useRef(false);
-  const authStateRef = useRef<{ userId: string | number | null; companyId: string | number | null }>({
-    userId: null,
-    companyId: null,
-  });
+
+  const currentUserId = useRef<string | number | null>(null);
+  const currentCompanyId = useRef<string | number | null>(null);
+  const isPublicBound = useRef(false);
 
   const emit = useCallback((event: NotificationEvent) => {
     setLastEvent(event);
-    // Also dispatch the custom event for backward compatibility
-    window.dispatchEvent(new CustomEvent('huntr:notification_received', {
-      detail: event
-    }));
+
+    window.dispatchEvent(
+      new CustomEvent('huntr:notification_received', {
+        detail: event,
+      })
+    );
   }, []);
 
-  const ensurePublicListeners = useCallback(() => {
-    const echo = ensureEcho();
-    if (!echo || listenersInitialized.current) return;
-    listenersInitialized.current = true;
+  /**
+   * PUBLIC CHANNEL (global event test / broadcast umum)
+   */
+  const bindPublicChannel = useCallback((echo: any) => {
+    if (!echo || isPublicBound.current) return;
 
     try {
-      console.log('EventBusProvider: Setting up Reverb listeners...');
+      isPublicBound.current = true;
 
-      const testChannel = echo.channel('test-channel');
-      testChannel.listen('.communication.websocket.broadcast', (data: any) => {
-        console.log('EventBusProvider: Received message on test-channel:', data);
+      const channel = echo.channel('test-channel');
+
+      channel.listen('.communication.websocket.broadcast', (payload: any) => {
         emit({
-          type: data.data?.type || 'unknown',
-          data: data
+          type: payload?.data?.type || 'unknown',
+          data: payload,
         });
       });
     } catch (err) {
-      console.log('EventBusProvider: Error setting up test channel:', err);
+      console.log('Public channel bind failed:', err);
+      isPublicBound.current = false;
     }
   }, [emit]);
 
-  useEffect(() => {
-    ensurePublicListeners();
+  /**
+   * USER + COMPANY CHANNELS
+   */
+  const bindPrivateChannels = useCallback(() => {
+    const echo = ensureEcho();
+    const user = SessionManager.getUser();
+    const company = SessionManager.getCompany();
 
-    return () => {
-      const activeEcho = getEcho();
-      if (activeEcho) {
+    if (!echo) return;
+
+    const userId = user?.id ?? null;
+    const companyId = company?.id ?? null;
+
+    // init public channel sekali
+    bindPublicChannel(echo);
+
+    /**
+     * USER CHANNEL
+     */
+    if (userId !== currentUserId.current) {
+      if (currentUserId.current) {
         try {
-          activeEcho.leave('test-channel');
-          if (currentUserIdRef.current) {
-            activeEcho.leave(`App.Models.User.${currentUserIdRef.current}`);
-            activeEcho.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
-          }
-          if (currentCompanyIdRef.current) {
-            activeEcho.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
-          }
+          echo.leave(`App.Models.User.${currentUserId.current}`);
+        } catch {}
+      }
+
+      if (userId) {
+        try {
+          echo
+            .private(`App.Models.User.${userId}`)
+            .listen(
+              '.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated',
+              (data: any) => {
+                emit({
+                  type: data?.data?.type || data?.type || 'unknown',
+                  data,
+                });
+              }
+            );
         } catch (err) {
-          console.log('EventBusProvider: Error leaving channels:', err);
+          console.log('User channel bind error:', err);
         }
       }
-    };
-  }, [ensurePublicListeners]);
 
-  // Handle user changes (login/logout) using SessionManager
+      currentUserId.current = userId;
+    }
+
+    /**
+     * COMPANY CHANNEL
+     */
+    if (companyId !== currentCompanyId.current) {
+      if (currentCompanyId.current) {
+        try {
+          echo.leave(
+            `App.Domain.Company.Models.Company.${currentCompanyId.current}`
+          );
+        } catch {}
+      }
+
+      if (companyId) {
+        try {
+          echo
+            .private(
+              `App.Domain.Company.Models.Company.${companyId}`
+            )
+            .listen(
+              '.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated',
+              (data: any) => {
+                emit({
+                  type: data?.data?.type || data?.type || 'unknown',
+                  data,
+                });
+              }
+            );
+        } catch (err) {
+          console.log('Company channel bind error:', err);
+        }
+      }
+
+      currentCompanyId.current = companyId;
+    }
+  }, [bindPublicChannel, emit]);
+
+  /**
+   * INIT + SESSION WATCHER
+   */
   useEffect(() => {
-    const updateUserChannels = () => {
-      const echo = ensureEcho();
-      const user = SessionManager.getUser();
-      const newUserId = user?.id || null;
-      const company = SessionManager.getCompany();
-      const newCompanyId = company?.id || null;
+    bindPrivateChannels();
 
-      authStateRef.current = { userId: newUserId, companyId: newCompanyId };
+    const unsubscribe = SessionManager.subscribe(() => {
+      const token = SessionManager.getToken();
 
-      const handleNotification = (data: any) => {
-        let eventType = 'unknown';
-        if (data.data?.type) eventType = data.data.type;
-        else if (data.type) eventType = data.type;
+      if (!token) {
+        const echo = getEcho();
 
-        emit({
-          type: eventType,
-          data: data
-        });
-      };
-
-      // Handle User Channel
-      if (!echo) {
-        if (currentUserIdRef.current) {
-          currentUserIdRef.current = null;
+        if (echo) {
+          try {
+            echo.disconnect();
+          } catch {}
         }
-        if (currentCompanyIdRef.current) {
-          currentCompanyIdRef.current = null;
-        }
-        listenersInitialized.current = false;
+
+        currentUserId.current = null;
+        currentCompanyId.current = null;
+        isPublicBound.current = false;
+
         return;
       }
 
-      ensurePublicListeners();
+      ensureEcho();
+      bindPrivateChannels();
+    });
 
-      if (currentUserIdRef.current !== newUserId) {
-        if (currentUserIdRef.current) {
-          try {
-            echo.leave(`App.Models.User.${currentUserIdRef.current}`);
-            echo.leave(`App.Domain.Auth.Models.User.${currentUserIdRef.current}`);
-            console.log('EventBusProvider: Left channel for previous user:', currentUserIdRef.current);
-          } catch (err) {
-            console.log('EventBusProvider: Error leaving previous user channel:', err);
-          }
-        }
-
-        if (newUserId) {
-          try {
-            const privateChannel1 = echo.private(`App.Models.User.${newUserId}`);
-            privateChannel1.listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', handleNotification);
-
-            const privateChannel2 = echo.private(`App.Domain.Auth.Models.User.${newUserId}`);
-            privateChannel2.listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', handleNotification);
-
-            console.log('EventBusProvider: Joined private channels for user:', newUserId);
-          } catch (err) {
-            console.log('EventBusProvider: Error joining private channel:', err);
-          }
-        }
-        currentUserIdRef.current = newUserId;
-      }
-
-      // Handle Company Channel
-      if (currentCompanyIdRef.current !== newCompanyId) {
-        if (currentCompanyIdRef.current) {
-          try {
-            echo.leave(`App.Domain.Company.Models.Company.${currentCompanyIdRef.current}`);
-            console.log('EventBusProvider: Left channel for previous company:', currentCompanyIdRef.current);
-          } catch (err) {
-            console.log('EventBusProvider: Error leaving previous company channel:', err);
-          }
-        }
-
-        if (newCompanyId) {
-          try {
-            const companyChannel = echo.private(`App.Domain.Company.Models.Company.${newCompanyId}`);
-            companyChannel.listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (data: any) => {
-              console.log('EventBusProvider: Received database notification on company channel:', data);
-              handleNotification(data);
-            });
-            console.log('EventBusProvider: Joined private channel for company:', newCompanyId);
-          } catch (err) {
-            console.log('EventBusProvider: Error joining company channel:', err);
-          }
-        }
-        currentCompanyIdRef.current = newCompanyId;
-      }
-    };
-
-    // Initial setup
-    updateUserChannels();
-
-    // Subscribe to session changes
-    const unsubscribe = SessionManager.subscribe(updateUserChannels);
-    
     return unsubscribe;
-  }, [emit]);
+  }, [bindPrivateChannels]);
 
   return (
     <EventBusContext.Provider value={{ lastEvent, emit }}>
@@ -198,28 +186,28 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useEventBus() {
-  const context = useContext(EventBusContext);
-  if (!context) {
-    throw new Error('useEventBus must be used within EventBusProvider');
-  }
-  return context;
+  const ctx = useContext(EventBusContext);
+  if (!ctx) throw new Error('useEventBus must be used inside provider');
+  return ctx;
 }
 
-// Custom hook to listen to specific event types
 export function useEventBusListener(
-  types: NotificationEvent['type'][],
+  types: string[],
   handler: (event: NotificationEvent) => void
 ) {
   const { lastEvent } = useEventBus();
-  const lastProcessedId = useRef<string | null>(null);
+  const lastId = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!lastEvent) return;
+
+    const eventId = lastEvent?.data?.id;
+
     if (
-      lastEvent && 
-      types.includes(lastEvent.type) && 
-      lastEvent.data?.id !== lastProcessedId.current
+      types.includes(lastEvent.type) &&
+      eventId !== lastId.current
     ) {
-      lastProcessedId.current = lastEvent.data?.id;
+      lastId.current = eventId;
       handler(lastEvent);
     }
   }, [lastEvent, types, handler]);
