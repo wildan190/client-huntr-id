@@ -13,8 +13,8 @@
 
 @media (max-width: 767px) {
   .auth-page {
-    align-items: center;
-    padding: 0;
+    align-items: flex-start;
+    padding: 16px;
     overflow-y: auto;
   }
 }
@@ -47,27 +47,25 @@
 
 .auth-card {
   width: 100%;
-  max-width: 1120px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
   overflow: hidden;
-  border-radius: 0;
-  min-height: 100dvh;
+  border-radius: 16px;
   background: var(--ui-glass-bg);
-  border: none;
-  box-shadow: none;
+  border: 1px solid var(--ui-glass-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   transition: all 0.3s ease;
 }
 
 @media (min-width: 768px) {
   .auth-card {
     flex-direction: row;
-    min-height: 640px;
+    max-width: 1120px;
     border-radius: 16px;
-    border: 1px solid var(--ui-glass-border);
-    min-height: unset;
+    min-height: 640px;
   }
 
   .auth-card--register {
@@ -85,10 +83,17 @@
 .auth-visual {
   position: relative;
   order: -1;
-  min-height: 220px;
-  max-height: 280px;
+  min-height: 160px;
+  max-height: 200px;
   flex-shrink: 0;
   overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .auth-visual {
+    min-height: 200px;
+    max-height: 240px;
+  }
 }
 
 @media (min-width: 768px) {
