@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -49,11 +50,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const location = useLocation();
+  const canonicalUrl = `https://app.huntr.id${location.pathname}`;
+
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href={canonicalUrl} />
         {/* Restore theme before first paint — fallback to system preference */}
         <script
           dangerouslySetInnerHTML={{
