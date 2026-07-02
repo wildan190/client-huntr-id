@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
 import { aiRankProposals } from "../lib/api/ai";
 import { useEventBusListener } from "../lib/EventBus";
+import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
 import { 
   ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, 
   Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2,
@@ -18,6 +19,7 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
   const [paymentScheme, setPaymentScheme] = useState(proposal.payment_term || "");
   const [deliveryTerms, setDeliveryTerms] = useState(proposal.delivery_time || "");
   const [notes, setNotes] = useState("");
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
   useEffect(() => {
     // Force items to be an array and try different keys
@@ -86,9 +88,9 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }}>
-      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 32, width: "100%", maxWidth: 600, maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
-        <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: isMobile ? 16 : 20 }}>
+      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: isMobile ? 24 : 32, width: "100%", maxWidth: isMobile ? "100%" : 600, maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
+        <div style={{ padding: isMobile ? "20px 24px" : "24px 32px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)" }}>Negotiation Request</h3>
             <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>Proposal by {proposal.company?.name}</p>
@@ -96,18 +98,18 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer" }}><X size={24} /></button>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? 20 : 32, display: "flex", flexDirection: "column", gap: 24 }}>
           {/* Items Negotiation */}
           <div>
             <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "block" }}>Proposed Unit Prices</label>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {items.map((it, idx) => (
-                <div key={idx} style={{ padding: 16, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-input)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                <div key={idx} style={{ padding: 16, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-input)", display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>{it.inventory_name}</div>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>Qty: {it.negotiated_qty} {it.uom} · Original: Rp {Number(it.original_price).toLocaleString()}</div>
                   </div>
-                  <div style={{ width: 140 }}>
+                  <div style={{ width: isMobile ? "100%" : 140 }}>
                     <div style={{ position: "relative" }}>
                       <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)" }}>Rp</span>
                       <input 
@@ -123,7 +125,7 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
             <div>
               <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Payment Scheme</label>
               <select 
@@ -165,7 +167,7 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
           </div>
         </div>
 
-        <div style={{ padding: 32, borderTop: "1px solid var(--ui-border)", display: "flex", gap: 16 }}>
+        <div style={{ padding: isMobile ? 20 : 32, borderTop: "1px solid var(--ui-border)", display: "flex", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
           <button onClick={onClose} style={{ flex: 1, padding: 16, borderRadius: 16, border: "1px solid var(--ui-border-input)", background: "none", fontSize: 14, fontWeight: 700, color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
           <button 
             onClick={handleSubmit}
@@ -183,6 +185,7 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
 export default function RfqDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
   const [rfq, setRfq] = useState<any>(null);
   const [rankings, setRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -347,12 +350,55 @@ export default function RfqDetail() {
     return `${duration} day${duration > 1 ? 's' : ''}`;
   };
 
+  // Helper function to check if tender is expired
+  const isTenderExpired = (): boolean => {
+    if (!rfq || rfq.status !== 'active' || !rfq.approved_at) {
+      return false; // If not active or no approval date, not expired yet
+    }
+
+    const duration = rfq?.duration_days ?? 7;
+    const endsAt = new Date(rfq.approved_at);
+    endsAt.setDate(endsAt.getDate() + duration);
+    const now = new Date();
+    
+    return now.getTime() > endsAt.getTime();
+  };
+
+  // Helper function to check if proposals can be submitted
+  const canSubmitProposal = (): boolean => {
+    if (!rfq) return false;
+    
+    // Check if RFQ is active and approved
+    if (rfq.status !== 'active' || !rfq.approved_at) {
+      return false;
+    }
+    
+    // Check if tender hasn't expired
+    if (isTenderExpired()) {
+      return false;
+    }
+    
+    // Check if user is a vendor
+    if (!isVendor) {
+      return false;
+    }
+    
+    return true;
+  };
+
   return (
     <Layout title="RFQ Detail" subtitle="View technical specifications and company profile before submitting your proposal.">
-      <div style={{ width: "100%", paddingBottom: 60 }}>
+      <div style={{ width: "100%", paddingBottom: 60, padding: isMobile ? "0 16px 80px" : "0 0 60px" }}>
         
         {/* Navigation & Status Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: isMobile ? "flex-start" : "center", 
+          marginBottom: 24,
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 12 : 0
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button
               type="button"
@@ -376,12 +422,23 @@ export default function RfqDetail() {
           </div>
           
           {rfq && (
-             <div style={{ display: "flex", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 800, background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
-                  ACTIVE
+             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 6, 
+                  padding: "6px 12px", 
+                  borderRadius: 8, 
+                  fontSize: isMobile ? 11 : 12, 
+                  fontWeight: 800, 
+                  background: isTenderExpired() ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)", 
+                  color: isTenderExpired() ? "#ef4444" : "#22c55e", 
+                  border: `1px solid ${isTenderExpired() ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}` 
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: isTenderExpired() ? "#ef4444" : "#22c55e" }} />
+                  {isTenderExpired() ? "CLOSED" : "ACTIVE"}
                 </div>
-                <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 800, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
+                <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: isMobile ? 11 : 12, fontWeight: 800, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
                   PR #{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}
                 </div>
              </div>
@@ -398,22 +455,30 @@ export default function RfqDetail() {
             <span style={{ fontWeight: 600 }}>{error}</span>
           </div>
         ) : rfq ? (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+          <div 
+            className="huntr-grid-2col"
+            style={{ 
+              display: "grid", 
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 360px", 
+              gap: 24, 
+              alignItems: "start" 
+            }}
+          >
             
             {/* Main Content Area (Left) */}
             <div style={{ display: "grid", gap: 24 }}>
               
               {/* RFQ Header & Description */}
-              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: isMobile ? 20 : 32, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
                 <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 11, fontWeight: 900, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "4px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1 }}>Purchase Requisition</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)" }}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}</span>
                   </div>
-                  <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
+                  <h1 style={{ margin: 0, fontSize: isMobile ? 24 : 32, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, padding: 24, background: "var(--ui-bg-input)", borderRadius: 20, border: "1px solid var(--ui-border-input)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, padding: isMobile ? 16 : 24, background: "var(--ui-bg-input)", borderRadius: 20, border: "1px solid var(--ui-border-input)" }}>
                   <div style={{ display: "grid", gap: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>Requested By</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -522,7 +587,7 @@ export default function RfqDetail() {
                             <Info size={14} color="#f97316" />
                             System Evaluation Criteria
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 4 }}>
+                          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 4 }}>
                             <div>
                               <div style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>1. Harga (Prioritas Utama)</div>
                               <div style={{ color: "var(--ui-text-muted)", marginTop: 2, fontSize: 11 }}>Mengutamakan total penawaran harga terendah dari seluruh vendor.</div>
@@ -995,7 +1060,15 @@ export default function RfqDetail() {
             </div>
 
             {/* Sidebar Sticky (Right) */}
-            <div style={{ position: "sticky", top: 24, display: "grid", gap: 24 }}>
+            <div 
+              className={isMobile ? "huntr-split-layout-aside--mobile-hidden" : ""}
+              style={{ 
+                position: isMobile ? "static" : "sticky", 
+                top: 24, 
+                display: "grid", 
+                gap: 24 
+              }}
+            >
               
               {/* Action Card */}
               <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -1007,7 +1080,7 @@ export default function RfqDetail() {
                   <SummaryRow label="Time Remaining" value={getTenderSummary()} />
                 </div>
 
-                {activeCompany?.type === 'vendor' && (
+                {canSubmitProposal() && (
                   <button
                     onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
                     style={{
@@ -1031,6 +1104,47 @@ export default function RfqDetail() {
                   >
                     Submit Proposal <ArrowLeft size={18} style={{ transform: "rotate(180deg)" }} />
                   </button>
+                )}
+
+                {/* Tender Expired Message for Vendors */}
+                {isVendor && rfq && isTenderExpired() && (
+                  <div style={{
+                    width: "100%",
+                    marginTop: 28,
+                    padding: "16px",
+                    borderRadius: 14,
+                    background: "rgba(239,68,68,0.1)",
+                    color: "#ef4444",
+                    fontWeight: 700,
+                    fontSize: 14,
+                    border: "1px solid rgba(239,68,68,0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    textAlign: "center",
+                  }}>
+                    <AlertTriangle size={18} />
+                    Tender Period Ended
+                  </div>
+                )}
+
+                {/* Not Vendor Message */}
+                {!isVendor && rfq && rfq.status === 'active' && !isTenderExpired() && (
+                  <div style={{
+                    width: "100%",
+                    marginTop: 28,
+                    padding: "16px",
+                    borderRadius: 14,
+                    background: "rgba(156,163,175,0.1)",
+                    color: "var(--ui-text-muted)",
+                    fontWeight: 600,
+                    fontSize: 14,
+                    border: "1px solid rgba(156,163,175,0.2)",
+                    textAlign: "center",
+                  }}>
+                    Only vendors can submit proposals
+                  </div>
                 )}
               </div>
 
@@ -1063,6 +1177,61 @@ export default function RfqDetail() {
           </div>
         )}
       </div>
+
+      {/* Mobile Floating Action Button for Vendors */}
+      {isMobile && canSubmitProposal() && rfq && (
+        <button
+          onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
+          style={{
+            position: "fixed",
+            bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+            right: 20,
+            zIndex: 90,
+            padding: "16px 24px",
+            borderRadius: 16,
+            background: "linear-gradient(135deg,#f97316,#f59e0b)",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: 15,
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 8px 24px rgba(249,115,22,0.4)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          Submit Proposal <ArrowLeft size={18} style={{ transform: "rotate(180deg)" }} />
+        </button>
+      )}
+
+      {/* Mobile Tender Expired Message */}
+      {isMobile && isVendor && rfq && isTenderExpired() && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+            left: 20,
+            right: 20,
+            zIndex: 90,
+            padding: "16px 20px",
+            borderRadius: 16,
+            background: "rgba(239,68,68,0.1)",
+            color: "#ef4444",
+            fontWeight: 700,
+            fontSize: 14,
+            border: "1px solid rgba(239,68,68,0.2)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            textAlign: "center",
+            justifyContent: "center",
+          }}
+        >
+          <AlertTriangle size={18} />
+          Tender Period Ended - No More Proposals Accepted
+        </div>
+      )}
 
       {showNegModal && selectedNegProposal && (
         <NegotiationModal 
