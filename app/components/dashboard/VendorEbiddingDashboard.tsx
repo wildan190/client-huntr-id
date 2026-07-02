@@ -22,6 +22,15 @@ function getRfqDeadline(rfq: any): number | null {
   return start.getTime() + (durationDays * 24 * 60 * 60 * 1000);
 }
 
+function isRfqExpired(rfq: any, now: number): boolean {
+  if (!rfq?.approved_at) return false; // Not approved yet, so not expired
+  
+  const deadline = getRfqDeadline(rfq);
+  if (!deadline) return false;
+  
+  return now > deadline;
+}
+
 function formatCountdown(ms: number): string {
   if (!Number.isFinite(ms) || ms <= 0) return "00j 00m 00d";
   const totalSeconds = Math.floor(ms / 1000);
@@ -85,6 +94,7 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
   const winRate = participatedCount > 0 ? Math.round((wins / participatedCount) * 100) : 0;
 
   const deadlines = openRfqs
+    .filter((rfq: any) => !isRfqExpired(rfq, now)) // Filter out expired RFQs
     .map((rfq: any) => getRfqDeadline(rfq))
     .filter((value: number | null): value is number => typeof value === "number")
     .sort((a: number, b: number) => a - b);
@@ -92,6 +102,7 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
   const countdown = nearestDeadline ? formatCountdown(nearestDeadline - now) : "Belum ada tender aktif";
 
   const tableRows = [...openRfqs]
+    .filter((rfq: any) => !isRfqExpired(rfq, now)) // Filter out expired RFQs from table
     .sort((a: any, b: any) => (getRfqDeadline(a) || Number.MAX_SAFE_INTEGER) - (getRfqDeadline(b) || Number.MAX_SAFE_INTEGER))
     .slice(0, 12)
     .map((rfq: any) => {
@@ -100,9 +111,10 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
       const submittedAt = proposal?.created_at ? new Date(proposal.created_at).toLocaleDateString("id-ID") : "-";
       const deadline = getRfqDeadline(rfq);
       const deadlineText = deadline ? new Date(deadline).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+      const isExpired = isRfqExpired(rfq, now);
       const status = proposal
         ? (["awarded", "approved"].includes(String(proposal.winner_status)) ? "Awarded" : "Submitted")
-        : "Draft";
+        : isExpired ? "Expired" : "Draft";
 
       return {
         rfq,
@@ -111,6 +123,7 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
         submittedAt,
         deadlineText,
         status,
+        isExpired,
       };
     });
 
@@ -185,7 +198,7 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
                       <td colSpan={6} style={{ padding: 32, textAlign: "center", color: "var(--ui-text-muted)" }}>Belum ada tender aktif yang bisa dipantau.</td>
                     </tr>
                   ) : (
-                    tableRows.map(({ rfq, proposal, ranking, submittedAt, deadlineText, status }) => (
+                    tableRows.map(({ rfq, proposal, ranking, submittedAt, deadlineText, status, isExpired }) => (
                       <tr key={rfq.id} style={{ borderBottom: "1px solid var(--ui-border-subtle)" }}>
                         <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                           <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", lineHeight: 1.4, fontSize: 13 }}>{rfq.title}</div>
@@ -201,44 +214,65 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
                             borderRadius: 999,
                             fontSize: 10,
                             fontWeight: 800,
-                            background: status === "Draft" ? "rgba(59,130,246,0.12)" : status === "Submitted" ? "rgba(249,115,22,0.12)" : "rgba(34,197,94,0.12)",
-                            color: status === "Draft" ? "#60a5fa" : status === "Submitted" ? "#f59e0b" : "#34d399",
+                            background: status === "Draft" ? "rgba(59,130,246,0.12)" 
+                                      : status === "Submitted" ? "rgba(249,115,22,0.12)" 
+                                      : status === "Expired" ? "rgba(239,68,68,0.12)"
+                                      : "rgba(34,197,94,0.12)",
+                            color: status === "Draft" ? "#60a5fa" 
+                                 : status === "Submitted" ? "#f59e0b" 
+                                 : status === "Expired" ? "#ef4444"
+                                 : "#34d399",
                           }}>
                             {status}
                           </span>
                           <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 6 }}>
-                            {proposal ? `Winner: ${proposal.winner_status || "submitted"}` : "No proposal"}
+                            {proposal ? `Winner: ${proposal.winner_status || "submitted"}` : isExpired ? "Deadline passed" : "No proposal"}
                           </div>
                         </td>
                         <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{proposal ? `Rp ${Number(proposal.price_offer || 0).toLocaleString("id-ID")}` : "Draft"}</div>
+                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{proposal ? `Rp ${Number(proposal.price_offer || 0).toLocaleString("id-ID")}` : isExpired ? "N/A" : "Draft"}</div>
                           <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
-                            {ranking ? `Rank #${ranking.rank}` : submittedAt === "-" ? "Not submitted" : `Sent ${submittedAt}`}
+                            {ranking ? `Rank #${ranking.rank}` : submittedAt === "-" ? (isExpired ? "Expired" : "Not submitted") : `Sent ${submittedAt}`}
                           </div>
                         </td>
                         <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
-                          <div style={{ fontWeight: 700, color: "var(--ui-text-primary)", fontSize: 13 }}>{deadlineText}</div>
+                          <div style={{ fontWeight: 700, color: isExpired ? "#ef4444" : "var(--ui-text-primary)", fontSize: 13 }}>{deadlineText}</div>
                           <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
-                            {proposal ? `Sent ${submittedAt}` : "Ready"}
+                            {isExpired ? "Closed" : proposal ? `Sent ${submittedAt}` : "Ready"}
                           </div>
                         </td>
                         <td style={{ padding: "12px 14px", verticalAlign: "top", textAlign: "right" }}>
-                          <button
-                            type="button"
-                            onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
-                            style={{
+                          {isExpired ? (
+                            <span style={{
                               padding: "6px 10px",
                               borderRadius: 8,
-                              border: "1px solid rgba(249,115,22,0.22)",
-                              background: "rgba(249,115,22,0.08)",
-                              color: "#f59e0b",
+                              border: "1px solid rgba(239,68,68,0.22)",
+                              background: "rgba(239,68,68,0.08)",
+                              color: "#ef4444",
                               fontSize: 11,
                               fontWeight: 800,
-                              cursor: "pointer",
-                            }}
-                          >
-                            {proposal ? "Lihat" : "Buka"}
-                          </button>
+                              cursor: "default",
+                            }}>
+                              Closed
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => navigate("/proposals", { state: { rfqId: rfq.id } })}
+                              style={{
+                                padding: "6px 10px",
+                                borderRadius: 8,
+                                border: "1px solid rgba(249,115,22,0.22)",
+                                background: "rgba(249,115,22,0.08)",
+                                color: "#f59e0b",
+                                fontSize: 11,
+                                fontWeight: 800,
+                                cursor: "pointer",
+                              }}
+                            >
+                              {proposal ? "Lihat" : "Buka"}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -257,8 +291,8 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
 
             <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Quick Stats</div>
-              <MiniStat label="Open Tenders" value={String(openRfqs.length)} />
-              <MiniStat label="Proposal Drafts" value={String(Math.max(openRfqs.length - vendorProposals.length, 0))} />
+              <MiniStat label="Open Tenders" value={String(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length)} />
+              <MiniStat label="Proposal Drafts" value={String(Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0))} />
               <MiniStat label="Submitted Proposals" value={String(vendorProposals.length)} />
             </div>
           </div>

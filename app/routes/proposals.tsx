@@ -331,7 +331,25 @@ export default function Proposals() {
 
   const updateForm = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }));
 
+  // Helper function to check if RFQ tender deadline has expired
+  const isTenderExpired = (rfq: any): boolean => {
+    if (!rfq || !rfq.approved_at) return false;
+    
+    const duration = rfq?.duration_days ?? 7;
+    const endDate = new Date(rfq.approved_at);
+    endDate.setDate(endDate.getDate() + duration);
+    const now = new Date();
+    
+    return now > endDate;
+  };
+
   const handleSelectRfq = (rfq: any) => {
+    // Check if tender has expired
+    if (isTenderExpired(rfq)) {
+      setError("This tender period has expired. No more proposals can be submitted.");
+      return;
+    }
+    
     const alreadySubmitted = vendorSubmittedRfqIds.includes(rfq.id);
     setSelectedRfq(rfq);
     setHasSubmittedForSelectedRfq(alreadySubmitted);
@@ -367,6 +385,12 @@ export default function Proposals() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeCompany || !selectedRfq) return;
+
+    // Check if tender has expired before submission
+    if (isTenderExpired(selectedRfq)) {
+      setError("This tender period has expired. No more proposals can be submitted.");
+      return;
+    }
 
     // Prevent double submit
     if (isProcessing.current || loading) {
@@ -529,7 +553,7 @@ export default function Proposals() {
                 </div>
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 20 }}>
-                  {openRfqs.map(rfq => (
+                  {openRfqs.filter((rfq: any) => !isTenderExpired(rfq)).map(rfq => (
                     <div 
                       key={rfq.id} 
                       style={{
