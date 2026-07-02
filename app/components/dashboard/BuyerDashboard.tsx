@@ -86,156 +86,136 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
 
   return (
     <Layout title="Procurement Dashboard" subtitle="Overview of your organization's spend, supplier performance, and operational efficiency.">
-      <div className="flex flex-col gap-8 pb-10 w-full" style={{ paddingBottom: 40, boxSizing: "border-box" }}>
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, alignItems: "stretch" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, paddingBottom: 40, boxSizing: "border-box", width: "100%" }}>
+        {/* Weather + Currency compact row */}
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, alignItems: "stretch" }}>
           <WeatherWidget embedded />
           <CurrencyWidget embedded />
         </section>
         
-        {/* 1. Spend Analysis */}
-        <section>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-orange-400">
-            <PieChart size={24} /> Analisis Pengeluaran (Spend Analysis)
+        {/* 1. Spend Analysis — stat cards compact, chart full width */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fb923c" }}>
+            <PieChart size={18} /> Analisis Pengeluaran (Spend Analysis)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            
-            <div className="glass-panel p-5 md:col-span-1 border-l-4 border-l-orange-500" style={{ background: "var(--ui-bg-card)", borderTop: "1px solid var(--ui-border)", borderRight: "1px solid var(--ui-border)", borderBottom: "1px solid var(--ui-border)", borderRadius: "0 16px 16px 0" }}>
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs text-gray-400 font-semibold uppercase">Total Pengeluaran</span>
-                <DollarSign size={16} className="text-orange-400" />
-              </div>
-              <div className="text-3xl font-bold text-white mb-2">{formatCurrency(12500000000)}</div>
-              <div className="text-xs text-green-400 flex items-center gap-1 mb-6"><TrendingDown size={12}/> 4.2% vs last month</div>
-              
-              <div className="flex justify-between items-start mb-2 pt-4 border-t border-white/10">
-                <span className="text-xs text-gray-400 font-semibold uppercase">Maverick Spend</span>
-                <AlertTriangle size={16} className="text-red-400" />
-              </div>
-              <div className="text-xl font-bold text-white">8.5%</div>
-              <div className="text-xs text-red-400 flex items-center gap-1">Off-contract purchases</div>
+          {/* Stat cards row — compact, small */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #f97316" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Total Spend</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>{formatCurrency(12500000000)}</div>
+              <div style={{ fontSize: 10, color: "#34d399", marginTop: 4, display: "flex", alignItems: "center", gap: 3 }}><TrendingDown size={10}/> 4.2% vs last month</div>
             </div>
-
-            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Pengeluaran per Departemen</h3>
-              <div style={{ height: 250, width: "100%" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie data={spendData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                      {spendData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} {...chartTooltipStyle()} />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, color: "var(--ui-chart-legend)" }} />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              </div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Maverick Spend</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#ef4444", marginTop: 4, lineHeight: 1 }}>8.5%</div>
+              <div style={{ fontSize: 10, color: "#ef4444", marginTop: 4 }}>Off-contract purchases</div>
             </div>
-
-            <div className="glass-panel p-5 bg-gradient-to-br from-red-500/5 to-transparent h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs text-gray-400 font-semibold uppercase">Average Defect Rate</span>
-                <AlertTriangle size={16} className="text-red-400" />
-              </div>
-              <div className="text-3xl font-bold text-white mb-1">2.1%</div>
-              <div className="text-xs text-gray-500 mt-1">Target: &lt;2.0%</div>
-              <div className="w-full bg-gray-800 h-1.5 mt-4 rounded-full overflow-hidden"><div className="bg-red-500 h-full" style={{width: '15%'}}></div></div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Defect Rate</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#ef4444", marginTop: 4, lineHeight: 1 }}>2.1%</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Target: &lt;2.0%</div>
             </div>
-
-            <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs text-gray-400 font-semibold uppercase">Lead Time Avg</span>
-                <Clock size={16} className="text-blue-400" />
-              </div>
-              <div className="text-3xl font-bold text-white mb-1">7.2 Days</div>
-              <div className="text-xs text-gray-500 mt-1">From PO Creation to Goods Receipt</div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Lead Time Avg</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#60a5fa", marginTop: 4, lineHeight: 1 }}>7.2 Days</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>PO → Goods Receipt</div>
+            </div>
+          </div>
+          {/* Chart — full width */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: "16px 20px" }}>
+            <h3 style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Pengeluaran per Departemen</h3>
+            <div style={{ height: 260, width: "100%" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie data={spendData} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value">
+                    {spendData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} {...chartTooltipStyle()} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, color: "var(--ui-chart-legend)" }} />
+                </RechartsPieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </section>
 
-        {/* 3. Operational Efficiency */}
-        <section>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">
-            <Activity size={24} /> Efisiensi Operasional (Operational Efficiency)
+        {/* 2. Operational Efficiency */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#60a5fa" }}>
+            <Activity size={18} /> Efisiensi Operasional
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            
-            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Rata-rata Waktu Siklus PO (Hari)</h3>
-              <div style={{ height: 250, width: "100%" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={cycleTimeData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
-                    <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} domain={[0, 4]} />
-                    <Tooltip {...chartTooltipStyle("1px solid rgba(59,130,246,0.35)")} />
-                    <Line type="monotone" dataKey="time" name="Cycle Time (Days)" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4, fill: "#2563eb", strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                  </RechartsLineChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Stat cards row */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Active PO</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#fb923c", marginTop: 4, lineHeight: 1 }}>8</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>In-Transit</div>
             </div>
-
-            <div className="glass-panel p-5 h-full flex flex-col justify-center" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs text-gray-400 font-semibold uppercase">PO vs PR Workload</span>
-                <ClipboardList size={16} className="text-blue-400" />
-              </div>
-              <div className="flex justify-between items-center text-sm font-medium mt-3">
-                <span className="text-gray-400">Active PO (In-Transit):</span> <span className="text-orange-400">8</span>
-              </div>
-              <div className="flex justify-between items-center text-sm font-medium mt-2">
-                <span className="text-gray-400">Unprocessed PRs:</span> <span className="text-white">24</span>
-              </div>
-              <div className="flex justify-between items-center text-sm font-medium mt-2 pt-2 border-t border-white/10">
-                <span className="text-gray-400">Average POs/Staff/Mo:</span> <span className="text-pink-400 font-bold">45</span>
-              </div>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Unprocessed PRs</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>24</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Needs review</div>
             </div>
-
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>POs/Staff/Mo</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#f472b6", marginTop: 4, lineHeight: 1 }}>45</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Average</div>
+            </div>
+          </div>
+          {/* Line chart — full width */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: "16px 20px" }}>
+            <h3 style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Rata-rata Waktu Siklus PO (Hari)</h3>
+            <div style={{ height: 260, width: "100%" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsLineChart data={cycleTimeData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
+                  <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} domain={[0, 4]} />
+                  <Tooltip {...chartTooltipStyle("1px solid rgba(59,130,246,0.35)")} />
+                  <Line type="monotone" dataKey="time" name="Cycle Time (Days)" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4, fill: "#2563eb", strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                </RechartsLineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </section>
 
-        {/* 4. Financial & Cost Management */}
-        <section>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-yellow-400">
-            <LineChart size={24} /> Keuangan & Penghematan (Financial)
+        {/* 3. Financial & Cost Management */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fbbf24" }}>
+            <LineChart size={18} /> Keuangan &amp; Penghematan
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            
-            <div className="glass-panel p-5 md:col-span-1 lg:col-span-1" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16 }}>
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 uppercase">Kumulatif Penghematan Cost (YTD)</h3>
-              <div style={{ height: 250, width: "100%" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={savingsData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
-                    <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrency} />
-                    <Tooltip 
-                      formatter={(value) => [formatCurrency(Number(value ?? 0)), "Savings"]}
-                      {...chartTooltipStyle("1px solid rgba(245,158,11,0.35)")}
-                    />
-                    <Area type="monotone" dataKey="savings" name="Cost Savings" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Stat card */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #34d399" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>PPV</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: "#34d399", marginTop: 4, lineHeight: 1 }}>{formatCurrency(-450000000)}</div>
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Favorable variance</div>
             </div>
-
-            <div className="glass-panel p-6 flex flex-col justify-center gap-2 h-full" style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20 }}>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-2">
-                <ArrowDownCircle size={24} color="#fff" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-400 font-semibold uppercase mb-1">Purchase Price Variance (PPV)</div>
-                <div className="text-3xl font-bold text-emerald-400">{formatCurrency(-450000000)}</div>
-                <div className="text-xs text-gray-500 mt-2 leading-relaxed">Below budget limit. Favorable variance achieved through bulk volume negotiation.</div>
-              </div>
+          </div>
+          {/* Area chart — full width */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: "16px 20px" }}>
+            <h3 style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Kumulatif Penghematan Cost (YTD)</h3>
+            <div style={{ height: 260, width: "100%" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={savingsData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
+                  <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrency} />
+                  <Tooltip
+                    formatter={(value) => [formatCurrency(Number(value ?? 0)), "Savings"]}
+                    {...chartTooltipStyle("1px solid rgba(245,158,11,0.35)")}
+                  />
+                  <Area type="monotone" dataKey="savings" name="Cost Savings" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-
           </div>
         </section>
 

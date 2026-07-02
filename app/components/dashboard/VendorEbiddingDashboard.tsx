@@ -130,12 +130,21 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
   return (
     <Layout title="Vendor E-Bidding Dashboard" subtitle="Pantau tender aktif, draft proposal, dan submisi yang sedang berjalan.">
       <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16, paddingBottom: 24, boxSizing: "border-box" }}>
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, alignItems: "stretch" }}>
+
+        {/* Weather + Currency compact row */}
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, alignItems: "stretch" }}>
           <WeatherWidget embedded />
           <CurrencyWidget embedded />
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+        {/* Stat cards compact row — small widgets for numbers only */}
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+          {/* Company info card */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #f97316" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Company</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeCompany?.name || "—"}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 3 }}>{user?.name}</div>
+          </div>
           <SummaryWidget
             label="Total Tender Diikuti"
             value={loading ? "..." : String(participatedCount)}
@@ -145,34 +154,46 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
           <SummaryWidget
             label="Menang Tender"
             value={loading ? "..." : `${wins}`}
-            hint={`${winRate}% win rate dari tender yang diikuti`}
+            hint={`${winRate}% win rate`}
             icon={Trophy}
             accent="green"
           />
           <SummaryWidget
-            label="Sisa Waktu Submisi Terdekat"
+            label="Deadline Terdekat"
             value={loading ? "..." : countdown}
-            hint="Deadline RFQ aktif paling dekat"
+            hint="RFQ aktif paling dekat"
             icon={Timer}
             accent="blue"
           />
+          {/* Quick stats — compact number cells */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Open Tenders</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#fb923c", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length}</div>
+          </div>
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Submitted</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#60a5fa", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : vendorProposals.length}</div>
+          </div>
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Drafts</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0)}</div>
+          </div>
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 20, alignItems: "start" }}>
+        {/* Tender table — full width */}
+        <section>
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
-            <div style={{ padding: 20, borderBottom: "1px solid var(--ui-border)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Modul E-Bidding</div>
-                  <h2 style={{ margin: "6px 0 0", fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)" }}>Draft dan Pengajuan Proposal</h2>
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {VENDOR_DASHBOARD_HINTS.map((item) => (
-                    <span key={item} style={{ padding: "6px 10px", borderRadius: 999, background: "rgba(249,115,22,0.1)", color: "#f59e0b", fontSize: 11, fontWeight: 700 }}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Modul E-Bidding</div>
+                <h2 style={{ margin: "4px 0 0", fontSize: 18, fontWeight: 900, color: "var(--ui-text-primary)" }}>Draft dan Pengajuan Proposal</h2>
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {VENDOR_DASHBOARD_HINTS.map((item) => (
+                  <span key={item} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,0.1)", color: "#f59e0b", fontSize: 10, fontWeight: 700 }}>
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -279,21 +300,6 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Company</div>
-              <div style={{ fontSize: 16, fontWeight: 900, marginTop: 4, color: "var(--ui-text-primary)" }}>{activeCompany?.name}</div>
-              <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 4 }}>{user?.name}</div>
-            </div>
-
-            <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Quick Stats</div>
-              <MiniStat label="Open Tenders" value={String(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length)} />
-              <MiniStat label="Proposal Drafts" value={String(Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0))} />
-              <MiniStat label="Submitted Proposals" value={String(vendorProposals.length)} />
             </div>
           </div>
         </section>
