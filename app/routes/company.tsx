@@ -55,61 +55,61 @@ export default function CompanyDetails() {
   if (!vm.showCompanyWorkspace) {
     return (
       <Layout title="Company" subtitle="Choose a company workspace">
-        <div className="flex flex-col gap-8 w-full">
-          <div className="flex justify-between items-center flex-wrap gap-4">
+        <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-black text-[var(--ui-text-primary)] m-0">Select Workspace</h2>
-              <p className="text-sm text-[var(--ui-text-secondary)] mt-2">Pick the company you want to manage from your available workspaces.</p>
+              <h2 className="text-xl font-bold text-[var(--ui-text-primary)] m-0">Select Workspace</h2>
+              <p className="text-sm text-[var(--ui-text-secondary)] mt-1">Pick the company you want to manage.</p>
             </div>
             <button
               onClick={() => vm.navigate("/onboarding")}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] text-[var(--ui-text-primary)] font-bold hover:border-orange-500/50 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border)] text-[var(--ui-text-primary)] text-sm font-medium hover:border-orange-500/50 transition-all"
             >
-              <Plus size={18} /> Register another company
+              <Plus size={16} /> Register another company
             </button>
           </div>
 
           {vm.companyListLoading ? (
-            <div className="flex justify-center py-12"><Loader2 size={32} className="animate-spin text-orange-500" /></div>
+            <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-orange-500" /></div>
           ) : vm.companies.length === 0 ? (
-            <div className="text-center py-16 bg-[var(--ui-bg-input)] rounded-3xl border-2 border-dashed border-[var(--ui-border)]">
-              <p className="text-[var(--ui-text-secondary)] text-sm mb-4">No company workspaces found.</p>
+            <div className="text-center py-12 bg-[var(--ui-bg-input)] rounded-xl border border-dashed border-[var(--ui-border)]">
+              <p className="text-[var(--ui-text-secondary)] text-sm mb-3">No company workspaces found.</p>
               <button
                 onClick={() => vm.navigate("/onboarding")}
-                className="px-6 py-3 rounded-xl bg-orange-500 text-white font-black hover:bg-orange-600 transition-all"
+                className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-all"
               >
                 Register a Company
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {vm.companies.map(c => {
                 const active = vm.selectedWorkspace?.id === c.id;
                 return (
                   <button
                     key={c.id}
                     onClick={() => vm.openCompanyWorkspace(c)}
-                    className={`text-left p-8 rounded-[32px] border-2 transition-all hover:translate-y-[-4px] ${
-                      active ? "border-orange-500/30 bg-orange-500/5 shadow-2xl shadow-orange-500/10" : "border-[var(--ui-border)] bg-[var(--ui-bg-card)] hover:border-orange-500/20"
+                    className={`text-left p-5 rounded-xl border transition-all hover:-translate-y-1 ${
+                      active ? "border-orange-500/50 bg-orange-500/5 shadow-md shadow-orange-500/5" : "border-[var(--ui-border)] bg-[var(--ui-bg-card)] hover:border-orange-500/30"
                     }`}
                   >
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 rounded-2xl bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border border-[var(--ui-border)]">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border border-[var(--ui-border)]">
                         {c.logo_path ? (
                           <img src={getAssetUrl(c.logo_path)} className="w-full h-full object-cover" alt="" />
-                        ) : <Building2 size={24} className="text-orange-500" />}
+                        ) : <Building2 size={20} className="text-orange-500" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-black text-[var(--ui-text-primary)] truncate m-0">{c.name}</h3>
-                        <div className="flex gap-2 mt-1">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-md">{c.type}</span>
+                        <h3 className="text-base font-bold text-[var(--ui-text-primary)] truncate m-0">{c.name}</h3>
+                        <div className="mt-0.5">
+                          <span className="text-[10px] font-medium uppercase text-orange-500 bg-orange-500/10 px-1.5 py-0.5 rounded">{c.type}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-[var(--ui-text-muted)]">Status</span>
-                        <span className={`font-black uppercase tracking-tighter ${c.status === 'approved' ? 'text-emerald-500' : 'text-amber-500'}`}>{c.status}</span>
+                        <span className={`font-medium capitalize ${c.status === 'approved' ? 'text-emerald-500' : 'text-amber-500'}`}>{c.status}</span>
                       </div>
                       <div className="text-xs text-[var(--ui-text-muted)] truncate">{c.formatted_tax_id || c.tax_id || "No NPWP registered"}</div>
                     </div>
@@ -128,13 +128,13 @@ export default function CompanyDetails() {
       <div className="flex flex-col gap-8 w-full">
         {/* Missing Fields Banner */}
         {!profileBannerDismissed && missingFields.length > 0 && (
-          <div className="p-6 rounded-[32px] bg-amber-500/10 border border-amber-500/20 flex items-start justify-between gap-4">
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col md:flex-row items-start justify-between gap-4">
             <div className="flex-1">
-              <h4 className="text-sm font-black text-amber-500 uppercase tracking-widest mb-2">Complete Your Profile</h4>
-              <p className="text-sm text-[var(--ui-text-primary)] mb-3">Fill in these details to unlock full features:</p>
+              <h4 className="text-sm font-bold text-amber-600 mb-1">Complete Your Profile</h4>
+              <p className="text-xs text-[var(--ui-text-primary)] mb-3">Fill in these details to unlock full features:</p>
               <div className="flex flex-wrap gap-2">
                 {missingFields.map((field) => (
-                  <span key={field} className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold">
+                  <span key={field} className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 text-[10px] font-semibold uppercase">
                     {field}
                   </span>
                 ))}
@@ -142,30 +142,30 @@ export default function CompanyDetails() {
             </div>
             <button
               onClick={() => setProfileBannerDismissed(true)}
-              className="p-2 rounded-2xl hover:bg-amber-500/20 transition-all text-amber-500"
+              className="p-1.5 rounded-lg hover:bg-amber-500/20 transition-all text-amber-600"
               title="Dismiss profile banner"
               aria-label="Dismiss profile banner"
             >
-              <X size={20} />
+              <X size={16} />
             </button>
           </div>
         )}
 
         {/* Header Section */}
-        <div className="flex justify-between items-start flex-wrap gap-6">
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-3xl bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border-2 border-[var(--ui-border)] group-hover:border-orange-500/50 transition-all">
+              <div className="w-16 h-16 rounded-xl bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border border-[var(--ui-border)] group-hover:border-orange-500/50 transition-all">
                 {vm.company.logo_path ? (
                   <img src={getAssetUrl(vm.company.logo_path)} className="w-full h-full object-cover" alt={vm.company.name} />
-                ) : <Building2 size={36} className="text-orange-500" />}
+                ) : <Building2 size={28} className="text-orange-500" />}
                 <button 
                   onClick={() => document.getElementById('logo-upload')?.click()}
                   className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                   title="Upload company logo"
                   aria-label="Upload company logo"
                 >
-                  <Camera className="text-white" size={24} />
+                  <Camera className="text-white" size={20} />
                 </button>
                 <input 
                   id="logo-upload"
@@ -179,42 +179,41 @@ export default function CompanyDetails() {
                 />
               </div>
               {vm.logoUploading && (
-                <div className="absolute inset-0 bg-black/20 rounded-3xl flex items-center justify-center">
-                  <Loader2 className="animate-spin text-white" size={20} />
+                <div className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center">
+                  <Loader2 className="animate-spin text-white" size={16} />
                 </div>
               )}
             </div>
             <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-3xl font-black text-[var(--ui-text-primary)] m-0">{vm.company.name}</h2>
-                <div className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${statusColor[vm.company.status] || "text-gray-500 bg-gray-500/10 border-gray-500/20"}`}>
-                  {vm.company.status}
-                </div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl md:text-2xl font-bold text-[var(--ui-text-primary)] m-0">{vm.company.name}</h2>
               </div>
-              <p className="text-sm text-[var(--ui-text-secondary)] mt-2 flex items-center gap-4">
-                <span className="flex items-center gap-1.5"><Building2 size={14} className="text-orange-500" /> {vm.company.type.toUpperCase()}</span>
-                <span className="w-1 h-1 rounded-full bg-[var(--ui-border)]"></span>
-                NPWP: <span className="text-[var(--ui-text-primary)] font-bold">{vm.company.formatted_tax_id || vm.company.tax_id || "N/A"}</span>
+              <p className="text-xs text-[var(--ui-text-secondary)] mt-1 flex flex-wrap items-center gap-2">
+                <span className="flex items-center gap-1"><Building2 size={12} className="text-orange-500" /> {vm.company.type.toUpperCase()}</span>
+                <span className="w-1 h-1 rounded-full bg-[var(--ui-border)] hidden md:block"></span>
+                <span>NPWP: <span className="text-[var(--ui-text-primary)] font-medium">{vm.company.formatted_tax_id || vm.company.tax_id || "N/A"}</span></span>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest ${statusColor[vm.company.status] || "text-gray-500 bg-gray-500/10 border-gray-500/20"}`}>
+          <div className="flex items-center gap-2">
+            <div className={`px-3 py-1 rounded-full border text-xs font-semibold capitalize ${statusColor[vm.company.status] || "text-gray-500 bg-gray-500/10 border-gray-500/20"}`}>
               {vm.company.status}
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-col gap-6">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-6 overflow-x-auto border-b border-[var(--ui-border)] scrollbar-hide">
             {tabs.map(t => (
               <button
                 key={t.id}
                 onClick={() => vm.setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-sm transition-all whitespace-nowrap ${
-                  vm.activeTab === t.id ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-[var(--ui-bg-input)] text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)]"
+                className={`flex items-center gap-2 pb-3 text-sm font-semibold transition-all whitespace-nowrap border-b-2 -mb-[1px] ${
+                  vm.activeTab === t.id 
+                    ? "border-orange-500 text-orange-500" 
+                    : "border-transparent text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] hover:border-[var(--ui-border)]"
                 }`}
               >
                 <t.icon size={16} /> {t.label}
@@ -223,7 +222,7 @@ export default function CompanyDetails() {
           </div>
 
           {/* Tab Content */}
-          <div className="bg-[var(--ui-bg-card)] border border-[var(--ui-border)] rounded-[40px] p-10 min-h-[400px]">
+          <div className="bg-[var(--ui-bg-card)] rounded-xl border border-[var(--ui-border)] p-4 md:p-6 min-h-[300px]">
             {vm.updateError && (
               <div className="mb-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold flex items-center gap-3">
                 <AlertCircle size={16} /> {vm.updateError}
@@ -232,65 +231,65 @@ export default function CompanyDetails() {
 
             {vm.activeTab === "profile" && (
               <div className="flex flex-col gap-10">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                  <div className="flex items-center gap-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <div className="relative group">
-                      <div className="w-24 h-24 rounded-3xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] overflow-hidden flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] overflow-hidden flex items-center justify-center">
                         {vm.company.logo_path ? (
                           <img src={getAssetUrl(vm.company.logo_path)} className="w-full h-full object-cover" alt="" />
-                        ) : <Building2 size={32} className="text-[var(--ui-text-muted)]" />}
+                        ) : <Building2 size={24} className="text-[var(--ui-text-muted)]" />}
                       </div>
                       <button 
                         type="button"
                         onClick={() => vm.logoInputRef.current?.click()}
-                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"
+                        className="absolute -bottom-1 -right-1 w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow hover:scale-105 transition-all"
                         aria-label="Upload company logo"
                         title="Upload company logo"
                       >
-                        <Camera size={18} />
+                        <Camera size={14} />
                       </button>
                       <input ref={vm.logoInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && vm.handleLogoUpload(e.target.files[0])} />
                     </div>
                     <div>
-                      <h4 className="text-lg font-black text-[var(--ui-text-primary)] m-0">Corporate Logo</h4>
-                      <p className="text-sm text-[var(--ui-text-muted)] mt-1">This logo will appear on all your official documents.</p>
+                      <h4 className="text-base font-bold text-[var(--ui-text-primary)] m-0">Corporate Logo</h4>
+                      <p className="text-xs text-[var(--ui-text-muted)] mt-1">This logo will appear on all your official documents.</p>
                     </div>
                   </div>
                   
                   {!vm.isEditing ? (
-                    <button onClick={() => vm.setIsEditing(true)} className="px-8 py-3 rounded-2xl bg-orange-500/10 text-orange-500 font-black text-sm hover:bg-orange-500 hover:text-white transition-all">Edit Identity</button>
+                    <button onClick={() => vm.setIsEditing(true)} className="px-4 py-2 rounded-lg bg-orange-500/10 text-orange-500 font-semibold text-sm hover:bg-orange-500 hover:text-white transition-all">Edit Identity</button>
                   ) : (
-                    <div className="flex gap-3">
-                      <button onClick={() => vm.setIsEditing(false)} className="px-6 py-3 rounded-2xl bg-[var(--ui-bg-input)] text-[var(--ui-text-secondary)] font-bold text-sm">Cancel</button>
-                      <button onClick={vm.handleSaveCompany} disabled={vm.updatingCompany} className="px-8 py-3 rounded-2xl bg-orange-500 text-white font-black text-sm shadow-xl shadow-orange-500/20">
-                        {vm.updatingCompany ? <Loader2 size={18} className="animate-spin" /> : "Save Changes"}
+                    <div className="flex gap-2">
+                      <button onClick={() => vm.setIsEditing(false)} className="px-4 py-2 rounded-lg bg-[var(--ui-bg-input)] text-[var(--ui-text-secondary)] font-medium text-sm border border-[var(--ui-border)]">Cancel</button>
+                      <button onClick={vm.handleSaveCompany} disabled={vm.updatingCompany} className="px-4 py-2 rounded-lg bg-orange-500 text-white font-semibold text-sm hover:bg-orange-600">
+                        {vm.updatingCompany ? <Loader2 size={16} className="animate-spin" /> : "Save Changes"}
                       </button>
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                   {vm.isEditing ? (
                     <>
                       <EditField label="Company Name" value={vm.editForm.name} onChange={v => vm.setEditForm({...vm.editForm, name: v})} />
-                      <div className="flex flex-col gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">Country</span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-[var(--ui-text-muted)]">Country</span>
                         <select
                           value={vm.editForm.country}
                           onChange={e => vm.setEditForm({...vm.editForm, country: e.target.value})}
-                          className="w-full px-5 py-3.5 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none focus:border-orange-500/50 transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] outline-none text-sm appearance-none focus:border-orange-500/50 transition-all"
                         >
                           <option value="ID">Indonesia</option>
                           <option value="MY">Malaysia</option>
                           <option value="SG">Singapore</option>
                         </select>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">Industry Type</span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-[var(--ui-text-muted)]">Industry Type</span>
                         <select
                           value={vm.editForm.industry_type}
                           onChange={e => vm.setEditForm({ ...vm.editForm, industry_type: e.target.value })}
-                          className="w-full px-5 py-3.5 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all appearance-none"
+                          className="w-full px-3 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all appearance-none"
                         >
                           <option value="">Select Industry...</option>
                           {["Technology", "Manufacturing", "Healthcare", "Retail", "Finance", "Construction", "Logistics", "Agriculture", "Education", "Other"].map(opt => (
@@ -353,16 +352,16 @@ export default function CompanyDetails() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-lg font-black text-[var(--ui-text-primary)] m-0">HQ / Office Addresses</h4>
-                      <p className="text-sm text-[var(--ui-text-muted)] mt-1">Manage all your office locations</p>
+                      <h4 className="text-base font-bold text-[var(--ui-text-primary)] m-0">HQ / Office Addresses</h4>
+                      <p className="text-xs text-[var(--ui-text-muted)] mt-1">Manage all your office locations</p>
                     </div>
                     {vm.isEditing && (
                       <button
                         type="button"
                         onClick={vm.addHqAddress}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 text-sm font-bold hover:bg-orange-500/20 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-semibold hover:bg-orange-500/20 transition-all"
                       >
-                        <Plus size={16} /> Add Location
+                        <Plus size={14} /> Add Location
                       </button>
                     )}
                   </div>
@@ -370,13 +369,13 @@ export default function CompanyDetails() {
                   {vm.isEditing ? (
                     <div className="space-y-3">
                       {vm.editForm.hq_addresses?.map((addr: string, idx: number) => (
-                        <div key={idx} className="flex gap-3">
+                        <div key={idx} className="flex gap-2">
                           <textarea
                             value={addr}
                             onChange={e => vm.updateHqAddress(idx, e.target.value)}
                             placeholder={`HQ Address ${idx + 1}`}
                             rows={2}
-                            className="flex-1 px-5 py-4 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all resize-vertical"
+                            className="flex-1 px-3 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all resize-none"
                           />
                           {vm.editForm.hq_addresses.length > 1 && (
                             <button
@@ -384,9 +383,9 @@ export default function CompanyDetails() {
                               onClick={() => vm.removeHqAddress(idx)}
                               title="Remove location"
                               aria-label="Remove location"
-                              className="px-4 py-2 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all"
+                              className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all h-fit"
                             >
-                              <X size={16} />
+                              <X size={14} />
                             </button>
                           )}
                         </div>
@@ -395,15 +394,15 @@ export default function CompanyDetails() {
                   ) : (
                     <div className="space-y-3">
                       {!vm.company.hq_addresses || (Array.isArray(vm.company.hq_addresses) && vm.company.hq_addresses.length === 0) ? (
-                        <div className="p-8 rounded-[32px] bg-[var(--ui-bg-input)] border-2 border-dashed border-[var(--ui-border)] text-center">
-                          <p className="text-sm text-[var(--ui-text-muted)]">No office locations added yet</p>
+                        <div className="p-6 rounded-xl bg-[var(--ui-bg-input)] border border-dashed border-[var(--ui-border)] text-center">
+                          <p className="text-xs text-[var(--ui-text-muted)]">No office locations added yet</p>
                         </div>
                       ) : (
                         (Array.isArray(vm.company.hq_addresses) ? vm.company.hq_addresses : [vm.company.hq_addresses]).map((addr: string, idx: number) => (
-                          <div key={idx} className="p-6 rounded-[32px] bg-[var(--ui-bg-input)] border border-[var(--ui-border)]">
-                            <div className="flex items-center gap-2 mb-2">
-                              <MapPin size={16} className="text-orange-500" />
-                              <span className="text-xs font-black uppercase tracking-widest text-orange-500">Location {idx + 1}</span>
+                          <div key={idx} className="p-4 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)]">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <MapPin size={14} className="text-orange-500" />
+                              <span className="text-[10px] font-semibold uppercase text-[var(--ui-text-muted)]">Location {idx + 1}</span>
                             </div>
                             <p className="text-sm text-[var(--ui-text-primary)]">{addr}</p>
                           </div>
@@ -446,29 +445,29 @@ export default function CompanyDetails() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {vm.company.documents?.length === 0 ? (
-                    <div className="md:col-span-2 text-center py-12 bg-[var(--ui-bg-input)] rounded-3xl border-2 border-dashed border-[var(--ui-border)]">
-                      <FileText size={40} className="mx-auto text-[var(--ui-text-muted)] opacity-20 mb-4" />
+                    <div className="md:col-span-2 text-center py-8 bg-[var(--ui-bg-input)] rounded-xl border border-dashed border-[var(--ui-border)]">
+                      <FileText size={32} className="mx-auto text-[var(--ui-text-muted)] opacity-30 mb-2" />
                       <p className="text-[var(--ui-text-muted)] text-sm">No documents uploaded yet.</p>
                     </div>
                   ) : (
                     vm.company.documents?.map((doc: any) => (
-                      <div key={doc.id} className="p-6 rounded-3xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] flex items-center justify-between group hover:border-orange-500/30 transition-all">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500">
-                            <FileText size={24} />
+                      <div key={doc.id} className="p-4 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] flex items-center justify-between group hover:border-orange-500/30 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+                            <FileText size={20} />
                           </div>
                           <div>
-                            <div className="text-sm font-black text-[var(--ui-text-primary)]">{doc.type}</div>
-                            <div className="text-[10px] text-[var(--ui-text-muted)] font-bold uppercase mt-0.5">{doc.name || 'Official Document'}</div>
+                            <div className="text-sm font-medium text-[var(--ui-text-primary)]">{doc.type}</div>
+                            <div className="text-xs text-[var(--ui-text-muted)] mt-0.5">{doc.name || 'Official Document'}</div>
                           </div>
                         </div>
                         <a 
                           href={getAssetUrl(doc.file_path)} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-xl bg-[var(--ui-bg-card)] border border-[var(--ui-border)] flex items-center justify-center text-[var(--ui-text-muted)] hover:text-orange-500 hover:border-orange-500/50 transition-all"
+                          className="w-8 h-8 rounded-lg bg-[var(--ui-bg-card)] border border-[var(--ui-border)] flex items-center justify-center text-[var(--ui-text-muted)] hover:text-orange-500 hover:border-orange-500/50 transition-all"
                         >
-                          <Download size={18} />
+                          <Download size={16} />
                         </a>
                       </div>
                     ))
@@ -502,10 +501,10 @@ export default function CompanyDetails() {
                   )}
                 </div>
 
-                <div className="p-8 rounded-[32px] bg-[var(--ui-bg-input)] border border-[var(--ui-border)]">
-                  <h4 className="text-sm font-black text-[var(--ui-text-primary)] uppercase tracking-widest mb-4">Summary</h4>
+                <div className="p-6 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)]">
+                  <h4 className="text-sm font-semibold text-[var(--ui-text-primary)] mb-2">Summary</h4>
                   <p className="text-sm text-[var(--ui-text-muted)] leading-relaxed">
-                    This company has been a member since <span className="text-[var(--ui-text-primary)] font-bold">{new Date(vm.company.created_at).toLocaleDateString()}</span>. 
+                    This company has been a member since <span className="text-[var(--ui-text-primary)] font-medium">{new Date(vm.company.created_at).toLocaleDateString()}</span>. 
                     {vm.company.type === 'buyer' 
                       ? ` They have initiated ${vm.company.stats?.total_pr || 0} procurement requests through the platform.`
                       : ` They have participated in ${vm.company.stats?.total_proposals || 0} tenders and successfully secured ${vm.company.stats?.won_proposals || 0} contracts.`
@@ -537,9 +536,9 @@ export default function CompanyDetails() {
 
 function DisplayField({ label, value }: { label: string, value: string }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-black uppercase tracking-widest text-[var(--ui-text-muted)]">{label}</span>
-      <div className="text-sm font-bold text-[var(--ui-text-primary)]">{value || "—"}</div>
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold text-[var(--ui-text-muted)]">{label}</span>
+      <div className="text-sm font-medium text-[var(--ui-text-primary)]">{value || "—"}</div>
     </div>
   );
 }
@@ -551,13 +550,13 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any, label: strin
     blue: "text-blue-500 bg-blue-500/10",
   };
   return (
-    <div className="p-6 rounded-[32px] bg-[var(--ui-bg-input)] border border-[var(--ui-border)] flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colors[color]}`}>
-        <Icon size={24} />
+    <div className="p-4 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] flex items-center gap-4">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colors[color]}`}>
+        <Icon size={20} />
       </div>
       <div>
-        <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ui-text-muted)]">{label}</div>
-        <div className="text-xl font-black text-[var(--ui-text-primary)] mt-0.5">{value}</div>
+        <div className="text-xs font-semibold text-[var(--ui-text-muted)]">{label}</div>
+        <div className="text-lg font-bold text-[var(--ui-text-primary)]">{value}</div>
       </div>
     </div>
   );
@@ -565,21 +564,21 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any, label: strin
 
 function EditField({ label, value, onChange, textarea, type = "text" }: { label: string, value: string, onChange: (v: string) => void, textarea?: boolean, type?: string }) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-semibold text-[var(--ui-text-muted)]">{label}</span>
       {textarea ? (
         <textarea
           value={value}
           onChange={e => onChange(e.target.value)}
-          rows={4}
-          className="w-full px-5 py-4 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all resize-none"
+          rows={3}
+          className="w-full px-3 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all resize-none"
         />
       ) : (
         <input
           type={type}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full px-5 py-3.5 rounded-2xl bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all"
+          className="w-full px-3 py-2 rounded-lg bg-[var(--ui-bg-input)] border border-[var(--ui-border-input)] text-[var(--ui-text-primary)] text-sm focus:border-orange-500/50 outline-none transition-all"
         />
       )}
     </div>
