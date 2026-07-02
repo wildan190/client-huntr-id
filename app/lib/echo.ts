@@ -181,12 +181,13 @@ export function ensureEcho(): Echo<any> | null {
       });
 
       pusher.connection.bind('error', (error: any) => {
-        console.error('Echo WebSocket error:', error);
+        // Gunakan console.warn alih-alih console.error untuk mencegah error overlay di frontend
+        console.warn('Echo WebSocket connection issue (retrying implicitly):', error?.type || 'Unknown error');
         connectionState = 'failed';
         
         // Check if it's a connection error (server not available)
-        if (error.error && error.error.data && error.error.data.code === 4001) {
-          console.error(`WebSocket server connection failed - is the WebSocket server running on ${config.host}:${config.port}?`);
+        if (error && error.error && error.error.data && error.error.data.code === 4001) {
+          console.warn(`WebSocket server connection failed - is the WebSocket server running on ${config.host}:${config.port}?`);
         }
       });
 
@@ -196,7 +197,7 @@ export function ensureEcho(): Echo<any> | null {
       });
 
       pusher.connection.bind('failed', () => {
-        console.error('Echo WebSocket connection failed');
+        console.warn('Echo WebSocket connection failed (will retry)');
         connectionState = 'failed';
       });
     }
