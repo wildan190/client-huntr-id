@@ -9,8 +9,9 @@ export default function Register() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo");
+  const initialWhatsapp = searchParams.get("whatsapp") || "";
 
-  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: initialWhatsapp });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);

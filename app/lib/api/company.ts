@@ -35,3 +35,6 @@ export const acceptInvitation = (token: string) =>
 
 export const getTeamMembers = (companyId: string | number) =>
   apiGet(`/api/companies/${companyId}/members`);
+
+export const getInvitationInfo = (token: string) =>
+  apiGet(`/api/invitations/info?token=${token}`);

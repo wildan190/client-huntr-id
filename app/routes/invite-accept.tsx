@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { apiPost, acceptInvitation } from "../lib/api";
-import { Loader2, CheckCircle2, AlertCircle, Building2 } from "lucide-react";
-import Layout from "../components/Layout";
+import { getInvitationInfo, acceptInvitation } from "../lib/api";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function InviteAccept() {
   const [searchParams] = useSearchParams();
@@ -15,20 +14,28 @@ export default function InviteAccept() {
 
   useEffect(() => {
     const processInvitation = async () => {
-      const userSession = localStorage.getItem("user_session");
-      
-      if (!userSession) {
-        // Redirect to login with return path
-        navigate(`/login?returnTo=/invite/accept?token=${token}`);
-        return;
-      }
-
       if (!token) {
         setStatus("error");
         setError("Invalid invitation token.");
         return;
       }
 
+      const userSession = localStorage.getItem("user_session");
+      
+      // If not logged in, fetch info first to prefill register form
+      if (!userSession) {
+        try {
+          const info = await getInvitationInfo(token);
+          // Redirect to register, passing the token and pre-filled whatsapp
+          navigate(`/register?returnTo=/invite/accept?token=${token}&whatsapp=${encodeURIComponent(info.whatsapp)}`);
+        } catch (err: any) {
+          setStatus("error");
+          setError(err.message || "Invitation is invalid or has expired.");
+        }
+        return;
+      }
+
+      // If logged in, proceed to accept
       try {
         const res = await acceptInvitation(token);
         setCompanyName(res.company?.name || "the company");
