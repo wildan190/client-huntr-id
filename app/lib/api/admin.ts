@@ -9,6 +9,9 @@ import { apiGet, apiPost, apiPostForm, apiDelete } from "../client";
 export const adminLogin = (payload: Record<string, any>) =>
   apiPost("/api/admin/auth/login", payload);
 
+export const adminGetAdmins = () => apiGet("/api/admin/admins");
+export const adminCreateAdmin = (payload: Record<string, any>) => apiPost("/api/admin/admins", payload);
+
 export const adminGetCompanies = (params?: { page?: number; per_page?: number; search?: string; status?: string }) => {
   const query = new URLSearchParams();
   if (params?.page) query.append("page", params.page.toString());

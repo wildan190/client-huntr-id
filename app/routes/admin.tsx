@@ -163,12 +163,9 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "clamp(24px, 5vw, 40px)" }}>
           <div style={{
-            width: "clamp(56px, 12vw, 72px)", height: "clamp(56px, 12vw, 72px)", borderRadius: 22, margin: "0 auto 20px",
-            background: "linear-gradient(135deg,#f59e0b,#f97316)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 12px 40px rgba(249,115,22,0.35), 0 0 0 1px rgba(249,115,22,0.2)",
+            display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20
           }}>
-            <ShieldCheck size={36} color="#fff" />
+            <img src="/assets/img/logo/sidebar.png" alt="Huntr.id" style={{ height: "clamp(48px, 10vw, 64px)", objectFit: "contain" }} />
           </div>
           <h1 style={{ fontSize: "clamp(20px, 5vw, 28px)", fontWeight: 900, color: "var(--ui-text-primary)", letterSpacing: "-0.5px", marginBottom: 8, transition: "color 0.3s ease" }}>
             Admin Portal
@@ -257,8 +254,18 @@ function AdminLogin({ onLogin }: { onLogin: (a: AdminUser) => void }) {
 /*  Admin Dashboard                                                    */
 /* ─────────────────────────────────────────────────────────────────── */
 
+const getImageUrl = (path: string | undefined | null) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/storage')) {
+    return `${import.meta.env.VITE_API_URL}${path}`;
+  }
+  return `${BASE_URL_IMAGE}/${path.replace(/^\//, '')}`;
+};
+
 function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () => void }) {
-  const [activeTab, setActiveTab] = useState<"companies" | "catalogue" | "transactions">("companies");
+  const [activeTab, setActiveTab] = useState<"companies" | "catalogue" | "transactions" | "admins">("companies");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -268,25 +275,15 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
         position: "sticky", top: 0, zIndex: 100,
         background: "var(--ui-bg-header)", backdropFilter: "blur(20px)",
         borderBottom: "1px solid var(--ui-border)",
-        padding: "0 clamp(16px, 4vw, 32px)", height: "clamp(56px, 10vw, 64px)",
+        padding: "0 clamp(16px, 4vw, 32px)", minHeight: "clamp(56px, 10vw, 64px)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        transition: "all 0.3s ease",
-        flexWrap: "wrap",
-        gap: 16,
+        flexWrap: "wrap", gap: 16,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: "linear-gradient(135deg,#f59e0b,#f97316)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 16px rgba(249,115,22,0.3)",
-            flexShrink: 0,
-          }}>
-            <ShieldCheck size={18} color="#fff" />
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 0" }}>
+          <img src="/assets/img/logo/sidebar.png" alt="Huntr.id" style={{ height: 32, objectFit: "contain" }} />
           <div>
-            <div style={{ fontWeight: 800, fontSize: "clamp(13px, 2vw, 15px)", color: "var(--ui-text-primary)", letterSpacing: "-0.3px", transition: "color 0.3s ease" }}>
-              Huntr.id Admin
+            <div style={{ fontWeight: 800, fontSize: "clamp(13px, 2vw, 15px)", color: "var(--ui-text-primary)", letterSpacing: "-0.3px" }}>
+              Admin Portal
             </div>
             <div style={{ fontSize: 10, color: "#f59e0b", letterSpacing: "0.1em", fontWeight: 700 }}>
               GLOBAL OPERATIONS
@@ -294,18 +291,37 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div style={{ display: "flex", gap: 8 }}>
-          {(["companies", "catalogue", "transactions"] as const).map(tab => (
+        {/* Mobile menu toggle */}
+        <button
+          className="md:hidden"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            background: "transparent", border: "1px solid var(--ui-border)", borderRadius: 8, padding: 8,
+            color: "var(--ui-text-primary)", cursor: "pointer", display: "flex"
+          }}
+        >
+          {mobileMenuOpen ? <X size={20} /> : <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 20 }}>
+            <div style={{ height: 2, background: "currentColor", width: "100%" }} />
+            <div style={{ height: 2, background: "currentColor", width: "100%" }} />
+            <div style={{ height: 2, background: "currentColor", width: "100%" }} />
+          </div>}
+        </button>
+
+        {/* Navigation Tabs (Desktop & Mobile) */}
+        <div style={{
+          display: "flex", gap: 8, flex: 1, justifyContent: "center",
+          flexDirection: "row", overflowX: "auto", paddingBottom: "4px",
+        }} className={mobileMenuOpen ? "flex-col w-full order-3" : "hidden md:flex"}>
+          {(["companies", "catalogue", "transactions", "admins"] as const).map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => { setActiveTab(tab); setMobileMenuOpen(false); }}
               style={{
                 padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
                 background: activeTab === tab ? "rgba(249,115,22,0.15)" : "transparent",
                 color: activeTab === tab ? "#f97316" : "var(--ui-text-muted)",
                 border: "none", cursor: "pointer", transition: "all 0.2s",
-                textTransform: "capitalize"
+                textTransform: "capitalize", whiteSpace: "nowrap"
               }}
             >
               {tab}
@@ -313,10 +329,10 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
           ))}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", justifyContent: "flex-end" }}>
-          <div style={{ textAlign: "right", minWidth: 0 }}>
-            <div style={{ fontSize: "clamp(12px, 2vw, 13px)", fontWeight: 700, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{admin.name}</div>
-            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", transition: "color 0.3s ease", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{admin.email}</div>
+        <div className={mobileMenuOpen ? "flex w-full order-4 justify-between items-center py-4 border-t border-[var(--ui-border)]" : "hidden md:flex"} style={{ alignItems: "center", gap: 16 }}>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>{admin.name}</div>
+            <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>{admin.email}</div>
           </div>
           <button
             onClick={onLogout}
@@ -325,8 +341,6 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
               padding: "8px 16px", borderRadius: 10,
               background: "var(--ui-logout-bg)", border: "1px solid var(--ui-logout-border)",
               color: "var(--ui-logout-text)", fontSize: 12, fontWeight: 700, cursor: "pointer",
-              transition: "all 0.2s",
-              minHeight: 40,
             }}
           >
             <LogOut size={14} /> Sign Out
@@ -338,6 +352,7 @@ function AdminDashboard({ admin, onLogout }: { admin: AdminUser; onLogout: () =>
         {activeTab === "companies" && <AdminCompaniesTab />}
         {activeTab === "catalogue" && <AdminCatalogueTab />}
         {activeTab === "transactions" && <AdminTransactionsTab />}
+        {activeTab === "admins" && <AdminAdminsTab />}
       </main>
     </div>
   );
@@ -442,9 +457,19 @@ function AdminCompaniesTab() {
             return (
               <div key={company.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
                 <div onClick={() => setExpandedId(isExpanded ? null : company.id)} style={{ display: "flex", alignItems: "center", gap: 18, padding: 20, cursor: "pointer" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800 }}>{company.name} <span style={{ fontSize: 10, background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 10 }}>{company.type}</span></div>
-                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{company.email}</div>
+                  <div style={{ flex: 1, display: "flex", gap: 16, alignItems: "center" }}>
+                    {/* Logo if available */}
+                    {company.documents?.find(d => d.type === "logo") ? (
+                      <img src={getImageUrl(company.documents.find(d => d.type === "logo")?.url)} alt="Logo" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", background: "var(--ui-bg-input)" }} />
+                    ) : (
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: "var(--ui-bg-input)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Building2 size={20} color="var(--ui-text-muted)" />
+                      </div>
+                    )}
+                    <div>
+                      <div style={{ fontWeight: 800 }}>{company.name} <span style={{ fontSize: 10, background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 10 }}>{company.type}</span></div>
+                      <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>{company.email} {company.phone ? `• ${company.phone}` : ''}</div>
+                    </div>
                   </div>
                   <div style={{ background: sm.bg, color: sm.color, padding: "6px 12px", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{sm.label}</div>
                   {company.status === 'pending' && (
@@ -455,8 +480,43 @@ function AdminCompaniesTab() {
                   )}
                 </div>
                 {isExpanded && (
-                  <div style={{ padding: 20, borderTop: "1px solid var(--ui-border)" }}>
-                    <div style={{ fontSize: 12 }}>Bank: {company.bank_name} - {company.bank_account}</div>
+                  <div style={{ padding: 20, borderTop: "1px solid var(--ui-border)", background: "rgba(0,0,0,0.015)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", marginBottom: 4 }}>COMPANY DETAILS</div>
+                        <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+                          <div><strong>Tax ID:</strong> {company.formatted_tax_id || company.tax_id || "N/A"}</div>
+                          <div><strong>Address:</strong> {company.address || "N/A"}</div>
+                          <div><strong>Location:</strong> {[company.city, company.region, company.country].filter(Boolean).join(", ") || "N/A"}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", marginBottom: 4 }}>BANKING INFO</div>
+                        <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+                          <div><strong>Bank Name:</strong> {company.bank_name || "N/A"}</div>
+                          <div><strong>Account No:</strong> {company.bank_account || "N/A"}</div>
+                          <div><strong>Account Name:</strong> {company.bank_account_name || "N/A"}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", marginBottom: 4 }}>DOCUMENTS</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {company.documents && company.documents.length > 0 ? (
+                            company.documents.filter(d => d.type !== "logo").map(doc => (
+                              <a key={doc.id} href={getImageUrl(doc.url)} target="_blank" rel="noopener noreferrer" style={{
+                                display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#3b82f6", textDecoration: "none", fontWeight: 600,
+                                background: "rgba(59,130,246,0.1)", padding: "6px 10px", borderRadius: 6,
+                              }}>
+                                <FileText size={14} />
+                                {doc.type.toUpperCase()}: {doc.name}
+                              </a>
+                            ))
+                          ) : (
+                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>No documents uploaded</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1059,3 +1119,123 @@ const inp: React.CSSProperties = {
   transition: "border-color 0.2s, background 0.3s ease, color 0.3s ease",
   minHeight: 48,
 };
+import { adminGetAdmins, adminCreateAdmin } from "../lib/api";
+
+function AdminAdminsTab() {
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchAdmins = async () => {
+    setIsLoading(true);
+    try {
+      const res = await adminGetAdmins();
+      setAdmins(res.admins || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await adminCreateAdmin({ name, email, password });
+      Swal.fire({ icon: 'success', title: 'Success', text: 'Admin created successfully.' });
+      setShowAddModal(false);
+      setName(""); setEmail(""); setPassword("");
+      fetchAdmins();
+    } catch (err: any) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to create admin.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 18, fontWeight: 800 }}>Admins Management</div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{
+            padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+            background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 8
+          }}
+        >
+          <User size={16} /> Add New Admin
+        </button>
+      </div>
+
+      {isLoading ? <Loader2 className="animate-spin" /> : (
+        <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "rgba(0,0,0,0.02)", borderBottom: "1px solid var(--ui-border)" }}>
+                <th style={{ padding: "12px 20px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)" }}>NAME</th>
+                <th style={{ padding: "12px 20px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)" }}>EMAIL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map(adm => (
+                <tr key={adm.id} style={{ borderBottom: "1px solid var(--ui-border)" }}>
+                  <td style={{ padding: "16px 20px", fontWeight: 700 }}>{adm.name}</td>
+                  <td style={{ padding: "16px 20px", color: "var(--ui-text-muted)" }}>{adm.email}</td>
+                </tr>
+              ))}
+              {admins.length === 0 && (
+                <tr>
+                  <td colSpan={2} style={{ padding: 40, textAlign: "center", color: "var(--ui-text-muted)" }}>No admins found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {showAddModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)", zIndex: 1000,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+        }}>
+          <div style={{ background: "var(--ui-bg-card)", padding: 32, borderRadius: 20, width: "100%", maxWidth: 400 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Add New Admin</div>
+            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Full Name</label>
+                <input required value={name} onChange={e => setName(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Email Address</label>
+                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Password</label>
+                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} minLength={6} style={{ width: "100%", padding: 12, borderRadius: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", color: "var(--ui-text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
+                <button type="button" onClick={() => setShowAddModal(false)} style={{ padding: "10px 16px", borderRadius: 10, background: "transparent", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", fontWeight: 700 }}>Cancel</button>
+                <button type="submit" disabled={isSubmitting} style={{ padding: "10px 16px", borderRadius: 10, background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700 }}>
+                  {isSubmitting ? "Creating..." : "Create Admin"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

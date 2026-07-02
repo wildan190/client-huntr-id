@@ -502,9 +502,14 @@ export default function MyPurchaseRequisitionDetail() {
                         <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, fontSize: 13 }}>{item.catalogue?.name || `Item ${item.catalogue_id}`}</div>
                         <div style={{ color: "#9ca3af", fontSize: 11, marginTop: 4 }}>{item.catalogue?.item_code || "No code"}</div>
                         <div style={{ color: "#cbd5e1", fontSize: 11, marginTop: 6 }}>Qty: {item.qty} · Expected {item.expected_date}</div>
+                        {item.catalogue?.specifications && (
+                          <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4, fontStyle: "italic", whiteSpace: "pre-wrap" }}>
+                            Spec: {item.catalogue.specifications.length > 80 ? `${item.catalogue.specifications.substring(0, 80)}...` : item.catalogue.specifications}
+                          </div>
+                        )}
                         {item.catalogue?.description && (
                           <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4, fontStyle: "italic" }}>
-                            {item.catalogue.description.length > 60 ? `${item.catalogue.description.substring(0, 60)}...` : item.catalogue.description}
+                            Desc: {item.catalogue.description.length > 60 ? `${item.catalogue.description.substring(0, 60)}...` : item.catalogue.description}
                           </div>
                         )}
                       </div>
