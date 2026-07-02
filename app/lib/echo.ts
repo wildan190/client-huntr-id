@@ -187,7 +187,7 @@ export function ensureEcho(): Echo<any> | null {
         
         // Check if it's a connection error (server not available)
         if (error.error && error.error.data && error.error.data.code === 4001) {
-          console.error('WebSocket server connection failed - is the Reverb server running on localhost:8080?');
+          console.error(`WebSocket server connection failed - is the WebSocket server running on ${config.host}:${config.port}?`);
         }
       });
 
