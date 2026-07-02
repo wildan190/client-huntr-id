@@ -77,7 +77,7 @@ export function GuestMarketplaceView() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--ui-bg-page-grad)", color: "var(--ui-text-primary)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--ui-bg-page-grad)", color: "var(--ui-text-primary)", paddingTop: "clamp(80px, 18vw, 100px)" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -114,8 +114,10 @@ export function GuestMarketplaceView() {
         borderBottom: "1px solid var(--ui-border)", 
         background: "var(--ui-bg-header)",
         backdropFilter: "blur(20px)", 
-        position: "sticky", 
+        position: "fixed", 
         top: 0, 
+        left: 0,
+        right: 0,
         zIndex: 100,
         flexWrap: "wrap",
         gap: "clamp(8px, 2vw, 12px)",
