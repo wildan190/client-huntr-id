@@ -128,26 +128,29 @@ export function GuestMarketplaceView() {
           />
         </div>
         <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 10px)", alignItems: "center" }}>
-          {/* Track Order — icon button */}
-          <Link to="/track" title="Track Order" style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-            padding: "6px 10px", borderRadius: 10,
-            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-            color: "var(--ui-text-muted)", textDecoration: "none",
-          }}>
-            <Truck size={16} color="#f97316" />
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Track</span>
-          </Link>
-          {/* Verify Doc — icon button */}
-          <Link to="/verify" title="Verify Document" style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-            padding: "6px 10px", borderRadius: 10,
-            background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-            color: "var(--ui-text-muted)", textDecoration: "none",
-          }}>
-            <ShieldCheck size={16} color="#f59e0b" />
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Verify</span>
-          </Link>
+          {/* Desktop Only Tools */}
+          <div className="hidden md:flex items-center gap-[clamp(6px,1.5vw,10px)]">
+            {/* Track Order — icon button */}
+            <Link to="/track" title="Track Order" style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+              padding: "6px 10px", borderRadius: 10,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-muted)", textDecoration: "none",
+            }}>
+              <Truck size={16} color="#f97316" />
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Track</span>
+            </Link>
+            {/* Verify Doc — icon button */}
+            <Link to="/verify" title="Verify Document" style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+              padding: "6px 10px", borderRadius: 10,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-muted)", textDecoration: "none",
+            }}>
+              <ShieldCheck size={16} color="#f59e0b" />
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", lineHeight: 1 }}>Verify</span>
+            </Link>
+          </div>
           <Link to="/register" style={{
             padding: "clamp(8px, 2vw, 10px) clamp(14px, 3vw, 24px)",
             borderRadius: 12,

@@ -41,16 +41,16 @@ export default function AllRequests() {
         {/* Info Banner: How to create request? */}
         {activeCompany?.type === 'buyer' && (
           <div className="huntr-action-card" style={{
-            marginBottom: 32, borderRadius: 24,
+            marginBottom: 20, borderRadius: 8,
             background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(251,146,60,0.1))",
             border: "1px solid rgba(249,115,22,0.2)",
             transition: "all 0.3s ease",
           }}>
-            <div style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.3s ease" }}>
-              <Lightbulb size={24} color="#fb923c" />
+            <div style={{ width: 40, height: 40, borderRadius: 8, background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.3s ease" }}>
+              <Lightbulb size={20} color="#fb923c" />
             </div>
             <div style={{ flex: 1 }}>
-              <h4 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>How to create a request?</h4>
+              <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>How to create a request?</h4>
               <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-secondary)", lineHeight: 1.5, transition: "color 0.3s ease" }}>
                 Go to the <strong>Marketplace</strong>, add items to your cart, and checkout to create a Purchase Request. 
                 Once your manager approves it, your request will be published here as a Global RFQ for vendors to bid on.
@@ -59,7 +59,7 @@ export default function AllRequests() {
             <button 
               onClick={() => navigate("/marketplace")}
               style={{
-                padding: "10px 20px", borderRadius: 12, background: "#f59e0b", border: "none", color: "#fff",
+                padding: "8px 16px", borderRadius: 8, background: "#f59e0b", border: "none", color: "#fff",
                 fontWeight: 700, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.3s ease"
               }}
             >
@@ -78,14 +78,14 @@ export default function AllRequests() {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               style={{
-                width: "100%", padding: "12px 12px 12px 42px", borderRadius: 14,
+                width: "100%", padding: "10px 12px 10px 38px", borderRadius: 8,
                 background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
                 color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
               }}
             />
           </div>
           <button style={{
-            padding: "0 18px", borderRadius: 14, background: "var(--ui-bg-input)",
+            padding: "0 18px", borderRadius: 8, background: "var(--ui-bg-input)",
             border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", cursor: "pointer",
             display: "flex", alignItems: "center", gap: 8, fontSize: 14, transition: "all 0.3s ease",
           }}>
@@ -94,17 +94,17 @@ export default function AllRequests() {
         </div>
 
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
+          <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
             <Loader2 className="animate-spin" size={32} color="#f59e0b" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 0", color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>
             <Search size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-            <h3 style={{ margin: 0, fontSize: 16, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>No active requests found</h3>
+            <h3 style={{ margin: 0, fontSize: 14, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>No active requests found</h3>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Try adjusting your filters or check back later.</p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
             {filteredRequests.map(req => {
               const companyInitial = req.company?.name ? req.company.name.charAt(0).toUpperCase() : "B";
               const formattedDate = new Date(req.created_at).toLocaleDateString("id-ID", {
@@ -116,12 +116,12 @@ export default function AllRequests() {
               return (
                 <div key={req.id} style={{
                   background: "var(--ui-bg-card)", 
-                  borderRadius: 24, 
+                  borderRadius: 8, 
                   border: "1px solid var(--ui-border)",
-                  padding: 24, 
+                  padding: 16, 
                   display: "flex", 
                   flexDirection: "column", 
-                  gap: 16, 
+                  gap: 12, 
                   transition: "all 0.3s ease",
                   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
                 }}>
@@ -139,13 +139,13 @@ export default function AllRequests() {
                         alignItems: "center", 
                         justifyContent: "center", 
                         fontWeight: 700,
-                        fontSize: 16,
+                        fontSize: 14,
                         boxShadow: "0 4px 10px rgba(249,115,22,0.2)"
                       }}>
                         {companyInitial}
                       </div>
                       <div>
-                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14 }}>
+                        <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 14 }}>
                           {req.company?.name || "Buyer Organization"}
                         </div>
                         <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>
@@ -156,12 +156,12 @@ export default function AllRequests() {
                     {/* RFQ Code */}
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                       <span style={{ 
-                        padding: "4px 10px", 
-                        borderRadius: 99, 
+                        padding: "2px 6px", 
+                        borderRadius: 4, 
                         background: "rgba(34,197,94,0.12)", 
                         color: "#22c55e", 
                         fontSize: 10, 
-                        fontWeight: 800, 
+                        fontWeight: 600, 
                         textTransform: "uppercase", 
                         letterSpacing: "0.05em",
                         display: "inline-flex",
@@ -178,7 +178,7 @@ export default function AllRequests() {
 
                   {/* Feed Content */}
                   <div style={{ borderTop: "1px solid var(--ui-border-subtle)", paddingTop: 16 }}>
-                    <h3 style={{ margin: "0 0 10px", fontSize: 18, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.4 }}>
+                    <h3 style={{ margin: "0 0 10px", fontSize: 16, fontWeight: 700, color: "var(--ui-text-primary)", lineHeight: 1.4 }}>
                       {req.title}
                     </h3>
                     <p style={{ margin: 0, fontSize: 13, color: "var(--ui-text-secondary)", lineHeight: 1.6 }}>
@@ -187,7 +187,7 @@ export default function AllRequests() {
                   </div>
 
                   {/* Feed Stats / Meta */}
-                  <div style={{ display: "flex", gap: 16, padding: "14px 16px", background: "var(--ui-bg-input)", borderRadius: 16 }}>
+                  <div style={{ display: "flex", gap: 12, padding: "10px 14px", background: "var(--ui-bg-input)", borderRadius: 8 }}>
                     <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
                       <Package size={16} color="#f97316" />
                       <div>
@@ -213,8 +213,8 @@ export default function AllRequests() {
                     <button 
                       onClick={() => navigate(`/rfq/${req.id}`)}
                       style={{
-                        padding: "10px 24px", 
-                        borderRadius: 12, 
+                        padding: "8px 16px", 
+                        borderRadius: 8, 
                         background: "linear-gradient(135deg,#f97316,#f59e0b)",
                         border: "none", 
                         color: "#fff", 

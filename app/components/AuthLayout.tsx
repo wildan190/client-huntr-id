@@ -61,16 +61,15 @@ export default function AuthLayout({
         
         <div className="relative z-10 w-full h-full flex flex-col justify-center px-12 xl:px-20">
           
-          {/* Large Logo on Right Side */}
-          <div className="absolute top-12 left-12 xl:left-20">
-            <img 
-              src="/assets/img/logo/sidebar.png" 
-              alt="HUNTR" 
-              className="h-16 xl:h-20 object-contain drop-shadow-2xl" 
-            />
-          </div>
           {!isRegister ? (
             <div className="max-w-[480px]">
+              {/* Large Centered Logo */}
+              <img 
+                src="/assets/img/logo/sidebar.png" 
+                alt="HUNTR" 
+                className="h-20 xl:h-28 object-contain drop-shadow-2xl mb-10" 
+              />
+              
               <h2 className="text-3xl xl:text-4xl font-bold text-white mb-4 leading-tight tracking-tight">
                 {visualTitle}
               </h2>
@@ -90,6 +89,13 @@ export default function AuthLayout({
             </div>
           ) : (
             <div className="max-w-[480px]">
+              {/* Large Centered Logo */}
+              <img 
+                src="/assets/img/logo/sidebar.png" 
+                alt="HUNTR" 
+                className="h-20 xl:h-28 object-contain drop-shadow-2xl mb-10" 
+              />
+
               <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6">
                   Dokumen yang Perlu Disiapkan
