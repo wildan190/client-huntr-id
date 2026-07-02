@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { 
-  Building2, LogIn, Plus, Loader2, CheckCircle2, ArrowRight,
-  LayoutGrid, LogOut, Sparkles,
+  Building2, Plus, Loader2, CheckCircle2, ArrowRight,
+  LayoutGrid, LogOut,
 } from "lucide-react";
 import { getMyCompanies } from "../lib/api";
 import ThemeToggle from "../components/ThemeToggle";
@@ -47,91 +47,82 @@ export default function SelectCompany() {
   const getMeta = (s: string) => statusMeta[s] || { color: "#9ca3af", bg: "rgba(156,163,175,0.12)", label: s || "Unknown" };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden bg-[var(--ui-bg-page-grad)]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-[var(--ui-bg-page-grad)]">
 
-      {/* Background */}
+      {/* Background accents */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-8%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full bg-radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 65%)" />
-        <div className="absolute bottom-[-15%] left-[-8%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full bg-radial-gradient(circle, rgba(251,146,60,0.06) 0%, transparent 65%)" />
+        <div className="absolute top-[-10%] right-[-8%] w-[300px] h-[300px] rounded-full" style={{ background: "radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 65%)" }} />
+        <div className="absolute bottom-[-15%] left-[-8%] w-[350px] h-[350px] rounded-full" style={{ background: "radial-gradient(circle, rgba(251,146,60,0.05) 0%, transparent 65%)" }} />
       </div>
 
       {/* Top bar */}
-      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-8">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
+      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 border-b border-[var(--ui-border)] bg-[var(--ui-bg-card)]/80 backdrop-blur-md">
+        <div className="flex items-center gap-2">
           <img 
             src="/assets/img/logo/sidebar.png" 
             alt="Huntr Logo" 
-            className="w-32 h-8 md:w-40 md:h-10 object-contain"
+            className="w-28 h-7 object-contain"
           />
-          <div className="hidden sm:block">
-            <div className="font-black text-sm md:text-base text-[var(--ui-text-primary)] tracking-tight">Huntr.id</div>
-            <div className="text-[8px] md:text-[9px] text-orange-400 tracking-[0.12em] font-bold uppercase">Workspace</div>
-          </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-bg-input)] border border-[var(--ui-border)] rounded-xl text-xs font-bold text-[var(--ui-text-muted)] hover:bg-[var(--ui-bg-input-focus)] hover:text-[var(--ui-text-primary)] transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ui-bg-input)] border border-[var(--ui-border)] rounded-lg text-xs font-semibold text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] transition-all"
           >
-            <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
+            <LogOut size={13} /> <span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
       </header>
 
-      {/* Card */}
-      <div className="w-full max-w-lg relative z-1">
-        <div className="bg-[var(--ui-bg-card)] border border-[var(--ui-border)] rounded-3xl backdrop-blur-3xl overflow-hidden shadow-2xl">
-          {/* Top accent */}
-          <div className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500" />
+      {/* Main card */}
+      <div className="w-full max-w-md relative z-1 mt-16">
+        <div className="bg-[var(--ui-bg-card)] border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-xl">
+          {/* Top accent line */}
+          <div className="h-0.5 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500" />
 
-          <div className="p-8 md:p-12">
+          <div className="p-6">
             {/* Header */}
-            <div className="text-center mb-10">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-500/30">
-                <LayoutGrid size={28} className="text-white" />
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-orange-500/20">
+                <LayoutGrid size={22} className="text-white" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-[var(--ui-text-primary)] tracking-tight mb-2">
+              <h1 className="text-xl font-bold text-[var(--ui-text-primary)] tracking-tight mb-1">
                 Choose a Workspace
               </h1>
               {user && (
-                <p className="text-sm text-[var(--ui-text-secondary)]">
+                <p className="text-xs text-[var(--ui-text-secondary)]">
                   Welcome back,{" "}
-                  <span className="text-orange-400 font-bold">
-                    {user.name}
-                  </span>
+                  <span className="text-orange-400 font-semibold">{user.name}</span>
                 </p>
               )}
             </div>
 
             {/* Body */}
             {isLoading ? (
-              <div className="flex flex-col items-center gap-4 py-10">
-                <Loader2 size={32} className="text-orange-500 animate-spin" />
-                <span className="text-sm text-[var(--ui-text-muted)] font-medium">Loading workspaces...</span>
+              <div className="flex flex-col items-center gap-3 py-8">
+                <Loader2 size={24} className="text-orange-500 animate-spin" />
+                <span className="text-xs text-[var(--ui-text-muted)] font-medium">Loading workspaces...</span>
               </div>
             ) : companies.length === 0 ? (
-              <div className="text-center py-6">
-                <div className="w-14 h-14 rounded-2xl bg-[var(--ui-bg-input)] flex items-center justify-center mx-auto mb-5 text-[var(--ui-text-muted)]">
-                  <Building2 size={28} />
+              <div className="text-center py-4">
+                <div className="w-11 h-11 rounded-lg bg-[var(--ui-bg-input)] flex items-center justify-center mx-auto mb-3 text-[var(--ui-text-muted)]">
+                  <Building2 size={22} />
                 </div>
-                <p className="text-sm text-[var(--ui-text-secondary)] mb-8">
+                <p className="text-xs text-[var(--ui-text-secondary)] mb-5">
                   You don't have any registered company yet.
                 </p>
                 <button
                   onClick={handleRegisterNew}
-                  className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/25 transition-all"
                 >
-                  <Plus size={18} /> Register a Company
+                  <Plus size={16} /> Register a Company
                 </button>
               </div>
             ) : (
               <>
                 {/* Company list */}
-                <div className="flex flex-col gap-3 mb-8">
+                <div className="flex flex-col gap-2 mb-5">
                   {companies.map(c => {
                     const isSelected = selected?.id === c.id;
                     const meta = getMeta(c.status);
@@ -141,31 +132,31 @@ export default function SelectCompany() {
                         type="button"
                         onClick={() => setSelected(c)}
                         className={`
-                          p-4 rounded-2xl text-left transition-all border-2 flex items-center gap-4 group
+                          p-3 rounded-lg text-left transition-all border flex items-center gap-3 group
                           ${isSelected 
-                            ? "bg-orange-500/10 border-orange-500/50 shadow-lg shadow-orange-500/10" 
-                            : "bg-[var(--ui-bg-input)] border-[var(--ui-border-subtle)] hover:border-[var(--ui-border-input)]"
+                            ? "bg-orange-500/10 border-orange-500/40 shadow-sm shadow-orange-500/10" 
+                            : "bg-[var(--ui-bg-input)] border-[var(--ui-border)] hover:border-orange-500/30"
                           }
                         `}
                       >
                         {/* Avatar */}
                         <div className={`
-                          w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all
+                          w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all
                           ${isSelected 
                             ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white" 
-                            : "bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)] group-hover:bg-[var(--ui-bg-input)]"
+                            : "bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)]"
                           }
                         `}>
-                          <Building2 size={22} />
+                          <Building2 size={17} />
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className={`font-bold truncate ${isSelected ? "text-orange-400" : "text-[var(--ui-text-primary)]"}`}>
+                          <div className={`text-sm font-semibold truncate ${isSelected ? "text-orange-400" : "text-[var(--ui-text-primary)]"}`}>
                             {c.name}
                           </div>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-1.5 mt-0.5">
                             <span 
-                              className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+                              className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
                               style={{ color: meta.color, background: meta.bg }}
                             >
                               {meta.label}
@@ -174,8 +165,8 @@ export default function SelectCompany() {
                         </div>
 
                         {isSelected && (
-                          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                            <CheckCircle2 size={14} className="text-white" />
+                          <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                            <CheckCircle2 size={12} className="text-white" />
                           </div>
                         )}
                       </button>
@@ -183,18 +174,18 @@ export default function SelectCompany() {
                   })}
                 </div>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2.5">
                   <button
                     onClick={handleLogin}
                     disabled={!selected}
-                    className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all"
+                    className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 transition-all"
                   >
-                    Enter Workspace <ArrowRight size={18} />
+                    Enter Workspace <ArrowRight size={16} />
                   </button>
 
                   <button
                     onClick={handleRegisterNew}
-                    className="w-full py-3 bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                    className="w-full py-2 bg-[var(--ui-bg-input)] hover:bg-[var(--ui-bg-input-focus)] text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] rounded-lg font-medium text-xs transition-all"
                   >
                     + Register Another Company
                   </button>
@@ -204,9 +195,9 @@ export default function SelectCompany() {
           </div>
         </div>
 
-        {/* Footer info */}
-        <div className="mt-8 text-center">
-          <p className="text-[10px] text-[var(--ui-text-muted)] font-bold uppercase tracking-[0.2em]">
+        {/* Footer */}
+        <div className="mt-4 text-center">
+          <p className="text-[10px] text-[var(--ui-text-muted)] font-medium">
             &copy; 2026 Huntr.id &bull; Secure Environment
           </p>
         </div>
