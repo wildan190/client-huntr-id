@@ -89,34 +89,34 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: isMobile ? 16 : 20 }}>
-      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: isMobile ? 24 : 32, width: "100%", maxWidth: isMobile ? "100%" : 600, maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
+      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: isMobile ? 12 : 16, width: "100%", maxWidth: isMobile ? "100%" : 600, maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
         <div style={{ padding: isMobile ? "20px 24px" : "24px 32px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)" }}>Negotiation Request</h3>
+            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--ui-text-primary)" }}>Negotiation Request</h3>
             <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--ui-text-muted)", fontWeight: 600 }}>Proposal by {proposal.company?.name}</p>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer" }}><X size={24} /></button>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? 20 : 32, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Items Negotiation */}
           <div>
-            <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "block" }}>Proposed Unit Prices</label>
+            <label style={{ fontSize: 10, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "block" }}>Proposed Unit Prices</label>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {items.map((it, idx) => (
-                <div key={idx} style={{ padding: 16, background: "var(--ui-bg-input)", borderRadius: 16, border: "1px solid var(--ui-border-input)", display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
+                <div key={idx} style={{ padding: 12, background: "var(--ui-bg-input)", borderRadius: 8, border: "1px solid var(--ui-border-input)", display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>{it.inventory_name}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ui-text-primary)" }}>{it.inventory_name}</div>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>Qty: {it.negotiated_qty} {it.uom} · Original: Rp {Number(it.original_price).toLocaleString()}</div>
                   </div>
                   <div style={{ width: isMobile ? "100%" : 140 }}>
                     <div style={{ position: "relative" }}>
-                      <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 800, color: "var(--ui-text-muted)" }}>Rp</span>
+                      <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 600, color: "var(--ui-text-muted)" }}>Rp</span>
                       <input 
                         type="number"
                         value={it.negotiated_price}
                         onChange={(e) => handleItemPriceChange(it.proposal_item_id, e.target.value)}
-                        style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10, padding: "8px 12px 8px 32px", fontSize: 14, fontWeight: 800, color: "#f97316", outline: "none" }}
+                        style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10, padding: "8px 12px 8px 32px", fontSize: 14, fontWeight: 600, color: "#f97316", outline: "none" }}
                       />
                     </div>
                   </div>
@@ -125,9 +125,9 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Payment Scheme</label>
+              <label style={{ fontSize: 10, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Payment Scheme</label>
               <select 
                 value={paymentScheme}
                 onChange={e => setPaymentScheme(e.target.value)}
@@ -141,7 +141,7 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Delivery Info</label>
+              <label style={{ fontSize: 10, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Delivery Info</label>
               <select 
                 value={deliveryTerms}
                 onChange={e => setDeliveryTerms(e.target.value)}
@@ -157,22 +157,22 @@ function NegotiationModal({ proposal, onClose, onSuccess }: { proposal: any, onC
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 900, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Negotiation Notes</label>
+            <label style={{ fontSize: 10, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "block" }}>Negotiation Notes</label>
             <textarea 
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="Tell vendor why you are negotiating..."
-              style={{ width: "100%", background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: 16, fontSize: 14, color: "var(--ui-text-primary)", minHeight: 100, outline: "none", resize: "none" }}
+              style={{ width: "100%", background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: 12, fontSize: 14, color: "var(--ui-text-primary)", minHeight: 100, outline: "none", resize: "none" }}
             />
           </div>
         </div>
 
-        <div style={{ padding: isMobile ? 20 : 32, borderTop: "1px solid var(--ui-border)", display: "flex", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
-          <button onClick={onClose} style={{ flex: 1, padding: 16, borderRadius: 16, border: "1px solid var(--ui-border-input)", background: "none", fontSize: 14, fontWeight: 700, color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
+        <div style={{ padding: 12, borderTop: "1px solid var(--ui-border)", display: "flex", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid var(--ui-border-input)", background: "none", fontSize: 14, fontWeight: 700, color: "var(--ui-text-secondary)", cursor: "pointer" }}>Cancel</button>
           <button 
             onClick={handleSubmit}
             disabled={loading}
-            style={{ flex: 2, padding: 16, borderRadius: 16, background: "var(--huntr-gradient)", border: "none", color: "#fff", fontSize: 14, fontWeight: 900, cursor: "pointer", boxShadow: "0 10px 20px rgba(249,115,22,0.2)", opacity: loading ? 0.5 : 1 }}
+            style={{ flex: 2, padding: 12, borderRadius: 8, background: "var(--huntr-gradient)", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 20px rgba(249,115,22,0.2)", opacity: loading ? 0.5 : 1 }}
           >
             {loading ? <Loader2 className="animate-spin" style={{ margin: "0 auto" }} /> : "Submit Negotiation"}
           </button>
@@ -395,7 +395,7 @@ export default function RfqDetail() {
           display: "flex", 
           justifyContent: "space-between", 
           alignItems: isMobile ? "flex-start" : "center", 
-          marginBottom: 24,
+          marginBottom: 16,
           flexDirection: isMobile ? "column" : "row",
           gap: isMobile ? 12 : 0
         }}>
@@ -430,7 +430,7 @@ export default function RfqDetail() {
                   padding: "6px 12px", 
                   borderRadius: 8, 
                   fontSize: isMobile ? 11 : 12, 
-                  fontWeight: 800, 
+                  fontWeight: 600, 
                   background: isTenderExpired() ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)", 
                   color: isTenderExpired() ? "#ef4444" : "#22c55e", 
                   border: `1px solid ${isTenderExpired() ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}` 
@@ -438,7 +438,7 @@ export default function RfqDetail() {
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: isTenderExpired() ? "#ef4444" : "#22c55e" }} />
                   {isTenderExpired() ? "CLOSED" : "ACTIVE"}
                 </div>
-                <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: isMobile ? 11 : 12, fontWeight: 800, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
+                <div style={{ padding: "6px 12px", borderRadius: 8, fontSize: isMobile ? 11 : 12, fontWeight: 600, background: "var(--ui-bg-card)", color: "var(--ui-text-primary)", border: "1px solid var(--ui-border)" }}>
                   PR #{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}
                 </div>
              </div>
@@ -450,7 +450,7 @@ export default function RfqDetail() {
             <Loader2 className="animate-spin" size={40} color="#f59e0b" />
           </div>
         ) : error ? (
-          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 16, padding: 24, color: "#ef4444", display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: 12, color: "#ef4444", display: "flex", gap: 12, alignItems: "center" }}>
             <AlertCircle size={20} />
             <span style={{ fontWeight: 600 }}>{error}</span>
           </div>
@@ -460,25 +460,25 @@ export default function RfqDetail() {
             style={{ 
               display: "grid", 
               gridTemplateColumns: isMobile ? "1fr" : "1fr 360px", 
-              gap: 24, 
+              gap: 16, 
               alignItems: "start" 
             }}
           >
             
             {/* Main Content Area (Left) */}
-            <div style={{ display: "grid", gap: 24 }}>
+            <div style={{ display: "grid", gap: 16 }}>
               
               {/* RFQ Header & Description */}
-              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: isMobile ? 20 : 32, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-                <div style={{ marginBottom: 24 }}>
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 11, fontWeight: 900, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "4px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1 }}>Purchase Requisition</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "4px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1 }}>Purchase Requisition</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-muted)" }}>#{rfq.id ? String(rfq.id).substring(0, 8).toUpperCase() : ""}</span>
                   </div>
-                  <h1 style={{ margin: 0, fontSize: isMobile ? 24 : 32, fontWeight: 900, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
+                  <h1 style={{ margin: 0, fontSize: isMobile ? 24 : 32, fontWeight: 700, color: "var(--ui-text-primary)", lineHeight: 1.2 }}>{rfq.title}</h1>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, padding: isMobile ? 16 : 24, background: "var(--ui-bg-input)", borderRadius: 20, border: "1px solid var(--ui-border-input)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, padding: 12, background: "var(--ui-bg-input)", borderRadius: 12, border: "1px solid var(--ui-border-input)" }}>
                   <div style={{ display: "grid", gap: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>Requested By</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -486,7 +486,7 @@ export default function RfqDetail() {
                         <User size={18} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.user?.name || "Unknown User"}</div>
+                        <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.user?.name || "Unknown User"}</div>
                         <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>Procurement Officer</div>
                       </div>
                     </div>
@@ -498,17 +498,17 @@ export default function RfqDetail() {
                         <Building2 size={18} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.company?.name || "Unknown Company"}</div>
+                        <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 15 }}>{rfq.company?.name || "Unknown Company"}</div>
                         <div style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>VERIFIED ENTERPRISE</div>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <div style={{ marginTop: 32 }}>
+                <div style={{ marginTop: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                     <ClipboardList size={18} color="#f59e0b" />
-                    <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Project Requirements</div>
+                    <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Project Requirements</div>
                   </div>
                   <div style={{ color: "var(--ui-text-secondary)", fontSize: 16, lineHeight: 1.8 }}>
                     {rfq.description || "No detailed description provided for this request."}
@@ -518,13 +518,13 @@ export default function RfqDetail() {
                     <div style={{
                       background: "rgba(34, 197, 94, 0.1)",
                       border: "1px solid rgba(34, 197, 94, 0.2)",
-                      borderRadius: 16,
-                      padding: 16,
+                      borderRadius: 8,
+                      padding: 12,
                       color: "#10b981",
                       display: "flex",
                       gap: 12,
                       alignItems: "center",
-                      marginTop: 24,
+                      marginTop: 16,
                       fontWeight: 700
                     }}>
                       <CheckCircle2 size={20} />
@@ -537,11 +537,11 @@ export default function RfqDetail() {
                     const isRfqAlreadyAwarded = rankings.some(r => r.is_winner || r.proposal.winner_status === 'awarded' || r.proposal.winner_status === 'approved');
 
                     return (
-                      <div style={{ marginTop: 32, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 24 }}>
+                      <div style={{ marginTop: 20, background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <ShieldCheck size={18} color="#f97316" />
-                            <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
+                            <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
                           </div>
                           {/* AI Analyse Button */}
                           {isBuyer && (
@@ -555,7 +555,7 @@ export default function RfqDetail() {
                                   : "linear-gradient(135deg, #a855f7, #6366f1)",
                                 border: showAiPanel ? "1px solid rgba(168,85,247,0.3)" : "none",
                                 color: showAiPanel ? "#a855f7" : "#fff",
-                                fontSize: 12, fontWeight: 800, cursor: aiRankLoading ? "not-allowed" : "pointer",
+                                fontSize: 12, fontWeight: 600, cursor: aiRankLoading ? "not-allowed" : "pointer",
                                 display: "flex", alignItems: "center", gap: 6,
                                 boxShadow: showAiPanel ? "none" : "0 4px 14px rgba(168,85,247,0.35)",
                                 transition: "all 0.2s ease",
@@ -574,8 +574,8 @@ export default function RfqDetail() {
                         <div style={{
                           background: "var(--ui-bg-input)",
                           border: "1px solid var(--ui-border-input)",
-                          borderRadius: 16,
-                          padding: 16,
+                          borderRadius: 8,
+                          padding: 12,
                           marginBottom: 20,
                           fontSize: 12,
                           color: "var(--ui-text-secondary)",
@@ -583,7 +583,7 @@ export default function RfqDetail() {
                           flexDirection: "column",
                           gap: 8
                         }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 13 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 13 }}>
                             <Info size={14} color="#f97316" />
                             System Evaluation Criteria
                           </div>
@@ -608,9 +608,9 @@ export default function RfqDetail() {
                           <div style={{
                             background: "linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(245, 158, 11, 0.03) 100%)",
                             border: "1px solid rgba(249, 115, 22, 0.25)",
-                            borderRadius: 20,
-                            padding: 20,
-                            marginBottom: 24,
+                            borderRadius: 12,
+                            padding: 12,
+                            marginBottom: 16,
                             display: "flex",
                             flexDirection: "column",
                             gap: 12
@@ -619,8 +619,8 @@ export default function RfqDetail() {
                               <div style={{ display: "flex", gap: 10, alignItems: "start" }}>
                                 <Trophy size={20} color="#f97316" style={{ marginTop: 2 }} />
                                 <div>
-                                  <div style={{ fontWeight: 800, fontSize: 11, color: "#f97316", textTransform: "uppercase", letterSpacing: 0.5 }}>System Recommendation (Selected Winner)</div>
-                                  <div style={{ fontWeight: 800, fontSize: 16, color: "var(--ui-text-primary)", marginTop: 4 }}>
+                                  <div style={{ fontWeight: 600, fontSize: 11, color: "#f97316", textTransform: "uppercase", letterSpacing: 0.5 }}>System Recommendation (Selected Winner)</div>
+                                  <div style={{ fontWeight: 600, fontSize: 16, color: "var(--ui-text-primary)", marginTop: 4 }}>
                                     {topRankData.proposal.company?.name || "Unknown Vendor"}
                                   </div>
                                 </div>
@@ -639,7 +639,7 @@ export default function RfqDetail() {
                                       padding: "8px 16px",
                                       color: "#f97316",
                                       fontSize: 12,
-                                      fontWeight: 800,
+                                      fontWeight: 600,
                                       cursor: "pointer",
                                       display: "flex",
                                       alignItems: "center",
@@ -658,7 +658,7 @@ export default function RfqDetail() {
                                       padding: "8px 16px",
                                       color: "#fff",
                                       fontSize: 12,
-                                      fontWeight: 800,
+                                      fontWeight: 600,
                                       cursor: (awardingProposal === topRankData.proposal.id || isProcessing.current) ? "not-allowed" : "pointer",
                                       display: "flex",
                                       alignItems: "center",
@@ -690,10 +690,10 @@ export default function RfqDetail() {
                                   display: "flex",
                                   flexDirection: "column",
                                   gap: 12,
-                                  padding: "20px 24px",
+                                  padding: "12px 16px",
                                   background: idx === 0 ? "rgba(249,115,22,0.04)" : "var(--ui-bg-card)",
                                   border: idx === 0 ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border)",
-                                  borderRadius: 20,
+                                  borderRadius: 12,
                                 }}
                               >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
@@ -707,13 +707,13 @@ export default function RfqDetail() {
                                       display: "flex",
                                       alignItems: "center",
                                       justifyContent: "center",
-                                      fontWeight: 900,
+                                      fontWeight: 700,
                                       fontSize: 14
                                     }}>
                                       #{rankData.rank}
                                     </div>
                                     <div>
-                                      <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>
+                                      <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 15 }}>
                                         {rankData.proposal.company?.name || "Unknown Vendor"}
                                       </div>
                                       <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
@@ -779,7 +779,7 @@ export default function RfqDetail() {
                                         background: "rgba(34,197,94,0.1)",
                                         color: "#22c55e",
                                         fontSize: 11,
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                       }}>
                                         <CheckCircle2 size={12} /> PEMENANG (AWARDED)
                                       </div>
@@ -792,7 +792,7 @@ export default function RfqDetail() {
                                         background: "rgba(239,68,68,0.06)",
                                         color: "#ef4444",
                                         fontSize: 11,
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                       }}>
                                         DIELIMINASI
                                       </div>
@@ -805,7 +805,7 @@ export default function RfqDetail() {
                                         background: "var(--ui-bg-input)",
                                         color: "var(--ui-text-secondary)",
                                         fontSize: 11,
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                       }}>
                                         PESERTA
                                       </div>
@@ -882,11 +882,11 @@ export default function RfqDetail() {
                         {/* ── AI Assessment Panel ── */}
                         {showAiPanel && (
                           <div style={{
-                            marginTop: 24,
+                            marginTop: 16,
                             background: "linear-gradient(135deg, rgba(168,85,247,0.07), rgba(99,102,241,0.04))",
                             border: "1px solid rgba(168,85,247,0.25)",
-                            borderRadius: 20,
-                            padding: 24,
+                            borderRadius: 12,
+                            padding: 12,
                             animation: "fadeSlideIn 0.4s ease",
                           }}>
                             {/* Panel Header */}
@@ -900,7 +900,7 @@ export default function RfqDetail() {
                                 <Sparkles size={18} color="#fff" />
                               </div>
                               <div>
-                                <div style={{ fontSize: 13, fontWeight: 900, color: "var(--ui-text-primary)" }}>Huntr AI Assessment</div>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>Huntr AI Assessment</div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>Analisis multikriteria: harga 40% · delivery 30% · garansi 20% · kelengkapan 10%</div>
                               </div>
                             </div>
@@ -911,7 +911,7 @@ export default function RfqDetail() {
                                 <span style={{ fontSize: 13, fontWeight: 600 }}>Huntr AI sedang mengevaluasi semua proposal...</span>
                               </div>
                             ) : aiRankError ? (
-                              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12, padding: 16, color: "#ef4444", fontSize: 13, fontWeight: 600 }}>
+                              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12, padding: 12, color: "#ef4444", fontSize: 13, fontWeight: 600 }}>
                                 {aiRankError}
                               </div>
                             ) : aiRankings ? (
@@ -930,7 +930,7 @@ export default function RfqDetail() {
                                       padding: "16px 20px",
                                       background: isAiWinner ? "rgba(168,85,247,0.06)" : "var(--ui-bg-input)",
                                       border: isAiWinner ? "1px solid rgba(168,85,247,0.3)" : "1px solid var(--ui-border-input)",
-                                      borderRadius: 16,
+                                      borderRadius: 8,
                                       display: "flex", flexDirection: "column", gap: 10,
                                     }}>
                                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
@@ -940,23 +940,23 @@ export default function RfqDetail() {
                                             background: isAiWinner ? "linear-gradient(135deg, #a855f7, #6366f1)" : "var(--ui-bg-card)",
                                             color: isAiWinner ? "#fff" : "var(--ui-text-muted)",
                                             display: "flex", alignItems: "center", justifyContent: "center",
-                                            fontWeight: 900, fontSize: 13,
+                                            fontWeight: 700, fontSize: 13,
                                           }}>#{rank.rank}</div>
                                           <div>
-                                            <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ui-text-primary)" }}>
+                                            <div style={{ fontWeight: 600, fontSize: 14, color: "var(--ui-text-primary)" }}>
                                               {rank.proposal?.company?.name || "Unknown Vendor"}
                                             </div>
                                             {isAiWinner && (
-                                              <div style={{ fontSize: 10, fontWeight: 900, color: "#a855f7", textTransform: "uppercase", letterSpacing: "0.06em" }}>✦ AI Recommendation</div>
+                                              <div style={{ fontSize: 10, fontWeight: 700, color: "#a855f7", textTransform: "uppercase", letterSpacing: "0.06em" }}>✦ AI Recommendation</div>
                                             )}
                                           </div>
                                         </div>
                                         {/* Total score */}
                                         <div style={{
-                                          padding: "4px 12px", borderRadius: 20,
+                                          padding: "4px 12px", borderRadius: 12,
                                           background: isAiWinner ? "rgba(168,85,247,0.15)" : "var(--ui-bg-card)",
                                           border: isAiWinner ? "1px solid rgba(168,85,247,0.3)" : "1px solid var(--ui-border)",
-                                          fontSize: 14, fontWeight: 900,
+                                          fontSize: 14, fontWeight: 700,
                                           color: isAiWinner ? "#a855f7" : "var(--ui-text-secondary)",
                                         }}>
                                           {rank.total_score ? `${rank.total_score.toFixed(1)} pts` : "—"}
@@ -974,7 +974,7 @@ export default function RfqDetail() {
                                             <div key={key}>
                                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                                                 <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)" }}>{label} <span style={{ opacity: 0.6 }}>({weight})</span></span>
-                                                <span style={{ fontSize: 10, fontWeight: 900, color: isAiWinner ? "#a855f7" : "var(--ui-text-secondary)" }}>{rank.score_breakdown[key] ?? "—"}</span>
+                                                <span style={{ fontSize: 10, fontWeight: 700, color: isAiWinner ? "#a855f7" : "var(--ui-text-secondary)" }}>{rank.score_breakdown[key] ?? "—"}</span>
                                               </div>
                                               <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
                                                 <div style={{ height: "100%", width: `${rank.score_breakdown[key] || 0}%`, background: isAiWinner ? "linear-gradient(90deg, #a855f7, #6366f1)" : "rgba(255,255,255,0.15)", borderRadius: 2 }} />
@@ -1002,7 +1002,7 @@ export default function RfqDetail() {
                   })()}
                 </div>
 
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 24, marginTop: 32, paddingTop: 24, borderTop: "1px solid var(--ui-border)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 20, paddingTop: 24, borderTop: "1px solid var(--ui-border)" }}>
                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ui-text-muted)", fontSize: 14 }}>
                      <Calendar size={16} /> Published {new Date(rfq.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                    </div>
@@ -1013,11 +1013,11 @@ export default function RfqDetail() {
               </div>
 
               {/* Items Table Section */}
-              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-                <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(0,0,0,0.01)" }}>
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--ui-border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(0,0,0,0.01)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <Package size={18} color="#f97316" />
-                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)" }}>Technical Specifications</h2>
+                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "var(--ui-text-primary)" }}>Technical Specifications</h2>
                   </div>
                   <span style={{ fontSize: 12, background: "var(--ui-bg-input)", padding: "4px 10px", borderRadius: 6, color: "var(--ui-text-muted)", fontWeight: 700 }}>
                     {rfq.items?.length || 0} ITEMS
@@ -1036,16 +1036,16 @@ export default function RfqDetail() {
                     <tbody>
                       {(rfq.items || []).map((item: any, idx: number) => (
                         <tr key={item.id} style={{ borderBottom: idx === (rfq.items.length - 1) ? "none" : "1px solid var(--ui-border)", transition: "background 0.2s" }}>
-                          <td style={{ padding: "20px 24px" }}>
-                            <div style={{ fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>{item.catalogue?.name}</div>
+                          <td style={{ padding: "12px 16px" }}>
+                            <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 15 }}>{item.catalogue?.name}</div>
                             <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>Code: <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>{item.catalogue?.item_code}</span></div>
                           </td>
-                          <td style={{ padding: "20px 24px", textAlign: "center" }}>
-                            <span style={{ display: "inline-block", padding: "6px 16px", background: "var(--ui-bg-input)", borderRadius: 10, fontWeight: 800, color: "var(--ui-text-primary)", fontSize: 15 }}>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <span style={{ display: "inline-block", padding: "6px 16px", background: "var(--ui-bg-input)", borderRadius: 10, fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 15 }}>
                               {item.qty} <span style={{ fontWeight: 500, color: "var(--ui-text-muted)", fontSize: 12, marginLeft: 2 }}>Units</span>
                             </span>
                           </td>
-                          <td style={{ padding: "20px 24px", textAlign: "right" }}>
+                          <td style={{ padding: "12px 16px", textAlign: "right" }}>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, color: "var(--ui-text-secondary)", fontSize: 14, fontWeight: 600 }}>
                               <Calendar size={14} style={{ opacity: 0.6 }} />
                               {item.expected_date}
@@ -1066,13 +1066,13 @@ export default function RfqDetail() {
                 position: isMobile ? "static" : "sticky", 
                 top: 24, 
                 display: "grid", 
-                gap: 24 
+                gap: 16 
               }}
             >
               
               {/* Action Card */}
-              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 24, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-                <h3 style={{ margin: "0 0 20px", fontSize: 13, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Tender Summary</h3>
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                <h3 style={{ margin: "0 0 20px", fontSize: 13, fontWeight: 600, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Tender Summary</h3>
                 
                 <div style={{ display: "grid", gap: 16 }}>
                   <SummaryRow label="Total Quantity" value={`${totalItems} Units`} />
@@ -1090,7 +1090,7 @@ export default function RfqDetail() {
                       borderRadius: 14,
                       background: "linear-gradient(135deg,#f97316,#f59e0b)",
                       color: "#fff",
-                      fontWeight: 800,
+                      fontWeight: 600,
                       fontSize: 15,
                       border: "none",
                       cursor: "pointer",
@@ -1149,8 +1149,8 @@ export default function RfqDetail() {
               </div>
 
               {/* Delivery Point */}
-              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, padding: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
                   <MapPin size={14} /> Delivery Point
                 </div>
                 <div style={{ fontSize: 13, color: "var(--ui-text-primary)", lineHeight: 1.6 }}>
@@ -1159,7 +1159,7 @@ export default function RfqDetail() {
               </div>
 
               {/* Security Box */}
-              <div style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 20, padding: 20 }}>
+              <div style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 12, padding: 12 }}>
                 <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                   <ShieldCheck size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
                   <p style={{ margin: 0, fontSize: 12, color: "var(--ui-text-secondary)", lineHeight: 1.6 }}>
@@ -1170,9 +1170,9 @@ export default function RfqDetail() {
             </div>
           </div>
         ) : (
-          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-card)", padding: 60, borderRadius: 24, textAlign: "center", border: "1px solid var(--ui-border)" }}>
+          <div style={{ color: "var(--ui-text-primary)", background: "var(--ui-bg-card)", padding: 60, borderRadius: 12, textAlign: "center", border: "1px solid var(--ui-border)" }}>
             <AlertCircle size={40} color="var(--ui-text-muted)" style={{ marginBottom: 16 }} />
-            <div style={{ fontSize: 18, fontWeight: 800 }}>PR Record Not Found</div>
+            <div style={{ fontSize: 18, fontWeight: 600 }}>PR Record Not Found</div>
             <div style={{ color: "var(--ui-text-muted)", fontSize: 14, marginTop: 4 }}>This request may have been closed or the ID is invalid.</div>
           </div>
         )}
@@ -1188,10 +1188,10 @@ export default function RfqDetail() {
             right: 20,
             zIndex: 90,
             padding: "16px 24px",
-            borderRadius: 16,
+            borderRadius: 8,
             background: "linear-gradient(135deg,#f97316,#f59e0b)",
             color: "#fff",
-            fontWeight: 800,
+            fontWeight: 600,
             fontSize: 15,
             border: "none",
             cursor: "pointer",
@@ -1215,7 +1215,7 @@ export default function RfqDetail() {
             right: 20,
             zIndex: 90,
             padding: "16px 20px",
-            borderRadius: 16,
+            borderRadius: 8,
             background: "rgba(239,68,68,0.1)",
             color: "#ef4444",
             fontWeight: 700,
@@ -1271,7 +1271,7 @@ function SummaryRow({ label, value }: { label: string; value: any }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14 }}>
       <span style={{ color: "var(--ui-text-secondary)", fontWeight: 500 }}>{label}</span>
-      <span style={{ fontWeight: 800, color: "var(--ui-text-primary)" }}>{value}</span>
+      <span style={{ fontWeight: 600, color: "var(--ui-text-primary)" }}>{value}</span>
     </div>
   );
 }

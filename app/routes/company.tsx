@@ -205,12 +205,12 @@ export default function CompanyDetails() {
 
         {/* Tab Navigation */}
         <div className="flex flex-col gap-4">
-          <div className="flex gap-6 overflow-x-auto border-b border-[var(--ui-border)] scrollbar-hide">
+          <div className="flex gap-6 overflow-x-auto overflow-y-hidden border-b border-[var(--ui-border)] scrollbar-hide">
             {tabs.map(t => (
               <button
                 key={t.id}
                 onClick={() => vm.setActiveTab(t.id)}
-                className={`flex items-center gap-2 pb-3 text-sm font-semibold transition-all whitespace-nowrap border-b-2 -mb-[1px] ${
+                className={`flex items-center gap-2 pb-3 text-sm font-semibold transition-all whitespace-nowrap border-b-2 ${
                   vm.activeTab === t.id 
                     ? "border-orange-500 text-orange-500" 
                     : "border-transparent text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] hover:border-[var(--ui-border)]"
