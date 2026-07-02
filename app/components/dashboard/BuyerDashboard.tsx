@@ -48,9 +48,40 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
     { month: 'Jun', savings: 1200000000 },
   ];
 
-  const formatRupiah = (value: number | string | null | undefined) => {
-    const numeric = Number(value ?? 0);
-    return `Rp ${(numeric / 1000000000).toFixed(1)}B`;
+  const [currencyState, setCurrencyState] = React.useState({ base: 'IDR', rates: {} as Record<string, { code: string; value: number }> });
+
+  React.useEffect(() => {
+    const handleCurrencyUpdate = (e: any) => {
+      setCurrencyState(e.detail);
+    };
+    window.addEventListener('currency-update', handleCurrencyUpdate);
+    return () => window.removeEventListener('currency-update', handleCurrencyUpdate);
+  }, []);
+
+  const formatCurrency = (valueIdr: number | string | null | undefined) => {
+    const numeric = Number(valueIdr ?? 0);
+    
+    let convertedValue = numeric;
+    let symbol = 'Rp';
+    
+    if (currencyState.base !== 'IDR' && currencyState.rates['IDR']?.value) {
+      convertedValue = numeric / currencyState.rates['IDR'].value;
+      symbol = currencyState.base === 'USD' ? '$' : 
+               currencyState.base === 'EUR' ? '€' : 
+               currencyState.base === 'SGD' ? 'S$' : 
+               currencyState.base === 'MYR' ? 'RM' : 
+               currencyState.base === 'JPY' ? '¥' : currencyState.base + ' ';
+    }
+    
+    const absVal = Math.abs(convertedValue);
+    let div = 1;
+    let suffix = '';
+    
+    if (absVal >= 1000000000) { div = 1000000000; suffix = 'B'; }
+    else if (absVal >= 1000000) { div = 1000000; suffix = 'M'; }
+    else if (absVal >= 1000) { div = 1000; suffix = 'k'; }
+    
+    return `${convertedValue < 0 ? '- ' : ''}${symbol} ${Math.abs(convertedValue / div).toFixed(1)}${suffix}`;
   };
 
   return (
@@ -73,7 +104,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
                 <span className="text-xs text-gray-400 font-semibold uppercase">Total Pengeluaran</span>
                 <DollarSign size={16} className="text-orange-400" />
               </div>
-              <div className="text-3xl font-bold text-white mb-2">Rp 12.5B</div>
+              <div className="text-3xl font-bold text-white mb-2">{formatCurrency(12500000000)}</div>
               <div className="text-xs text-green-400 flex items-center gap-1 mb-6"><TrendingDown size={12}/> 4.2% vs last month</div>
               
               <div className="flex justify-between items-start mb-2 pt-4 border-t border-white/10">
@@ -94,7 +125,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => formatRupiah(Number(value ?? 0))} {...chartTooltipStyle()} />
+                    <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} {...chartTooltipStyle()} />
                     <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, color: "var(--ui-chart-legend)" }} />
                   </RechartsPieChart>
                 </ResponsiveContainer>
@@ -183,9 +214,9 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--ui-chart-grid)" vertical={false} />
                     <XAxis dataKey="month" stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatRupiah} />
+                    <YAxis stroke="var(--ui-chart-axis)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrency} />
                     <Tooltip 
-                      formatter={(value) => [formatRupiah(Number(value ?? 0)), "Savings"]}
+                      formatter={(value) => [formatCurrency(Number(value ?? 0)), "Savings"]}
                       {...chartTooltipStyle("1px solid rgba(245,158,11,0.35)")}
                     />
                     <Area type="monotone" dataKey="savings" name="Cost Savings" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
@@ -200,7 +231,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
               </div>
               <div>
                 <div className="text-xs text-gray-400 font-semibold uppercase mb-1">Purchase Price Variance (PPV)</div>
-                <div className="text-3xl font-bold text-emerald-400">- Rp 450M</div>
+                <div className="text-3xl font-bold text-emerald-400">{formatCurrency(-450000000)}</div>
                 <div className="text-xs text-gray-500 mt-2 leading-relaxed">Below budget limit. Favorable variance achieved through bulk volume negotiation.</div>
               </div>
             </div>

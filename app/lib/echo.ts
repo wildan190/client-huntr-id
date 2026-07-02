@@ -139,7 +139,6 @@ export function ensureEcho(): Echo<any> | null {
         wsTimeout: 10000,
         activityTimeout: 30000,
         pongTimeout: 15000,
-        enabledTransports: ['websocket'],
       };
     } else {
       // Production Pusher configuration  

@@ -4,7 +4,7 @@ import { fetchLatestCurrencyRates } from "../lib/api/currency";
 
 const STORAGE_KEY = "huntr_currency_base";
 const BASE_OPTIONS = ["IDR", "USD", "EUR", "SGD", "MYR"];
-const TARGETS = ["USD", "EUR", "SGD", "MYR", "JPY"];
+const TARGETS = ["IDR", "USD", "EUR", "SGD", "MYR", "JPY"];
 
 export default function CurrencyWidget({ embedded = false }: { embedded?: boolean }) {
   const [baseCurrency, setBaseCurrency] = useState("IDR");
@@ -48,6 +48,16 @@ export default function CurrencyWidget({ embedded = false }: { embedded?: boolea
       cancelled = true;
     };
   }, [baseCurrency, refreshTick]);
+
+  useEffect(() => {
+    if (!loading && !error && Object.keys(rates).length > 0) {
+      window.dispatchEvent(
+        new CustomEvent("currency-update", {
+          detail: { baseCurrency, rates },
+        })
+      );
+    }
+  }, [baseCurrency, rates, loading, error]);
 
   const displayRates = useMemo(() => {
     return TARGETS
