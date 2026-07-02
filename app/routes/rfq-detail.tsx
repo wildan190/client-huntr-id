@@ -210,6 +210,35 @@ export default function RfqDetail() {
   const [aiRankError, setAiRankError] = useState<string | null>(null);
   const [showAiPanel, setShowAiPanel] = useState(false);
 
+  // Invite Vendor State
+  const [inviteWhatsapp, setInviteWhatsapp] = useState("");
+  const [inviting, setInviting] = useState(false);
+
+  const handleInviteVendor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteWhatsapp) return;
+    setInviting(true);
+    try {
+      await apiPost(`/api/rfqs/${id}/invite-vendor`, { whatsapp: inviteWhatsapp });
+      Swal.fire({
+        icon: 'success',
+        title: 'Invitation Sent!',
+        text: 'The vendor has been invited via WhatsApp.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      setInviteWhatsapp("");
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message || 'Failed to send invitation.'
+      });
+    } finally {
+      setInviting(false);
+    }
+  };
+
   const handleAiRank = async () => {
     if (!rfq?.id) return;
     setAiRankLoading(true);
@@ -1147,6 +1176,65 @@ export default function RfqDetail() {
                   </div>
                 )}
               </div>
+
+              {/* Invite Vendor Card (Buyer Only) */}
+              {isBuyer && rfq && (rfq.status === 'active' || rfq.status === 'draft') && !isTenderExpired() && (
+                <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 16 }}>
+                    <div style={{ background: "rgba(249,115,22,0.1)", color: "#f97316", padding: 8, borderRadius: 10 }}>
+                      <User size={20} />
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>Haven't found a vendor?</h3>
+                      <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ui-text-secondary)", lineHeight: 1.4 }}>
+                        Invite them to this platform and let them submit a proposal for your RFQ directly.
+                      </p>
+                    </div>
+                  </div>
+                  <form onSubmit={handleInviteVendor} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <input 
+                      type="tel"
+                      required
+                      placeholder="WhatsApp Number (e.g. 08123...)"
+                      value={inviteWhatsapp}
+                      onChange={e => setInviteWhatsapp(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        borderRadius: 10,
+                        border: "1px solid var(--ui-border-input)",
+                        background: "var(--ui-bg-input)",
+                        color: "var(--ui-text-primary)",
+                        fontSize: 14,
+                        outline: "none"
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={inviting || !inviteWhatsapp}
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        borderRadius: 10,
+                        background: inviting || !inviteWhatsapp ? "var(--ui-bg-input)" : "#f97316",
+                        color: inviting || !inviteWhatsapp ? "var(--ui-text-muted)" : "#fff",
+                        border: inviting || !inviteWhatsapp ? "1px solid var(--ui-border)" : "none",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        cursor: inviting || !inviteWhatsapp ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      {inviting ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} 
+                      {inviting ? "Sending Invite..." : "Invite Vendor"}
+                    </button>
+                  </form>
+                </div>
+              )}
 
               {/* Delivery Point */}
               <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12 }}>
