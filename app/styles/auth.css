@@ -7,6 +7,7 @@
   justify-content: center;
   padding: 16px;
   position: relative;
+  overflow-x: hidden;
   background: var(--ui-bg-page-grad);
   transition: background 0.3s ease;
 }
@@ -377,9 +378,6 @@
 @media (min-width: 768px) {
   .auth-scroll-area {
     gap: 16px;
-    max-height: 55vh;
-    overflow-y: auto;
-    padding-right: 10px;
   }
 }
 
