@@ -108,15 +108,15 @@ export function ensureEcho(): Echo<any> | null {
     // Disable Pusher logging in production
     Pusher.logToConsole = import.meta.env.DEV;
 
-    // Determine configuration based on environment
-    const isLocalReverb = config.host === 'localhost' && config.port;
+    // Always use Reverb configuration if host is provided
+    const isReverb = !!config.host;
     
-    console.log(`Initializing Echo with ${isLocalReverb ? 'Reverb' : 'Pusher'} broadcaster...`);
+    console.log(`Initializing Echo with ${isReverb ? 'Reverb' : 'Pusher'} broadcaster...`);
 
     let echoConfig: any;
 
-    if (isLocalReverb) {
-      // Local Reverb configuration
+    if (isReverb) {
+      // Reverb configuration (Local & Production)
       echoConfig = {
         broadcaster: 'reverb',
         key: config.key,
@@ -141,7 +141,7 @@ export function ensureEcho(): Echo<any> | null {
         pongTimeout: 15000,
       };
     } else {
-      // Production Pusher configuration  
+      // Production Pusher configuration fallback
       echoConfig = {
         broadcaster: 'pusher',
         key: config.key,
@@ -203,7 +203,7 @@ export function ensureEcho(): Echo<any> | null {
 
     installSessionWatcher();
 
-    console.log(`Echo initialized successfully with ${isLocalReverb ? 'Reverb' : 'Pusher'}`);
+    console.log(`Echo initialized successfully with ${isReverb ? 'Reverb' : 'Pusher'}`);
     
     // Set connected state optimistically
     connectionState = 'connected';
