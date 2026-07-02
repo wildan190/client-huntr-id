@@ -27,12 +27,12 @@ export default function AuthLayout({
     <div className="min-h-screen flex w-full bg-[var(--ui-bg-page-grad)]">
       {/* Left Side: Form Container */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Top bar with Logo and Theme toggle */}
-        <div className="p-6 md:p-8 flex items-center justify-between">
+        {/* Top bar with Logo (mobile only) and Theme toggle */}
+        <div className="p-6 md:p-8 flex items-center justify-between lg:justify-end">
           <img 
             src="/assets/img/logo/sidebar.png" 
             alt="HUNTR" 
-            className="h-8 object-contain" 
+            className="h-8 object-contain lg:hidden" 
           />
           <ThemeToggle />
         </div>
@@ -60,6 +60,15 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/95" />
         
         <div className="relative z-10 w-full h-full flex flex-col justify-center px-12 xl:px-20">
+          
+          {/* Large Logo on Right Side */}
+          <div className="absolute top-12 left-12 xl:left-20">
+            <img 
+              src="/assets/img/logo/sidebar.png" 
+              alt="HUNTR" 
+              className="h-16 xl:h-20 object-contain drop-shadow-2xl" 
+            />
+          </div>
           {!isRegister ? (
             <div className="max-w-[480px]">
               <h2 className="text-3xl xl:text-4xl font-bold text-white mb-4 leading-tight tracking-tight">
