@@ -124,7 +124,7 @@ export function GuestMarketplaceView() {
           <img 
             src="/assets/img/logo/sidebar.png" 
             alt="Huntr Logo" 
-            style={{ width: "clamp(120px, 30vw, 150px)", height: "clamp(32px, 8vw, 40px)", borderRadius: 0, objectFit: "contain" }} 
+            style={{ width: "clamp(160px, 40vw, 220px)", height: "clamp(48px, 12vw, 64px)", borderRadius: 0, objectFit: "contain" }} 
           />
         </div>
         <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 10px)", alignItems: "center" }}>

@@ -27,20 +27,26 @@ export default function AuthLayout({
     <div className="min-h-screen flex w-full bg-[var(--ui-bg-page-grad)]">
       {/* Left Side: Form Container */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Top bar with Logo (mobile only) and Theme toggle */}
-        <div className="p-6 md:p-8 flex items-center justify-between lg:justify-end">
-          <img 
-            src="/assets/img/logo/sidebar.png" 
-            alt="HUNTR" 
-            className="h-8 object-contain lg:hidden" 
-          />
+        {/* Top bar with Theme toggle */}
+        <div className="p-6 md:p-8 flex items-center justify-end">
           <ThemeToggle />
         </div>
         
         {/* Form Area */}
         <div className="flex-1 flex flex-col justify-center px-6 py-10 md:px-12 lg:px-24">
-          <div className="w-full max-w-[420px] mx-auto">
-            {children}
+          <div className="w-full max-w-[420px] mx-auto flex flex-col">
+            {/* Giant Centered Logo on the Form Side */}
+            <div className="flex justify-center w-full mb-10 md:mb-14">
+              <img 
+                src="/assets/img/logo/sidebar.png" 
+                alt="HUNTR" 
+                className="h-20 sm:h-24 md:h-32 w-auto object-contain drop-shadow-xl" 
+              />
+            </div>
+            
+            <div className="w-full">
+              {children}
+            </div>
           </div>
         </div>
         
@@ -63,13 +69,6 @@ export default function AuthLayout({
           
           {!isRegister ? (
             <div className="max-w-[480px]">
-              {/* Large Centered Logo */}
-              <img 
-                src="/assets/img/logo/sidebar.png" 
-                alt="HUNTR" 
-                className="h-20 xl:h-28 object-contain drop-shadow-2xl mb-10" 
-              />
-              
               <h2 className="text-3xl xl:text-4xl font-bold text-white mb-4 leading-tight tracking-tight">
                 {visualTitle}
               </h2>
@@ -89,13 +88,6 @@ export default function AuthLayout({
             </div>
           ) : (
             <div className="max-w-[480px]">
-              {/* Large Centered Logo */}
-              <img 
-                src="/assets/img/logo/sidebar.png" 
-                alt="HUNTR" 
-                className="h-20 xl:h-28 object-contain drop-shadow-2xl mb-10" 
-              />
-
               <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6">
                   Dokumen yang Perlu Disiapkan
