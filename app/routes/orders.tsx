@@ -167,7 +167,7 @@ const SignatureButtons = ({
     meta?: SignatureMeta
   ) => (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-      <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", textAlign: "center" }}>{label}</div>
+      <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, textTransform: "uppercase", textAlign: "center" }}>{label}</div>
       {signed ? (
         <div style={{
           padding: "10px 12px",
@@ -176,7 +176,7 @@ const SignatureButtons = ({
           border: "1px solid rgba(34,197,94,0.3)",
           color: "#22c55e",
           fontSize: 12,
-          fontWeight: 800,
+          fontWeight: 600,
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
@@ -214,7 +214,7 @@ const SignatureButtons = ({
             border: "none",
             color: isYourParty && isManager ? "#fff" : "var(--ui-text-muted)",
             fontSize: 11,
-            fontWeight: 800,
+            fontWeight: 600,
             textAlign: "center",
             cursor: isYourParty && isManager ? "pointer" : "not-allowed",
             opacity: isYourParty && isManager ? 1 : 0.5,
@@ -683,46 +683,46 @@ export default function Orders() {
       subtitle="View and manage all purchase order documents."
     >
       <div style={{ maxWidth: "100%", width: "100%" }}>
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
         
         {/* Header Summary Card */}
         <div className="huntr-action-card" style={{
           background: "var(--ui-bg-card)",
           border: "1px solid var(--ui-border)",
-          borderRadius: 24,
+          borderRadius: 12,
           backdropFilter: "blur(20px)",
           transition: "all 0.3s ease",
           flexWrap: "wrap",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{
-              width: 56, height: 56, borderRadius: 16,
+              width: 40, height: 40, borderRadius: 8,
               background: "linear-gradient(135deg,#f97316,#f59e0b)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 8px 20px rgba(249,115,22,0.25)",
+              boxShadow: "0 4px 12px rgba(249,115,22,0.2)",
             }}>
-              <FileText size={28} color="#fff" />
+              <FileText size={20} color="#fff" />
             </div>
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--ui-text-primary)", margin: 0, transition: "color 0.3s ease" }}>
-                List of {company.type === "buyer" ? "Purchase Orders" : "Catalogue Items"} ({totalOrders})
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--ui-text-primary)", margin: 0, transition: "color 0.3s ease" }}>
+                {company.type === "buyer" ? "Purchase Orders" : "Catalogue Items"} ({totalOrders})
               </h2>
-              <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", margin: "6px 0 0", transition: "color 0.3s ease" }}>
-                Active Workspace: <strong style={{ color: "#fdba74" }}>{company.name}</strong>
+              <p style={{ fontSize: 12, color: "var(--ui-text-secondary)", margin: "2px 0 0", transition: "color 0.3s ease" }}>
+                Workspace: <strong style={{ color: "#fdba74" }}>{company.name}</strong>
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
               onClick={() => setShowImportModal(true)}
               style={{
                 background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)",
-                borderRadius: 14, padding: "0 20px", display: "flex", alignItems: "center", gap: 10,
-                cursor: "pointer", color: "#fb923c", fontWeight: 700, fontSize: 13, transition: "all 0.3s ease"
+                borderRadius: 8, padding: "7px 12px", display: "flex", alignItems: "center", gap: 6,
+                cursor: "pointer", color: "#fb923c", fontWeight: 600, fontSize: 12, transition: "all 0.3s ease"
               }}
             >
-              <UploadCloud size={18} /> Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
+              <UploadCloud size={14} /> Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
             </button>
 
             <button
@@ -730,12 +730,12 @@ export default function Orders() {
               disabled={orders.length === 0}
               style={{
                 background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)",
-                borderRadius: 14, padding: "0 20px", display: "flex", alignItems: "center", gap: 10,
-                cursor: orders.length === 0 ? "not-allowed" : "pointer", color: "#22c55e", fontWeight: 700, fontSize: 13,
+                borderRadius: 8, padding: "7px 12px", display: "flex", alignItems: "center", gap: 6,
+                cursor: orders.length === 0 ? "not-allowed" : "pointer", color: "#22c55e", fontWeight: 600, fontSize: 12,
                 opacity: orders.length === 0 ? 0.6 : 1, transition: "all 0.3s ease"
               }}
             >
-              <FileSpreadsheet size={18} /> Export to Excel
+              <FileSpreadsheet size={14} /> Export Excel
             </button>
 
             <button
@@ -743,11 +743,11 @@ export default function Orders() {
               disabled={refreshing}
               style={{
                 background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
-                borderRadius: 14, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
+                borderRadius: 8, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", color: "var(--ui-text-secondary)", transition: "all 0.3s ease",
               }}
             >
-              <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
+              <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
             </button>
           </div>
         </div>
@@ -756,22 +756,22 @@ export default function Orders() {
         {showImportModal && (
           <div style={{
             position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)",
-            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20,
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 12,
           }}>
             <div style={{
-              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 28,
-              width: "100%", maxWidth: 500, padding: 32, display: "flex", flexDirection: "column", gap: 24,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12,
+              width: "100%", maxWidth: 500, padding: 12, display: "flex", flexDirection: "column", gap: 16,
               transition: "all 0.3s ease",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                   Import {company.type === "buyer" ? "Historical PO" : "Catalogue"}
                 </h3>
                 <button onClick={() => setShowImportModal(false)} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", cursor: "pointer", transition: "color 0.3s ease" }}><X size={20} /></button>
               </div>
 
               <div style={{ 
-                padding: 40, border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 20, textAlign: "center",
+                padding: 12, border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 12, textAlign: "center",
                 background: "var(--ui-bg-input)", cursor: "pointer", transition: "all 0.3s ease",
               }} onClick={() => document.getElementById("csv-input")?.click()}>
                 <FileSpreadsheet size={48} color={importFile ? "#f59e0b" : "var(--ui-text-muted)"} style={{ marginBottom: 16, transition: "color 0.3s ease" }} />
@@ -800,7 +800,7 @@ export default function Orders() {
                 onClick={handleImport}
                 disabled={!importFile || isImporting || importSuccess}
                 style={{
-                  width: "100%", padding: 16, borderRadius: 16, background: "linear-gradient(135deg,#f97316,#f59e0b)",
+                  width: "100%", padding: 12, borderRadius: 8, background: "linear-gradient(135deg,#f97316,#f59e0b)",
                   color: "#fff", fontWeight: 700, border: "none", cursor: (isImporting || !importFile) ? "not-allowed" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                   boxShadow: "0 8px 20px rgba(249,115,22,0.2)", opacity: (isImporting || !importFile) ? 0.6 : 1, transition: "all 0.3s ease"
@@ -813,8 +813,8 @@ export default function Orders() {
         )}
 
         {/* Tab Selection & Search */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", gap: 8, background: "var(--ui-bg-input)", padding: 6, borderRadius: 16, width: "fit-content", transition: "all 0.3s ease" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, background: "var(--ui-bg-input)", padding: 6, borderRadius: 8, width: "fit-content", transition: "all 0.3s ease" }}>
             {[
               { id: "all", label: "All POs" },
               { id: "operational", label: "Operational" },
@@ -824,7 +824,7 @@ export default function Orders() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 style={{
-                  padding: "10px 20px", borderRadius: 12, border: "none",
+                  padding: "6px 12px", borderRadius: 12, border: "none",
                   background: activeTab === tab.id ? "rgba(249,115,22,0.15)" : "transparent",
                   color: activeTab === tab.id ? "#fdba74" : "var(--ui-text-muted)",
                   fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all 0.3s ease"
@@ -836,14 +836,14 @@ export default function Orders() {
           </div>
 
           <div style={{ position: "relative", flex: 1, maxWidth: 400 }}>
-            <Search size={18} color="var(--ui-text-muted)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", transition: "color 0.3s ease" }} />
+            <Search size={18} color="var(--ui-text-muted)" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", transition: "color 0.3s ease" }} />
             <input 
               type="text" 
               placeholder="Search by PO number, vendor, or user..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               style={{
-                width: "100%", padding: "12px 16px 12px 48px", borderRadius: 16,
+                width: "100%", padding: "9px 12px 9px 40px", borderRadius: 8,
                 background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
                 color: "var(--ui-text-primary)", outline: "none", fontSize: 14, transition: "all 0.3s ease",
                 boxSizing: "border-box"
@@ -853,13 +853,13 @@ export default function Orders() {
         </div>
 
         {successMessage && (
-          <div style={{ padding: 16, borderRadius: 16, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 14, fontWeight: 700, marginBottom: 24 }}>
+          <div style={{ padding: 12, borderRadius: 8, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
             {successMessage}
           </div>
         )}
 
         {error && (
-          <div style={{ padding: 16, borderRadius: 16, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 14, fontWeight: 700, marginBottom: 24 }}>
+          <div style={{ padding: 12, borderRadius: 8, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
             {error}
           </div>
         )}
@@ -867,29 +867,29 @@ export default function Orders() {
         {/* PO Table/List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {orders.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 32, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", background: "var(--ui-bg-input)", borderRadius: 8, border: "1px dashed var(--ui-border-input)", transition: "all 0.3s ease" }}>
             <FileText size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
             <h3 style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 16, transition: "color 0.3s ease" }}>No purchase orders found</h3>
           </div>
           ) : (
             orders.map(po => (
               <div key={po.id} style={{
-                background: "var(--ui-bg-card)", borderRadius: 24, border: "1px solid var(--ui-border)",
-                padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, transition: "all 0.3s ease",
+                background: "var(--ui-bg-card)", borderRadius: 12, border: "1px solid var(--ui-border)",
+                padding: "10px 12px", display: "flex", flexDirection: "column", gap: 16, transition: "all 0.3s ease",
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#f59e0b", background: "rgba(249,115,22,0.1)", padding: "2px 8px", borderRadius: 6, transition: "all 0.3s ease" }}>
                         {po.po_number}
                       </span>
                       {po.is_historical && (
-                        <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "2px 8px", borderRadius: 6, textTransform: "uppercase", transition: "all 0.3s ease" }}>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "2px 8px", borderRadius: 6, textTransform: "uppercase", transition: "all 0.3s ease" }}>
                           Historical
                         </span>
                       )}
                     </div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.rfq?.title || "Purchase Order Document"}</h3>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.rfq?.title || "Purchase Order Document"}</h3>
                   </div>
 
                   <div style={{ width: 200 }}>
@@ -950,8 +950,8 @@ export default function Orders() {
                         onClick={() => handleConfirmPo(po.id)}
                         disabled={confirmingId === po.id}
                         style={{
-                          background: "var(--huntr-orange)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "var(--huntr-orange)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: confirmingId === po.id ? "wait" : "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease",
@@ -968,8 +968,8 @@ export default function Orders() {
                         onClick={() => handleUpdateTrackingStatus(po.id, 'packing', po.status)}
                         disabled={processingId === po.id}
                         style={{
-                          background: "linear-gradient(135deg,#8b5cf6,#7c3aed)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "linear-gradient(135deg,#8b5cf6,#7c3aed)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: processingId === po.id ? "wait" : "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(139,92,246,0.2)", transition: "all 0.2s ease",
@@ -985,8 +985,8 @@ export default function Orders() {
                         onClick={() => handleArrangeDelivery(po.id, po.buyer_address)}
                         disabled={processingId === po.id}
                         style={{
-                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: processingId === po.id ? "wait" : "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(59,130,246,0.2)", transition: "all 0.2s ease",
@@ -1002,8 +1002,8 @@ export default function Orders() {
                         onClick={() => handleArrangeDelivery(po.id, po.buyer_address)}
                         disabled={processingId === po.id}
                         style={{
-                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "linear-gradient(135deg,#3b82f6,#2563eb)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: processingId === po.id ? "wait" : "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(59,130,246,0.2)", transition: "all 0.2s ease",
@@ -1019,8 +1019,8 @@ export default function Orders() {
                         onClick={() => handleUpdateTrackingStatus(po.id, 'delivered', po.status)}
                         disabled={processingId === po.id}
                         style={{
-                          background: "linear-gradient(135deg,#22c55e,#16a34a)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "linear-gradient(135deg,#22c55e,#16a34a)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: processingId === po.id ? "wait" : "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(34,197,94,0.2)", transition: "all 0.2s ease",
@@ -1035,8 +1035,8 @@ export default function Orders() {
                       <button
                         onClick={() => navigate(`/receipts?po_id=${po.id}`)}
                         style={{
-                          background: "var(--huntr-green)", border: "none", borderRadius: 12,
-                          padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 12,
+                          background: "var(--huntr-green)", border: "none", borderRadius: 8,
+            padding: "6px 10px", color: "#fff", fontWeight: 700, fontSize: 12,
                           cursor: "pointer",
                           display: "flex", alignItems: "center", gap: 6,
                           boxShadow: "0 4px 12px rgba(34,197,94,0.2)", transition: "all 0.2s ease",
@@ -1062,14 +1062,14 @@ export default function Orders() {
 
                 {expandedPo === po.id && (
                   <div style={{ 
-                    padding: "32px", borderRadius: 20, background: "var(--ui-bg-input)", 
+                    padding: "16px", borderRadius: 12, background: "var(--ui-bg-input)", 
                     border: "1px solid var(--ui-border-input)", marginTop: 8,
-                    display: "flex", flexDirection: "column", gap: 32,
+                    display: "flex", flexDirection: "column", gap: 16,
                     boxShadow: "inset 0 4px 24px rgba(0,0,0,0.2)", transition: "all 0.3s ease"
                   }}>
                     {/* 5-Step Order Progress Timeline */}
-                    <div style={{ background: "rgba(249,115,22,0.05)", padding: 20, borderRadius: 16, border: "1px solid rgba(249,115,22,0.1)", marginBottom: 24 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ background: "rgba(249,115,22,0.05)", padding: 12, borderRadius: 8, border: "1px solid rgba(249,115,22,0.1)", marginBottom: 16 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <span>Order Progress</span>
                         {company.type === 'vendor' && (
                           <a href="/track" target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: "#3b82f6", fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
@@ -1139,7 +1139,7 @@ export default function Orders() {
 
                                   {/* Step label */}
                                   <div style={{ marginTop: 8, textAlign: "center", padding: "0 4px" }}>
-                                    <div style={{ fontSize: 10, fontWeight: 800, color: done ? step.color : "var(--ui-text-muted)", transition: "color 0.4s ease", lineHeight: 1.3 }}>
+                                    <div style={{ fontSize: 10, fontWeight: 600, color: done ? step.color : "var(--ui-text-muted)", transition: "color 0.4s ease", lineHeight: 1.3 }}>
                                       {step.label}
                                     </div>
                                     {entry?.timestamp && (
@@ -1176,7 +1176,7 @@ export default function Orders() {
                         return (
                           <div style={{ marginTop: 16, padding: "12px 16px", background: `${action.color}15`, border: `1px solid ${action.color}30`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                             <div>
-                              <div style={{ fontSize: 11, fontWeight: 800, color: action.color }}>Next Action Required</div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: action.color }}>Next Action Required</div>
                               <div style={{ fontSize: 11, color: "var(--ui-text-secondary)", marginTop: 2 }}>{action.description}</div>
                             </div>
                             <button
@@ -1184,7 +1184,7 @@ export default function Orders() {
                               disabled={processingId === po.id}
                               style={{
                                 background: action.color, border: "none", borderRadius: 10,
-                                padding: "8px 16px", color: "#fff", fontWeight: 700, fontSize: 11,
+                                padding: "6px 12px", color: "#fff", fontWeight: 700, fontSize: 11,
                                 cursor: processingId === po.id ? "wait" : "pointer",
                                 display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap",
                                 boxShadow: `0 4px 12px ${action.color}30`, transition: "all 0.2s ease",
@@ -1202,7 +1202,7 @@ export default function Orders() {
                     <div className="huntr-grid-2col" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                         <div>
-                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Metadata & Identity</div>
+                          <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Metadata & Identity</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                               <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
@@ -1273,7 +1273,7 @@ export default function Orders() {
                       </div>
 
                       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Classification</div>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, transition: "color 0.3s ease" }}>Classification</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                           <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Category: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_category || "N/A"}</strong></div>
                           <div style={{ fontSize: 13, color: "var(--ui-text-secondary)", transition: "color 0.3s ease" }}>Type: <strong style={{ color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>{po.purchase_type || "N/A"}</strong></div>
@@ -1284,9 +1284,9 @@ export default function Orders() {
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "var(--ui-bg-card)", padding: 20, borderRadius: 16, border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
-                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, transition: "color 0.3s ease" }}>Total Financial Summary</div>
-                        <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ui-text-primary)", letterSpacing: "-0.5px", transition: "color 0.3s ease" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "var(--ui-bg-card)", padding: 12, borderRadius: 8, border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
+                        <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, transition: "color 0.3s ease" }}>Total Financial Summary</div>
+                        <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ui-text-primary)", letterSpacing: "-0.5px", transition: "color 0.3s ease" }}>
                           <span style={{ fontSize: 14, color: "#fb923c", marginRight: 6 }}>{po.currency || "IDR"}</span>
                           {Number(po.total_amount || 0).toLocaleString()}
                         </div>
@@ -1299,38 +1299,38 @@ export default function Orders() {
                     {/* Item Breakdown Table */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h4 style={{ fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0, transition: "color 0.3s ease" }}>Item Breakdown</h4>
+                        <h4 style={{ fontSize: 12, fontWeight: 600, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0, transition: "color 0.3s ease" }}>Item Breakdown</h4>
                         <span style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, transition: "color 0.3s ease" }}>{po.items?.length || 0} line items</span>
                       </div>
                       
-                      <div style={{ overflow: "hidden", borderRadius: 16, border: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
+                      <div style={{ overflow: "hidden", borderRadius: 8, border: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
                           <thead>
                             <tr style={{ background: "var(--ui-bg-card)", borderBottom: "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
-                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>ITEM NAME & CODE</th>
-                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>QTY</th>
-                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>UNIT PRICE</th>
-                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>TAX</th>
-                              <th style={{ padding: "14px 20px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textAlign: "right", transition: "color 0.3s ease" }}>SUBTOTAL</th>
+                              <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>ITEM NAME & CODE</th>
+                              <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>QTY</th>
+                              <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>UNIT PRICE</th>
+                              <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, transition: "color 0.3s ease" }}>TAX</th>
+                              <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, textAlign: "right", transition: "color 0.3s ease" }}>SUBTOTAL</th>
                             </tr>
                           </thead>
                           <tbody>
                             {po.items?.map((item: any, idx: number) => (
                               <tr key={idx} style={{ borderBottom: idx === (po.items?.length - 1) ? "none" : "1px solid var(--ui-border-input)", transition: "all 0.3s ease" }}>
-                                <td style={{ padding: "16px 20px" }}>
+                                <td style={{ padding: "10px 12px" }}>
                                   <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, marginBottom: 4, transition: "color 0.3s ease" }}>{item.inventory_name}</div>
                                   <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontFamily: "monospace", transition: "color 0.3s ease" }}>{item.inventory_code || "NO-CODE"} • {item.pr_reference_number || "NO-PR"}</div>
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                                <td style={{ padding: "10px 12px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                                   <strong style={{ color: "#fdba74" }}>{item.qty}</strong> <span style={{ fontSize: 11, color: "var(--ui-text-muted)", transition: "color 0.3s ease" }}>{item.uom}</span>
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
+                                <td style={{ padding: "10px 12px", color: "var(--ui-text-primary)", transition: "color 0.3s ease" }}>
                                   {Number(item.unit_price).toLocaleString()}
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "#f87171", fontSize: 12, transition: "color 0.3s ease" }}>
+                                <td style={{ padding: "10px 12px", color: "#f87171", fontSize: 12, transition: "color 0.3s ease" }}>
                                   {Number(item.tax_amount) > 0 ? `+${Number(item.tax_amount).toLocaleString()}` : "—"}
                                 </td>
-                                <td style={{ padding: "16px 20px", color: "var(--ui-text-primary)", fontWeight: 800, textAlign: "right", transition: "color 0.3s ease" }}>
+                                <td style={{ padding: "10px 12px", color: "var(--ui-text-primary)", fontWeight: 600, textAlign: "right", transition: "color 0.3s ease" }}>
                                   {Number(item.total_amount).toLocaleString()}
                                 </td>
                               </tr>
@@ -1340,8 +1340,8 @@ export default function Orders() {
                       </div>
 
                       {/* Invoices Section */}
-                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ marginTop: 16, padding: 12, background: "var(--ui-bg-input)", borderRadius: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <ReceiptText size={16} />
                           Related Invoices
                         </div>
@@ -1356,13 +1356,13 @@ export default function Orders() {
                                 {/* Header row: invoice type + status badge */}
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <span style={{ 
-                                    fontSize: 10, fontWeight: 800, textTransform: "uppercase",
+                                    fontSize: 10, fontWeight: 600, textTransform: "uppercase",
                                     color: inv.type === 'final' ? "#22c55e" : "#fb923c" 
                                   }}>
                                     {inv.type === 'final' ? '🧾 Invoice Akhir' : '📄 Proforma Invoice'}
                                   </span>
                                   <span style={{ 
-                                    fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6,
+                                    fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 6,
                                     background: inv.status === 'paid' ? "rgba(34,197,94,0.1)" : inv.status === 'pending_finance' ? "rgba(59,130,246,0.1)" : inv.status === 'unpaid' ? "rgba(249,115,22,0.1)" : "rgba(107,114,128,0.1)",
                                     color: inv.status === 'paid' ? "#22c55e" : inv.status === 'pending_finance' ? "#3b82f6" : inv.status === 'unpaid' ? "#fb923c" : "#9ca3af",
                                     textTransform: "uppercase"
@@ -1410,8 +1410,8 @@ export default function Orders() {
                                   <div style={{ borderTop: "1px solid rgba(249,115,22,0.15)", margin: "2px 0" }} />
                                   {/* Total */}
                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <span style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-primary)" }}>Total</span>
-                                    <span style={{ fontSize: 15, fontWeight: 900, color: "var(--ui-text-primary)" }}>IDR {Number(inv.total_amount || inv.amount).toLocaleString()}</span>
+                                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--ui-text-primary)" }}>Total</span>
+                                    <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ui-text-primary)" }}>IDR {Number(inv.total_amount || inv.amount).toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>Published: {inv.date}</div>
@@ -1436,7 +1436,7 @@ export default function Orders() {
                                     style={{
                                       width: "100%", padding: "8px 12px", borderRadius: 10,
                                       background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 600,
                                       cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                                       boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
                                     }}
@@ -1453,7 +1453,7 @@ export default function Orders() {
                                     style={{
                                       width: "100%", padding: "8px 12px", borderRadius: 10,
                                       background: "linear-gradient(135deg,#10b981,#059669)",
-                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+                                      color: "#fff", border: "none", fontSize: 11, fontWeight: 600,
                                       cursor: processingId === inv.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                                       boxShadow: "0 4px 12px rgba(16,185,129,0.2)",
                                     }}
@@ -1477,8 +1477,8 @@ export default function Orders() {
 
                       {/* Delivery Order (DO) Signatures & QR Section */}
                       {po.delivery_orders && po.delivery_orders.length > 0 && (
-                        <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ marginTop: 16, padding: 12, background: "var(--ui-bg-input)", borderRadius: 8 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                             <Package size={16} color="#3b82f6" />
                             Delivery Order (DO) Signatures
                           </div>
@@ -1489,7 +1489,7 @@ export default function Orders() {
                                 border: "1px solid var(--ui-border-input)", display: "flex", flexDirection: "column", gap: 12
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#3b82f6" }}>
+                                <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "#3b82f6" }}>
                                   {doItem.do_number}
                                 </span>
                                 <QRCodeDisplay text={getFullApiUrl(`/api/do/${doItem.id}/print`)} generateQR={generateQRCode} />
@@ -1530,8 +1530,8 @@ export default function Orders() {
 
                       {/* BAST Section */}
                       {company.type === 'vendor' && ['delivered', 'completed', 'done', 'paid'].includes(po.status) && (
-                        <div style={{ marginTop: 24, padding: 20, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 16 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ marginTop: 16, padding: 12, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 8 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                             <Signature size={16} color="#f97316" />
                             Berita Acara Serah Terima (BAST)
                           </div>
@@ -1540,7 +1540,7 @@ export default function Orders() {
                             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 12 }}>
                               <CheckCircle2 size={16} color="#22c55e" />
                               <div>
-                                <div style={{ fontSize: 12, fontWeight: 800, color: "#22c55e" }}>BAST Already Issued</div>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: "#22c55e" }}>BAST Already Issued</div>
                                 <div style={{ fontSize: 11, color: "var(--ui-text-muted)", marginTop: 2 }}>
                                   {po.basts[0].bast_number} · {po.basts[0].bast_date}
                                 </div>
@@ -1558,7 +1558,7 @@ export default function Orders() {
                                 style={{
                                   width: "100%", padding: "12px 16px", borderRadius: 12,
                                   background: "linear-gradient(135deg,#f97316,#f59e0b)",
-                                  color: "#fff", border: "none", fontSize: 12, fontWeight: 800,
+                                  color: "#fff", border: "none", fontSize: 12, fontWeight: 600,
                                   cursor: issuingBastId === po.id ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                                   boxShadow: "0 4px 12px rgba(249,115,22,0.2)", transition: "all 0.2s ease"
                                 }}
@@ -1579,8 +1579,8 @@ export default function Orders() {
                       )}
 
                       {/* BAST List Section - Show all BASTs for this PO */}
-                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ marginTop: 16, padding: 12, background: "var(--ui-bg-input)", borderRadius: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <Signature size={16} color="#f97316" />
                           BAST Documents for this PO
                         </div>
@@ -1594,7 +1594,7 @@ export default function Orders() {
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <span style={{ 
-                                    fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                                    fontSize: 11, fontWeight: 600, textTransform: "uppercase",
                                     color: "#f97316" 
                                   }}>
                                     📋 {bast.bast_number}
@@ -1655,8 +1655,8 @@ export default function Orders() {
                       </div>
 
                       {/* E-Faktur Section */}
-                      <div style={{ marginTop: 24, padding: 20, background: "var(--ui-bg-input)", borderRadius: 16 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ marginTop: 16, padding: 12, background: "var(--ui-bg-input)", borderRadius: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <FileText size={16} color="#3b82f6" />
                           E-Faktur Pajak for this PO
                         </div>
@@ -1670,13 +1670,13 @@ export default function Orders() {
                               }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <span style={{ 
-                                    fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                                    fontSize: 11, fontWeight: 600, textTransform: "uppercase",
                                     color: "#3b82f6" 
                                   }}>
                                     📄 {ef.nofa || "NOFA PENDING"}
                                   </span>
                                   <span style={{ 
-                                    fontSize: 11, fontWeight: 800,
+                                    fontSize: 11, fontWeight: 600,
                                     background: ef.status === "APPROVED" ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", 
                                     color: ef.status === "APPROVED" ? "#22c55e" : "#f97316",
                                     padding: "2px 8px",
@@ -1717,7 +1717,7 @@ export default function Orders() {
 
         {/* Pagination */}
         {lastPage > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, marginTop: 20 }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 20 }}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
