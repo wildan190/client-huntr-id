@@ -34,6 +34,14 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-6 w-full animate-in fade-in duration-500">
+      {/* Debug Info - Remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 text-xs">
+          <strong>Debug Info:</strong> Company Type: {company?.type || 'Unknown'} | 
+          Valid Roles: {company?.type === 'buyer' ? 'buyer, manager, finance' : 'admin, manager, finance'}
+        </div>
+      )}
+
       {/* Invite Section */}
       <div className="bg-orange-500/5 border border-orange-500/10 rounded-xl p-4 md:p-6">
         <div className="flex items-center gap-3 mb-6">
@@ -85,14 +93,21 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
             >
               <option value="">Select Role...</option>
               <option value="manager">Manager (Full Access)</option>
-              {company.type === 'buyer' ? (
+              {company?.type === 'buyer' ? (
                 <>
                   <option value="buyer">Buyer</option>
                   <option value="finance">Finance</option>
                 </>
-              ) : (
+              ) : company?.type === 'vendor' ? (
                 <>
                   <option value="admin">Admin</option>
+                  <option value="finance">Finance</option>
+                </>
+              ) : (
+                // Fallback for unknown company types
+                <>
+                  <option value="admin">Admin</option>
+                  <option value="buyer">Buyer</option>
                   <option value="finance">Finance</option>
                 </>
               )}
@@ -121,7 +136,28 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
             </div>
             <h3 className="text-base font-bold text-[var(--ui-text-primary)] m-0">Active Team</h3>
           </div>
-          <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-500 text-xs font-semibold">{teamMembers.length} Members</span>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-500 text-xs font-semibold">{teamMembers.length} Members</span>
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={async () => {
+                  try {
+                    const { diagnoseRoleInconsistencies } = await import('../../../lib/api/company');
+                    const result = await diagnoseRoleInconsistencies(company.id);
+                    console.log('Role Diagnosis:', result);
+                    alert(`Found ${result.inconsistencies_found} role inconsistencies. Check console for details.`);
+                  } catch (err) {
+                    console.error('Diagnosis failed:', err);
+                    alert('Diagnosis failed. Check console for details.');
+                  }
+                }}
+                className="px-2 py-1 rounded-md bg-blue-500/10 text-blue-600 text-xs font-semibold hover:bg-blue-500/20 transition-all"
+                title="Diagnose role inconsistencies"
+              >
+                Diagnose
+              </button>
+            )}
+          </div>
         </div>
 
         {teamLoading ? (
@@ -142,7 +178,13 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                   <div className="text-sm font-bold text-[var(--ui-text-primary)] truncate">{member.name || "Unnamed User"}</div>
                   <div className="text-xs text-[var(--ui-text-muted)] truncate">{member.email || member.whatsapp}</div>
                 </div>
-                <div className="px-2 py-1 rounded-md bg-orange-500/10 text-orange-500 text-[10px] font-semibold uppercase">
+                <div className={`px-2 py-1 rounded-md text-[10px] font-semibold uppercase ${
+                  // Highlight invalid role combinations in development
+                  process.env.NODE_ENV === 'development' && (
+                    (company?.type === 'buyer' && !['buyer', 'manager', 'finance'].includes(member.role)) ||
+                    (company?.type === 'vendor' && !['admin', 'manager', 'finance'].includes(member.role))
+                  ) ? 'bg-red-500/20 text-red-600 border border-red-500/30' : 'bg-orange-500/10 text-orange-500'
+                }`}>
                   {member.role}
                 </div>
               </div>
