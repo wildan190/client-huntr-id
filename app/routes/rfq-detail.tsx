@@ -6,6 +6,7 @@ import { getAssetUrl } from "../lib/assets";
 import { aiRankProposals } from "../lib/api/ai";
 import { useEventBusListener } from "../lib/EventBus";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
+import { useAppShell } from "./_app";
 import { 
   ArrowLeft, Calendar, Building2, Package, User, ClipboardList, MapPin, 
   Loader2, AlertCircle, ShieldCheck, ChevronRight, Award, Trophy, Info, CheckCircle2,
@@ -187,19 +188,22 @@ export default function RfqDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
+  const { user, company } = useAppShell();
   const [rfq, setRfq] = useState<any>(null);
   const [rankings, setRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCompany, setActiveCompany] = useState<any>(null);
   const [awardingProposal, setAwardingProposal] = useState<string | number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Double submit prevention
   const isProcessing = useRef(false);
 
-  const isBuyer = activeCompany?.type === 'buyer';
-  const isVendor = activeCompany?.type === 'vendor';
+  const isBuyer = company?.type === 'buyer';
+  const isVendor = company?.type === 'vendor';
+  const isOwner = company?.owner_id === user?.id;
+  const isManager = user?.role === "manager" || isOwner;
+  const canApproveOrAward = isBuyer && isManager;
 
   // Negotiation State
   const [showNegModal, setShowNegModal] = useState(false);
@@ -260,11 +264,6 @@ export default function RfqDetail() {
   };
 
   useEffect(() => {
-    const companySession = localStorage.getItem("active_company");
-    if (companySession) {
-      setActiveCompany(JSON.parse(companySession));
-    }
-
     if (!id || id === "NaN" || id === "undefined") {
       setError("Invalid RFQ ID.");
       setLoading(false);
@@ -574,7 +573,7 @@ export default function RfqDetail() {
                             <div style={{ fontWeight: 600, color: "var(--ui-text-primary)", fontSize: 14, textTransform: "uppercase", letterSpacing: 1 }}>Participant Rankings & Evaluation</div>
                           </div>
                           {/* AI Analyse Button */}
-                          {isBuyer && (
+                          {canApproveOrAward && (
                             <button
                               onClick={handleAiRank}
                               disabled={aiRankLoading}
@@ -655,7 +654,7 @@ export default function RfqDetail() {
                                   </div>
                                 </div>
                               </div>
-                              {isBuyer && !isRfqAlreadyAwarded && (
+                              {canApproveOrAward && !isRfqAlreadyAwarded && (
                                 <div style={{ display: "flex", gap: 8 }}>
                                   <button
                                     onClick={() => {
@@ -753,7 +752,7 @@ export default function RfqDetail() {
                                   </div>
 
                                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                    {isBuyer && !isRfqAlreadyAwarded && (
+                                    {canApproveOrAward && !isRfqAlreadyAwarded && (
                                       <div style={{ display: "flex", gap: 8 }}>
                                         <button
                                           onClick={() => {
@@ -1302,7 +1301,7 @@ export default function RfqDetail() {
               )}
 
               {/* Invite Vendor Card (Buyer Only) */}
-              {isBuyer && rfq && (rfq.status === 'active' || rfq.status === 'draft') && !isTenderExpired() && (
+              {canApproveOrAward && rfq && (rfq.status === 'active' || rfq.status === 'draft') && !isTenderExpired() && (
                 <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 16 }}>
                     <div style={{ background: "rgba(249,115,22,0.1)", color: "#f97316", padding: 8, borderRadius: 10 }}>

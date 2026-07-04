@@ -245,6 +245,9 @@ export default function AppShell() {
   const isAdminRole = user?.role === "admin";
   const isBuyerComp = activeCompany?.type === "buyer";
   const isVendorComp = activeCompany?.type === "vendor";
+  
+  // Only true managers (not buyer, not finance) can approve
+  const canManageApprovals = isBuyerComp && (user?.role === "manager" || isOwner) && !isFinance && !isBuyerRole;
 
   // ── Nav items ─────────────────────────────────────────────────────────────
   const isPendingCompany = activeCompany?.status === "pending";
@@ -261,13 +264,13 @@ export default function AppShell() {
       ...(isBuyerComp && (isManager || isBuyerRole) ? [
         { to: "/marketplace", label: "Huntr Catalog", Icon: Package, section: "procurement" },
       ] : []),
-      ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
+      ...(isBuyerComp && (isManager || isBuyerRole) ? [
         { to: "/my-pr", label: "My PR", Icon: ClipboardList, section: "procurement", badge: "pendingNewProposals" },
       ] : []),
-      ...(isBuyerComp && isManager ? [
+      ...(canManageApprovals ? [
         { to: "/approvals", label: "Approvals", Icon: CheckCircle2, section: "procurement", badge: "pendingApprovals" },
       ] : []),
-      ...(isBuyerComp && (isManager || isBuyerRole || isFinance) ? [
+      ...(isBuyerComp && (isManager || isBuyerRole) ? [
         { to: "/pr-audit", label: "PR Audit Log", Icon: History, section: "procurement" },
       ] : []),
 
@@ -297,7 +300,7 @@ export default function AppShell() {
       { to: "/debit-notes", label: "Debit Notes", Icon: Briefcase, section: "orders", badge: "pendingDebitNotes" },
 
       // Finance
-      ...(isBuyerComp && (isManager || isFinance) ? [
+      ...(canManageApprovals ? [
         { to: "/finance", label: "Finance Approval", Icon: Briefcase, section: "finance", badge: "financeApprovals" },
       ] : []),
       { to: "/payment-history", label: "Payment History", Icon: History, section: "finance" },
