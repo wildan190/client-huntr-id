@@ -648,7 +648,7 @@ export default function AppShell() {
       </aside>
 
       <div className="huntr-main">
-        <header className={`huntr-main-header${showNotifications ? ' blurred' : ''}`}>
+        <header className="huntr-main-header">
           <div className="huntr-header-leading">
             <button type="button" className="huntr-menu-btn" onClick={() => setSidebarOpen(true)} aria-label="Open navigation menu">
               <Menu size={20} />
@@ -839,7 +839,7 @@ export default function AppShell() {
         {/* Child routes render here — only this area changes on navigation */}
         <div className="huntr-page-content">
           {activeCompany && activeCompany.status === "pending" && pathname !== "/company" ? (
-            <div className="huntr-pending-gate" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center", background: "var(--ui-bg-pending-card)", border: "1px solid var(--ui-border)", borderRadius: "32px", backdropFilter: "blur(20px)", boxShadow: "0 24px 60px rgba(0,0,0,0.15)", gap: "24px" }}>
+            <div className="huntr-pending-gate" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center", background: "var(--ui-bg-pending-card)", border: "1px solid var(--ui-border)", borderRadius: "32px", boxShadow: "0 24px 60px rgba(0,0,0,0.15)", gap: "24px" }}>
               <div style={{ width: 80, height: 80, borderRadius: "24px", background: "rgba(251, 191, 36, 0.1)", border: "1px solid rgba(251, 191, 36, 0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 30px rgba(251,191,36,0.1)", color: "#fbbf24" }}>
                 <Building2 size={42} style={{ animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite" }} />
               </div>
