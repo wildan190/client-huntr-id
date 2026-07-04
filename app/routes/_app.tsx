@@ -739,19 +739,6 @@ export default function AppShell() {
               {showNotifications && (
                 <>
                   <div 
-                    className="huntr-notif-backdrop enhanced" 
-                    onClick={closeNotifications} 
-                    style={{ 
-                      position: "fixed", 
-                      inset: 0, 
-                      zIndex: 99998,
-                      cursor: "pointer"
-                    }} 
-                    aria-hidden="true"
-                    role="button"
-                    tabIndex={-1}
-                  />
-                  <div 
                     className="huntr-notif-dropdown" 
                     onClick={(e) => e.stopPropagation()}
                     role="dialog"

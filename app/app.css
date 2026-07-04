@@ -234,30 +234,6 @@ body {
   transform: translateX(4px);
 }
 
-/* Backdrop fade animation without blur */
-.huntr-notif-backdrop {
-  animation: fadeIn 0.15s ease-out;
-}
-
-/* Simple backdrop animation without blur effects */
-.huntr-notif-backdrop.enhanced {
-  animation: simpleFadeIn 0.15s ease-out forwards;
-}
-
-@keyframes simpleFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Enhanced notification backdrop without blur effects */
-.huntr-notif-backdrop.enhanced {
-  background: rgba(0, 0, 0, 0.15);
-}
-
 /* Notification item improvements */
 .huntr-notif-item {
   transition: all 0.15s ease;
