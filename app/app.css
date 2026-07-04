@@ -238,3 +238,27 @@ body {
 .huntr-notif-backdrop {
   animation: fadeIn 0.15s ease-out;
 }
+
+/* Enhanced notification backdrop with blur effects */
+.huntr-notif-backdrop.enhanced {
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Blur effect for header when notifications are open */
+.huntr-main-header.blurred {
+  filter: blur(2px);
+  transition: filter 0.2s ease;
+}
+
+/* Ensure notification dropdown is not blurred */
+.huntr-notif-dropdown {
+  position: relative;
+  z-index: 100000;
+}
+
+/* Smooth transition for header blur */
+.huntr-main-header {
+  transition: filter 0.2s ease;
+}
