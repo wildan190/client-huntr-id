@@ -3,36 +3,34 @@ import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
 import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle, Trophy, Building2, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useAppShell } from "../routes/_app";
 import Swal from "sweetalert2";
 
 export default function Approvals() {
   const navigate = useNavigate();
+  const { user, company: activeCompany } = useAppShell();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [activeCompany, setActiveCompany] = useState<any>(null);
+
+  // Role checking
+  const isOwner = activeCompany?.owner_id === user?.id;
+  const isManager = user?.role === "manager" || isOwner;
+  const isBuyerRole = user?.role === "buyer";
+  const isBuyerComp = activeCompany?.type === "buyer";
 
   useEffect(() => {
-    const userSession = localStorage.getItem("user_session");
-    const companySession = localStorage.getItem("active_company");
+    if (!user || !activeCompany) return;
     
-    if (userSession && companySession) {
-      const u = JSON.parse(userSession);
-      const c = JSON.parse(companySession);
-      setUser(u);
-      setActiveCompany(c);
-      
-      const isOwner = c.owner_id === u.id;
-      if (u.role !== 'manager' && !isOwner || c.type !== 'buyer') {
-        navigate("/");
-        return;
-      }
-
-      fetchPendingRequests(c.id);
-      fetchAwardedProposals(c.id);
+    // Only managers and owners can access approvals, never buyers
+    if (isBuyerRole || !isManager || !isBuyerComp) {
+      navigate("/");
+      return;
     }
-  }, []);
+
+    fetchPendingRequests(activeCompany.id);
+    fetchAwardedProposals(activeCompany.id);
+  }, [user, activeCompany, isManager, isBuyerRole, isBuyerComp]);
 
   const [awardedProposals, setAwardedProposals] = useState<any[]>([]);
 
@@ -204,28 +202,33 @@ export default function Approvals() {
                     >
                       <Package size={14} /> View Details
                     </button>
-                    <button 
-                      onClick={() => handleReject(req.id)}
-                      disabled={processingId === req.id}
-                      style={{
-                        padding: "10px 16px", borderRadius: 12, background: "rgba(239,68,68,0.1)",
-                        border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontWeight: 700,
-                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
-                      }}
-                    >
-                      <XCircle size={14} /> Reject
-                    </button>
-                    <button 
-                      onClick={() => handleApprove(req.id)}
-                      disabled={processingId === req.id}
-                      style={{
-                        padding: "10px 20px", borderRadius: 12, background: "rgba(34,197,94,0.1)",
-                        border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e", fontWeight: 700,
-                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
-                      }}
-                    >
-                      {processingId === req.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Publish
-                    </button>
+                    {/* Only show approve/reject buttons for managers and owners */}
+                    {isManager && !isBuyerRole && (
+                      <>
+                        <button 
+                          onClick={() => handleReject(req.id)}
+                          disabled={processingId === req.id}
+                          style={{
+                            padding: "10px 16px", borderRadius: 12, background: "rgba(239,68,68,0.1)",
+                            border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontWeight: 700,
+                            fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
+                          }}
+                        >
+                          <XCircle size={14} /> Reject
+                        </button>
+                        <button 
+                          onClick={() => handleApprove(req.id)}
+                          disabled={processingId === req.id}
+                          style={{
+                            padding: "10px 20px", borderRadius: 12, background: "rgba(34,197,94,0.1)",
+                            border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e", fontWeight: 700,
+                            fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8
+                          }}
+                        >
+                          {processingId === req.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Publish
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -303,18 +306,21 @@ export default function Approvals() {
                     >
                       <Package size={14} /> View PR
                     </button>
-                    <button 
-                      onClick={() => handleApproveWinner(proposal.id)}
-                      disabled={processingId === proposal.id}
-                      style={{
-                        padding: "10px 20px", borderRadius: 12, background: "var(--huntr-orange)",
-                        border: "none", color: "#fff", fontWeight: 700,
-                        fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                        boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
-                      }}
-                    >
-                      {processingId === proposal.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Generate PO
-                    </button>
+                    {/* Only show approve PO button for managers and owners */}
+                    {isManager && !isBuyerRole && (
+                      <button 
+                        onClick={() => handleApproveWinner(proposal.id)}
+                        disabled={processingId === proposal.id}
+                        style={{
+                          padding: "10px 20px", borderRadius: 12, background: "var(--huntr-orange)",
+                          border: "none", color: "#fff", fontWeight: 700,
+                          fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                          boxShadow: "0 4px 12px rgba(249,115,22,0.2)"
+                        }}
+                      >
+                        {processingId === proposal.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve & Generate PO
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
