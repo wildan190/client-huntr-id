@@ -204,12 +204,28 @@ export default function AppShell() {
       }
     };
 
+    const handleClickOutside = (e: MouseEvent) => {
+      // Additional safeguard for click outside (if backdrop fails)
+      if (showNotifications && notifButtonRef.current && !notifButtonRef.current.contains(e.target as Node)) {
+        const dropdown = document.querySelector('.huntr-notif-dropdown');
+        if (dropdown && !dropdown.contains(e.target as Node)) {
+          setShowNotifications(false);
+        }
+      }
+    };
+
     if (showNotifications) {
       document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener('mousedown', handleClickOutside);
+      // Prevent body scroll when notifications are open
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener('mousedown', handleClickOutside);
+      // Restore body scroll
+      document.body.style.overflow = '';
     };
   }, [showNotifications]);
 
@@ -445,6 +461,22 @@ export default function AppShell() {
     setShowNotifications(false);
   }, []);
 
+  // Focus management for notifications
+  useEffect(() => {
+    if (showNotifications && !isMobile) {
+      // Focus the first notification item or the dropdown itself
+      const dropdown = document.querySelector('.huntr-notif-dropdown');
+      if (dropdown) {
+        const firstItem = dropdown.querySelector('button, [tabindex="0"]');
+        if (firstItem) {
+          (firstItem as HTMLElement).focus();
+        } else {
+          (dropdown as HTMLElement).focus();
+        }
+      }
+    }
+  }, [showNotifications, isMobile]);
+
   // ── Sidebar JSX ──────────────────────────────────────────────────────────
   const sectionLabels: Record<string, string> = {
     main: "Main",
@@ -616,7 +648,7 @@ export default function AppShell() {
       </aside>
 
       <div className="huntr-main">
-        <header className="huntr-main-header">
+        <header className={`huntr-main-header${showNotifications ? ' blurred' : ''}`}>
           <div className="huntr-header-leading">
             <button type="button" className="huntr-menu-btn" onClick={() => setSidebarOpen(true)} aria-label="Open navigation menu">
               <Menu size={20} />
@@ -707,28 +739,38 @@ export default function AppShell() {
               {showNotifications && (
                 <>
                   <div 
-                    className="huntr-notif-backdrop" 
+                    className="huntr-notif-backdrop enhanced" 
                     onClick={closeNotifications} 
                     style={{ 
                       position: "fixed", 
                       inset: 0, 
-                      zIndex: 99998, 
-                      background: "rgba(0, 0, 0, 0.1)", 
-                      backdropFilter: "blur(2px)",
-                      WebkitBackdropFilter: "blur(2px)"
+                      zIndex: 99998,
+                      cursor: "pointer"
                     }} 
                     aria-hidden="true"
+                    role="button"
+                    tabIndex={-1}
                   />
                   <div 
                     className="huntr-notif-dropdown" 
                     onClick={(e) => e.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="notifications-title"
+                    tabIndex={-1}
                     style={{ 
                       background: "var(--ui-bg-card)", 
                       borderRadius: 20, 
                       border: "1px solid var(--ui-border)", 
                       boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
                       zIndex: 99999, 
-                      overflow: "hidden" 
+                      overflow: "hidden",
+                      position: "absolute",
+                      top: "calc(100% + 12px)",
+                      right: 0,
+                      width: "400px",
+                      maxWidth: "90vw",
+                      outline: "none"
                     }}
                   >
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
