@@ -136,9 +136,13 @@ export async function apiDelete<T = any>(path: string): Promise<T> {
 export async function apiPostForm<T = any>(path: string, formData: FormData): Promise<T> {
   console.log(`[API] POST Form ${path}`);
   try {
+    const headers = getAuthHeaders();
+    // Remove Content-Type header to let browser set it automatically with boundary
+    delete headers['Content-Type'];
+    
     const res = await fetch(`${BASE_URL}${path}`, {
       method: "POST",
-      headers: getAuthHeaders(),
+      headers,
       body: formData,
       credentials: "include",
     });

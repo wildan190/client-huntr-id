@@ -771,39 +771,116 @@ export default function MyPurchaseRequisitionDetail() {
                   </div>
                   {request.status === "pending_approval" && activeCompany?.owner_id === localStorage.getItem("user_session") ? null : (
                     request.status === "pending_approval" && (
-                      <button
-                        onClick={async () => {
-                          const userSession = localStorage.getItem("user_session");
-                          const user = userSession ? JSON.parse(userSession) : null;
-                          if (!user) return;
-                          try {
-                            await apiPost(`/api/rfqs/${request.id}/approve`, { manager_id: user.id });
-                            Swal.fire({
-                              icon: 'success',
-                              title: 'Approved!',
-                              text: '✓ PR Approved & Published as Global RFQ.',
-                              timer: 2000,
-                              showConfirmButton: false
+                      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                        <button
+                          onClick={async () => {
+                            const userSession = localStorage.getItem("user_session");
+                            const user = userSession ? JSON.parse(userSession) : null;
+                            if (!user) {
+                              console.error("No user session found");
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Authentication Error',
+                                text: 'Please log in again to reject this PR.'
+                              });
+                              return;
+                            }
+                            
+                            // Show rejection reason dialog
+                            const { value: reason, isConfirmed } = await Swal.fire({
+                              title: 'Reject Purchase Request',
+                              html: `
+                                <p style="margin-bottom: 16px; color: #6b7280;">Please provide a reason for rejecting this PR:</p>
+                                <textarea 
+                                  id="rejection-reason" 
+                                  class="swal2-textarea" 
+                                  placeholder="Enter rejection reason (optional)..."
+                                  style="min-height: 80px; resize: vertical; width: 100%; box-sizing: border-box;"
+                                ></textarea>
+                              `,
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonText: 'Reject PR',
+                              confirmButtonColor: '#ef4444',
+                              cancelButtonText: 'Cancel',
+                              preConfirm: () => {
+                                const textarea = document.getElementById('rejection-reason') as HTMLTextAreaElement;
+                                return textarea?.value || '';
+                              }
                             });
-                            // Reload detail
-                            getRfq(request.id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
-                          } catch (err) {
-                            console.error(err);
-                            Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Failed to approve. Check permissions.'
-                            });
-                          }
-                        }}
-                        style={{
-                          width: "100%", marginTop: 14, padding: "10px", borderRadius: 10,
-                          background: "#22c55e", border: "none", color: "#fff", fontWeight: 800,
-                          fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6
-                        }}
-                      >
-                        <CheckCircle2 size={14} /> Approve & Publish PR
-                      </button>
+
+                            if (!isConfirmed) return;
+
+                            try {
+                              console.log("Sending reject request with data:", { 
+                                reason: reason || null
+                              });
+                              
+                              await apiPost(`/api/rfqs/${request.id}/reject`, { 
+                                reason: reason || null
+                              });
+                              
+                              Swal.fire({
+                                icon: 'success',
+                                title: 'PR Rejected',
+                                text: 'Purchase Request has been rejected successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                              });
+                              
+                              // Reload detail to show updated status
+                              getRfq(request.id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
+                            } catch (err: any) {
+                              console.error(err);
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: err.response?.data?.message || 'Failed to reject PR. Check permissions.'
+                              });
+                            }
+                          }}
+                          style={{
+                            flex: 1, padding: "10px", borderRadius: 10,
+                            background: "transparent", border: "2px solid #ef4444", color: "#ef4444", fontWeight: 800,
+                            fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                          }}
+                        >
+                          <XCircle size={14} /> Reject PR
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const userSession = localStorage.getItem("user_session");
+                            const user = userSession ? JSON.parse(userSession) : null;
+                            if (!user) return;
+                            try {
+                              await apiPost(`/api/rfqs/${request.id}/approve`, { manager_id: user.id });
+                              Swal.fire({
+                                icon: 'success',
+                                title: 'Approved!',
+                                text: '✓ PR Approved & Published as Global RFQ.',
+                                timer: 2000,
+                                showConfirmButton: false
+                              });
+                              // Reload detail
+                              getRfq(request.id).then(res => setRequest(res?.rfq ?? res?.data ?? res));
+                            } catch (err) {
+                              console.error(err);
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to approve. Check permissions.'
+                              });
+                            }
+                          }}
+                          style={{
+                            flex: 2, padding: "10px", borderRadius: 10,
+                            background: "#22c55e", border: "none", color: "#fff", fontWeight: 800,
+                            fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6
+                          }}
+                        >
+                          <CheckCircle2 size={14} /> Approve & Publish PR
+                        </button>
+                      </div>
                     )
                   )}
                 </div>

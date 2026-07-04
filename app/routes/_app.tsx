@@ -196,6 +196,23 @@ export default function AppShell() {
     if (isMobile) setSidebarOpen(false);
   }, [pathname, isMobile]);
 
+  // ── Enhanced notification close functionality ────────────────────────────
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showNotifications) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showNotifications]);
+
   // ── Lock body scroll when mobile sidebar open ─────────────────────────────
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -365,7 +382,7 @@ export default function AppShell() {
         await markNotificationAsRead(n.id, user.id);
         fetchUnreadCount(user.id);
       }
-      setShowNotifications(false);
+      closeNotifications();
       if (n.data?.url) navigate(n.data.url);
     } catch (err) {
       console.error("Failed to handle notification click", err);
@@ -414,6 +431,19 @@ export default function AppShell() {
 
   const closeSidebar = () => setSidebarOpen(false);
   const handleNavClick = () => { if (isMobile) closeSidebar(); };
+
+  // ── Enhanced notification handlers ───────────────────────────────────────
+  const handleNotificationToggle = useCallback(() => {
+    if (isMobile) {
+      navigate("/notifications");
+    } else {
+      setShowNotifications(!showNotifications);
+    }
+  }, [isMobile, navigate, showNotifications]);
+
+  const closeNotifications = useCallback(() => {
+    setShowNotifications(false);
+  }, []);
 
   // ── Sidebar JSX ──────────────────────────────────────────────────────────
   const sectionLabels: Record<string, string> = {
@@ -647,14 +677,25 @@ export default function AppShell() {
             )}
             {/* Notification Bell */}
             <div style={{ position: "relative" }}>
-              <button ref={notifButtonRef} onClick={() => {
-                if (isMobile) {
-                  navigate("/notifications");
-                } else {
-                  setShowNotifications(!showNotifications);
-                }
-              }}
-                style={{ position: "relative", width: 40, height: 40, borderRadius: 12, background: "var(--ui-toggle-bg)", border: "1px solid var(--ui-toggle-border)", color: unreadCount > 0 ? "#fb923c" : "var(--ui-text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>
+              <button 
+                ref={notifButtonRef} 
+                onClick={handleNotificationToggle}
+                aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+                style={{ 
+                  position: "relative", 
+                  width: 40, 
+                  height: 40, 
+                  borderRadius: 12, 
+                  background: "var(--ui-toggle-bg)", 
+                  border: "1px solid var(--ui-toggle-border)", 
+                  color: unreadCount > 0 ? "#fb923c" : "var(--ui-text-muted)", 
+                  cursor: "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  transition: "all 0.2s" 
+                }}
+              >
                 <Bell size={18} fill={unreadCount > 0 ? "rgba(249,115,22,0.2)" : "none"} />
                 {unreadCount > 0 && (
                   <span style={{ position: "absolute", top: -4, right: -4, minWidth: 18, height: 18, borderRadius: 9, background: "#f59e0b", border: "2px solid var(--ui-notif-badge-border)", color: "#fff", fontSize: 9, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
@@ -665,8 +706,31 @@ export default function AppShell() {
 
               {showNotifications && (
                 <>
-                  <div onClick={() => setShowNotifications(false)} style={{ position: "fixed", inset: 0, zIndex: 99998 }} />
-                  <div className="huntr-notif-dropdown" style={{ background: "var(--ui-bg-card)", borderRadius: 20, border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", zIndex: 99999, overflow: "hidden" }}>
+                  <div 
+                    className="huntr-notif-backdrop" 
+                    onClick={closeNotifications} 
+                    style={{ 
+                      position: "fixed", 
+                      inset: 0, 
+                      zIndex: 99998, 
+                      background: "rgba(0, 0, 0, 0.1)", 
+                      backdropFilter: "blur(2px)",
+                      WebkitBackdropFilter: "blur(2px)"
+                    }} 
+                    aria-hidden="true"
+                  />
+                  <div 
+                    className="huntr-notif-dropdown" 
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ 
+                      background: "var(--ui-bg-card)", 
+                      borderRadius: 20, 
+                      border: "1px solid var(--ui-border)", 
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.5)", 
+                      zIndex: 99999, 
+                      overflow: "hidden" 
+                    }}
+                  >
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Notifications</span>
@@ -689,7 +753,7 @@ export default function AppShell() {
                         ))
                       )}
                     </div>
-                    <button onClick={() => { navigate("/notifications"); setShowNotifications(false); }}
+                    <button onClick={() => { navigate("/notifications"); closeNotifications(); }}
                       style={{ width: "100%", padding: "12px", background: "var(--ui-bg-overlay)", border: "none", color: "#f59e0b", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                       View All Notifications
                     </button>

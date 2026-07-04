@@ -120,8 +120,30 @@ export default function Checkout() {
       formData.append("status", "pending_approval");
       formData.append("delivery_point", deliveryPoint);
       
+      // File upload with validation
       if (prDocument) {
+        // Validate file size (10MB max)
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (prDocument.size > maxSize) {
+          setError("File size must be less than 10MB.");
+          return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(prDocument.type)) {
+          setError("Only PDF, DOC, DOCX, JPG, and PNG files are allowed.");
+          return;
+        }
+        
+        console.log("Uploading file:", prDocument.name, "Type:", prDocument.type, "Size:", prDocument.size);
         formData.append("document", prDocument);
+      }
+
+      // Add cart items with proper validation
+      if (cart.length === 0) {
+        setError("Please add at least one item to your cart.");
+        return;
       }
 
       cart.forEach((item, index) => {
@@ -131,13 +153,20 @@ export default function Checkout() {
         formData.append(`items[${index}][expected_date]`, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
       });
 
+      console.log("Submitting PR with FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
       await createRfq(formData);
       
       localStorage.removeItem("huntr_cart");
       setSuccess(true);
       setTimeout(() => navigate("/my-pr"), 3000);
     } catch (err: any) {
-      setError(err.message || "Failed to create Purchase Request.");
+      console.error("PR Creation Error:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Failed to create Purchase Request.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

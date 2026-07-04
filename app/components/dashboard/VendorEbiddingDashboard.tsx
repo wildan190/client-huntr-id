@@ -137,46 +137,49 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
           <CurrencyWidget embedded />
         </section>
 
-        {/* Stat cards compact row — small widgets for numbers only */}
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
-          {/* Company info card */}
+        {/* Stat cards compact row — all cards uniform small size */}
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10 }}>
+          {/* Company */}
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #f97316" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Company</div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeCompany?.name || "—"}</div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeCompany?.name || "—"}</div>
             <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 3 }}>{user?.name}</div>
           </div>
-          <SummaryWidget
-            label="Total Tender Diikuti"
-            value={loading ? "..." : String(participatedCount)}
-            hint="Tender unik yang sudah pernah Anda submit"
-            icon={ClipboardList}
-          />
-          <SummaryWidget
-            label="Menang Tender"
-            value={loading ? "..." : `${wins}`}
-            hint={`${winRate}% win rate`}
-            icon={Trophy}
-            accent="green"
-          />
-          <SummaryWidget
-            label="Deadline Terdekat"
-            value={loading ? "..." : countdown}
-            hint="RFQ aktif paling dekat"
-            icon={Timer}
-            accent="blue"
-          />
-          {/* Quick stats — compact number cells */}
+          {/* Total Tender */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Total Diikuti</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : String(participatedCount)}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Tender unik</div>
+          </div>
+          {/* Wins */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Menang</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "#34d399", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : `${wins}`}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>{winRate}% win rate</div>
+          </div>
+          {/* Deadline */}
+          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Deadline Terdekat</div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: "#60a5fa", marginTop: 4, lineHeight: 1.2 }}>{loading ? "..." : countdown}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>RFQ aktif</div>
+          </div>
+          {/* Open Tenders */}
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Open Tenders</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fb923c", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "#fb923c", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Aktif saat ini</div>
           </div>
+          {/* Submitted */}
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Submitted</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#60a5fa", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : vendorProposals.length}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "#a78bfa", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : vendorProposals.length}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Proposal terkirim</div>
           </div>
+          {/* Drafts */}
           <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Drafts</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0)}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: "var(--ui-text-primary)", marginTop: 4, lineHeight: 1 }}>{loading ? "..." : Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0)}</div>
+            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>Belum disubmit</div>
           </div>
         </section>
 
