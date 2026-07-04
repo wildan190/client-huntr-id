@@ -12,10 +12,13 @@ interface PRActionsProps {
 
 export function PRActions({ request, user, activeCompany, onUpdate }: PRActionsProps) {
   const isOwner = activeCompany?.owner_id === user?.id;
-  const isManager = user?.role === "manager";
+  const isManager = user?.role === "manager" || isOwner;
+  const isBuyerRole = user?.role === "buyer";
+  const isBuyerComp = activeCompany?.type === "buyer";
   
-  // Only show approve/reject buttons for managers or owners, and only when status is pending_approval
-  if (request.status !== "pending_approval" || (!isManager && !isOwner)) {
+  // Only show approve/reject buttons for managers or owners (never buyers), and only when status is pending_approval
+  // Buyers should never see these buttons regardless of company type
+  if (request.status !== "pending_approval" || isBuyerRole || (!isManager)) {
     return null;
   }
 
