@@ -322,7 +322,26 @@ export default function Proposals() {
   const fetchVendorSubmissions = async (companyId: string | number) => {
     try {
       const data = await apiGet(`/api/proposals/my-rank?company_id=${companyId}`);
-      const rankings = Array.isArray(data) ? data : data.rankings || [];
+      const rankings = data.rankings || [];
+      
+      // Transform rankings to match expected proposal structure
+      const submissions = rankings.map((ranking: any) => ({
+        id: `ranking-${ranking.rfq_id}`, // Use a unique ID
+        rfq_id: ranking.rfq_id,
+        rfq: {
+          title: ranking.rfq_title
+        },
+        price_offer: ranking.my_price,
+        delivery_days: "N/A", // Not available in ranking data
+        payment_term: "N/A", // Not available in ranking data
+        created_at: ranking.submitted_at,
+        rank: ranking.my_rank,
+        total_participants: ranking.total_participants,
+        is_winner: ranking.is_winner,
+        buyer_name: ranking.buyer_name
+      }));
+      
+      setVendorSubmissions(submissions);
       setVendorSubmittedRfqIds(rankings.map((item: any) => String(item.rfq_id)));
     } catch (err) {
       console.error("Failed to fetch vendor submissions", err);
@@ -620,15 +639,27 @@ export default function Proposals() {
                     vendorSubmissions.map(p => (
                       <div key={p.id} style={{ ...cardStyle, cursor: "default" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          <div>
+                          <div style={{ flex: 1 }}>
                             <h4 style={{ fontSize: 16, fontWeight: 800, color: "var(--ui-text-primary)", margin: 0 }}>{p.rfq?.title}</h4>
-                            <p style={{ fontSize: 12, color: "var(--ui-text-brand)", fontWeight: 700, marginTop: 4 }}>Total Bid: Rp {Number(p.price_offer).toLocaleString()}</p>
+                            <p style={{ fontSize: 12, color: "var(--ui-text-muted)", margin: "4px 0" }}>Buyer: {p.buyer_name}</p>
+                            <p style={{ fontSize: 12, color: "var(--ui-text-brand)", fontWeight: 700, margin: "4px 0" }}>Your Bid: Rp {Number(p.price_offer).toLocaleString()}</p>
                           </div>
-                          <div style={{ ...badgeStyle, background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>SUBMITTED</div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ 
+                              ...badgeStyle, 
+                              background: p.is_winner ? "rgba(34,197,94,0.1)" : p.rank <= 3 ? "rgba(249,115,22,0.1)" : "rgba(107,114,128,0.1)",
+                              color: p.is_winner ? "#22c55e" : p.rank <= 3 ? "#f97316" : "#6b7280"
+                            }}>
+                              {p.is_winner ? "WINNER" : `RANK #${p.rank}`}
+                            </div>
+                            <div style={{ fontSize: 10, color: "var(--ui-text-muted)", marginTop: 4 }}>
+                              of {p.total_participants} vendors
+                            </div>
+                          </div>
                         </div>
                         <div style={{ display: "flex", gap: 20, marginTop: 16, padding: "16px 0", borderTop: "1px solid var(--ui-border)" }}>
-                          <div style={itemDetailStyle}><Clock size={14} /> {p.delivery_days} Days</div>
-                          <div style={itemDetailStyle}><ShieldCheck size={14} /> {p.payment_term}</div>
+                          <div style={itemDetailStyle}><Trophy size={14} /> Rank #{p.rank}</div>
+                          <div style={itemDetailStyle}><Package size={14} /> {p.total_participants} Participants</div>
                           <div style={itemDetailStyle}><Calendar size={14} /> {new Date(p.created_at).toLocaleDateString()}</div>
                         </div>
                       </div>
@@ -938,21 +969,30 @@ const formFooterStyle: React.CSSProperties = {
   display: "flex", justifyContent: "flex-end", gap: 16
 };
 
+const emptyStateStyle: React.CSSProperties = {
+  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", 
+  padding: "60px 0", background: "var(--ui-bg-input)", borderRadius: 32, 
+  border: "1px dashed var(--ui-border)", textAlign: "center"
+};
+
 const primaryBtnStyle: React.CSSProperties = {
-  padding: "12px 24px", borderRadius: 12, background: "var(--huntr-gradient)",
-  border: "none", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer",
-  display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(249,115,22,0.2)",
-  transition: "all 0.2s ease"
+  padding: "12px 20px", borderRadius: 12, background: "var(--huntr-gradient)",
+  border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
+  boxShadow: "0 4px 12px rgba(249,115,22,0.2)", display: "flex", alignItems: "center",
+  justifyContent: "center", transition: "all 0.2s"
 };
 
 const secondaryBtnStyle: React.CSSProperties = {
-  padding: "10px 16px", borderRadius: 10, background: "var(--ui-bg-input)",
-  border: "1px solid var(--ui-border)", color: "var(--ui-text-primary)", fontWeight: 700, fontSize: 13, cursor: "pointer"
+  padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
+  border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", 
+  fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", 
+  alignItems: "center", transition: "all 0.2s"
 };
 
-const emptyStateStyle: React.CSSProperties = {
-  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-  padding: 80, background: "var(--ui-bg-card)", borderRadius: 24, border: "1px dashed var(--ui-border)"
+const errorBoxStyle: React.CSSProperties = {
+  background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)",
+  borderRadius: 12, padding: 12, color: "#ef4444", fontSize: 13, fontWeight: 600,
+  display: "flex", alignItems: "center", gap: 8
 };
 
 const floatingSuccessStyle: React.CSSProperties = {
@@ -964,10 +1004,4 @@ const floatingSuccessStyle: React.CSSProperties = {
 const closeButtonStyle: React.CSSProperties = {
   background: "rgba(0,0,0,0.1)", border: "none", color: "#fff", cursor: "pointer",
   width: 20, height: 20, borderRadius: "50%", fontWeight: 900, fontSize: 14
-};
-
-const errorBoxStyle: React.CSSProperties = {
-  background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)",
-  borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#f87171",
-  display: "flex", alignItems: "center", gap: 8, fontWeight: 600
 };

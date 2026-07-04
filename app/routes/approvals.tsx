@@ -74,7 +74,7 @@ export default function Approvals() {
     if (!user) return;
     setProcessingId(rfqId);
     try {
-      await apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: user.id });
+      await apiPost(`/api/rfqs/${rfqId}/approve`, {});
       setRequests(prev => prev.filter(r => r.id !== rfqId));
       Swal.fire({
         icon: 'success',
@@ -124,8 +124,7 @@ export default function Approvals() {
     setProcessingId(rfqId);
     try {
       await apiPost(`/api/rfqs/${rfqId}/reject`, { 
-        manager_id: user.id,
-        rejection_reason: reason 
+        reason: reason 
       });
       setRequests(prev => prev.filter(r => r.id !== rfqId));
       Swal.fire({

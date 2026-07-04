@@ -125,7 +125,7 @@ export default function Rfq() {
   const handleApproveRfq = async (rfqId: number) => {
     if (!user) return;
     try {
-      await apiPost(`/api/rfqs/${rfqId}/approve`, { manager_id: user.id });
+      await apiPost(`/api/rfqs/${rfqId}/approve`, {});
       if (activeCompany) fetchRfqs(activeCompany.id);
     } catch (err: any) {
       Swal.fire({
@@ -376,7 +376,7 @@ export default function Rfq() {
                       </div>
                       
                       {/* Manager Approval Button */}
-                      {rfq.status === 'draft' && user?.role === 'manager' && (
+                      {(rfq.status === 'draft' || rfq.status === 'pending_approval') && (user?.role === 'manager' || activeCompany?.owner_id === user?.id) && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
