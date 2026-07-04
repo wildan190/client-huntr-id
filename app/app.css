@@ -256,9 +256,44 @@ body {
 .huntr-notif-dropdown {
   position: relative;
   z-index: 100000;
+  filter: none !important; /* Ensure dropdown is never blurred */
 }
 
 /* Smooth transition for header blur */
 .huntr-main-header {
   transition: filter 0.2s ease;
+}
+
+/* Improved backdrop animation */
+.huntr-notif-backdrop.enhanced {
+  animation: backdropFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* Notification item improvements */
+.huntr-notif-item {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.huntr-notif-item:hover {
+  background: var(--ui-bg-hover);
+  transform: translateX(2px);
+}
+
+.huntr-notif-item:focus {
+  outline: 2px solid var(--huntr-orange);
+  outline-offset: -2px;
 }

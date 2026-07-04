@@ -775,7 +775,7 @@ export default function AppShell() {
                   >
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Notifications</span>
+                        <span id="notifications-title" style={{ fontSize: 14, fontWeight: 800, color: "var(--ui-text-primary)" }}>Notifications</span>
                         {unreadCount > 0 && <span style={{ fontSize: 10, background: "rgba(249,115,22,0.2)", color: "#fb923c", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>{unreadCount} NEW</span>}
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }} style={{ background: "none", border: "none", color: "var(--ui-text-muted)", fontSize: 11, fontWeight: 600, cursor: "pointer", padding: 0 }}>
@@ -787,8 +787,28 @@ export default function AppShell() {
                         <div style={{ padding: 40, textAlign: "center", color: "var(--ui-text-muted)", fontSize: 13 }}>No recent activity</div>
                       ) : (
                         recentNotifications.map((n: any) => (
-                          <div key={n.id} onClick={() => handleNotificationClick(n)}
-                            style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border-subtle)", cursor: "pointer", background: n.read_at ? "transparent" : "rgba(249,115,22,0.04)", transition: "background 0.2s" }}>
+                          <div 
+                            key={n.id} 
+                            onClick={() => handleNotificationClick(n)}
+                            className="huntr-notif-item"
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleNotificationClick(n);
+                              }
+                            }}
+                            aria-label={`Notification: ${n.data?.title}`}
+                            style={{ 
+                              padding: "14px 20px", 
+                              borderBottom: "1px solid var(--ui-border-subtle)", 
+                              cursor: "pointer", 
+                              background: n.read_at ? "transparent" : "rgba(249,115,22,0.04)", 
+                              transition: "all 0.2s",
+                              outline: "none"
+                            }}
+                          >
                             <div style={{ fontSize: 13, fontWeight: 700, color: n.read_at ? "var(--ui-text-muted)" : "var(--ui-text-primary)", marginBottom: 2 }}>{n.data?.title}</div>
                             <div style={{ fontSize: 11, color: "var(--ui-text-muted)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.data?.body}</div>
                           </div>
