@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams, useLoaderData } from "react-router";
 import Layout from "../components/Layout";
 import { getCatalogue } from "../lib/api";
@@ -126,6 +126,26 @@ export default function MarketplaceDetail() {
   const [isGuest, setIsGuest] = useState(false);
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Enhanced modal close functionality
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showQuantityModal) {
+        setShowQuantityModal(false);
+      }
+    };
+
+    if (showQuantityModal) {
+      document.addEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = '';
+    };
+  }, [showQuantityModal]);
 
   useEffect(() => {
     const userSession = localStorage.getItem("user_session");
@@ -174,6 +194,12 @@ export default function MarketplaceDetail() {
   const handleAddToCart = (catalogueItem: CatalogueItem) => {
     setQuantity(1); // Reset to 1 when opening modal
     setShowQuantityModal(true);
+  };
+
+  const handleModalBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setShowQuantityModal(false);
+    }
   };
 
   const confirmAddToCart = () => {
@@ -237,8 +263,34 @@ export default function MarketplaceDetail() {
 
       {/* Quantity Modal */}
       {showQuantityModal && item && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: 20 }} onClick={() => setShowQuantityModal(false)}>
-          <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 20, width: "100%", maxWidth: 400, padding: 24, display: "flex", flexDirection: "column", gap: 20 }} onClick={(e) => e.stopPropagation()}>
+        <div 
+          onClick={handleModalBackdropClick}
+          style={{ 
+            position: "fixed", 
+            inset: 0, 
+            background: "rgba(0,0,0,0.8)", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            zIndex: 1100, 
+            padding: 20 
+          }}
+        >
+          <div 
+            ref={modalRef}
+            style={{ 
+              background: "var(--ui-bg-card)", 
+              border: "1px solid var(--ui-border)", 
+              borderRadius: 20, 
+              width: "100%", 
+              maxWidth: 400, 
+              padding: 24, 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: 20 
+            }} 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "var(--ui-text-primary)" }}>Pilih Jumlah</h3>

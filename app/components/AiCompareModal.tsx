@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { X, Sparkles, Star, Loader2, CheckCircle2, ShoppingCart } from "lucide-react";
 import { aiCompare } from "../lib/api/ai";
 
@@ -22,6 +22,24 @@ export default function AiCompareModal({
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Click outside to close functionality
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
 
   useEffect(() => {
     const fetchComparison = async () => {
@@ -43,13 +61,19 @@ export default function AiCompareModal({
   const catalogues: any[] = result?.catalogues || [];
   const recommendedId = analysis.recommended_id;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <div
+      onClick={handleBackdropClick}
       style={{
         position: "fixed",
         inset: 0,
         background: "rgba(0,0,0,0.85)",
-        backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -58,6 +82,7 @@ export default function AiCompareModal({
       }}
     >
       <div
+        ref={modalRef}
         style={{
           background: "var(--ui-bg-card)",
           border: "1px solid var(--ui-border)",
@@ -70,6 +95,7 @@ export default function AiCompareModal({
           flexDirection: "column",
           boxShadow: "0 30px 60px -12px rgba(0,0,0,0.6)",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div

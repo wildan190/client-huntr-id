@@ -33,7 +33,7 @@ export class SessionManager {
     };
   }
 
-  private static notify() {
+  public static notify() {
     this.subscribers.forEach(cb => cb());
   }
 

@@ -97,7 +97,10 @@ export function ensureEcho(): Echo<any> | null {
   // If we've failed gracefully, don't try again
   if (gracefulFailure || connectionRetryCount >= maxConnectionRetries) {
     if (!gracefulFailure) {
-      console.log('💡 WebSocket unavailable - running in polling mode');
+      // Only log in development
+      if (import.meta.env.DEV) {
+        console.log('💡 WebSocket unavailable - running in polling mode');
+      }
       gracefulFailure = true;
     }
     connectionState = 'disabled';
@@ -111,20 +114,21 @@ export function ensureEcho(): Echo<any> | null {
     // Ensure Pusher is available globally
     window.Pusher = Pusher;
     
-    // Disable Pusher logging completely in production
+    // Disable ALL Pusher logging in production, even warnings
     Pusher.logToConsole = false;
+    
+    // Disable stats collection
+    if (window.Pusher) {
+      window.Pusher.Runtime.enableStats = false;
+    }
 
     // Always use Reverb configuration if host is provided
     const isReverb = !!config.host;
-    
-    if (import.meta.env.DEV) {
-      console.log(`🔌 Attempting WebSocket connection (${connectionRetryCount}/${maxConnectionRetries})`);
-    }
 
     let echoConfig: any;
 
     if (isReverb) {
-      // Reverb configuration - more conservative timeouts
+      // Reverb configuration - very conservative for production
       echoConfig = {
         broadcaster: 'reverb',
         key: config.key,
@@ -134,7 +138,7 @@ export function ensureEcho(): Echo<any> | null {
         forceTLS: config.scheme === 'https',
         enabledTransports: ['ws', 'wss'],
         enableStats: false,
-        enableLogging: false, // Disable all logging
+        enableLogging: false,
         authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
@@ -143,10 +147,13 @@ export function ensureEcho(): Echo<any> | null {
             'X-Requested-With': 'XMLHttpRequest',
           },
         },
-        // More conservative timeouts
-        wsTimeout: 5000, // Reduced from 10s to 5s
-        activityTimeout: 60000, // Increased to 60s
-        pongTimeout: 10000, // Reduced from 15s to 10s
+        // Very conservative timeouts for production
+        wsTimeout: 3000, // Reduced to 3s - fail fast
+        activityTimeout: 30000,
+        pongTimeout: 5000, // Reduced to 5s
+        // Disable all debugging
+        disableStats: true,
+        cluster: undefined, // Disable cluster for Reverb
       };
     } else {
       // Production Pusher configuration fallback
@@ -156,7 +163,7 @@ export function ensureEcho(): Echo<any> | null {
         cluster: 'ap1',
         forceTLS: true,
         enableStats: false,
-        enableLogging: false, // Disable all logging
+        enableLogging: false,
         authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
@@ -165,67 +172,66 @@ export function ensureEcho(): Echo<any> | null {
             'X-Requested-With': 'XMLHttpRequest',
           },
         },
-        activityTimeout: 60000,
-        pongTimeout: 10000,
+        activityTimeout: 30000,
+        pongTimeout: 5000,
       };
     }
 
     echo = new Echo(echoConfig);
 
-    // Set up connection event handlers - all silent
+    // Set up connection event handlers - completely silent in production
     if (echo.connector && echo.connector.pusher) {
       const pusher = echo.connector.pusher;
 
       pusher.connection.bind('connected', () => {
-        if (import.meta.env.DEV) {
-          console.log('✅ WebSocket connected');
-        }
         connectionState = 'connected';
-        connectionRetryCount = 0; // Reset retry count on successful connection
-        gracefulFailure = false; // Reset graceful failure flag
+        connectionRetryCount = 0;
+        gracefulFailure = false;
       });
 
       pusher.connection.bind('disconnected', () => {
         connectionState = 'disconnected';
       });
 
-      pusher.connection.bind('error', (error: any) => {
+      // All error handlers are completely silent
+      pusher.connection.bind('error', () => {
         connectionState = 'failed';
-        // No console logging - fail silently
       });
 
       pusher.connection.bind('unavailable', () => {
         connectionState = 'failed';
-        // No console logging - fail silently
       });
 
       pusher.connection.bind('failed', () => {
         connectionState = 'failed';
-        // No console logging - fail silently
       });
+
+      // Add timeout for connection attempt
+      setTimeout(() => {
+        if (connectionState === 'connecting') {
+          connectionState = 'failed';
+          gracefulFailure = true;
+        }
+      }, 5000); // 5 second timeout
     }
 
     installSessionWatcher();
-    
-    // Don't set connected state optimistically
     
     return echo;
   } catch (e) {
     connectionState = 'failed';
     echo = null;
     
-    // Schedule ONLY ONE retry with a reasonable delay
-    if (connectionRetryCount < maxConnectionRetries) {
+    // No retries in production if server is returning 502
+    if (connectionRetryCount >= maxConnectionRetries) {
+      gracefulFailure = true;
+      connectionState = 'disabled';
+    } else {
+      // Only retry once more with a delay
       setTimeout(() => {
         connectionState = 'disconnected';
         ensureEcho();
-      }, 3000); // Fixed 3 second retry
-    } else {
-      // After max retries, enter graceful failure mode
-      gracefulFailure = true;
-      if (import.meta.env.DEV) {
-        console.log('💡 WebSocket connection failed - app will work without real-time updates');
-      }
+      }, 5000); // Fixed 5 second delay
     }
     
     return null;

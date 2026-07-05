@@ -1,15 +1,3 @@
-/**
- * _app.tsx — Persistent Application Shell
- *
- * This is a React Router layout route. It wraps all authenticated pages and
- * NEVER unmounts when navigating between routes. This means:
- *  - The sidebar keeps its scroll position
- *  - NotificationSound only mounts once (sound won't re-fire on navigation)
- *  - Notification badge counts stay in memory and update in real-time
- *
- * Child routes render inside <Outlet /> and use useOutletContext() to push
- * their page title/subtitle up to the header.
- */
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
 import {
@@ -90,12 +78,40 @@ export default function AppShell() {
     return () => window.removeEventListener("huntr-cart-updated", updateCart);
   }, []);
 
+  // Function to fetch fresh user data from backend
+  const fetchFreshUserData = async () => {
+    try {
+      const { getAuthenticatedUser } = await import("../lib/api");
+      const freshUser = await getAuthenticatedUser();
+      
+      // Merge with existing token if available
+      const currentUser = SessionManager.getUser();
+      if (currentUser?.token) {
+        freshUser.token = currentUser.token;
+      }
+      
+      // Update both SessionManager and local state
+      SessionManager.setUser(freshUser);
+      setUser(freshUser);
+      
+      console.log("Fresh user data fetched:", freshUser);
+    } catch (err) {
+      console.error("Failed to fetch fresh user data:", err);
+    }
+  };
+
   useEffect(() => {
     setIsClient(true);
     const userSession = localStorage.getItem("user_session");
     const companySession = localStorage.getItem("active_company");
     if (userSession) {
-      setUser(JSON.parse(userSession));
+      const userData = JSON.parse(userSession);
+      setUser(userData);
+      
+      // If user doesn't have a role, fetch fresh user data
+      if (!userData.role) {
+        fetchFreshUserData();
+      }
     }
     if (companySession) {
       setActiveCompany(JSON.parse(companySession));
@@ -435,14 +451,14 @@ export default function AppShell() {
       setRoleSwitching(true);
       const res = await switchRole(role);
       console.log("Role switched successfully:", res);
-      // Force update the local state
-      const updatedUser = SessionManager.getUser();
-      if (updatedUser) {
-        setUser(updatedUser);
-      }
-    } catch (err) {
+      
+      // Force refresh user data after role switch
+      await fetchFreshUserData();
+      
+    } catch (err: any) {
       console.error("Failed to switch role", err);
-      alert("Gagal beralih peran! Silakan coba lagi.");
+      const errorMessage = err?.response?.data?.message || err?.message || "Gagal beralih peran!";
+      alert(`${errorMessage} Silakan coba lagi.`);
     } finally {
       setRoleSwitching(false);
     }
@@ -615,8 +631,8 @@ export default function AppShell() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
-              <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>
-                {user.role || "Loading..."}
+              <div style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 500, textTransform: "none" }}>
+                {user.email || "No email"}
               </div>
             </div>
           </div>

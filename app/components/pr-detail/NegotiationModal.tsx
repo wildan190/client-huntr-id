@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -14,6 +14,25 @@ export function NegotiationModal({ proposal, onClose, onSuccess }: NegotiationMo
   const [paymentScheme, setPaymentScheme] = useState(proposal.payment_term || "");
   const [deliveryTerms, setDeliveryTerms] = useState(proposal.delivery_time || "");
   const [notes, setNotes] = useState("");
+  const modalContentRef = useRef<HTMLDivElement>(null);
+
+  // Click outside to close functionality
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
 
   useEffect(() => {
     // Force items to be an array and try different keys
@@ -87,30 +106,41 @@ export function NegotiationModal({ proposal, onClose, onSuccess }: NegotiationMo
     }
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div style={{ 
-      position: "fixed", 
-      inset: 0, 
-      background: "rgba(0,0,0,0.8)", 
-      backdropFilter: "blur(4px)", 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
-      zIndex: 1100, 
-      padding: 20 
-    }}>
-      <div style={{ 
-        background: "var(--ui-bg-card)", 
-        border: "1px solid var(--ui-border)", 
-        borderRadius: 32, 
-        width: "100%", 
-        maxWidth: 600, 
-        maxHeight: "90vh", 
-        overflow: "hidden", 
+    <div 
+      onClick={handleBackdropClick}
+      style={{ 
+        position: "fixed", 
+        inset: 0, 
+        background: "rgba(0,0,0,0.8)", 
         display: "flex", 
-        flexDirection: "column", 
-        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" 
-      }}>
+        alignItems: "center", 
+        justifyContent: "center", 
+        zIndex: 1100, 
+        padding: 20 
+      }}
+    >
+      <div 
+        ref={modalContentRef}
+        style={{ 
+          background: "var(--ui-bg-card)", 
+          border: "1px solid var(--ui-border)", 
+          borderRadius: 32, 
+          width: "100%", 
+          maxWidth: 600, 
+          maxHeight: "90vh", 
+          overflow: "hidden", 
+          display: "flex", 
+          flexDirection: "column", 
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" 
+        }}
+      >
         <div style={{ 
           padding: "24px 32px", 
           borderBottom: "1px solid var(--ui-border)", 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useEventBus } from '../lib/EventBus';
 import { getConnectionState } from '../lib/echo';
 
@@ -6,6 +6,32 @@ export default function WebSocketDebug() {
   const { connectionStatus, reconnect } = useEventBus();
   const echoState = getConnectionState();
   const [isExpanded, setIsExpanded] = useState(false);
+  const debugPanelRef = useRef<HTMLDivElement>(null);
+
+  // Click outside to close functionality
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isExpanded && debugPanelRef.current && !debugPanelRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isExpanded) {
+        setIsExpanded(false);
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isExpanded]);
 
   // Only show in development
   if (!import.meta.env.DEV) return null;
@@ -35,7 +61,10 @@ export default function WebSocketDebug() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg border z-50 max-w-xs">
+    <div 
+      ref={debugPanelRef}
+      className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg border z-50 max-w-xs"
+    >
       <div 
         className="p-3 cursor-pointer flex items-center justify-between"
         onClick={() => setIsExpanded(!isExpanded)}
