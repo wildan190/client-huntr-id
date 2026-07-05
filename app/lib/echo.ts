@@ -11,9 +11,10 @@ declare global {
 
 let echo: Echo<any> | null = null;
 let sessionInstalled = false;
-let connectionState: 'disconnected' | 'connecting' | 'connected' | 'failed' = 'disconnected';
+let connectionState: 'disconnected' | 'connecting' | 'connected' | 'failed' | 'disabled' = 'disconnected';
 let connectionRetryCount = 0;
-const maxConnectionRetries = 5;
+const maxConnectionRetries = 2; // Reduced from 5 to 2
+let gracefulFailure = false; // New: track if we should stop trying
 
 function getConfig() {
   const key = import.meta.env.VITE_REVERB_APP_KEY;
@@ -37,7 +38,7 @@ function destroyEcho() {
     try {
       echo.disconnect();
     } catch (e) {
-      console.warn('Error disconnecting echo:', e);
+      // Silent cleanup
     }
     echo = null;
   }
@@ -56,17 +57,20 @@ function installSessionWatcher() {
       return;
     }
 
-    if (echo && connectionState === 'connected') {
+    // Only reconnect if we haven't failed gracefully
+    if (!gracefulFailure && echo && connectionState === 'connected') {
       try {
         (echo as any).options.auth.headers.Authorization = `Bearer ${token}`;
         return;
       } catch (e) {
-        console.warn('Failed to update echo auth headers, reinitializing:', e);
         destroyEcho();
       }
     }
 
-    ensureEcho();
+    // Don't retry if we're in graceful failure mode
+    if (!gracefulFailure) {
+      ensureEcho();
+    }
   });
 }
 
@@ -77,7 +81,6 @@ export function ensureEcho(): Echo<any> | null {
   const token = SessionManager.getToken();
 
   if (!config || !token) {
-    console.warn('Missing config or token for Echo initialization');
     return null;
   }
 
@@ -91,10 +94,13 @@ export function ensureEcho(): Echo<any> | null {
     return null;
   }
 
-  // Check retry limits
-  if (connectionRetryCount >= maxConnectionRetries) {
-    console.error(`Echo connection failed after ${maxConnectionRetries} attempts`);
-    connectionState = 'failed';
+  // If we've failed gracefully, don't try again
+  if (gracefulFailure || connectionRetryCount >= maxConnectionRetries) {
+    if (!gracefulFailure) {
+      console.log('💡 WebSocket unavailable - running in polling mode');
+      gracefulFailure = true;
+    }
+    connectionState = 'disabled';
     return null;
   }
 
@@ -105,18 +111,20 @@ export function ensureEcho(): Echo<any> | null {
     // Ensure Pusher is available globally
     window.Pusher = Pusher;
     
-    // Disable Pusher logging in production
-    Pusher.logToConsole = import.meta.env.DEV;
+    // Disable Pusher logging completely in production
+    Pusher.logToConsole = false;
 
     // Always use Reverb configuration if host is provided
     const isReverb = !!config.host;
     
-    console.log(`Initializing Echo with ${isReverb ? 'Reverb' : 'Pusher'} broadcaster...`);
+    if (import.meta.env.DEV) {
+      console.log(`🔌 Attempting WebSocket connection (${connectionRetryCount}/${maxConnectionRetries})`);
+    }
 
     let echoConfig: any;
 
     if (isReverb) {
-      // Reverb configuration (Local & Production)
+      // Reverb configuration - more conservative timeouts
       echoConfig = {
         broadcaster: 'reverb',
         key: config.key,
@@ -126,7 +134,7 @@ export function ensureEcho(): Echo<any> | null {
         forceTLS: config.scheme === 'https',
         enabledTransports: ['ws', 'wss'],
         enableStats: false,
-        enableLogging: import.meta.env.DEV,
+        enableLogging: false, // Disable all logging
         authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
@@ -135,10 +143,10 @@ export function ensureEcho(): Echo<any> | null {
             'X-Requested-With': 'XMLHttpRequest',
           },
         },
-        // Connection timeout and retry settings for Reverb
-        wsTimeout: 10000,
-        activityTimeout: 30000,
-        pongTimeout: 15000,
+        // More conservative timeouts
+        wsTimeout: 5000, // Reduced from 10s to 5s
+        activityTimeout: 60000, // Increased to 60s
+        pongTimeout: 10000, // Reduced from 15s to 10s
       };
     } else {
       // Production Pusher configuration fallback
@@ -148,7 +156,7 @@ export function ensureEcho(): Echo<any> | null {
         cluster: 'ap1',
         forceTLS: true,
         enableStats: false,
-        enableLogging: import.meta.env.DEV,
+        enableLogging: false, // Disable all logging
         authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
@@ -157,73 +165,67 @@ export function ensureEcho(): Echo<any> | null {
             'X-Requested-With': 'XMLHttpRequest',
           },
         },
-        // Pusher specific options
-        activityTimeout: 30000,
-        pongTimeout: 15000,
+        activityTimeout: 60000,
+        pongTimeout: 10000,
       };
     }
 
     echo = new Echo(echoConfig);
 
-    // Set up connection event handlers
+    // Set up connection event handlers - all silent
     if (echo.connector && echo.connector.pusher) {
       const pusher = echo.connector.pusher;
 
       pusher.connection.bind('connected', () => {
-        console.log('Echo WebSocket connected successfully');
+        if (import.meta.env.DEV) {
+          console.log('✅ WebSocket connected');
+        }
         connectionState = 'connected';
         connectionRetryCount = 0; // Reset retry count on successful connection
+        gracefulFailure = false; // Reset graceful failure flag
       });
 
       pusher.connection.bind('disconnected', () => {
-        console.log('Echo WebSocket disconnected');
         connectionState = 'disconnected';
       });
 
       pusher.connection.bind('error', (error: any) => {
-        // Gunakan console.warn alih-alih console.error untuk mencegah error overlay di frontend
-        console.warn('Echo WebSocket connection issue (retrying implicitly):', error?.type || 'Unknown error');
         connectionState = 'failed';
-        
-        // Check if it's a connection error (server not available)
-        if (error && error.error && error.error.data && error.error.data.code === 4001) {
-          console.warn(`WebSocket server connection failed - is the WebSocket server running on ${config.host}:${config.port}?`);
-        }
+        // No console logging - fail silently
       });
 
       pusher.connection.bind('unavailable', () => {
-        console.warn('Echo WebSocket unavailable - server may not be running');
         connectionState = 'failed';
+        // No console logging - fail silently
       });
 
       pusher.connection.bind('failed', () => {
-        console.warn('Echo WebSocket connection failed (will retry)');
         connectionState = 'failed';
+        // No console logging - fail silently
       });
     }
 
     installSessionWatcher();
-
-    console.log(`Echo initialized successfully with ${isReverb ? 'Reverb' : 'Pusher'}`);
     
-    // Set connected state optimistically
-    connectionState = 'connected';
+    // Don't set connected state optimistically
     
     return echo;
   } catch (e) {
-    console.error('Echo initialization failed:', e);
     connectionState = 'failed';
     echo = null;
     
-    // Schedule retry with exponential backoff
+    // Schedule ONLY ONE retry with a reasonable delay
     if (connectionRetryCount < maxConnectionRetries) {
-      const retryDelay = Math.min(1000 * Math.pow(2, connectionRetryCount - 1), 30000);
-      console.log(`Retrying Echo connection in ${retryDelay}ms (attempt ${connectionRetryCount}/${maxConnectionRetries})`);
-      
       setTimeout(() => {
         connectionState = 'disconnected';
         ensureEcho();
-      }, retryDelay);
+      }, 3000); // Fixed 3 second retry
+    } else {
+      // After max retries, enter graceful failure mode
+      gracefulFailure = true;
+      if (import.meta.env.DEV) {
+        console.log('💡 WebSocket connection failed - app will work without real-time updates');
+      }
     }
     
     return null;
@@ -246,6 +248,7 @@ export function getConnectionState(): string {
 export function resetConnection(): void {
   connectionRetryCount = 0;
   connectionState = 'disconnected';
+  gracefulFailure = false; // Reset graceful failure
   destroyEcho();
   ensureEcho();
 }

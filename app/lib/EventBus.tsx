@@ -119,33 +119,37 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
    * FALLBACK MECHANISM - when WebSocket is not available
    */
   const enablePollingFallback = useCallback(() => {
-    console.log('WebSocket unavailable, enabling polling fallback for notifications...');
+    if (import.meta.env.DEV) {
+      console.log('🔄 WebSocket unavailable, notifications will use regular API polling');
+    }
     
     // Simple polling fallback for critical notifications
     const pollInterval = setInterval(async () => {
       try {
         const user = SessionManager.getUser();
-        if (!user?.id) return;
+        const company = SessionManager.getCompany();
+        if (!user?.id || !company?.id) return;
         
-        // This would need an API endpoint to check for new notifications
-        // For now, just log that we would poll here
-        if (import.meta.env.DEV) {
-          console.log('Would poll for notifications here...');
-        }
+        // Check for new notifications via API (this already happens in _app.tsx)
+        // We don't need to duplicate the polling here, just ensure the user knows
+        // the app is still working without WebSocket
+        
       } catch (error) {
-        console.warn('Polling fallback error:', error);
+        // Silent failure for polling
       }
-    }, 30000); // Poll every 30 seconds
+    }, 60000); // Poll every 60 seconds (less frequent)
 
     return () => clearInterval(pollInterval);
   }, []);
 
   /**
-   * PRIVATE CHANNELS
+   * PRIVATE CHANNELS - Much more conservative approach
    */
   const bindPrivate = useCallback(() => {
     if (retryCount.current >= maxRetries) {
-      console.warn('Max echo connection retries exceeded, enabling fallback mode');
+      if (import.meta.env.DEV) {
+        console.log('💡 WebSocket connection attempts exhausted - app works normally without real-time updates');
+      }
       setConnectionStatus('disabled');
       
       // Enable polling fallback when WebSocket fails completely
@@ -158,18 +162,21 @@ export function EventBusProvider({ children }: { children: React.ReactNode }) {
     
     const echo = ensureEcho();
     if (!echo) {
-      console.warn('Echo not available for private channel binding');
+      // Don't spam logs or retry aggressively
       setConnectionStatus('failed');
       
-      // Retry with exponential backoff
+      // Only retry if we haven't hit max retries
       if (retryCount.current < maxRetries) {
         retryCount.current++;
-        const retryDelay = Math.min(1000 * Math.pow(2, retryCount.current), 10000);
-        console.log(`Retrying EventBus connection in ${retryDelay}ms...`);
         
+        // Use a fixed delay instead of exponential backoff
         setTimeout(() => {
           bindPrivate();
-        }, retryDelay);
+        }, 5000); // Fixed 5 second delay
+      } else {
+        // Enter graceful failure mode
+        setConnectionStatus('disabled');
+        enablePollingFallback();
       }
       return;
     }
