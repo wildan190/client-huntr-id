@@ -2,7 +2,7 @@
  * Asset Utility
  * 
  * Tanggung jawab: Mengelola URL untuk asset (gambar, dokumen) secara konsisten
- * antara lingkungan lokal dan produksi.
+ * antara lingkungan lokal dan produksi dengan dukungan S3 signed URLs.
  */
 
 export function getAssetUrl(path: string | null | undefined): string {
@@ -34,4 +34,28 @@ export function getAssetUrl(path: string | null | undefined): string {
     return `${window.location.origin}/storage/${cleanPath}`;
   }
   return `/storage/${cleanPath}`;
+}
+
+/**
+ * Get secure document download URL untuk dokumen RFQ
+ */
+export function getRfqDocumentUrl(rfqId: string): string {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    const cleanApi = apiUrl.replace(/\/$/, "");
+    return `${cleanApi}/documents/rfq/${rfqId}`;
+  }
+  return `/documents/rfq/${rfqId}`;
+}
+
+/**
+ * Get secure company document download URL
+ */
+export function getCompanyDocumentUrl(documentId: string): string {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    const cleanApi = apiUrl.replace(/\/$/, "");
+    return `${cleanApi}/documents/company/${documentId}`;
+  }
+  return `/documents/company/${documentId}`;
 }

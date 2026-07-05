@@ -10,27 +10,13 @@ interface RFQItemsTableProps {
 export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
-  // Prioritize items with images first, then items without images
-  const sortedItems = React.useMemo(() => {
-    if (!rfq.items || !Array.isArray(rfq.items)) return [];
-    
-    return [...rfq.items].sort((a, b) => {
-      const aHasImage = Boolean(a.catalogue?.image_url);
-      const bHasImage = Boolean(b.catalogue?.image_url);
-      
-      // Items with images come first
-      if (aHasImage && !bHasImage) return -1;
-      if (!aHasImage && bHasImage) return 1;
-      
-      // If both have images or both don't have images, maintain original order
-      return 0;
-    });
-  }, [rfq.items]);
+  // Items are already sorted by server-side prioritization (image_path presence)
+  const items = rfq.items || [];
 
   // Calculate image statistics
   const imageStats = React.useMemo(() => {
-    const totalItems = sortedItems.length;
-    const itemsWithImages = sortedItems.filter(item => Boolean(item.catalogue?.image_url)).length;
+    const totalItems = items.length;
+    const itemsWithImages = items.filter(item => Boolean(item.catalogue?.image_url || item.catalogue?.image_path)).length;
     const itemsWithoutImages = totalItems - itemsWithImages;
     
     return {
@@ -39,7 +25,7 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
       itemsWithoutImages,
       hasAnyImages: itemsWithImages > 0
     };
-  }, [sortedItems]);
+  }, [items]);
 
   return (
     <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -48,7 +34,7 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "var(--ui-text-primary)" }}>Items & Specifications</h3>
           {imageStats.hasAnyImages && (
             <div style={{ fontSize: 10, color: "#22c55e", background: "rgba(34,197,94,0.1)", padding: "3px 8px", borderRadius: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-              📷 Visual items prioritized
+              📷 Server prioritized
             </div>
           )}
         </div>
@@ -74,14 +60,14 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
             </tr>
           </thead>
           <tbody>
-            {sortedItems.map((item: any, idx: number) => {
-              const hasImage = Boolean(item.catalogue?.image_url);
+            {items.map((item: any, idx: number) => {
+              const hasImage = Boolean(item.catalogue?.image_url || item.catalogue?.image_path);
               
               return (
                 <tr 
                   key={item.id} 
                   style={{ 
-                    borderBottom: idx === (sortedItems.length - 1) ? "none" : "1px solid var(--ui-border)", 
+                    borderBottom: idx === (items.length - 1) ? "none" : "1px solid var(--ui-border)", 
                     transition: "background 0.2s",
                     // Subtle visual enhancement for items with images
                     background: hasImage ? "rgba(249,115,22,0.02)" : "transparent"
@@ -105,7 +91,7 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
                         {hasImage ? (
                           <>
                             <img 
-                              src={getAssetUrl(item.catalogue.image_url)} 
+                              src={getAssetUrl(item.catalogue.image_url || item.catalogue.image_path)} 
                               alt={item.catalogue?.name || "Product"}
                               style={{ 
                                 width: "100%", 

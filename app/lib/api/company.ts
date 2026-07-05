@@ -39,5 +39,8 @@ export const getTeamMembers = (companyId: string | number) =>
 export const diagnoseRoleInconsistencies = (companyId: string | number) =>
   apiGet(`/api/companies/${companyId}/diagnose-roles`);
 
+export const updateUserRole = (companyId: string | number, userId: string, role: string) =>
+  apiPut(`/api/companies/${companyId}/users/role`, { user_id: userId, role });
+
 export const getInvitationInfo = (token: string) =>
   apiGet(`/api/invitations/info?token=${token}`);

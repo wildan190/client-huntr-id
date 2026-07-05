@@ -218,6 +218,7 @@ export const useCompanyViewModel = () => {
     isEditing, setIsEditing, editForm, setEditForm, updateError, updatingCompany, handleSaveCompany,
     logoUploading, logoError, logoInputRef, handleLogoUpload,
     teamMembers, teamLoading, isInviting, inviteForm, setInviteForm, handleInviteUser, inviteError, inviteSuccess,
+    fetchTeamMembers, // Export for role change callback
     updateHqAddress, addHqAddress, removeHqAddress,
     openCompanyWorkspace: (workspace: any) => {
       setShowCompanyWorkspace(true);

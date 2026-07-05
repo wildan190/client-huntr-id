@@ -1,5 +1,5 @@
-import React from "react";
-import { UserPlus, Users, MessageCircle, Mail, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { UserPlus, Users, MessageCircle, Mail, Loader2, Settings, Check, X } from "lucide-react";
 
 interface TeamMember {
   id: string;
@@ -19,6 +19,7 @@ interface TeamManagementProps {
   handleInviteUser: (e: React.FormEvent) => void;
   inviteError: string | null;
   inviteSuccess: string | null;
+  onRoleChanged?: () => void; // Callback to refresh team data after role change
 }
 
 export const TeamManagement: React.FC<TeamManagementProps> = ({
@@ -31,7 +32,64 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
   handleInviteUser,
   inviteError,
   inviteSuccess,
+  onRoleChanged,
 }) => {
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [newRole, setNewRole] = useState<string>("");
+  const [updatingRole, setUpdatingRole] = useState(false);
+
+  const handleRoleEdit = (userId: string, currentRole: string) => {
+    setEditingUserId(userId);
+    setNewRole(currentRole);
+  };
+
+  const handleRoleCancel = () => {
+    setEditingUserId(null);
+    setNewRole("");
+  };
+
+  const handleRoleSave = async (userId: string) => {
+    if (!newRole || newRole === teamMembers.find(m => m.id === userId)?.role) {
+      handleRoleCancel();
+      return;
+    }
+
+    setUpdatingRole(true);
+    try {
+      const { updateUserRole } = await import('../../../lib/api/company');
+      await updateUserRole(company.id, userId, newRole);
+      
+      // Call parent callback to refresh team data
+      if (onRoleChanged) {
+        onRoleChanged();
+      }
+      
+      setEditingUserId(null);
+      setNewRole("");
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Gagal mengubah role user. Pastikan Anda memiliki izin untuk melakukan tindakan ini.');
+    } finally {
+      setUpdatingRole(false);
+    }
+  };
+
+  const getValidRoles = () => {
+    if (company?.type === 'buyer') {
+      return [
+        { value: 'buyer', label: 'Buyer' },
+        { value: 'manager', label: 'Manager (Full Access)' },
+        { value: 'finance', label: 'Finance' }
+      ];
+    } else if (company?.type === 'vendor') {
+      return [
+        { value: 'admin', label: 'Admin' },
+        { value: 'manager', label: 'Manager (Full Access)' },
+        { value: 'finance', label: 'Finance' }
+      ];
+    }
+    return [];
+  };
   return (
     <div className="flex flex-col gap-6 w-full animate-in fade-in duration-500">
       {/* Debug Info - Remove in production */}
@@ -178,14 +236,63 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                   <div className="text-sm font-bold text-[var(--ui-text-primary)] truncate">{member.name || "Unnamed User"}</div>
                   <div className="text-xs text-[var(--ui-text-muted)] truncate">{member.email || member.whatsapp}</div>
                 </div>
-                <div className={`px-2 py-1 rounded-md text-[10px] font-semibold uppercase ${
-                  // Highlight invalid role combinations in development
-                  process.env.NODE_ENV === 'development' && (
-                    (company?.type === 'buyer' && !['buyer', 'manager', 'finance'].includes(member.role)) ||
-                    (company?.type === 'vendor' && !['admin', 'manager', 'finance'].includes(member.role))
-                  ) ? 'bg-red-500/20 text-red-600 border border-red-500/30' : 'bg-orange-500/10 text-orange-500'
-                }`}>
-                  {member.role}
+                
+                {/* Role Section */}
+                <div className="flex items-center gap-2">
+                  {editingUserId === member.id ? (
+                    // Edit Mode
+                    <div className="flex items-center gap-1">
+                      <select
+                        value={newRole}
+                        onChange={(e) => setNewRole(e.target.value)}
+                        className="px-2 py-1 rounded-md text-[10px] font-semibold bg-[var(--ui-bg-input)] border border-[var(--ui-border)] text-[var(--ui-text-primary)] focus:border-orange-500/50 outline-none"
+                        disabled={updatingRole}
+                      >
+                        {getValidRoles().map(role => (
+                          <option key={role.value} value={role.value}>{role.label}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => handleRoleSave(member.id)}
+                        disabled={updatingRole}
+                        className="p-1 rounded text-emerald-500 hover:bg-emerald-500/10 transition-all disabled:opacity-50"
+                        title="Simpan perubahan"
+                      >
+                        {updatingRole ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                      </button>
+                      <button
+                        onClick={handleRoleCancel}
+                        disabled={updatingRole}
+                        className="p-1 rounded text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                        title="Batal"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    // View Mode
+                    <>
+                      <div className={`px-2 py-1 rounded-md text-[10px] font-semibold uppercase ${
+                        // Highlight invalid role combinations in development
+                        process.env.NODE_ENV === 'development' && (
+                          (company?.type === 'buyer' && !['buyer', 'manager', 'finance'].includes(member.role)) ||
+                          (company?.type === 'vendor' && !['admin', 'manager', 'finance'].includes(member.role))
+                        ) ? 'bg-red-500/20 text-red-600 border border-red-500/30' : 'bg-orange-500/10 text-orange-500'
+                      }`}>
+                        {member.role}
+                      </div>
+                      
+                      {/* Only show edit button for managers (or company owners in the future) */}
+                      {/* Assuming current user role check will be added later */}
+                      <button
+                        onClick={() => handleRoleEdit(member.id, member.role)}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded text-[var(--ui-text-muted)] hover:text-orange-500 hover:bg-orange-500/10 transition-all"
+                        title="Edit role"
+                      >
+                        <Settings size={12} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

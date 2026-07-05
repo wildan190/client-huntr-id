@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../components/Layout";
 import { getRfq, apiGet, apiPost } from "../lib/api";
-import { getAssetUrl } from "../lib/assets";
+import { getAssetUrl, getRfqDocumentUrl } from "../lib/assets";
 import { 
   ArrowLeft, Calendar, Package, MapPin, 
   Loader2, Building2, Info, 
@@ -443,7 +443,7 @@ export default function MyPurchaseRequisitionDetail() {
                 Attachment
               </div>
               <a 
-                href={getAssetUrl(request.document_path)} 
+                href={getRfqDocumentUrl(request.id)} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{

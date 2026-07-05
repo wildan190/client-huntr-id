@@ -525,6 +525,7 @@ export default function CompanyDetails() {
                 handleInviteUser={vm.handleInviteUser}
                 inviteError={vm.inviteError}
                 inviteSuccess={vm.inviteSuccess}
+                onRoleChanged={() => vm.fetchTeamMembers && vm.fetchTeamMembers(vm.company?.id)}
               />
             )}
           </div>
