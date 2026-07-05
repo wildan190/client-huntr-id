@@ -78,6 +78,7 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
   const [roleSwitching, setRoleSwitching] = useState(false); // For role switch loading state
+  const [roleFixAttempted, setRoleFixAttempted] = useState(false); // Prevent infinite role fix loops
   const [cartCount, setCartCount] = useState(0);
 
   // Update cart count when cart changes
@@ -236,6 +237,48 @@ export default function AppShell() {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [sidebarOpen]);
+
+  // ── Auto-fix null roles ──────────────────────────────────────────────────
+  useEffect(() => {
+    // Only attempt once per session to avoid loops, and only for logged-in users with null roles
+    if (!user || user.role !== null || roleFixAttempted) return;
+    
+    const autoFixRole = async () => {
+      setRoleFixAttempted(true);
+      
+      try {
+        console.log('🔧 Auto-fixing null role for user:', user.id);
+        const response = await fetch('/api/companies/debug/refresh-session', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Role auto-fix result:', data.user.role);
+          
+          if (data.user.role) {
+            // Update session storage with fixed user data
+            localStorage.setItem('user_session', JSON.stringify(data.user));
+            setUser(data.user);
+            
+            // Trigger session manager update
+            SessionManager.notify();
+          }
+        } else {
+          console.warn('❌ Role auto-fix failed:', response.status);
+        }
+      } catch (error) {
+        console.warn('❌ Role auto-fix error:', error);
+      }
+    };
+    
+    // Delay slightly to avoid blocking initial render
+    const timeout = setTimeout(autoFixRole, 1000);
+    return () => clearTimeout(timeout);
+  }, [user?.id, user?.role, roleFixAttempted]);
 
   // ── Roles ────────────────────────────────────────────────────────────────
   const isOwner = activeCompany?.owner_id === user?.id;
