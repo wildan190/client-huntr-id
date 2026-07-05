@@ -615,56 +615,8 @@ export default function AppShell() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
-              <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}>
-                {user.role || (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const token = localStorage.getItem('token') || 
-                                   (() => {
-                                     const userSession = localStorage.getItem('user_session');
-                                     return userSession ? JSON.parse(userSession).token : null;
-                                   })();
-                        
-                        if (!token) {
-                          alert('Please logout and login again');
-                          return;
-                        }
-                        
-                        const response = await fetch('/api/companies/debug/refresh-session', {
-                          headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Accept': 'application/json'
-                          }
-                        });
-                        
-                        if (response.ok) {
-                          const data = await response.json();
-                          localStorage.setItem('user_session', JSON.stringify(data.user));
-                          setUser(data.user);
-                          SessionManager.notify();
-                        } else {
-                          alert('Failed to fix role. Please logout and login again.');
-                        }
-                      } catch (error) {
-                        alert('Please logout and login again');
-                      }
-                    }}
-                    style={{
-                      fontSize: 8,
-                      padding: "2px 4px",
-                      borderRadius: 4,
-                      background: "rgba(239, 68, 68, 0.1)",
-                      color: "#ef4444",
-                      border: "1px solid rgba(239, 68, 68, 0.2)",
-                      cursor: "pointer",
-                      textTransform: "none"
-                    }}
-                    title="Click to fix role display"
-                  >
-                    Fix Role
-                  </button>
-                )}
+              <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>
+                {user.role || "Loading..."}
               </div>
             </div>
           </div>

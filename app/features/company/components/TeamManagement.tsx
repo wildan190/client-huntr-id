@@ -59,6 +59,37 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
       const { updateUserRole } = await import('../../../lib/api/company');
       await updateUserRole(company.id, userId, newRole);
       
+      // Check if this is the current user's role being updated
+      const currentUser = (() => {
+        try {
+          const userSession = localStorage.getItem('user_session');
+          return userSession ? JSON.parse(userSession) : null;
+        } catch (e) {
+          return null;
+        }
+      })();
+      
+      // If current user is updating their own role, refresh their session
+      if (currentUser && currentUser.id === userId) {
+        console.log('🔄 Updating current user role in session from', currentUser.role, 'to', newRole);
+        
+        const updatedUser = { ...currentUser, role: newRole };
+        localStorage.setItem('user_session', JSON.stringify(updatedUser));
+        
+        // Trigger session manager update if available
+        try {
+          const { SessionManager } = await import('../../../lib/session');
+          SessionManager.notify();
+        } catch (e) {
+          // SessionManager not available, that's ok
+        }
+        
+        // Force page reload for immediate visual update
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+      
       // Call parent callback to refresh team data
       if (onRoleChanged) {
         onRoleChanged();
