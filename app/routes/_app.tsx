@@ -615,7 +615,9 @@ export default function AppShell() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ui-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
-              <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>{user.role}</div>
+              <div style={{ fontSize: 10, color: "#f97316", fontWeight: 600, textTransform: "uppercase" }}>
+                {user.role || "Loading..."}
+              </div>
             </div>
           </div>
           <button onClick={handleLogout} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "var(--ui-logout-bg)", border: "1px solid var(--ui-logout-border)", color: "var(--ui-logout-text)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>

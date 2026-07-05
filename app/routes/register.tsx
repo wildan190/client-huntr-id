@@ -132,7 +132,7 @@ export default function Register() {
         name: userPayload?.name || form.name,
         email: userPayload?.email || form.email,
         whatsapp: userPayload?.whatsapp || phone,
-        role: userPayload?.role || "buyer",
+        role: userPayload?.role || null, // Don't default to 'buyer' - let backend handle proper role assignment
         token: userPayload?.token || null, // IMPORTANT: Save token!
       };
 

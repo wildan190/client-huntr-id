@@ -52,7 +52,7 @@ export default function Login() {
         name: userPayload.name || "User",
         email: userPayload.email || "",
         whatsapp: userPayload.whatsapp || "",
-        role: userPayload.role || "buyer",
+        role: userPayload.role || null, // Don't default to 'buyer' - let backend handle proper role assignment
         company_id: userPayload.company_id || null,
         two_factor_confirmed_at: userPayload.two_factor_confirmed_at || null,
         token: userPayload.token || null, // IMPORTANT: Save token!
@@ -89,7 +89,7 @@ export default function Login() {
         name: userPayload.name || "User",
         email: userPayload.email || "",
         whatsapp: userPayload.whatsapp || "",
-        role: userPayload.role || "buyer",
+        role: userPayload.role || null, // Don't default to 'buyer' - let backend handle proper role assignment
         company_id: userPayload.company_id || null,
         two_factor_confirmed_at: userPayload.two_factor_confirmed_at || null,
         token: userPayload.token || null, // IMPORTANT: Save token!
