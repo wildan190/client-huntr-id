@@ -1,3 +1,5 @@
+import { SessionManager } from "./session";
+
 /**
  * Asset Utility
  * 
@@ -41,11 +43,16 @@ export function getAssetUrl(path: string | null | undefined): string {
  */
 export function getRfqDocumentUrl(rfqId: string): string {
   const apiUrl = import.meta.env.VITE_API_URL;
-  if (apiUrl) {
-    const cleanApi = apiUrl.replace(/\/$/, "");
-    return `${cleanApi}/documents/rfq/${rfqId}`;
+  const token = SessionManager.getToken();
+  let url = apiUrl 
+    ? `${apiUrl.replace(/\/$/, "")}/documents/rfq/${rfqId}`
+    : `/documents/rfq/${rfqId}`;
+  
+  if (token) {
+    url += `?token=${encodeURIComponent(token)}`;
   }
-  return `/documents/rfq/${rfqId}`;
+  
+  return url;
 }
 
 /**
@@ -53,9 +60,14 @@ export function getRfqDocumentUrl(rfqId: string): string {
  */
 export function getCompanyDocumentUrl(documentId: string): string {
   const apiUrl = import.meta.env.VITE_API_URL;
-  if (apiUrl) {
-    const cleanApi = apiUrl.replace(/\/$/, "");
-    return `${cleanApi}/documents/company/${documentId}`;
+  const token = SessionManager.getToken();
+  let url = apiUrl 
+    ? `${apiUrl.replace(/\/$/, "")}/documents/company/${documentId}`
+    : `/documents/company/${documentId}`;
+  
+  if (token) {
+    url += `?token=${encodeURIComponent(token)}`;
   }
-  return `/documents/company/${documentId}`;
+  
+  return url;
 }
