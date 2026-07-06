@@ -3,7 +3,7 @@ import {
   ArrowLeft, Package, MapPin, ShieldCheck, User, Sparkles, 
   Loader2, AlertTriangle 
 } from "lucide-react";
-import { getRfqDocumentUrl } from "../../lib/assets";
+import { getRfqDocumentUrl, getAssetUrl } from "../../lib/assets";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../../hooks/useMediaQuery";
 
 interface RFQSidebarProps {
@@ -155,7 +155,7 @@ export function RFQSidebar({
             Document Attachment
           </h3>
           <a 
-            href={getRfqDocumentUrl(rfq.id)} 
+            href={getAssetUrl(rfq.document_url || rfq.document_path)} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{
