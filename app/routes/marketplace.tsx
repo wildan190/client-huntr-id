@@ -524,7 +524,7 @@ export default function Marketplace() {
                         )}
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: "#f97316", marginTop: 8 }}>
-                        {item.price > 0 ? `Rp ${Number(item.price).toLocaleString("id-ID")}` : "Request Quote"}
+                        {item.price > 0 ? `Rp ${Number(item.price).toLocaleString("id-ID")}` : ""}
                       </div>
 
                       {/* AI Re-ranking Badge & Explanation */}

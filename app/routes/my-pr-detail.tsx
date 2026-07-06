@@ -58,6 +58,16 @@ export default function MyPurchaseRequisitionDetail() {
     getRfq(id)
       .then((response) => {
         const rfq = response?.rfq ?? response?.data ?? response;
+        console.log("=== FULL RFQ DATA ===");
+        console.log(rfq);
+        console.log("=== RFQ ITEMS ===");
+        console.log(rfq.items);
+        if (rfq.items && rfq.items.length > 0) {
+          console.log("=== FIRST ITEM ===");
+          console.log(rfq.items[0]);
+          console.log("=== FIRST ITEM CATALOGUE ===");
+          console.log(rfq.items[0].catalogue);
+        }
         setRequest(rfq);
         setError(null);
         if (rfq?.id) {
@@ -287,6 +297,9 @@ export default function MyPurchaseRequisitionDetail() {
             </div>
           )}
 
+          {/* PR Summary */}
+          <PRSummary request={request} />
+
           {/* Items List */}
           <div style={{ 
             padding: 20, 
@@ -306,7 +319,11 @@ export default function MyPurchaseRequisitionDetail() {
             </div>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {request.items?.map((item: any, index: number) => (
+              {request.items?.map((item: any, index: number) => {
+                console.log(`=== RENDERING ITEM ${index} ===`);
+                console.log(item);
+                const catalogue = item.catalogue;
+                return (
                 <div 
                   key={index} 
                   style={{ 
@@ -316,68 +333,110 @@ export default function MyPurchaseRequisitionDetail() {
                     border: "1px solid var(--ui-border-subtle)",
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center"
+                    alignItems: "flex-start",
+                    gap: 16
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    {item.catalogue?.image_url && (
-                      <img 
-                        src={getAssetUrl(item.catalogue.image_url)} 
-                        alt={item.catalogue?.name}
-                        style={{ 
-                          width: 40, 
-                          height: 40, 
-                          borderRadius: 8, 
-                          objectFit: "cover" 
-                        }}
-                      />
-                    )}
-                    <div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flex: 1 }}>
+                    <div style={{ 
+                      width: 64, 
+                      height: 64, 
+                      borderRadius: 12, 
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: catalogue?.image_path ? "transparent" : "var(--ui-bg-card)",
+                      border: "1px solid var(--ui-border)"
+                    }}>
+                      {catalogue?.image_path ? (
+                        <img 
+                          src={getAssetUrl(catalogue.image_path)} 
+                          alt={catalogue?.name}
+                          style={{ 
+                            width: "100%", 
+                            height: "100%", 
+                            objectFit: "cover"
+                          }}
+                          onError={(e) => {
+                            console.log("Image failed to load:", catalogue.image_path);
+                            const img = e.target as HTMLImageElement;
+                            img.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div style={{ 
+                          fontSize: 24, 
+                          color: "var(--ui-text-muted)",
+                          opacity: 0.5
+                        }}>📦</div>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {catalogue?.category && (
+                        <div style={{ 
+                          fontSize: 11, 
+                          color: "#f59e0b", 
+                          fontWeight: 700, 
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                          marginBottom: 4
+                        }}>
+                          {catalogue.category}
+                        </div>
+                      )}
                       <div style={{ 
                         fontSize: 14, 
                         fontWeight: 800, 
-                        color: "var(--ui-text-primary)" 
+                        color: "var(--ui-text-primary)",
+                        marginBottom: 2
                       }}>
-                        {item.catalogue?.name || "Unknown Item"}
+                        {catalogue?.name || "Unknown Item"}
                       </div>
                       <div style={{ 
                         fontSize: 12, 
-                        color: "var(--ui-text-muted)" 
+                        color: "var(--ui-text-muted)",
+                        marginBottom: 4
                       }}>
-                        Qty: {item.qty} {item.catalogue?.uom || "pcs"}
+                        Qty: {item.qty} {catalogue?.uom || "pcs"}
                       </div>
+                      {catalogue?.specifications && (
+                        <div style={{ 
+                          fontSize: 11, 
+                          color: "var(--ui-text-muted)",
+                          lineHeight: 1.4,
+                          maxWidth: 400,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}>
+                          {catalogue.specifications}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  <div style={{ textAlign: "right" }}>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ 
                       fontSize: 14, 
                       fontWeight: 800, 
-                      color: "var(--ui-text-primary)" 
+                      color: "#f97316"
                     }}>
-                      Rp {Number(item.catalogue?.estimated_price || 0).toLocaleString()}
+                      Rp {Number(item.estimated_price || 0).toLocaleString()}
                     </div>
-                    <div style={{ 
-                      fontSize: 11, 
-                      color: "var(--ui-text-muted)" 
-                    }}>
-                      per {item.catalogue?.uom || "pcs"}
-                    </div>
+                    <div style={{ fontSize: 11, color: "var(--ui-text-muted)" }}>per {catalogue?.uom || "pcs"}</div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
 
           {/* Proposal Rankings */}
           {request.status === 'active' && (
             <div>
-              <div style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: 12, 
-                marginBottom: 20 
-              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                 <div style={{ 
                   padding: 10, 
                   borderRadius: 12, 
@@ -420,9 +479,6 @@ export default function MyPurchaseRequisitionDetail() {
             activeCompany={activeCompany}
             onUpdate={setRequest}
           />
-
-          {/* Summary */}
-          <PRSummary request={request} />
 
           {/* Document Attachment */}
           {request.document_path && (
