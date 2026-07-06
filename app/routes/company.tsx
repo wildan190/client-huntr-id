@@ -462,7 +462,7 @@ export default function CompanyDetails() {
                           </div>
                         </div>
                         <a 
-                          href={getAssetUrl(doc.file_path)} 
+                          href={getAssetUrl(doc.url || doc.file_path)} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="w-8 h-8 rounded-lg bg-[var(--ui-bg-card)] border border-[var(--ui-border)] flex items-center justify-center text-[var(--ui-text-muted)] hover:text-orange-500 hover:border-orange-500/50 transition-all"

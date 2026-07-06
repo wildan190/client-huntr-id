@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
+import { getAssetUrl } from "../lib/assets";
 import {
   CheckCircle2,
   Clock,
@@ -271,7 +272,7 @@ export default function ManagerApprovals() {
                   <div style={detailRowStyle}>
                     <span style={detailKeyStyle}>Document:</span>
                     <a
-                      href={selectedProposal.document_path}
+                      href={getAssetUrl(selectedProposal.document_path)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--huntr-orange)", textDecoration: "none", fontWeight: 700 }}
