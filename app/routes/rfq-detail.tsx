@@ -139,12 +139,16 @@ export default function RfqDetail() {
       return;
     }
 
+    const userSession = localStorage.getItem("user_session");
+    const user = userSession ? JSON.parse(userSession) : null;
+
     isProcessing.current = true;
     setAwardingProposal(proposalId);
     setError(null);
     try {
       const response = await apiPost(`/api/proposals/${proposalId}/award`, {
         rfq_id: rfqId,
+        user_id: user?.id
       });
       
       setSuccessMessage("✓ Proposal awarded! Sent to manager for approval.");

@@ -43,16 +43,9 @@ export function getAssetUrl(path: string | null | undefined): string {
  */
 export function getRfqDocumentUrl(rfqId: string): string {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const token = SessionManager.getToken();
-  let url = apiUrl 
-    ? `${apiUrl.replace(/\/$/, "")}/documents/rfq/${rfqId}`
-    : `/documents/rfq/${rfqId}`;
-  
-  if (token) {
-    url += `?token=${encodeURIComponent(token)}`;
-  }
-  
-  return url;
+  return apiUrl 
+    ? `${apiUrl.replace(/\/$/, "")}/api/documents/rfq/${rfqId}`
+    : `/api/documents/rfq/${rfqId}`;
 }
 
 /**
@@ -60,14 +53,7 @@ export function getRfqDocumentUrl(rfqId: string): string {
  */
 export function getCompanyDocumentUrl(documentId: string): string {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const token = SessionManager.getToken();
-  let url = apiUrl 
-    ? `${apiUrl.replace(/\/$/, "")}/documents/company/${documentId}`
-    : `/documents/company/${documentId}`;
-  
-  if (token) {
-    url += `?token=${encodeURIComponent(token)}`;
-  }
-  
-  return url;
+  return apiUrl 
+    ? `${apiUrl.replace(/\/$/, "")}/api/documents/company/${documentId}`
+    : `/api/documents/company/${documentId}`;
 }
