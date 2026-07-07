@@ -86,6 +86,55 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
     return `${convertedValue < 0 ? '- ' : ''}${symbol} ${Math.abs(convertedValue / div).toFixed(1)}${suffix}`;
   };
 
+  const downloadCSV = (title: string, headers: string[], data: any[][]) => {
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...data.map(row => row.map(val => `"${String(val ?? "").replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadSpendData = () => {
+    const headers = ["Department", "Spend Amount (IDR)"];
+    const rows = spendData.map(item => [item.name, item.value]);
+    downloadCSV("Spend_Analysis_by_Department", headers, rows);
+  };
+
+  const handleDownloadCycleTimeData = () => {
+    const headers = ["Month", "Cycle Time (Days)"];
+    const rows = cycleTimeData.map(item => [item.month, item.time]);
+    downloadCSV("PO_Cycle_Time_Avg", headers, rows);
+  };
+
+  const handleDownloadSavingsData = () => {
+    const headers = ["Month", "Cumulative Savings (IDR)"];
+    const rows = savingsData.map(item => [item.month, item.savings]);
+    downloadCSV("Cost_Savings_YTD", headers, rows);
+  };
+
+  const handleDownloadOverallStats = () => {
+    const headers = ["Metric", "Value", "Notes"];
+    const rows = [
+      ["Total Spend", "12500000000", "4.2% vs last month"],
+      ["Maverick Spend", "8.5%", "Off-contract purchases"],
+      ["Defect Rate", "2.1%", "Target: <2.0%"],
+      ["Lead Time Avg", "7.2 Days", "PO to Goods Receipt"],
+      ["Active PO", "8", "In-Transit"],
+      ["Unprocessed PRs", "24", "Needs review"],
+      ["POs/Staff/Mo", "45", "Average"],
+      ["PPV", "-450000000", "Favorable variance"]
+    ];
+    downloadCSV("Procurement_Key_Performance_Metrics", headers, rows);
+  };
+
   return (
     <Layout title="Procurement Dashboard" subtitle="Overview of your organization's spend, supplier performance, and operational efficiency.">
       <div style={{ display: "flex", flexDirection: "column", gap: 20, paddingBottom: 40, boxSizing: "border-box", width: "100%" }}>
@@ -97,9 +146,49 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
         
         {/* 1. Spend Analysis — stat cards compact, chart full width */}
         <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fb923c" }}>
-            <PieChart size={18} /> Analisis Pengeluaran (Spend Analysis)
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fb923c" }}>
+              <PieChart size={18} /> Analisis Pengeluaran (Spend Analysis)
+            </h2>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button 
+                onClick={handleDownloadOverallStats} 
+                style={{ 
+                  background: "rgba(249,115,22,0.1)", 
+                  border: "1px solid rgba(249,115,22,0.3)", 
+                  color: "#fb923c", 
+                  padding: "4px 10px", 
+                  borderRadius: 8, 
+                  fontSize: 11, 
+                  fontWeight: 700, 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <ArrowDownCircle size={14} /> Download Metrics
+              </button>
+              <button 
+                onClick={handleDownloadSpendData} 
+                style={{ 
+                  background: "rgba(249,115,22,0.1)", 
+                  border: "1px solid rgba(249,115,22,0.3)", 
+                  color: "#fb923c", 
+                  padding: "4px 10px", 
+                  borderRadius: 8, 
+                  fontSize: 11, 
+                  fontWeight: 700, 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <ArrowDownCircle size={14} /> Download Spend Excel
+              </button>
+            </div>
+          </div>
           {/* Stat cards row — compact, small */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
             <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #f97316" }}>
@@ -131,7 +220,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
                 <RechartsPieChart>
                   <Pie data={spendData} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value">
                     {spendData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} {...chartTooltipStyle()} />
@@ -144,9 +233,29 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
 
         {/* 2. Operational Efficiency */}
         <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#60a5fa" }}>
-            <Activity size={18} /> Efisiensi Operasional
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#60a5fa" }}>
+              <Activity size={18} /> Efisiensi Operasional
+            </h2>
+            <button 
+              onClick={handleDownloadCycleTimeData} 
+              style={{ 
+                background: "rgba(59,130,246,0.1)", 
+                border: "1px solid rgba(59,130,246,0.3)", 
+                color: "#60a5fa", 
+                padding: "4px 10px", 
+                borderRadius: 8, 
+                fontSize: 11, 
+                fontWeight: 700, 
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              <ArrowDownCircle size={14} /> Download Cycle Time Excel
+            </button>
+          </div>
           {/* Stat cards row */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
             <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px" }}>
@@ -184,9 +293,29 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
 
         {/* 3. Financial & Cost Management */}
         <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fbbf24" }}>
-            <LineChart size={18} /> Keuangan &amp; Penghematan
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, color: "#fbbf24" }}>
+              <LineChart size={18} /> Keuangan &amp; Penghematan
+            </h2>
+            <button 
+              onClick={handleDownloadSavingsData} 
+              style={{ 
+                background: "rgba(251,191,36,0.1)", 
+                border: "1px solid rgba(251,191,36,0.3)", 
+                color: "#fbbf24", 
+                padding: "4px 10px", 
+                borderRadius: 8, 
+                fontSize: 11, 
+                fontWeight: 700, 
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              <ArrowDownCircle size={14} /> Download Savings Excel
+            </button>
+          </div>
           {/* Stat card */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
             <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 14px", borderLeft: "3px solid #34d399" }}>

@@ -127,6 +127,52 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
       };
     });
 
+  const downloadCSV = (title: string, headers: string[], data: any[][]) => {
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...data.map(row => row.map(val => `"${String(val ?? "").replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadStats = () => {
+    const headers = ["Metric", "Value"];
+    const rows = [
+      ["Active Company", activeCompany?.name || "—"],
+      ["Total Diikuti (Tender Unik)", String(participatedCount)],
+      ["Total Menang (Wins)", `${wins}`],
+      ["Win Rate (%)", `${winRate}%`],
+      ["Deadline Terdekat", countdown],
+      ["Open Tenders", String(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length)],
+      ["Submitted Proposals", String(vendorProposals.length)],
+      ["Draft Proposals", String(Math.max(openRfqs.filter((rfq: any) => !isRfqExpired(rfq, now)).length - vendorProposals.length, 0))]
+    ];
+    downloadCSV("Vendor_Performance_Metrics", headers, rows);
+  };
+
+  const handleDownloadTenderTable = () => {
+    const headers = ["Tender Title", "Total Items", "Buyer Company Name", "RFQ Code", "Status", "Proposal Price Offer (IDR)", "Proposal Ranking", "Deadline"];
+    const rows = tableRows.map(({ rfq, proposal, ranking, deadlineText, status }) => [
+      rfq.title,
+      String(rfq.items?.length || 0),
+      rfq.company?.name || "Buyer",
+      `RFQ ${String(rfq.id).slice(0, 8)}`,
+      status,
+      proposal ? String(proposal.price_offer || 0) : "0",
+      ranking ? `Rank #${ranking.rank}` : "N/A",
+      deadlineText
+    ]);
+    downloadCSV("Vendor_Ebidding_Tenders", headers, rows);
+  };
+
   return (
     <Layout title="Vendor E-Bidding Dashboard" subtitle="Pantau tender aktif, draft proposal, dan submisi yang sedang berjalan.">
       <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16, paddingBottom: 24, boxSizing: "border-box" }}>
@@ -136,6 +182,29 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
           <WeatherWidget embedded />
           <CurrencyWidget embedded />
         </section>
+
+        {/* Stats Section Header with Download */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0, fontSize: 12, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Statistik Performa Vendor</h3>
+          <button 
+            onClick={handleDownloadStats} 
+            style={{ 
+              background: "rgba(249,115,22,0.1)", 
+              border: "1px solid rgba(249,115,22,0.3)", 
+              color: "#f59e0b", 
+              padding: "4px 10px", 
+              borderRadius: 8, 
+              fontSize: 11, 
+              fontWeight: 700, 
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6
+            }}
+          >
+            Download Stats Excel
+          </button>
+        </div>
 
         {/* Stat cards compact row — all cards uniform small size */}
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10 }}>
@@ -191,12 +260,32 @@ export function VendorEbiddingDashboard({ user, activeCompany }: { user: any, ac
                 <div style={{ fontSize: 11, fontWeight: 800, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Modul E-Bidding</div>
                 <h2 style={{ margin: "4px 0 0", fontSize: 18, fontWeight: 900, color: "var(--ui-text-primary)" }}>Draft dan Pengajuan Proposal</h2>
               </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {VENDOR_DASHBOARD_HINTS.map((item) => (
-                  <span key={item} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,0.1)", color: "#f59e0b", fontSize: 10, fontWeight: 700 }}>
-                    {item}
-                  </span>
-                ))}
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <button 
+                  onClick={handleDownloadTenderTable} 
+                  style={{ 
+                    background: "rgba(249,115,22,0.1)", 
+                    border: "1px solid rgba(249,115,22,0.3)", 
+                    color: "#f59e0b", 
+                    padding: "6px 12px", 
+                    borderRadius: 8, 
+                    fontSize: 11, 
+                    fontWeight: 700, 
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6
+                  }}
+                >
+                  Download Proposals Excel
+                </button>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {VENDOR_DASHBOARD_HINTS.map((item) => (
+                    <span key={item} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,0.1)", color: "#f59e0b", fontSize: 10, fontWeight: 700 }}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 

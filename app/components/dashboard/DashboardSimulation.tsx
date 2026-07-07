@@ -80,6 +80,40 @@ export function DashboardSimulation({ user, activeCompany }: { user: any, active
     addNotification("Workflow simulator reset.", "warning");
   };
 
+  const downloadCSV = (title: string, headers: string[], data: any[][]) => {
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...data.map(row => row.map(val => `"${String(val ?? "").replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadSimulationState = () => {
+    const headers = ["Simulation Step", "Active PO Status", "Delivery Status", "Goods Receipt ID", "Goods Receipt Status"];
+    const rows = [[
+      `Step ${activeStep} of 9`,
+      poStatus,
+      deliveryStatus,
+      goodsReceipt?.id || "N/A",
+      goodsReceipt?.status || "N/A"
+    ]];
+    downloadCSV("Simulation_Lifecycle_State", headers, rows);
+  };
+
+  const handleDownloadCatalogues = () => {
+    const headers = ["Item Code", "Item Name", "Category", "UOM", "Unit Price (IDR)"];
+    const rows = INITIAL_CATALOGUE.map(item => [item.item_code, item.name, item.category, item.uom, String(item.price)]);
+    downloadCSV("Department_Reference_Catalogues", headers, rows);
+  };
+
   return (
     <Layout title="B2B E-Procurement Dashboard" subtitle="Enterprise Sequential Procurement Lifecycle & Multi-agent Simulation.">
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ width: "100%", boxSizing: "border-box" }}>
@@ -91,10 +125,27 @@ export function DashboardSimulation({ user, activeCompany }: { user: any, active
             <div>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs font-semibold uppercase tracking-widest text-orange-400">Step {activeStep} of 9</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  {activeStep === 9 ? "Workflow Completed" : "Simulation In Progress"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleDownloadSimulationState}
+                    style={{
+                      background: "rgba(249,115,22,0.1)",
+                      border: "1px solid rgba(249,115,22,0.3)",
+                      color: "#fb923c",
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Download State Excel
+                  </button>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    {activeStep === 9 ? "Workflow Completed" : "Simulation In Progress"}
+                  </span>
+                </div>
               </div>
               <h2 className="text-2xl font-bold mb-2">Sequential Procurement Lifecycle</h2>
               <p className="text-gray-400 text-sm mb-6">
@@ -250,10 +301,27 @@ export function DashboardSimulation({ user, activeCompany }: { user: any, active
 
           {/* Historical catalog reference */}
           <div className="glass-panel p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              Department Reference Catalogues
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold flex items-center gap-2 m-0">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                Department Reference Catalogues
+              </h3>
+              <button 
+                onClick={handleDownloadCatalogues}
+                style={{
+                  background: "rgba(251,191,36,0.1)",
+                  border: "1px solid rgba(251,191,36,0.3)",
+                  color: "#fbbf24",
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                Download Catalogues Excel
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>

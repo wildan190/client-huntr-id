@@ -335,7 +335,7 @@ export function ProposalRankings({
               {/* Kriteria Evaluasi Detail */}
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
                 gap: 12,
                 background: "var(--ui-bg-input)",
                 padding: 12,
@@ -360,6 +360,32 @@ export function ProposalRankings({
                   <strong style={{ fontSize: 14, color: "var(--ui-text-primary)" }}>
                     {rankData.proposal.warranty_months} Bulan
                   </strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", display: "block" }}>DOKUMEN VENDOR</span>
+                  {rankData.proposal.document_path || rankData.proposal.document_url ? (
+                    <a
+                      href={rankData.proposal.document_url || `/storage/${rankData.proposal.document_path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        color: "#fb923c",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        marginTop: 2
+                      }}
+                    >
+                      📄 Lihat Dokumen
+                    </a>
+                  ) : (
+                    <span style={{ fontSize: 12, color: "var(--ui-text-muted)", fontStyle: "italic", display: "block", marginTop: 2 }}>
+                      Tidak Ada
+                    </span>
+                  )}
                 </div>
               </div>
 
