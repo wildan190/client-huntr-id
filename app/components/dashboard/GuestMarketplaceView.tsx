@@ -491,8 +491,8 @@ export function GuestMarketplaceView() {
             <div>
               <div style={{ fontSize: "12px", fontWeight: 700, color: "#222", marginBottom: "12px" }}>Perusahaan</div>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
-                <li><a href="https://www.huntr.id/our-company" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Tentang Kami</a></li>
-                <li><a href="https://www.huntr.id/privacy-policy" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Kebijakan Privasi</a></li>
+                <li><a href="https://www.huntr.id/our-company" target="_blank" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Tentang Kami</a></li>
+                <li><a href="https://www.huntr.id/privacy-policy" target="_blank" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Kebijakan Privasi</a></li>
                 <li><a href="#" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Syarat &amp; Ketentuan</a></li>
               </ul>
             </div>
