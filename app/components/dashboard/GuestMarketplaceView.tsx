@@ -144,8 +144,8 @@ export function GuestMarketplaceView() {
           <Link to="/">
             <img src="/assets/img/logo/sidebar.png" alt="Huntr Logo" style={s.logo} />
           </Link>
-          
-          <button 
+
+          <button
             onClick={() => setMobileMenuOpen(v => !v)}
             className="md:hidden text-white hover:text-[#f97316] transition-colors p-1"
             aria-label="Toggle navigation menu"
@@ -164,9 +164,9 @@ export function GuestMarketplaceView() {
             style={s.searchInput}
             className="flex-1 border-none outline-none px-4 text-sm bg-transparent text-[#111] h-full"
           />
-          <button 
-            onClick={() => fetchItems(1)} 
-            style={s.searchBtn} 
+          <button
+            onClick={() => fetchItems(1)}
+            style={s.searchBtn}
             className="bg-[#f97316] border-none cursor-pointer px-5 flex items-center gap-2 text-white text-xs md:text-sm font-bold flex-shrink-0"
           >
             <Search size={15} />
@@ -192,22 +192,22 @@ export function GuestMarketplaceView() {
         {/* Mobile Navigation Panel */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-[#1a1a1a] border-t border-[#333] shadow-lg p-5 flex flex-col gap-4 z-40 transition-all duration-300">
-            <Link 
-              to="/track" 
+            <Link
+              to="/track"
               onClick={() => setMobileMenuOpen(false)}
               className="text-gray-300 hover:text-white flex items-center gap-3 text-sm py-2"
             >
               <Truck size={16} className="text-[#f97316]" /> Track Order
             </Link>
-            <Link 
-              to="/verify" 
+            <Link
+              to="/verify"
               onClick={() => setMobileMenuOpen(false)}
               className="text-gray-300 hover:text-white flex items-center gap-3 text-sm py-2"
             >
               <ShieldCheck size={16} className="text-[#f97316]" /> Verify
             </Link>
-            <Link 
-              to="/register" 
+            <Link
+              to="/register"
               onClick={() => setMobileMenuOpen(false)}
               className="text-[#f97316] font-bold flex items-center gap-3 text-sm py-2"
             >
@@ -215,15 +215,15 @@ export function GuestMarketplaceView() {
             </Link>
             <div className="h-px bg-[#333] my-1" />
             <div className="flex gap-3">
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex-1 py-2 text-center border border-[#f97316] rounded text-[#f97316] font-bold text-sm bg-transparent"
               >
                 Masuk
               </Link>
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex-1 py-2 text-center rounded bg-[#f97316] text-white font-bold text-sm"
               >
@@ -288,13 +288,13 @@ export function GuestMarketplaceView() {
       </nav>
 
       {/* ── PAGE CONTENT (below fixed headers) ───────────────────────── */}
-      <div className="pt-[168px] md:pt-[116px] pb-[60px]">
+      <div className="pt-[210px] sm:pt-[200px] md:pt-[120px] pb-[60px]">
 
         {/* ── HERO BANNER ────────────────────────────────────────────────── */}
-        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Main banner */}
-            <div className="lg:col-span-2 bg-gradient-to-br from-[#fff4eb] to-[#fde8cc] border border-[#f7d9b0] rounded p-6 sm:p-10 flex flex-col justify-center min-h-[180px] sm:min-h-[220px]">
+            <div className="lg:col-span-2 bg-gradient-to-br from-[#fff4eb] to-[#fde8cc] border border-[#f7d9b0] rounded py-8 px-6 sm:py-10 sm:px-10 flex flex-col justify-center min-h-[180px] sm:min-h-[220px]">
               <span className="text-[#f97316] font-extrabold text-xs uppercase tracking-wider">
                 Huntr.id Platform
               </span>
@@ -331,10 +331,10 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── FEATURE CARDS ROW ─────────────────────────────────────────── */}
-        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-3">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {FEATURE_CARDS.map(c => (
-              <div key={c.title} className="bg-[#1e293b] text-white rounded p-3 sm:p-4 flex items-center gap-3 cursor-pointer hover:bg-[#334155] transition-colors">
+              <div key={c.title} className="bg-[#1e293b] text-white rounded p-4 flex items-start gap-3 cursor-pointer hover:bg-[#334155] transition-colors">
                 <span className="text-xl sm:text-2xl flex-shrink-0">{c.icon}</span>
                 <div>
                   <div className="font-bold text-xs sm:text-sm">{c.title}</div>
@@ -346,7 +346,7 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── CATEGORY CHIPS ─────────────────────────────────────────────── */}
-        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-4.5">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
           <div className="flex overflow-x-auto scrollbar-none border border-[#e5e5e5] rounded bg-white">
             {CATEGORIES.map(cat => (
               <button
@@ -361,7 +361,7 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── PRODUCT SECTION ─────────────────────────────────────────────── */}
-        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-5.5">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-10">
           <div style={s.sectionHead}>
             <h2 className="m-0 text-base font-extrabold text-[#111]">
               Rekomendasi Produk
@@ -491,8 +491,8 @@ export function GuestMarketplaceView() {
             <div>
               <div style={{ fontSize: "12px", fontWeight: 700, color: "#222", marginBottom: "12px" }}>Perusahaan</div>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
-                <li><a href="#" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Tentang Kami</a></li>
-                <li><a href="#" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Kebijakan Privasi</a></li>
+                <li><a href="https://www.huntr.id/our-company" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Tentang Kami</a></li>
+                <li><a href="https://www.huntr.id/privacy-policy" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Kebijakan Privasi</a></li>
                 <li><a href="#" style={{ fontSize: "12px", color: "#888", textDecoration: "none" }}>Syarat &amp; Ketentuan</a></li>
               </ul>
             </div>
