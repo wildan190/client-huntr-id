@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X } from "lucide-react";
 import { getCatalogues } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
 
@@ -27,6 +27,7 @@ export function GuestMarketplaceView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const catMenuRef = React.useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -82,18 +83,7 @@ export function GuestMarketplaceView() {
   const s = {
     /* layout */
     page: { minHeight: "100vh", background: "#f4f4f4", fontFamily: "'Inter', 'Segoe UI', sans-serif", color: "#222" } as React.CSSProperties,
-    /* ── top header (dark, like ralali) ── */
-    topBar: {
-      background: "#1a1a1a", position: "fixed" as const, top: 0, left: 0, right: 0, zIndex: 200,
-      height: "62px", display: "flex", alignItems: "center", gap: "20px", padding: "0 28px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.5)"
-    },
-    logo: { height: "42px", width: "auto", objectFit: "contain" as const, flexShrink: 0 },
-    searchWrap: {
-      flex: 1, maxWidth: "600px", display: "flex", alignItems: "stretch",
-      background: "#fff", borderRadius: "4px", overflow: "hidden",
-      boxShadow: "0 0 0 2px #f97316",
-    },
+    logo: { height: "36px", width: "auto", objectFit: "contain" as const, flexShrink: 0 },
     searchInput: {
       flex: 1, border: "none", outline: "none", padding: "0 16px",
       fontSize: "14px", background: "transparent", color: "#111", height: "40px",
@@ -103,7 +93,6 @@ export function GuestMarketplaceView() {
       padding: "0 20px", display: "flex", alignItems: "center", gap: "8px",
       color: "#fff", fontSize: "13px", fontWeight: 700, flexShrink: 0,
     },
-    topNav: { display: "flex", alignItems: "center", gap: "20px", marginLeft: "auto" },
     topLink: {
       fontSize: "12px", color: "#ccc", textDecoration: "none",
       display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
@@ -120,45 +109,7 @@ export function GuestMarketplaceView() {
       background: "#f97316", color: "#fff", cursor: "pointer",
       fontSize: "12px", fontWeight: 700, textDecoration: "none",
     },
-    /* ── sub nav (white, thin) ── */
-    subNav: {
-      background: "#fff", position: "fixed" as const, top: "62px", left: 0, right: 0, zIndex: 199,
-      height: "38px", display: "flex", alignItems: "center", borderBottom: "1px solid #e5e5e5",
-      padding: "0 28px", gap: "28px",
-    },
-    subNavLeft: { display: "flex", alignItems: "center", gap: "24px", flex: 1, overflowX: "auto" as const, scrollbarWidth: "none" as const },
-    subNavItem: { fontSize: "12px", color: "#444", whiteSpace: "nowrap" as const, cursor: "pointer", fontWeight: 500 },
-    subNavActive: { fontSize: "12px", color: "#f97316", whiteSpace: "nowrap" as const, cursor: "pointer", fontWeight: 700 },
-    subNavRight: { display: "flex", alignItems: "center", gap: "14px", flexShrink: 0 },
-    /* ── inner content ── */
-    inner: { maxWidth: "1200px", margin: "0 auto", padding: "0 20px" },
-    /* ── hero banner grid ── */
-    bannerGrid: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px" },
-    bannerMain: {
-      background: "linear-gradient(120deg,#fff4eb,#fde8cc)",
-      border: "1px solid #f7d9b0", borderRadius: "3px",
-      minHeight: "220px", padding: "36px 40px", display: "flex", flexDirection: "column" as const, justifyContent: "center",
-    },
-    bannerSide: { display: "grid", gridTemplateRows: "1fr 1fr", gap: "10px" },
-    bannerSideCard: {
-      background: "#fff", border: "1px solid #e5e5e5", borderRadius: "3px",
-      padding: "16px 18px", display: "flex", alignItems: "center", gap: "14px",
-    },
-    bannerSideIcon: {
-      background: "#fff4eb", color: "#f97316", width: "38px", height: "38px",
-      borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-    },
-    /* ── feature cards row ── */
-    featureRow: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" },
-    featureCard: {
-      background: "#1e293b", color: "#fff", borderRadius: "3px",
-      padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer",
-    },
-    /* ── category chips ── */
-    catRow: {
-      display: "flex", alignItems: "center", gap: "0",
-      background: "#fff", border: "1px solid #e5e5e5", borderRadius: "3px", overflow: "hidden",
-    },
+    /* category chips */
     catChip: (active: boolean): React.CSSProperties => ({
       padding: "7px 14px", fontSize: "12px", cursor: "pointer",
       color: active ? "#f97316" : "#444", fontWeight: active ? 700 : 500,
@@ -166,7 +117,7 @@ export function GuestMarketplaceView() {
       background: active ? "#fff4eb" : "transparent",
       transition: "all 0.15s",
     }),
-    /* ── product grid ── */
+    /* product grid */
     productCard: {
       background: "#fff", border: "1px solid #e5e5e5", borderRadius: "3px",
       cursor: "pointer", overflow: "hidden", transition: "box-shadow 0.15s",
@@ -176,33 +127,55 @@ export function GuestMarketplaceView() {
       display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
     },
     productBody: { padding: "10px" },
-    /* ── section header ── */
+    /* section header */
     sectionHead: {
       display: "flex", justifyContent: "space-between", alignItems: "center",
       borderBottom: "2px solid #f97316", paddingBottom: "8px",
     },
+    inner: { maxWidth: "1200px", margin: "0 auto", padding: "0 20px" },
   };
 
   return (
     <div style={s.page}>
       {/* ── TOP HEADER (dark, Ralali-style) ───────────────────────────────── */}
-      <header style={s.topBar}>
-        <img src="/assets/img/logo/sidebar.png" alt="Huntr Logo" style={s.logo} />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.5)] px-4 sm:px-6 md:px-7 py-3 md:py-0 md:h-[62px] flex flex-col md:flex-row md:items-center gap-3 md:gap-5 justify-between">
+        {/* Row 1: Logo & Hamburger */}
+        <div className="flex items-center justify-between w-full md:w-auto flex-shrink-0">
+          <Link to="/">
+            <img src="/assets/img/logo/sidebar.png" alt="Huntr Logo" style={s.logo} />
+          </Link>
+          
+          <button 
+            onClick={() => setMobileMenuOpen(v => !v)}
+            className="md:hidden text-white hover:text-[#f97316] transition-colors p-1"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
-        {/* Search */}
-        <div style={s.searchWrap}>
+        {/* Search Bar - Full width on mobile, centered on desktop */}
+        <div className="w-full md:flex-1 md:max-w-[600px] flex items-stretch bg-white rounded overflow-hidden shadow-[0_0_0_2px_#f97316] h-[38px] md:h-[40px]">
           <input
             type="text"
             placeholder="Cari produk atau penjual..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             style={s.searchInput}
+            className="flex-1 border-none outline-none px-4 text-sm bg-transparent text-[#111] h-full"
           />
-          <button style={s.searchBtn}><Search size={15} /><span>Cari</span></button>
+          <button 
+            onClick={() => fetchItems(1)} 
+            style={s.searchBtn} 
+            className="bg-[#f97316] border-none cursor-pointer px-5 flex items-center gap-2 text-white text-xs md:text-sm font-bold flex-shrink-0"
+          >
+            <Search size={15} />
+            <span className="hidden sm:inline">Cari</span>
+          </button>
         </div>
 
-        {/* Top nav links */}
-        <nav style={s.topNav}>
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-5 ml-auto flex-shrink-0">
           <Link to="/track" style={s.topLink}>
             <Truck size={13} /> Track Order
           </Link>
@@ -215,12 +188,56 @@ export function GuestMarketplaceView() {
           <Link to="/login" style={s.btnOutline}>Masuk</Link>
           <Link to="/register" style={s.btnFill}>Daftar</Link>
         </nav>
+
+        {/* Mobile Navigation Panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-[#1a1a1a] border-t border-[#333] shadow-lg p-5 flex flex-col gap-4 z-40 transition-all duration-300">
+            <Link 
+              to="/track" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-gray-300 hover:text-white flex items-center gap-3 text-sm py-2"
+            >
+              <Truck size={16} className="text-[#f97316]" /> Track Order
+            </Link>
+            <Link 
+              to="/verify" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-gray-300 hover:text-white flex items-center gap-3 text-sm py-2"
+            >
+              <ShieldCheck size={16} className="text-[#f97316]" /> Verify
+            </Link>
+            <Link 
+              to="/register" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[#f97316] font-bold flex items-center gap-3 text-sm py-2"
+            >
+              Jadi Vendor
+            </Link>
+            <div className="h-px bg-[#333] my-1" />
+            <div className="flex gap-3">
+              <Link 
+                to="/login" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 py-2 text-center border border-[#f97316] rounded text-[#f97316] font-bold text-sm bg-transparent"
+              >
+                Masuk
+              </Link>
+              <Link 
+                to="/register" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 py-2 text-center rounded bg-[#f97316] text-white font-bold text-sm"
+              >
+                Daftar
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── SUB-NAV (white, thin) ──────────────────────────────────────────── */}
-      <nav style={s.subNav}>
+      <nav className="fixed top-[115px] md:top-[62px] left-0 right-0 z-40 h-[38px] bg-white flex items-center border-b border-[#e5e5e5] px-4 md:px-7 gap-7 shadow-sm">
         {/* Hamburger kategori trigger */}
-        <div ref={catMenuRef} style={{ position: "relative" }}>
+        <div ref={catMenuRef} className="relative">
           <button
             onClick={() => setCategoryMenuOpen(v => !v)}
             style={{
@@ -238,22 +255,12 @@ export function GuestMarketplaceView() {
 
           {/* Dropdown panel */}
           {categoryMenuOpen && (
-            <div style={{
-              position: "fixed", top: "100px", left: 0, right: 0,
-              background: "#fff", borderTop: "2px solid #f97316",
-              borderBottom: "1px solid #e5e5e5",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-              zIndex: 198, padding: "20px 28px",
-            }}>
-              <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div className="fixed top-[153px] md:top-[100px] left-0 right-0 bg-white border-t-2 border-[#f97316] border-b border-[#e5e5e5] shadow-lg z-30 p-5 md:px-7">
+              <div className="max-w-[1200px] mx-auto">
                 <div style={{ fontSize: "11px", fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px" }}>
                   Semua Kategori
                 </div>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-                  gap: "6px",
-                }}>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                   {CATEGORIES.map(cat => (
                     <button
                       key={cat}
@@ -278,42 +285,45 @@ export function GuestMarketplaceView() {
             </div>
           )}
         </div>
-
       </nav>
 
-      {/* ── PAGE CONTENT (below 100px fixed headers) ───────────────────────── */}
-      <div style={{ paddingTop: "100px", paddingBottom: "60px" }}>
+      {/* ── PAGE CONTENT (below fixed headers) ───────────────────────── */}
+      <div className="pt-[168px] md:pt-[116px] pb-[60px]">
 
         {/* ── HERO BANNER ────────────────────────────────────────────────── */}
-        <div style={{ ...s.inner, marginTop: "16px" }}>
-          <div style={s.bannerGrid}>
+        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             {/* Main banner */}
-            <div style={s.bannerMain}>
-              <span style={{ color: "#f97316", fontWeight: 800, fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px" }}>
+            <div className="lg:col-span-2 bg-gradient-to-br from-[#fff4eb] to-[#fde8cc] border border-[#f7d9b0] rounded p-6 sm:p-10 flex flex-col justify-center min-h-[180px] sm:min-h-[220px]">
+              <span className="text-[#f97316] font-extrabold text-xs uppercase tracking-wider">
                 Huntr.id Platform
               </span>
-              <h1 style={{ fontSize: "26px", fontWeight: 900, color: "#111", margin: "10px 0 12px 0", lineHeight: 1.2 }}>
-                Enterprise<br />E-Procurement Ecosystem
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#111] my-3 leading-tight">
+                Enterprise E-Procurement Ecosystem
               </h1>
-              <p style={{ color: "#666", fontSize: "13px", margin: 0, lineHeight: 1.6, maxWidth: "400px" }}>
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed max-w-[480px]">
                 Hubungkan perusahaan Anda dengan ribuan vendor terverifikasi dalam satu ekosistem B2B yang efisien.
               </p>
             </div>
 
             {/* Side banners */}
-            <div style={s.bannerSide}>
-              <div style={s.bannerSideCard}>
-                <div style={s.bannerSideIcon}><span style={{ fontSize: "18px" }}>💼</span></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+              <div className="bg-white border border-[#e5e5e5] rounded p-4 flex items-center gap-3.5">
+                <div className="bg-[#fff4eb] text-[#f97316] w-[38px] h-[38px] rounded flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">💼</span>
+                </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: "13px", color: "#111" }}>E-Bidding</div>
-                  <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Sistem proposal digital transparan</div>
+                  <div className="font-bold text-sm text-[#111]">E-Bidding</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Sistem proposal digital transparan</div>
                 </div>
               </div>
-              <div style={s.bannerSideCard}>
-                <div style={s.bannerSideIcon}><span style={{ fontSize: "18px" }}>🛡️</span></div>
+              <div className="bg-white border border-[#e5e5e5] rounded p-4 flex items-center gap-3.5">
+                <div className="bg-[#fff4eb] text-[#f97316] w-[38px] h-[38px] rounded flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">🛡️</span>
+                </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: "13px", color: "#111" }}>Verified Vendors</div>
-                  <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Keamanan transaksi terjamin</div>
+                  <div className="font-bold text-sm text-[#111]">Verified Vendors</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Keamanan transaksi terjamin</div>
                 </div>
               </div>
             </div>
@@ -321,14 +331,14 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── FEATURE CARDS ROW ─────────────────────────────────────────── */}
-        <div style={{ ...s.inner, marginTop: "10px" }}>
-          <div style={s.featureRow}>
+        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {FEATURE_CARDS.map(c => (
-              <div key={c.title} style={s.featureCard}>
-                <span style={{ fontSize: "22px", flexShrink: 0 }}>{c.icon}</span>
+              <div key={c.title} className="bg-[#1e293b] text-white rounded p-3 sm:p-4 flex items-center gap-3 cursor-pointer hover:bg-[#334155] transition-colors">
+                <span className="text-xl sm:text-2xl flex-shrink-0">{c.icon}</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: "12px" }}>{c.title}</div>
-                  <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "2px", lineHeight: 1.4 }}>{c.sub}</div>
+                  <div className="font-bold text-xs sm:text-sm">{c.title}</div>
+                  <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">{c.sub}</div>
                 </div>
               </div>
             ))}
@@ -336,8 +346,8 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── CATEGORY CHIPS ─────────────────────────────────────────────── */}
-        <div style={{ ...s.inner, marginTop: "14px" }}>
-          <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none", border: "1px solid #e5e5e5", borderRadius: "3px", background: "#fff" }}>
+        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-4.5">
+          <div className="flex overflow-x-auto scrollbar-none border border-[#e5e5e5] rounded bg-white">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -351,32 +361,27 @@ export function GuestMarketplaceView() {
         </div>
 
         {/* ── PRODUCT SECTION ─────────────────────────────────────────────── */}
-        <div style={{ ...s.inner, marginTop: "18px" }}>
+        <div style={s.inner} className="px-4 sm:px-6 lg:px-8 mt-5.5">
           <div style={s.sectionHead}>
-            <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: "#111" }}>
+            <h2 className="m-0 text-base font-extrabold text-[#111]">
               Rekomendasi Produk
             </h2>
-            <span style={{ color: "#f97316", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}>
+            <span className="text-[#f97316] text-xs font-bold cursor-pointer">
               Lihat Semua →
             </span>
           </div>
 
           {loading ? (
-            <div style={{ padding: "60px 0", textAlign: "center" }}>
+            <div className="py-[60px] text-center">
               <Loader2 className="animate-spin" size={36} color="#f97316" style={{ margin: "0 auto" }} />
             </div>
           ) : items.length === 0 ? (
-            <div style={{ padding: "60px 0", textAlign: "center", color: "#999" }}>
+            <div className="py-[60px] text-center text-[#999]">
               <Package size={48} style={{ opacity: 0.15, margin: "0 auto 16px" }} />
-              <p style={{ fontSize: "14px" }}>Belum ada produk yang tersedia.</p>
+              <p className="text-sm">Belum ada produk yang tersedia.</p>
             </div>
           ) : (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap: "8px",
-              marginTop: "14px",
-            }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-4">
               {items.map(item => (
                 <div
                   key={item.id}
@@ -384,6 +389,7 @@ export function GuestMarketplaceView() {
                   onClick={() => navigate(`/marketplace/${item.id}`)}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 3px 10px rgba(0,0,0,0.12)")}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
+                  className="bg-white border border-[#e5e5e5] rounded cursor-pointer overflow-hidden transition-all duration-150"
                 >
                   <div style={s.productImg}>
                     {item.image_path ? (
@@ -491,7 +497,7 @@ export function GuestMarketplaceView() {
               </ul>
             </div>
           </div>
-          <div style={{ maxWidth: "1200px", margin: "24px auto 0", borderTop: "1px solid #f0f0f0", paddingTop: "14px", textAlign: "center", fontSize: "11px", color: "#bbb" }}>
+          <div style={{ maxWidth: "1200px", margin: "24px auto 0", borderTop: "1px solid #f0f0f0", paddingTop: "14px", textAlignment: "center", fontSize: "11px", color: "#bbb" }}>
             © 2026 Huntr.id – Enterprise Procurement Ecosystem. All rights reserved.
           </div>
         </footer>
