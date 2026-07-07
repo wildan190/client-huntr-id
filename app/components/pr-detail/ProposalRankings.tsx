@@ -123,6 +123,26 @@ export function ProposalRankings({
                       }}>
                         Delivery: {winner.delivery_days} days • Payment: {winner.payment_term}
                       </div>
+                      {(winner.document_path || winner.document_url) && (
+                        <div style={{ marginTop: 8 }}>
+                          <a
+                            href={winner.document_url || `/storage/${winner.document_path}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              color: "#22c55e",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              textDecoration: "none"
+                            }}
+                          >
+                            📄 Lihat Dokumen Vendor
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>
@@ -225,6 +245,26 @@ export function ProposalRankings({
                         }}>
                           Delivery: {proposal.delivery_days} days • Payment: {proposal.payment_term}
                         </div>
+                        {(proposal.document_path || proposal.document_url) && (
+                          <div style={{ marginTop: 8 }}>
+                            <a
+                              href={proposal.document_url || `/storage/${proposal.document_path}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                color: "#f97316",
+                                fontSize: 12,
+                                fontWeight: 700,
+                                textDecoration: "none"
+                              }}
+                            >
+                              📄 Lihat Dokumen Vendor
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
