@@ -497,7 +497,7 @@ export function GuestMarketplaceView() {
               </ul>
             </div>
           </div>
-          <div style={{ maxWidth: "1200px", margin: "24px auto 0", borderTop: "1px solid #f0f0f0", paddingTop: "14px", textAlignment: "center", fontSize: "11px", color: "#bbb" }}>
+          <div style={{ maxWidth: "1200px", margin: "24px auto 0", borderTop: "1px solid #f0f0f0", paddingTop: "14px", textAlign: "center", fontSize: "11px", color: "#bbb" }}>
             © 2026 Huntr.id – Enterprise Procurement Ecosystem. All rights reserved.
           </div>
         </footer>
