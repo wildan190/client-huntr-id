@@ -26,6 +26,19 @@ export function GuestMarketplaceView() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const catMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (catMenuRef.current && !catMenuRef.current.contains(e.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => { fetchItems(1); }, [activeCategory]);
 
@@ -197,32 +210,75 @@ export function GuestMarketplaceView() {
             <ShieldCheck size={13} /> Verify
           </Link>
           <div style={s.divider} />
+          <Link to="/register" style={{ ...s.topLink, color: "#f97316", fontWeight: 700 }}>Jadi Vendor</Link>
+          <div style={s.divider} />
           <Link to="/login" style={s.btnOutline}>Masuk</Link>
           <Link to="/register" style={s.btnFill}>Daftar</Link>
         </nav>
       </header>
 
-      {/* ── SUB-NAV (white, thin — category list) ─────────────────────────── */}
+      {/* ── SUB-NAV (white, thin) ──────────────────────────────────────────── */}
       <nav style={s.subNav}>
-        <div style={s.subNavLeft}>
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "#222", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", whiteSpace: "nowrap", flexShrink: 0 }}>
+        {/* Hamburger kategori trigger */}
+        <div ref={catMenuRef} style={{ position: "relative" }}>
+          <button
+            onClick={() => setCategoryMenuOpen(v => !v)}
+            style={{
+              fontSize: "12px", fontWeight: 700, color: categoryMenuOpen ? "#f97316" : "#222",
+              background: categoryMenuOpen ? "#fff4eb" : "transparent",
+              border: "1px solid " + (categoryMenuOpen ? "#f97316" : "#e5e5e5"),
+              borderRadius: "3px", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "4px 12px", whiteSpace: "nowrap",
+              transition: "all 0.15s",
+            }}
+          >
             ☰ Kategori
-          </span>
-          {CATEGORIES.filter(c => c !== "All").slice(0, 12).map(cat => (
-            <span
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              style={activeCategory === cat ? s.subNavActive : s.subNavItem}
-            >
-              {cat}
-            </span>
-          ))}
+          </button>
+
+          {/* Dropdown panel */}
+          {categoryMenuOpen && (
+            <div style={{
+              position: "fixed", top: "100px", left: 0, right: 0,
+              background: "#fff", borderTop: "2px solid #f97316",
+              borderBottom: "1px solid #e5e5e5",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+              zIndex: 198, padding: "20px 28px",
+            }}>
+              <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px" }}>
+                  Semua Kategori
+                </div>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                  gap: "6px",
+                }}>
+                  {CATEGORIES.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => { setActiveCategory(cat); setCategoryMenuOpen(false); }}
+                      style={{
+                        textAlign: "left", padding: "8px 12px",
+                        fontSize: "13px", fontWeight: activeCategory === cat ? 700 : 400,
+                        color: activeCategory === cat ? "#f97316" : "#333",
+                        background: activeCategory === cat ? "#fff4eb" : "#f8f8f8",
+                        border: "1px solid " + (activeCategory === cat ? "#f97316" : "#e8e8e8"),
+                        borderRadius: "3px", cursor: "pointer",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={e => { if (activeCategory !== cat) { (e.currentTarget as HTMLElement).style.background = "#fff4eb"; (e.currentTarget as HTMLElement).style.color = "#f97316"; } }}
+                      onMouseLeave={e => { if (activeCategory !== cat) { (e.currentTarget as HTMLElement).style.background = "#f8f8f8"; (e.currentTarget as HTMLElement).style.color = "#333"; } }}
+                    >
+                      {cat === "All" ? "🏷 Semua Produk" : cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <div style={s.subNavRight}>
-          <Link to="/register" style={{ fontSize: "12px", color: "#f97316", fontWeight: 700, textDecoration: "none" }}>
-            Jadi Vendor
-          </Link>
-        </div>
+
       </nav>
 
       {/* ── PAGE CONTENT (below 100px fixed headers) ───────────────────────── */}
