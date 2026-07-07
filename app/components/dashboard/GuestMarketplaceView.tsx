@@ -36,12 +36,14 @@ export function GuestMarketplaceView() {
   }, [searchTerm]);
 
   const fetchItems = async (page = 1) => {
+    const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
     try {
       setLoading(true);
       const res = await getCatalogues({
         search: searchTerm,
         category: activeCategory === "All" ? undefined : activeCategory,
         page,
+        per_page: isDesktop ? 24 : undefined,
       });
       if (res?.data && Array.isArray(res.data)) {
         setItems(res.data);
@@ -300,9 +302,9 @@ export function GuestMarketplaceView() {
             <h2 className="m-0 text-base font-extrabold text-[#111]">
               Rekomendasi Produk
             </h2>
-            <span className="text-[#f97316] text-xs font-bold cursor-pointer">
+            {/* <span className="text-[#f97316] text-xs font-bold cursor-pointer">
               Lihat Semua →
-            </span>
+            </span> */}
           </div>
 
           {loading ? (
