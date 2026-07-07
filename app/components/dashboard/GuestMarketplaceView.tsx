@@ -26,20 +26,7 @@ export function GuestMarketplaceView() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const catMenuRef = React.useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (catMenuRef.current && !catMenuRef.current.contains(e.target as Node)) {
-        setCategoryMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   useEffect(() => { fetchItems(1); }, [activeCategory]);
 
@@ -234,61 +221,8 @@ export function GuestMarketplaceView() {
         )}
       </header>
 
-      {/* ── SUB-NAV (white, thin) ──────────────────────────────────────────── */}
-      <nav className="fixed top-[115px] md:top-[62px] left-0 right-0 z-40 h-[38px] bg-white flex items-center border-b border-[#e5e5e5] px-4 md:px-7 gap-7 shadow-sm">
-        {/* Hamburger kategori trigger */}
-        <div ref={catMenuRef} className="relative">
-          <button
-            onClick={() => setCategoryMenuOpen(v => !v)}
-            style={{
-              fontSize: "12px", fontWeight: 700, color: categoryMenuOpen ? "#f97316" : "#222",
-              background: categoryMenuOpen ? "#fff4eb" : "transparent",
-              border: "1px solid " + (categoryMenuOpen ? "#f97316" : "#e5e5e5"),
-              borderRadius: "3px", cursor: "pointer",
-              display: "flex", alignItems: "center", gap: "6px",
-              padding: "4px 12px", whiteSpace: "nowrap",
-              transition: "all 0.15s",
-            }}
-          >
-            ☰ Kategori
-          </button>
-
-          {/* Dropdown panel */}
-          {categoryMenuOpen && (
-            <div className="fixed top-[153px] md:top-[100px] left-0 right-0 bg-white border-t-2 border-[#f97316] border-b border-[#e5e5e5] shadow-lg z-30 p-5 md:px-7">
-              <div className="max-w-[1200px] mx-auto">
-                <div style={{ fontSize: "11px", fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px" }}>
-                  Semua Kategori
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                  {CATEGORIES.map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => { setActiveCategory(cat); setCategoryMenuOpen(false); }}
-                      style={{
-                        textAlign: "left", padding: "8px 12px",
-                        fontSize: "13px", fontWeight: activeCategory === cat ? 700 : 400,
-                        color: activeCategory === cat ? "#f97316" : "#333",
-                        background: activeCategory === cat ? "#fff4eb" : "#f8f8f8",
-                        border: "1px solid " + (activeCategory === cat ? "#f97316" : "#e8e8e8"),
-                        borderRadius: "3px", cursor: "pointer",
-                        transition: "all 0.15s",
-                      }}
-                      onMouseEnter={e => { if (activeCategory !== cat) { (e.currentTarget as HTMLElement).style.background = "#fff4eb"; (e.currentTarget as HTMLElement).style.color = "#f97316"; } }}
-                      onMouseLeave={e => { if (activeCategory !== cat) { (e.currentTarget as HTMLElement).style.background = "#f8f8f8"; (e.currentTarget as HTMLElement).style.color = "#333"; } }}
-                    >
-                      {cat === "All" ? "🏷 Semua Produk" : cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
       {/* ── PAGE CONTENT (below fixed headers) ───────────────────────── */}
-      <div className="pt-[210px] sm:pt-[200px] md:pt-[120px] pb-[60px]">
+      <div className="pt-[130px] sm:pt-[120px] md:pt-[82px] pb-[60px]">
 
         {/* ── HERO BANNER ────────────────────────────────────────────────── */}
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
