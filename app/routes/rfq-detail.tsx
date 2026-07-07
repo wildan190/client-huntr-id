@@ -60,11 +60,14 @@ export default function RfqDetail() {
     if (!inviteWhatsapp) return;
     setInviting(true);
     try {
-      await apiPost(`/api/rfqs/${id}/invite-vendor`, { whatsapp: inviteWhatsapp });
+      const res = await apiPost(`/api/rfqs/${id}/invite-vendor`, { whatsapp: inviteWhatsapp });
+      if (res.whatsapp_link) {
+        window.open(res.whatsapp_link, '_blank');
+      }
       Swal.fire({
         icon: 'success',
         title: 'Invitation Sent!',
-        text: 'The vendor has been invited via WhatsApp.',
+        text: 'WhatsApp will open to send the invitation to the vendor.',
         timer: 3000,
         showConfirmButton: false
       });

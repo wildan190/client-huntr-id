@@ -48,7 +48,7 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
     { month: 'Jun', savings: 1200000000 },
   ];
 
-  const [currencyState, setCurrencyState] = React.useState({ base: 'IDR', rates: {} as Record<string, { code: string; value: number }> });
+  const [currencyState, setCurrencyState] = React.useState<{ baseCurrency: string; rates: Record<string, { code: string; value: number }> }>({ baseCurrency: 'IDR', rates: {} });
 
   React.useEffect(() => {
     const handleCurrencyUpdate = (e: any) => {
@@ -60,17 +60,19 @@ export function BuyerDashboard({ user, activeCompany }: { user: any, activeCompa
 
   const formatCurrency = (valueIdr: number | string | null | undefined) => {
     const numeric = Number(valueIdr ?? 0);
+    if (isNaN(numeric)) return 'Rp 0';
     
+    const base = currencyState.baseCurrency ?? 'IDR';
     let convertedValue = numeric;
     let symbol = 'Rp';
     
-    if (currencyState.base !== 'IDR' && currencyState.rates['IDR']?.value) {
+    if (base !== 'IDR' && currencyState.rates['IDR']?.value) {
       convertedValue = numeric / currencyState.rates['IDR'].value;
-      symbol = currencyState.base === 'USD' ? '$' : 
-               currencyState.base === 'EUR' ? '€' : 
-               currencyState.base === 'SGD' ? 'S$' : 
-               currencyState.base === 'MYR' ? 'RM' : 
-               currencyState.base === 'JPY' ? '¥' : currencyState.base + ' ';
+      symbol = base === 'USD' ? '$' : 
+               base === 'EUR' ? '€' : 
+               base === 'SGD' ? 'S$' : 
+               base === 'MYR' ? 'RM' : 
+               base === 'JPY' ? '¥' : base + ' ';
     }
     
     const absVal = Math.abs(convertedValue);

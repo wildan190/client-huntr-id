@@ -224,7 +224,7 @@ export function RFQSidebar({
             <input 
               type="tel"
               required
-              placeholder="WhatsApp Number (e.g. 08123...)"
+              placeholder="e.g. 628123456789"
               value={inviteWhatsapp}
               onChange={e => setInviteWhatsapp(e.target.value)}
               style={{
