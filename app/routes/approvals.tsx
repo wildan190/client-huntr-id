@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { apiGet, apiPost } from "../lib/api";
-import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle, Trophy, Building2, DollarSign } from "lucide-react";
+import { getAssetUrl } from "../lib/assets";
+import { CheckCircle2, XCircle, Clock, Package, Calendar, User, Search, Loader2, AlertCircle, Trophy, Building2, DollarSign, FileText } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAppShell } from "../routes/_app";
 import Swal from "sweetalert2";
@@ -181,6 +182,21 @@ export default function Approvals() {
                     <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-muted)" }}>
                       <User size={13} /> Requested by: <span style={{ color: "var(--ui-text-secondary)" }}>{req.user?.name || "Unknown"}</span>
                     </div>
+
+                    {(req.document_path || req.document_url) && (
+                      <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "rgba(249, 115, 22, 0.05)", borderRadius: 8, border: "1px solid rgba(249, 115, 22, 0.1)" }}>
+                        <FileText size={16} color="#f97316" />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "#f97316" }}>Ada Lampiran</span>
+                        <a 
+                          href={req.document_url || getAssetUrl(req.document_path)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ marginLeft: "auto", fontSize: 12, color: "#f97316", textDecoration: "underline", cursor: "pointer" }}
+                        >
+                          Lihat
+                        </a>
+                      </div>
+                    )}
                   </div>
 
                   <div className="huntr-action-card-meta" style={{ width: 180 }}>
