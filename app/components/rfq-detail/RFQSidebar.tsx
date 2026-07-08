@@ -135,76 +135,7 @@ export function RFQSidebar({
         )}
       </div>
 
-      {/* Document Attachment */}
-      {rfq.document_path && (
-        <div style={{ 
-          background: "var(--ui-bg-card)", 
-          border: "1px solid var(--ui-border)", 
-          borderRadius: 12, 
-          padding: 20, 
-          boxShadow: "0 4px 20px rgba(0,0,0,0.03)" 
-        }}>
-          <h3 style={{ 
-            margin: "0 0 16px", 
-            fontSize: 13, 
-            fontWeight: 600, 
-            color: "var(--ui-text-muted)", 
-            textTransform: "uppercase", 
-            letterSpacing: 1 
-          }}>
-            Document Attachment
-          </h3>
-          <a 
-            href={getAssetUrl(rfq.document_url || rfq.document_path)} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: 16,
-              background: "var(--ui-bg-input)",
-              borderRadius: 12,
-              textDecoration: "none",
-              color: "var(--ui-text-primary)",
-              fontSize: 14,
-              fontWeight: 600,
-              border: "1px solid var(--ui-border-input)",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--ui-bg-card)";
-              e.currentTarget.style.borderColor = "var(--huntr-orange)";
-              e.currentTarget.style.color = "var(--huntr-orange)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--ui-bg-input)";
-              e.currentTarget.style.borderColor = "var(--ui-border-input)";
-              e.currentTarget.style.color = "var(--ui-text-primary)";
-            }}
-          >
-            <div style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              background: "rgba(249,115,22,0.1)",
-              color: "#f97316",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <Package size={18} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>View RFQ Document</div>
-              <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>
-                Additional specifications and requirements
-              </div>
-            </div>
-          </a>
-        </div>
-      )}
+
 
       {/* Invite Vendor Card (Buyer Only) */}
       {canApproveOrAward && rfq && (rfq.status === 'active' || rfq.status === 'draft') && !isTenderExpired() && (

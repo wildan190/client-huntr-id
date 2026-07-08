@@ -480,46 +480,7 @@ export default function MyPurchaseRequisitionDetail() {
             onUpdate={setRequest}
           />
 
-          {/* Document Attachment */}
-          {(request.document_url || request.document_path) && (
-            <div style={{ 
-              padding: 16, 
-              borderRadius: 16, 
-              background: "var(--ui-bg-card)", 
-              border: "1px solid var(--ui-border)" 
-            }}>
-              <div style={{ 
-                fontSize: 11, 
-                fontWeight: 700, 
-                textTransform: "uppercase", 
-                letterSpacing: 1, 
-                color: "#9ca3af", 
-                marginBottom: 12 
-              }}>
-                Attachment
-              </div>
-              <a 
-                href={request.document_url || getAssetUrl(request.document_path)} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: 12,
-                  background: "var(--ui-bg-input)",
-                  borderRadius: 10,
-                  textDecoration: "none",
-                  color: "var(--ui-text-primary)",
-                  fontSize: 13,
-                  fontWeight: 600
-                }}
-              >
-                <Package size={16} />
-                View Document
-              </a>
-            </div>
-          )}
+
         </div>
       </div>
 
