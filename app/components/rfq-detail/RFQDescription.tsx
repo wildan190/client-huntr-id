@@ -10,8 +10,10 @@ interface RFQDescriptionProps {
 
 export function RFQDescription({ rfq, successMessage }: RFQDescriptionProps) {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
-  console.log("=== RFQ OBJECT ===");
-  console.log(rfq);
+  console.log("=== ALL RFQ KEYS ===");
+  console.log(Object.keys(rfq || {}));
+  console.log("=== FULL RFQ ===");
+  console.log(JSON.stringify(rfq, null, 2));
   console.log("=== document_url ===");
   console.log(rfq?.document_url);
   console.log("=== document_path ===");
