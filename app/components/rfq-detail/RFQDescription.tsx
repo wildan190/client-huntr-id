@@ -1,7 +1,7 @@
 import React from "react";
 import { User, Building2, ClipboardList, CheckCircle2, FileText } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../../hooks/useMediaQuery";
-import { getAssetUrl } from "../../lib/assets";
+import { getRfqDocumentUrl } from "../../lib/assets";
 
 interface RFQDescriptionProps {
   rfq: any;
@@ -10,11 +10,7 @@ interface RFQDescriptionProps {
 
 export function RFQDescription({ rfq, successMessage }: RFQDescriptionProps) {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
-  // Be robust: use document_url if available, otherwise try document_path with getAssetUrl
-  let documentUrl = rfq?.document_url;
-  if (!documentUrl && rfq?.document_path) {
-    documentUrl = getAssetUrl(rfq.document_path);
-  }
+  const documentUrl = rfq?.id ? getRfqDocumentUrl(rfq.id) : null;
 
   return (
     <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
