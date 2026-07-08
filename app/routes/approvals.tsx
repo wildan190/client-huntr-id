@@ -303,7 +303,7 @@ export default function Approvals() {
 
                   <div className="huntr-action-card-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
                     <button 
-                      onClick={() => navigate(`/my-pr/${proposal.rfq_id}`)}
+                      onClick={() => navigate(`/compare-review/${proposal.rfq_id}`)}
                       style={{
                         padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.05)",
                         border: "1px solid var(--ui-border-input)", color: "var(--ui-text-secondary)", fontWeight: 700,

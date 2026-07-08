@@ -477,9 +477,9 @@ export default function Marketplace() {
                     }}
                   >
                     <div style={{ width: "100%", aspectRatio: "1/1", borderRadius: 12, background: "var(--ui-bg-input)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                      {item.image_path ? (
+                      {(item.image_url || item.image_path) ? (
                         <img
-                          src={getAssetUrl(item.image_path)}
+                          src={getAssetUrl(item.image_url || item.image_path)}
                           alt={item.name}
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                           onError={(e) => {

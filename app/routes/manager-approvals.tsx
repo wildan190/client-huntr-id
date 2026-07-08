@@ -268,11 +268,11 @@ export default function ManagerApprovals() {
                   <span style={detailKeyStyle}>Payment:</span>
                   <span style={detailValueStyle}>{selectedProposal.payment_term || "Not specified"}</span>
                 </div>
-                {selectedProposal.document_path && (
+                {(selectedProposal.document_url || selectedProposal.document_path) && (
                   <div style={detailRowStyle}>
                     <span style={detailKeyStyle}>Document:</span>
                     <a
-                      href={getAssetUrl(selectedProposal.document_path)}
+                      href={selectedProposal.document_url || getAssetUrl(selectedProposal.document_path)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--huntr-orange)", textDecoration: "none", fontWeight: 700 }}

@@ -367,10 +367,10 @@ export default function Catalogue() {
                     <p style={{ fontSize: 13, color: "var(--ui-text-secondary)", margin: "12px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {item.specifications || "No detailed specifications provided."}
                     </p>
-                    {item.image_path && (
+                    {(item.image_url || item.image_path) && (
                       <div style={{ marginTop: 12 }}>
                         <img 
-                          src={getAssetUrl(item.image_path)} 
+                          src={getAssetUrl(item.image_url || item.image_path)} 
                           alt={item.name} 
                           style={{ width: "100%", height: 120, objectFit: "contain", borderRadius: 8 }} 
                         />

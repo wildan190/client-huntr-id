@@ -32,7 +32,7 @@ export default function CompanyDetails() {
   const missingFields = React.useMemo(() => {
     if (!vm.company) return [];
     const fields = [];
-    if (!vm.company.logo_path) fields.push("Logo");
+    if (!vm.company.logo_url && !vm.company.logo_path) fields.push("Logo");
     if (!vm.company.address) fields.push("Full Address");
     if (!vm.company.bank_name) fields.push("Bank Details");
     if (!vm.company.documents || vm.company.documents.length === 0) fields.push("Company Documents");
@@ -95,8 +95,8 @@ export default function CompanyDetails() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-lg bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border border-[var(--ui-border)]">
-                        {c.logo_path ? (
-                          <img src={getAssetUrl(c.logo_path)} className="w-full h-full object-cover" alt="" />
+                        {c.logo_url || c.logo_path ? (
+                          <img src={getAssetUrl(c.logo_url || c.logo_path)} className="w-full h-full object-cover" alt="" />
                         ) : <Building2 size={20} className="text-orange-500" />}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -156,8 +156,8 @@ export default function CompanyDetails() {
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-16 h-16 rounded-xl bg-[var(--ui-bg-input)] flex items-center justify-center overflow-hidden border border-[var(--ui-border)] group-hover:border-orange-500/50 transition-all">
-                {vm.company.logo_path ? (
-                  <img src={getAssetUrl(vm.company.logo_path)} className="w-full h-full object-cover" alt={vm.company.name} />
+                {vm.company.logo_url || vm.company.logo_path ? (
+                  <img src={getAssetUrl(vm.company.logo_url || vm.company.logo_path)} className="w-full h-full object-cover" alt={vm.company.name} />
                 ) : <Building2 size={28} className="text-orange-500" />}
                 <button 
                   onClick={() => document.getElementById('logo-upload')?.click()}
@@ -235,8 +235,8 @@ export default function CompanyDetails() {
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       <div className="w-16 h-16 rounded-xl bg-[var(--ui-bg-input)] border border-[var(--ui-border)] overflow-hidden flex items-center justify-center">
-                        {vm.company.logo_path ? (
-                          <img src={getAssetUrl(vm.company.logo_path)} className="w-full h-full object-cover" alt="" />
+                        {vm.company.logo_url || vm.company.logo_path ? (
+                          <img src={getAssetUrl(vm.company.logo_url || vm.company.logo_path)} className="w-full h-full object-cover" alt="" />
                         ) : <Building2 size={24} className="text-[var(--ui-text-muted)]" />}
                       </div>
                       <button 

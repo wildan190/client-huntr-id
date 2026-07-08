@@ -4,6 +4,7 @@ import {
   Info, Loader2, Sparkles 
 } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../../hooks/useMediaQuery";
+import { getAssetUrl } from "../../lib/assets";
 
 interface ProposalRankingsProps {
   rankings: any[];
@@ -365,7 +366,7 @@ export function ProposalRankings({
                   <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ui-text-muted)", display: "block" }}>DOKUMEN VENDOR</span>
                   {rankData.proposal.document_path || rankData.proposal.document_url ? (
                     <a
-                      href={rankData.proposal.document_url || `/storage/${rankData.proposal.document_path}`}
+                      href={rankData.proposal.document_url || getAssetUrl(rankData.proposal.document_path)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{

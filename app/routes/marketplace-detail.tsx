@@ -37,8 +37,8 @@ export function meta({ data }: Route.MetaArgs) {
   const title = `${product.name} | Huntr.id`;
   const description = product.specifications || `Buy ${product.name} on Huntr.id. ${product.category || "General"} product from vendor.`;
   const canonical = `https://app.huntr.id/marketplace/${product.id}`;
-  const imageUrl = product.image_path
-    ? getAssetUrl(product.image_path)
+  const imageUrl = product.image_url || product.image_path
+    ? getAssetUrl(product.image_url || product.image_path)
     : (product.image || "https://app.huntr.id/assets/img/logo/sidebar.png");
 
   return [
@@ -67,6 +67,7 @@ interface CatalogueItem {
   specifications?: string;
   price?: number;
   image?: string;
+  image_url?: string;
   image_path?: string;
   uom: string;
   company_id: string;
@@ -243,7 +244,7 @@ export default function MarketplaceDetail() {
     }
   };
 
-  const imageUrl = item?.image_path ? getAssetUrl(item.image_path) : (item?.image || null);
+  const imageUrl = item?.image_url || item?.image_path ? getAssetUrl(item.image_url || item.image_path) : (item?.image || null);
   const pageTitle = item?.name || "Marketplace Product";
 
   const productSchema = item ? {
@@ -377,7 +378,6 @@ export default function MarketplaceDetail() {
                       { label: "SKU / Kode Item", value: item.item_code },
                       { label: "Kategori", value: item.category || "General" },
                       { label: "Satuan", value: item.uom },
-                      ...(item.company?.name ? [{ label: "Vendor", value: item.company.name }] : []),
                     ].map(({ label, value }) => (
                       <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 16, fontSize: 14 }}>
                         <span style={{ color: "#888", flexShrink: 0 }}>{label}</span>

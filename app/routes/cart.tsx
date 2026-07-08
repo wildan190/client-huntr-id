@@ -146,9 +146,9 @@ export default function CartPage() {
                       justifyContent: "center",
                       flexShrink: 0,
                     }}>
-                      {item.image_path ? (
+                      {(item.image_url || item.image_path) ? (
                         <img
-                          src={getAssetUrl(item.image_path)}
+                          src={getAssetUrl(item.image_url || item.image_path || '')}
                           alt={item.name}
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                           onError={(e) => {

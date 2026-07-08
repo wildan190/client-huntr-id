@@ -44,6 +44,7 @@ export interface CatalogueItem {
   category: string;
   uom: string;
   price: number;
+  image_url?: string;
   image_path?: string;
   specifications?: string;
 }

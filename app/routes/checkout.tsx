@@ -243,8 +243,8 @@ export default function Checkout() {
                 >
                   {/* Thumbnail */}
                   <div style={{ width: 52, height: 52, borderRadius: 10, background: "var(--ui-bg-input)", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {item.image_path ? (
-                      <img src={getAssetUrl(item.image_path)} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    {(item.image_url || item.image_path) ? (
+                      <img src={getAssetUrl(item.image_url || item.image_path)} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       <Package size={22} color="var(--ui-text-muted)" strokeWidth={1.5} style={{ opacity: 0.4 }} />
                     )}

@@ -27,6 +27,7 @@ export default [
     route("cart", "routes/cart.tsx"),
     route("my-pr", "routes/my-pr.tsx"),
     route("my-pr/:id", "routes/my-pr-detail.tsx"),
+    route("compare-review/:id", "routes/compare-review.tsx"),
     route("all-requests", "routes/all-requests.tsx"),
     route("rfq/:id", "routes/rfq-detail.tsx"),
     route("checkout", "routes/checkout.tsx"),

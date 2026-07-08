@@ -328,9 +328,9 @@ export function GuestMarketplaceView() {
                   className="bg-white border border-[#e5e5e5] rounded cursor-pointer overflow-hidden transition-all duration-150"
                 >
                   <div style={s.productImg}>
-                    {item.image_path ? (
+                    {(item.image_url || item.image_path) ? (
                       <img
-                        src={getAssetUrl(item.image_path)}
+                        src={getAssetUrl(item.image_url || item.image_path)}
                         alt={item.name}
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         onError={e => ((e.target as HTMLImageElement).style.display = "none")}

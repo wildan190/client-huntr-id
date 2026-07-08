@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Trophy, Building2, Package, DollarSign, Calendar, MessageSquare, Loader2 } from 'lucide-react';
+import { getAssetUrl } from '../../lib/assets';
 
 interface ProposalRankingsProps {
   rankings: any[];
-  onAwardWinner: (proposalId: string | number, rfqId: string | number) => Promise<void>;
-  onOpenNegotiation: (proposal: any) => void;
-  awardingProposal: string | number | null;
+  onAwardWinner?: (proposalId: string | number, rfqId: string | number) => Promise<void>;
+  onOpenNegotiation?: (proposal: any) => void;
+  awardingProposal?: string | number | null;
   requestId: string;
 }
 
@@ -126,7 +127,7 @@ export function ProposalRankings({
                       {(winner.document_path || winner.document_url) && (
                         <div style={{ marginTop: 8 }}>
                           <a
-                            href={winner.document_url || `/storage/${winner.document_path}`}
+                            href={winner.document_url || getAssetUrl(winner.document_path)}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -248,7 +249,7 @@ export function ProposalRankings({
                         {(proposal.document_path || proposal.document_url) && (
                           <div style={{ marginTop: 8 }}>
                             <a
-                              href={proposal.document_url || `/storage/${proposal.document_path}`}
+                              href={proposal.document_url || getAssetUrl(proposal.document_path)}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{
@@ -286,56 +287,62 @@ export function ProposalRankings({
                     </div>
                   </div>
 
-                  <div style={{ 
-                    display: "flex", 
-                    justifyContent: "flex-end", 
-                    gap: 12, 
-                    marginTop: 16 
-                  }}>
-                    <button
-                      onClick={() => onOpenNegotiation(proposal)}
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: 10,
-                        background: "transparent",
-                        border: "1px solid var(--ui-border-input)",
-                        color: "var(--ui-text-secondary)",
-                        fontWeight: 700,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6
-                      }}
-                    >
-                      <MessageSquare size={14} /> Negotiate
-                    </button>
-                    
-                    <button 
-                      onClick={() => onAwardWinner(proposal.id, requestId)}
-                      disabled={awardingProposal === proposal.id}
-                      style={{ 
-                        padding: "8px 16px", 
-                        borderRadius: 10, 
-                        border: "none", 
-                        background: "var(--huntr-gradient)", 
-                        color: "#fff", 
-                        fontSize: 12, 
-                        fontWeight: 800, 
-                        cursor: "pointer", 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: "center", 
-                        gap: 6 
-                      }}
-                    >
-                      {awardingProposal === proposal.id ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <><Trophy size={14} /> Award Winner</>
+                  {(onAwardWinner || onOpenNegotiation) && (
+                    <div style={{ 
+                      display: "flex", 
+                      justifyContent: "flex-end", 
+                      gap: 12, 
+                      marginTop: 16 
+                    }}>
+                      {onOpenNegotiation && (
+                        <button
+                          onClick={() => onOpenNegotiation(proposal)}
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: 10,
+                            background: "transparent",
+                            border: "1px solid var(--ui-border-input)",
+                            color: "var(--ui-text-secondary)",
+                            fontWeight: 700,
+                            fontSize: 12,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6
+                          }}
+                        >
+                          <MessageSquare size={14} /> Negotiate
+                        </button>
                       )}
-                    </button>
-                  </div>
+                      
+                      {onAwardWinner && (
+                        <button 
+                          onClick={() => onAwardWinner(proposal.id, requestId)}
+                          disabled={awardingProposal === proposal.id}
+                          style={{ 
+                            padding: "8px 16px", 
+                            borderRadius: 10, 
+                            border: "none", 
+                            background: "var(--huntr-gradient)", 
+                            color: "#fff", 
+                            fontSize: 12, 
+                            fontWeight: 800, 
+                            cursor: "pointer", 
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: "center", 
+                            gap: 6 
+                          }}
+                        >
+                          {awardingProposal === proposal.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <><Trophy size={14} /> Award Winner</>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
