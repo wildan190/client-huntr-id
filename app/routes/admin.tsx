@@ -15,6 +15,7 @@ import {
   adminGetTransactions,
   adminGetEscrowSummary
 } from "../lib/api";
+import { getCompanyDocumentUrl, getAssetUrl } from "../lib/assets";
 import Swal from "sweetalert2";
 
 const BASE_URL_IMAGE = import.meta.env.VITE_BASE_URL_IMAGE || `${import.meta.env.VITE_API_URL}/storage`;
@@ -499,23 +500,23 @@ function AdminCompaniesTab() {
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", marginBottom: 4 }}>DOCUMENTS</div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                          {company.documents && company.documents.length > 0 ? (
-                            company.documents.filter(d => d.type !== "logo").map(doc => (
-                              <a key={doc.id} href={getImageUrl(doc.url)} target="_blank" rel="noopener noreferrer" style={{
-                                display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#3b82f6", textDecoration: "none", fontWeight: 600,
-                                background: "rgba(59,130,246,0.1)", padding: "6px 10px", borderRadius: 6,
-                              }}>
-                                <FileText size={14} />
-                                {doc.type.toUpperCase()}: {doc.name}
-                              </a>
-                            ))
-                          ) : (
-                            <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>No documents uploaded</div>
-                          )}
-                        </div>
-                      </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ui-text-muted)", marginBottom: 4 }}>DOCUMENTS</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {company.documents && company.documents.length > 0 ? (
+                    company.documents.filter(d => d.type !== "logo").map(doc => (
+                      <a key={doc.id} href={getCompanyDocumentUrl(doc.id)} target="_blank" rel="noopener noreferrer" style={{
+                        display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#3b82f6", textDecoration: "none", fontWeight: 600,
+                        background: "rgba(59,130,246,0.1)", padding: "6px 10px", borderRadius: 6,
+                      }}>
+                        <FileText size={14} />
+                        {doc.type.toUpperCase()}: {doc.name}
+                      </a>
+                    ))
+                  ) : (
+                    <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>No documents uploaded</div>
+                  )}
+                </div>
+              </div>
                     </div>
                   </div>
                 )}
@@ -633,7 +634,7 @@ function AdminCatalogueTab() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
           {catalogues.map(item => (
             <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
-              <div style={{ height: 140, flexShrink: 0, background: item.image_path ? `url(${BASE_URL_IMAGE}/${item.image_path}) center/cover` : "rgba(249,115,22,0.1)" }} />
+              <div style={{ height: 140, flexShrink: 0, background: item.image_url ? `url(${item.image_url}) center/cover` : "rgba(249,115,22,0.1)" }} />
               <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
                 <div style={{ fontWeight: 800, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</div>
                 <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
@@ -1175,7 +1176,7 @@ function AdminAdminsTab() {
             display: "flex", alignItems: "center", gap: 8
           }}
         >
-          <User size={16} /> Add New Admin
+          <Users size={16} /> Add New Admin
         </button>
       </div>
 
