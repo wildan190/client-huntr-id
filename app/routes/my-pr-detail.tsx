@@ -269,31 +269,74 @@ export default function MyPurchaseRequisitionDetail() {
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           
           {/* Request Description */}
-          {request.description && (
+          {(request.description || request.document_path) && (
             <div style={{ 
               padding: 20, 
               borderRadius: 16, 
               background: "var(--ui-bg-card)", 
               border: "1px solid var(--ui-border)" 
             }}>
-              <div style={{ 
-                fontSize: 11, 
-                fontWeight: 700, 
-                textTransform: "uppercase", 
-                letterSpacing: 1, 
-                color: "#9ca3af", 
-                marginBottom: 12 
-              }}>
-                Description
-              </div>
-              <p style={{ 
-                fontSize: 14, 
-                color: "var(--ui-text-primary)", 
-                lineHeight: 1.6, 
-                margin: 0 
-              }}>
-                {request.description}
-              </p>
+              {request.description && (
+                <>
+                  <div style={{ 
+                    fontSize: 11, 
+                    fontWeight: 700, 
+                    textTransform: "uppercase", 
+                    letterSpacing: 1, 
+                    color: "#9ca3af", 
+                    marginBottom: 12 
+                  }}>
+                    Description
+                  </div>
+                  <p style={{ 
+                    fontSize: 14, 
+                    color: "var(--ui-text-primary)", 
+                    lineHeight: 1.6, 
+                    margin: "0 0 20px 0" 
+                  }}>
+                    {request.description}
+                  </p>
+                </>
+              )}
+              
+              {(request.document_path || request.document_url) && (
+                <div>
+                  <div style={{ 
+                    fontSize: 11, 
+                    fontWeight: 700, 
+                    textTransform: "uppercase", 
+                    letterSpacing: 1, 
+                    color: "#9ca3af", 
+                    marginBottom: 12 
+                  }}>
+                    Lampiran
+                  </div>
+                  <a 
+                    href={request.document_url || getAssetUrl(request.document_path)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "12px 20px",
+                      backgroundColor: "rgba(249, 115, 22, 0.1)",
+                      color: "#f97316",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      borderRadius: 12,
+                      cursor: "pointer"
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                    Lihat Dokumen
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
