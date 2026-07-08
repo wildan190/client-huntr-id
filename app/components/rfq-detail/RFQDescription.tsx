@@ -1,6 +1,7 @@
 import React from "react";
-import { User, Building2, ClipboardList, CheckCircle2 } from "lucide-react";
+import { User, Building2, ClipboardList, CheckCircle2, FileText } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../../hooks/useMediaQuery";
+import { getRfqDocumentUrl } from "../../lib/assets";
 
 interface RFQDescriptionProps {
   rfq: any;
@@ -9,6 +10,7 @@ interface RFQDescriptionProps {
 
 export function RFQDescription({ rfq, successMessage }: RFQDescriptionProps) {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
+  const documentUrl = rfq?.id ? getRfqDocumentUrl(rfq.id) : null;
 
   return (
     <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -55,6 +57,57 @@ export function RFQDescription({ rfq, successMessage }: RFQDescriptionProps) {
         <div style={{ color: "var(--ui-text-secondary)", fontSize: 16, lineHeight: 1.8 }}>
           {rfq.description || "No detailed description provided for this request."}
         </div>
+
+        {documentUrl && (
+          <div style={{
+            marginTop: 16,
+            padding: 12,
+            background: "rgba(245, 158, 11, 0.05)",
+            border: "1px solid rgba(245, 158, 11, 0.2)",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            gap: 12
+          }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              background: "rgba(245, 158, 11, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#f59e0b"
+            }}>
+              <FileText size={20} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-primary)" }}>Attached Document</div>
+              <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>Supporting documentation for this request</div>
+            </div>
+            <a
+              href={documentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: "8px 16px",
+                borderRadius: 6,
+                background: "#f59e0b",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "none",
+                cursor: "pointer",
+                border: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              View Document
+            </a>
+          </div>
+        )}
 
         {successMessage && (
           <div style={{

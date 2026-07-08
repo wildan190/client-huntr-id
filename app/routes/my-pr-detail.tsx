@@ -481,7 +481,7 @@ export default function MyPurchaseRequisitionDetail() {
           />
 
           {/* Document Attachment */}
-          {request.document_path && (
+          {(request.document_url || request.document_path) && (
             <div style={{ 
               padding: 16, 
               borderRadius: 16, 
@@ -499,7 +499,7 @@ export default function MyPurchaseRequisitionDetail() {
                 Attachment
               </div>
               <a 
-                href={getAssetUrl(request.document_url || request.document_path)} 
+                href={getRfqDocumentUrl(request.id)} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{
