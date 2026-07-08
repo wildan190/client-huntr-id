@@ -499,7 +499,7 @@ export default function MyPurchaseRequisitionDetail() {
                 Attachment
               </div>
               <a 
-                href={getRfqDocumentUrl(request.id)} 
+                href={request.document_url || getAssetUrl(request.document_path)} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{
