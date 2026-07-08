@@ -10,7 +10,15 @@ interface RFQDescriptionProps {
 
 export function RFQDescription({ rfq, successMessage }: RFQDescriptionProps) {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
+  console.log("=== RFQ OBJECT ===");
+  console.log(rfq);
+  console.log("=== document_url ===");
+  console.log(rfq?.document_url);
+  console.log("=== document_path ===");
+  console.log(rfq?.document_path);
   const documentUrl = rfq?.document_url || (rfq?.document_path ? getAssetUrl(rfq.document_path) : null);
+  console.log("=== final documentUrl ===");
+  console.log(documentUrl);
 
   return (
     <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
