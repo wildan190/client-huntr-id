@@ -16,7 +16,7 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
   // Calculate image statistics
   const imageStats = React.useMemo(() => {
     const totalItems = items.length;
-    const itemsWithImages = items.filter(item => Boolean(item.catalogue?.image_url || item.catalogue?.image_path)).length;
+    const itemsWithImages = items.filter((item: any) => Boolean(item.catalogue?.image_url || item.catalogue?.image_path)).length;
     const itemsWithoutImages = totalItems - itemsWithImages;
     
     return {
@@ -32,18 +32,8 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "var(--ui-text-primary)" }}>Items & Specifications</h3>
-          {imageStats.hasAnyImages && (
-            <div style={{ fontSize: 10, color: "#22c55e", background: "rgba(34,197,94,0.1)", padding: "3px 8px", borderRadius: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-              📷 Server prioritized
-            </div>
-          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          {imageStats.hasAnyImages && (
-            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600 }}>
-              {imageStats.itemsWithImages} with images, {imageStats.itemsWithoutImages} without
-            </div>
-          )}
           <span style={{ fontSize: 12, background: "var(--ui-bg-input)", padding: "4px 10px", borderRadius: 6, color: "var(--ui-text-muted)", fontWeight: 700 }}>
             {imageStats.totalItems} ITEMS
           </span>
