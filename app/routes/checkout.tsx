@@ -5,6 +5,9 @@ import { ClipboardList, CheckCircle2, ArrowLeft, Loader2, Package, AlertCircle, 
 import { useNavigate } from "react-router";
 import { getAssetUrl } from "../lib/assets";
 
+// Import debugging utilities for development
+import "../debug/cart-test";
+
 export default function Checkout() {
   const navigate = useNavigate();
   const [cart, setCart] = useState<any[]>([]);
@@ -146,6 +149,10 @@ export default function Checkout() {
         return;
       }
 
+      // Debug: Log cart items before sending
+      console.log("DEBUG: Cart items count before submission:", cart.length);
+      console.log("DEBUG: Cart items details:", cart);
+
       cart.forEach((item, index) => {
         formData.append(`items[${index}][catalogue_id]`, item.id);
         formData.append(`items[${index}][qty]`, item.qty.toString());
@@ -154,9 +161,15 @@ export default function Checkout() {
       });
 
       console.log("Submitting PR with FormData entries:");
+      const formEntries: { [key: string]: string } = {};
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
+        formEntries[key] = String(value);
       }
+      
+      // Count items being sent
+      const itemKeys = Object.keys(formEntries).filter(key => key.startsWith('items[') && key.includes('][catalogue_id]'));
+      console.log("DEBUG: Total items being sent to API:", itemKeys.length);
 
       await createRfq(formData);
       

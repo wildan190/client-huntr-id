@@ -54,20 +54,56 @@ export default function MyPurchaseRequisitionDetail() {
       return;
     }
 
-    setLoading(true);
     getRfq(id)
       .then((response) => {
         const rfq = response?.rfq ?? response?.data ?? response;
-        console.log("=== FULL RFQ DATA ===");
-        console.log(rfq);
-        console.log("=== RFQ ITEMS ===");
-        console.log(rfq.items);
+        
+        // Debug: Log RFQ data untuk investigasi item count
+        console.log("=== DEBUG: RFQ Data Investigation ===");
         if (rfq.items && rfq.items.length > 0) {
-          console.log("=== FIRST ITEM ===");
-          console.log(rfq.items[0]);
-          console.log("=== FIRST ITEM CATALOGUE ===");
-          console.log(rfq.items[0].catalogue);
+          console.log(`PR items count: ${rfq.items.length}`);
+          console.log("PR items:", rfq.items);
+          
+          // Try to get cart from localStorage for comparison
+          try {
+            const savedCart = localStorage.getItem("huntr_cart");
+            if (savedCart) {
+              const cartItems = JSON.parse(savedCart);
+              console.log(`Cart items count (from localStorage): ${cartItems.length}`);
+              console.log("Cart items:", cartItems);
+              
+              if (cartItems.length !== rfq.items.length) {
+                console.warn(`⚠️ MISMATCH: Cart has ${cartItems.length} items, but PR has ${rfq.items.length} items!`);
+                
+                // Detailed comparison
+                console.log("=== ITEM BY ITEM COMPARISON ===");
+                cartItems.forEach((cartItem: any, idx: number) => {
+                  const matchingPrItem = rfq.items.find((prItem: any) => 
+                    String(prItem.catalogue?.id || prItem.catalogue_id) === String(cartItem.id)
+                  );
+                  console.log(`Cart Item ${idx + 1}:`, cartItem.name, `(ID: ${cartItem.id})`, 
+                             matchingPrItem ? "✅ FOUND in PR" : "❌ MISSING from PR");
+                });
+              } else {
+                console.log("✅ Cart and PR item counts match!");
+              }
+            }
+          } catch (e) {
+            console.log("No cart data in localStorage or parsing error");
+          }
+          
+          // Check for any missing catalogue data
+          console.log("=== ITEM VALIDATION ===");
+          rfq.items.forEach((prItem: any, idx: number) => {
+            const hasValidCatalogue = prItem.catalogue && prItem.catalogue.id;
+            console.log(`PR Item ${idx + 1}:`, prItem.catalogue?.name || "NO NAME", 
+                       `(Catalogue ID: ${prItem.catalogue?.id || prItem.catalogue_id})`,
+                       hasValidCatalogue ? "✅ Valid" : "❌ Missing catalogue data");
+          });
+        } else {
+          console.warn("❌ No items found in PR!");
         }
+        
         setRequest(rfq);
         setError(null);
         if (rfq?.id) {
