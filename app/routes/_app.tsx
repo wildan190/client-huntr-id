@@ -292,7 +292,7 @@ export default function AppShell() {
 
       // Vendor
       ...(isVendorComp ? [
-        { to: "/all-requests", label: "Opportunities", Icon: Lightbulb, section: "vendor", badge: "opportunities" },
+        { to: "/all-requests", label: "All Request", Icon: Lightbulb, section: "vendor", badge: "opportunities" },
       ] : []),
       ...(isVendorComp && (isManager || isAdminRole) ? [
         { to: "/catalogue", label: "Catalogue", Icon: List, section: "vendor", badge: "catalogueAlerts" },
