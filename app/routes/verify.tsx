@@ -150,9 +150,12 @@ const CameraScanner = ({
       scannerRef.current = qr;
 
       const config = {
-        fps: 10,
-        qrbox: { width: 240, height: 240 },
-        aspectRatio: 1.0,
+        fps: 15,
+        qrbox: (width: number, height: number) => {
+          const minDim = Math.min(width, height);
+          const size = Math.floor(minDim * 0.7);
+          return { width: size, height: size };
+        },
       };
 
       const onSuccess = (decodedText: string) => {
@@ -283,6 +286,9 @@ const CameraScanner = ({
               borderRadius: 16,
               overflow: "hidden",
               background: "#000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           />
         </div>
@@ -767,7 +773,7 @@ export default function VerifyPage() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        #qr-scanner-container video { width: 100% !important; height: 100% !important; object-fit: cover; }
+        #qr-scanner-container video { width: 100% !important; height: auto !important; object-fit: contain; }
         #qr-scanner-container canvas { display: none; }
       `}</style>
     </div>
