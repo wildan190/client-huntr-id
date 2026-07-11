@@ -30,6 +30,19 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+// ─── Fee Calculator ───────────────────────────────────────────────────────────
+const calcFees = (base: number) => {
+  const platFee     = base * 0.03;
+  const adminBank   = 4400;
+  const ppnEcomm    = (platFee + adminBank) * 0.08;
+  const biayaLayanan = platFee + adminBank + ppnEcomm;
+  const ppn         = base * 0.11;
+  const grandTotal  = base + biayaLayanan + ppn;
+  return { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal };
+};
+
+const fmt = (n: number) => n.toLocaleString('id-ID');
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function Orders() {
@@ -395,13 +408,13 @@ export default function Orders() {
                           {confirmingId===po.id ? <Loader2 size={12} className="animate-spin"/> : <CheckCircle2 size={12}/>} Confirm PO
                         </button>
                       )}
-                      {company.type==='vendor' && po.status==='confirmed' && (
+                      {company.type==='vendor' && ['confirmed', 'paid'].includes(po.status) && (
                         <button onClick={() => handleUpdateTrackingStatus(po.id,'packing',po.status)} disabled={processingId===po.id}
                           style={{ background:"linear-gradient(135deg,#8b5cf6,#7c3aed)", border:"none", borderRadius:8, padding:"6px 10px", color:"#fff", fontWeight:700, fontSize:12, cursor:"pointer", display:"flex", alignItems:"center", gap:6, boxShadow:"0 4px 12px rgba(139,92,246,0.2)" }}>
                           {processingId===po.id ? <Loader2 size={12} className="animate-spin"/> : <Package size={12}/>} Mark as Packing
                         </button>
                       )}
-                      {company.type==='vendor' && ['packing','paid'].includes(po.status) && (
+                      {company.type==='vendor' && po.status==='packing' && (
                         <button onClick={() => handleArrangeDelivery(po.id,po.buyer_address)} disabled={processingId===po.id}
                           style={{ background:"linear-gradient(135deg,#3b82f6,#2563eb)", border:"none", borderRadius:8, padding:"6px 10px", color:"#fff", fontWeight:700, fontSize:12, cursor:"pointer", display:"flex", alignItems:"center", gap:6, boxShadow:"0 4px 12px rgba(59,130,246,0.2)" }}>
                           {processingId===po.id ? <Loader2 size={12} className="animate-spin"/> : <Truck size={12}/>} Arrange Delivery
@@ -425,6 +438,51 @@ export default function Orders() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Fee Breakdown Strip */}
+                  {!po.is_historical && Number(po.total_amount) > 0 && (() => {
+                    const base = Number(po.total_amount);
+                    const { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal } = calcFees(base);
+                    return (
+                      <div style={{
+                        background: "rgba(249,115,22,0.05)",
+                        border: "1px solid rgba(249,115,22,0.15)",
+                        borderRadius: 10,
+                        padding: "10px 14px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "0 24px",
+                        alignItems: "center",
+                      }}>
+                        {/* Label */}
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", flexBasis: "100%", marginBottom: 6 }}>
+                          💰 Rincian Biaya
+                        </span>
+
+                        {/* Items */}
+                        {([
+                          { label: "Total Pembelian (DPP)",         value: base,          color: "var(--ui-text-primary)",  bold: true },
+                          { label: "Platform Fee (3%)",              value: platFee,       color: "#fb923c",                 bold: false },
+                          { label: "Admin Bank",                     value: adminBank,     color: "#60a5fa",                 bold: false },
+                          { label: "PPN eComm (8%)",                 value: ppnEcomm,      color: "#a78bfa",                 bold: false },
+                          { label: "Biaya Layanan",                  value: biayaLayanan,  color: "#fb923c",                 bold: true  },
+                          { label: "PPN (11%)",                      value: ppn,           color: "#c084fc",                 bold: true  },
+                          { label: "TOTAL",                          value: grandTotal,    color: "#4ade80",                 bold: true  },
+                        ] as Array<{ label: string; value: number; color: string; bold: boolean }>).map((item) => (
+                          <div key={item.label} style={{
+                            display: "flex", flexDirection: "column", gap: 2,
+                            minWidth: 100, paddingRight: 4,
+                            borderRight: item.label === "TOTAL" ? "none" : "1px solid rgba(249,115,22,0.12)",
+                          }}>
+                            <span style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 600 }}>{item.label}</span>
+                            <span style={{ fontSize: 13, fontWeight: item.bold ? 700 : 500, color: item.color }}>
+                              {item.label === "TOTAL" ? "IDR " : ""}{fmt(Math.round(item.value))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
 
                   {/* Expanded Details */}
                   {expandedPo===po.id && (

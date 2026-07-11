@@ -8,6 +8,17 @@ import { getFullApiUrl } from "../../../lib/api";
 import { QRCodeDisplay } from "./QRCodeDisplay";
 import { SignatureButtons } from "./SignatureButtons";
 
+// ─── Fee Calculator (mirrors CalculateInvoiceFeesAction.php) ──────────────────
+const calcFees = (base: number) => {
+  const platFee      = base * 0.03;
+  const adminBank    = 4400;
+  const ppnEcomm     = (platFee + adminBank) * 0.08;
+  const biayaLayanan = platFee + adminBank + ppnEcomm;
+  const ppn          = base * 0.11;
+  const grandTotal   = base + biayaLayanan + ppn;
+  return { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal };
+};
+
 interface PoExpandedDetailsProps {
   po: any;
   company: any;
@@ -59,6 +70,7 @@ export const PoExpandedDetails = ({
 
   const nextActions: Record<string, { label: string; status: 'packing' | 'in_transit' | 'delivered'; color: string; description: string }> = {
     confirmed:  { label: 'Mark as Packing',    status: 'packing',    color: '#8b5cf6', description: 'Confirm that goods are being packed for shipment' },
+    paid:       { label: 'Mark as Packing',    status: 'packing',    color: '#8b5cf6', description: 'Confirm that goods are being packed for shipment' },
     packing:    { label: 'Arrange Delivery',   status: 'in_transit', color: '#3b82f6', description: 'Enter tracking/resi number and dispatch goods' },
     in_transit: { label: 'Mark as Delivered',  status: 'delivered',  color: '#22c55e', description: 'Confirm that goods have been delivered to buyer' },
   };
@@ -248,19 +260,69 @@ export const PoExpandedDetails = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ fontSize: 13, color: "var(--ui-text-secondary)" }}>Category: <strong style={{ color: "var(--ui-text-primary)" }}>{po.purchase_category || "N/A"}</strong></div>
             <div style={{ fontSize: 13, color: "var(--ui-text-secondary)" }}>Type: <strong style={{ color: "var(--ui-text-primary)" }}>{po.purchase_type || "N/A"}</strong></div>
-            <div style={{ fontSize: 13, color: "var(--ui-text-secondary)" }}>Delivery Point: <strong style={{ color: "var(--ui-text-primary)" }}>{po.buyer_address || "N/A"}</strong></div>
+          <div style={{ fontSize: 13, color: "var(--ui-text-secondary)" }}>Delivery Point: <strong style={{ color: "var(--ui-text-primary)" }}>{po.delivery_point || po.buyer_address || "N/A"}</strong></div>
             <div style={{ fontSize: 13, color: "var(--ui-text-secondary)" }}>Department: <strong style={{ color: "var(--ui-text-primary)" }}>{po.department || "N/A"}</strong></div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "var(--ui-bg-card)", padding: 12, borderRadius: 8, border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
-            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Total Financial Summary</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ui-text-primary)", letterSpacing: "-0.5px" }}>
-              <span style={{ fontSize: 14, color: "#fb923c", marginRight: 6 }}>{po.currency || "IDR"}</span>
-              {Number(po.total_amount || 0).toLocaleString()}
-            </div>
-            <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} /> All taxes included
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, background: "var(--ui-bg-card)", padding: 14, borderRadius: 10, border: "1px solid var(--ui-border)", transition: "all 0.3s ease" }}>
+            <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total Financial Summary</div>
+            {po.is_historical ? (
+              <>
+                <div style={{ fontSize: 26, fontWeight: 700, color: "var(--ui-text-primary)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
+                  <span style={{ fontSize: 13, color: "#fb923c", marginRight: 6, fontWeight: 600 }}>{po.currency || "IDR"}</span>
+                  {Number(po.total_amount || 0).toLocaleString('id-ID')}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--ui-text-muted)", display: "flex", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#6b7280", flexShrink: 0 }} />
+                  Data historis — rincian biaya tidak dikalkulasi
+                </div>
+              </>
+            ) : (() => {
+              const base = Number(po.total_amount || 0);
+              const { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal } = calcFees(base);
+              return (
+                <>
+                  {/* Grand Total */}
+                  <div style={{ fontSize: 26, fontWeight: 700, color: "#4ade80", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
+                    <span style={{ fontSize: 13, color: "#fb923c", marginRight: 6, fontWeight: 600 }}>{po.currency || "IDR"}</span>
+                    {Math.round(grandTotal).toLocaleString('id-ID')}
+                  </div>
+
+                  {/* Breakdown rows */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, borderTop: "1px solid var(--ui-border-input)", paddingTop: 8, marginTop: 2 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-secondary)" }}>
+                      <span>DPP</span>
+                      <span style={{ fontWeight: 600 }}>{base.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
+                      <span>↳ Platform Fee (3%)</span>
+                      <span style={{ color: "#fb923c" }}>+{Math.round(platFee).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
+                      <span>↳ Admin Bank</span>
+                      <span style={{ color: "#60a5fa" }}>+{adminBank.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
+                      <span>↳ PPN eComm (8%)</span>
+                      <span style={{ color: "#a78bfa" }}>+{Math.round(ppnEcomm).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#fb923c", fontWeight: 600 }}>
+                      <span>Biaya Layanan</span>
+                      <span>+{Math.round(biayaLayanan).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#c084fc", fontWeight: 600 }}>
+                      <span>PPN 11% (dari DPP)</span>
+                      <span>+{Math.round(ppn).toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 11, color: "#4ade80", display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
+                    Sudah termasuk semua pajak & biaya layanan
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -328,25 +390,48 @@ export const PoExpandedDetails = ({
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 12px", background: "rgba(249,115,22,0.04)", borderRadius: 10, border: "1px solid rgba(249,115,22,0.1)" }}>
+                    {/* Nilai Transaksi (DPP) */}
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
-                      <span>Nilai Transaksi</span>
+                      <span>Total Pembelian sebelum PPN</span>
                       <span style={{ fontWeight: 700, color: "var(--ui-text-primary)" }}>IDR {Number(inv.base_amount || inv.amount).toLocaleString()}</span>
                     </div>
+
+                    {/* Platform fee */}
                     {Number(inv.platform_fee) > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
-                        <span>Biaya Layanan</span>
-                        <span style={{ fontWeight: 700, color: "#fb923c" }}>+ IDR {Number(inv.platform_fee).toLocaleString()}</span>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)", paddingLeft: 12 }}>
+                        <span style={{ color: "var(--ui-text-muted)" }}>↳ Platform Fee (3%)</span>
+                        <span style={{ fontWeight: 600, color: "#fb923c" }}>+ IDR {Number(inv.platform_fee).toLocaleString()}</span>
                       </div>
                     )}
+
+                    {/* Admin Bank */}
                     {Number(inv.midtrans_fee) > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
-                        <span>Biaya Transaksi</span>
-                        <span style={{ fontWeight: 700, color: "#60a5fa" }}>+ IDR {Number(inv.midtrans_fee).toLocaleString()}</span>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)", paddingLeft: 12 }}>
+                        <span style={{ color: "var(--ui-text-muted)" }}>↳ Admin Bank</span>
+                        <span style={{ fontWeight: 600, color: "#60a5fa" }}>+ IDR {Number(inv.midtrans_fee).toLocaleString()}</span>
                       </div>
                     )}
+
+                    {/* PPN eComm */}
+                    {Number(inv.ppn_ecomm) > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)", paddingLeft: 12 }}>
+                        <span style={{ color: "var(--ui-text-muted)" }}>↳ PPN eComm (8%)</span>
+                        <span style={{ fontWeight: 600, color: "#a78bfa" }}>+ IDR {Number(inv.ppn_ecomm).toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    {/* Biaya Layanan subtotal */}
+                    {(Number(inv.platform_fee) + Number(inv.midtrans_fee)) > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)", fontWeight: 600 }}>
+                        <span>Biaya Layanan (Platform + Admin + PPN eComm)</span>
+                        <span style={{ color: "#fb923c" }}>+ IDR {(Number(inv.platform_fee) + Number(inv.midtrans_fee) + Number(inv.ppn_ecomm)).toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    {/* PPN 11% dari DPP */}
                     {Number(inv.ppn_fee) > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)" }}>
-                        <span>PPN 11%</span>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ui-text-secondary)", fontWeight: 600 }}>
+                        <span>PPN (11% dari DPP)</span>
                         <span style={{ fontWeight: 700, color: "#c084fc" }}>+ IDR {Number(inv.ppn_fee).toLocaleString()}</span>
                       </div>
                     )}

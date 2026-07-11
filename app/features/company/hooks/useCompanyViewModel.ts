@@ -125,7 +125,11 @@ export const useCompanyViewModel = () => {
     fd.append("logo", file);
     try {
       const res = await uploadCompanyLogo(fd);
-      const updated = res.company || res;
+      const updated = {
+        ...company,
+        logo_path: res.file_path || company.logo_path,
+        logo_url: res.url || company.logo_url,
+      };
       syncActiveCompany(updated);
     } catch (err: any) {
       setLogoError(err.message || "Failed to upload logo.");
