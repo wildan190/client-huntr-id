@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X, CreditCard, Briefcase, Tag, TrendingUp, Utensils, Sparkles } from "lucide-react";
 import { getCatalogues, aiSearch, isAiQuery } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
@@ -12,29 +12,50 @@ const CATEGORIES = [
 ];
 
 const FEATURE_CARDS = [
-  { icon: <TrendingUp size={20} />, title: "HuntrGrow", sub: "Kelola distribusi online dan offline" },
+  { icon: <TrendingUp size={20} />, title: "Huntr Crowd Buy", sub: "Kelola distribusi online dan offline" },
   { icon: <CreditCard size={20} />, title: "Huntr Pay", sub: "Akses modal & pembayaran fleksibel" },
   { icon: <Utensils size={20} />, title: "HuntrFood", sub: "Solusi F&B untuk kebutuhan kantor" },
 ];
 
 export function GuestMarketplaceView() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("search") || "";
+  const activeCategory = searchParams.get("category") || "All";
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const [localSearch, setLocalSearch] = useState(searchTerm);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aiResult, setAiResult] = useState<{ summary: string; category?: string; keywords?: string[]; products?: any[] } | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
-  useEffect(() => { fetchItems(1); }, [activeCategory]);
-
+  // Sync local search input when URL query changes (e.g. back navigation)
   useEffect(() => {
-    const t = setTimeout(() => fetchItems(1), 500);
-    return () => clearTimeout(t);
+    setLocalSearch(searchTerm);
   }, [searchTerm]);
+
+  // Debounce search input changes to the URL parameter
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (localSearch !== searchTerm) {
+        setSearchParams(prev => {
+          if (localSearch) prev.set("search", localSearch);
+          else prev.delete("search");
+          prev.set("page", "1");
+          return prev;
+        });
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [localSearch, searchTerm]);
+
+  // Main data fetching effect
+  useEffect(() => {
+    fetchItems(currentPage);
+  }, [searchTerm, activeCategory, currentPage]);
 
   // AI-powered search: fires only for descriptive queries
   useEffect(() => {
@@ -57,8 +78,6 @@ export function GuestMarketplaceView() {
           // Override product list with AI-ranked results
           if (Array.isArray(res.data) && res.data.length > 0) {
             setItems(res.data);
-            setCurrentPage(1);
-            setTotalPages(1);
           }
         }
       } catch (e) {
@@ -82,12 +101,10 @@ export function GuestMarketplaceView() {
       });
       if (res?.data && Array.isArray(res.data)) {
         setItems(res.data);
-        setCurrentPage(res.current_page || 1);
         setTotalPages(res.last_page || 1);
       } else {
         const d = res?.data || res || [];
         setItems(Array.isArray(d) ? d : []);
-        setCurrentPage(1);
         setTotalPages(1);
       }
     } catch (e) {
@@ -99,8 +116,18 @@ export function GuestMarketplaceView() {
 
   const handlePage = (p: number) => {
     if (p < 1 || p > totalPages) return;
-    setCurrentPage(p);
-    fetchItems(p);
+    setSearchParams(prev => {
+      prev.set("page", String(p));
+      return prev;
+    });
+  };
+
+  const setActiveCategory = (val: string) => {
+    setSearchParams(prev => {
+      prev.set("category", val);
+      prev.set("page", "1");
+      return prev;
+    });
   };
 
   /* ─── inline styles (no Tailwind, no heavy CSS) ─── */
@@ -183,8 +210,8 @@ export function GuestMarketplaceView() {
           <input
             type="text"
             placeholder="Cari produk atau penjual..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            value={localSearch}
+            onChange={e => setLocalSearch(e.target.value)}
             style={s.searchInput}
             className="flex-1 border-none outline-none px-4 text-sm bg-transparent text-[#111] h-full"
           />
