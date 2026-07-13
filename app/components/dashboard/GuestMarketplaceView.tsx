@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams, useNavigation } from "react-router";
 import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X, CreditCard, Briefcase, Tag, TrendingUp, Utensils, Sparkles } from "lucide-react";
 import { getCatalogues, aiSearch, isAiQuery } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
@@ -31,6 +31,17 @@ export function GuestMarketplaceView() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aiResult, setAiResult] = useState<{ summary: string; category?: string; keywords?: string[]; products?: any[] } | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [clickedProductId, setClickedProductId] = useState<string | null>(null);
+
+  const navigation = useNavigation();
+  const isNavigating = navigation.state === "loading";
+
+  // Reset local clicked product loader once navigation completes
+  useEffect(() => {
+    if (!isNavigating) {
+      setClickedProductId(null);
+    }
+  }, [isNavigating]);
 
   // Sync local search input when URL query changes (e.g. back navigation)
   useEffect(() => {
@@ -493,27 +504,45 @@ export function GuestMarketplaceView() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-4">
-              {items.map(item => (
-                <div
-                  key={item.id}
-                  style={s.productCard}
-                  onClick={() => navigate(`/marketplace/${item.id}`)}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 3px 10px rgba(0,0,0,0.12)")}
-                  onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
-                  className="bg-white border border-[#e5e5e5] rounded cursor-pointer overflow-hidden transition-all duration-150"
-                >
-                  <div style={s.productImg}>
-                    {(item.image_url || item.image_path) ? (
-                      <img
-                        src={getAssetUrl(item.image_url || item.image_path)}
-                        alt={item.name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        onError={e => ((e.target as HTMLImageElement).style.display = "none")}
-                      />
-                    ) : (
-                      <Package size={32} color="rgba(249,115,22,0.15)" />
-                    )}
-                  </div>
+              {items.map(item => {
+                const isCardLoading = clickedProductId === String(item.id) && isNavigating;
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      ...s.productCard,
+                      opacity: isCardLoading ? 0.75 : 1,
+                      pointerEvents: isNavigating ? "none" : "auto",
+                    }}
+                    onClick={() => {
+                      setClickedProductId(String(item.id));
+                      navigate(`/marketplace/${item.id}`);
+                    }}
+                    onMouseEnter={e => {
+                      if (!isCardLoading) e.currentTarget.style.boxShadow = "0 3px 10px rgba(0,0,0,0.12)";
+                    }}
+                    onMouseLeave={e => {
+                      if (!isCardLoading) e.currentTarget.style.boxShadow = "none";
+                    }}
+                    className="bg-white border border-[#e5e5e5] rounded cursor-pointer overflow-hidden transition-all duration-150"
+                  >
+                    <div style={{ ...s.productImg, position: "relative" }}>
+                      {isCardLoading ? (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                          <Loader2 className="animate-spin" size={24} color="#f97316" />
+                          <span style={{ fontSize: 10, color: "#f97316", fontWeight: 700 }}>Memuat...</span>
+                        </div>
+                      ) : (item.image_url || item.image_path) ? (
+                        <img
+                          src={getAssetUrl(item.image_url || item.image_path)}
+                          alt={item.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={e => ((e.target as HTMLImageElement).style.display = "none")}
+                        />
+                      ) : (
+                        <Package size={32} color="rgba(249,115,22,0.15)" />
+                      )}
+                    </div>
                   <div style={s.productBody}>
                     <div style={{ fontSize: "10px", color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", marginBottom: "4px" }}>
                       {item.category || "General"}
@@ -527,7 +556,7 @@ export function GuestMarketplaceView() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
 

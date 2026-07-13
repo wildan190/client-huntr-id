@@ -7,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useNavigation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -83,7 +84,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const navigation = useNavigation();
+  const isNavigating = navigation.state === "loading";
+
+  return (
+    <>
+      {isNavigating && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          background: "linear-gradient(90deg, #f97316 0%, #ff8c3a 50%, #f97316 100%)",
+          backgroundSize: "200% 100%",
+          animation: "loading-bar-pulse 1.2s infinite linear, loading-bar-progress 2.5s forwards",
+          zIndex: 9999,
+        }} />
+      )}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes loading-bar-pulse {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        @keyframes loading-bar-progress {
+          0% { width: 0%; }
+          100% { width: 90%; }
+        }
+      `}} />
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
