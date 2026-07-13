@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X, CreditCard, Briefcase, Tag, TrendingUp, Utensils } from "lucide-react";
-import { getCatalogues } from "../../lib/api";
+import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X, CreditCard, Briefcase, Tag, TrendingUp, Utensils, Sparkles } from "lucide-react";
+import { getCatalogues, aiSearch, isAiQuery } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
 
 const CATEGORIES = [
@@ -26,11 +26,47 @@ export function GuestMarketplaceView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [aiResult, setAiResult] = useState<{ summary: string; category?: string; keywords?: string[]; products?: any[] } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => { fetchItems(1); }, [activeCategory]);
 
   useEffect(() => {
     const t = setTimeout(() => fetchItems(1), 500);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  // AI-powered search: fires only for descriptive queries
+  useEffect(() => {
+    if (!isAiQuery(searchTerm)) {
+      setAiResult(null);
+      return;
+    }
+    setAiLoading(true);
+    setAiResult(null);
+    const t = setTimeout(async () => {
+      try {
+        const res = await aiSearch(searchTerm);
+        if (res?.success && res?.ai_summary) {
+          setAiResult({
+            summary: res.ai_summary,
+            category: res.intent?.category ?? undefined,
+            keywords: res.intent?.keywords ?? [],
+            products: Array.isArray(res.data) ? res.data : [],
+          });
+          // Override product list with AI-ranked results
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setItems(res.data);
+            setCurrentPage(1);
+            setTotalPages(1);
+          }
+        }
+      } catch (e) {
+        console.warn("[AI Search] failed, falling back to normal search", e);
+      } finally {
+        setAiLoading(false);
+      }
+    }, 800);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
@@ -305,15 +341,118 @@ export function GuestMarketplaceView() {
           </div>
         </div>
 
+        {/* ── AI RECOMMENDATION PANEL ────────────────────────────────────── */}
+        {(aiLoading || aiResult) && searchTerm && (
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-5">
+            <div style={{
+              background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e293b 100%)",
+              border: "1px solid #4338ca",
+              borderRadius: "8px",
+              padding: "20px 22px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              {/* Decorative glow */}
+              <div style={{
+                position: "absolute", top: -40, right: -40,
+                width: 160, height: 160,
+                background: "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }} />
+
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} color="#a78bfa" />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    Rekomendasi AI
+                  </span>
+                </div>
+                {!aiLoading && (
+                  <button
+                    onClick={() => { setAiResult(null); }}
+                    style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer", padding: "2px 4px", borderRadius: 4, lineHeight: 1 }}
+                    aria-label="Tutup panel AI"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              {/* Loading state */}
+              {aiLoading && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#c4b5fd" }}>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span style={{ fontSize: 13 }}>Sedang menganalisis kebutuhan Anda...</span>
+                </div>
+              )}
+
+              {/* Result state */}
+              {!aiLoading && aiResult && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {/* Summary text */}
+                  <p style={{ margin: 0, fontSize: 13, color: "#e0e7ff", lineHeight: 1.7 }}>
+                    {aiResult.summary}
+                  </p>
+
+                  {/* Detected category + keywords */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+                    {aiResult.category && (
+                      <button
+                        onClick={() => {
+                          const matched = ["Hardware","Software","Furniture","Office Supplies","Services",
+                            "Spareparts","Electronics","Mechanical","Chemicals","Construction",
+                            "Stationery","Pantry & F&B","Logistics","Marketing","Other"
+                          ].find(c => c.toLowerCase() === aiResult.category?.toLowerCase());
+                          if (matched) setActiveCategory(matched);
+                        }}
+                        style={{
+                          background: "rgba(167,139,250,0.2)", border: "1px solid #7c3aed",
+                          borderRadius: "4px", padding: "3px 10px",
+                          color: "#c4b5fd", fontSize: 11, fontWeight: 700,
+                          cursor: "pointer", textTransform: "capitalize",
+                        }}
+                      >
+                        # {aiResult.category}
+                      </button>
+                    )}
+                    {aiResult.keywords?.slice(0, 4).map((kw) => (
+                      <span
+                        key={kw}
+                        style={{
+                          background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)",
+                          borderRadius: "4px", padding: "3px 10px",
+                          color: "#a5b4fc", fontSize: 11, fontWeight: 500,
+                        }}
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Product count info */}
+                  {aiResult.products && aiResult.products.length > 0 && (
+                    <p style={{ margin: 0, fontSize: 11, color: "#6b7280" }}>
+                      Menampilkan {aiResult.products.length} produk yang paling relevan berdasarkan analisis AI
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── PRODUCT SECTION ─────────────────────────────────────────────── */}
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-10">
           <div style={s.sectionHead}>
-            <h2 className="m-0 text-base font-extrabold text-[#111]">
-              Rekomendasi Produk
+            <h2 className="m-0 text-base font-extrabold text-[#111]" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {aiResult ? (
+                <>
+                  <Sparkles size={15} color="#7c3aed" />
+                  Hasil Pencarian AI
+                </>
+              ) : "Rekomendasi Produk"}
             </h2>
-            {/* <span className="text-[#f97316] text-xs font-bold cursor-pointer">
-              Lihat Semua →
-            </span> */}
           </div>
 
           {loading ? (
@@ -411,61 +550,105 @@ export function GuestMarketplaceView() {
 
         {/* ── CTA SECTION ───────────────────────────────────────────────── */}
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <div style={{
-            background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
-            border: "1px solid #f7d9b0",
-            borderRadius: "8px",
-            padding: "36px 32px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            gap: "14px",
-          }}>
-            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900, color: "#111" }}>
-              Belum menemukan produk yang tepat?
-            </h2>
-            <p style={{ margin: 0, fontSize: "14px", color: "#555", lineHeight: 1.7, maxWidth: "520px" }}>
-              Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
-            </p>
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginTop: "4px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+
+            {/* Buyer CTA */}
+            <div style={{
+              background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
+              border: "1px solid #f7d9b0",
+              borderRadius: "8px",
+              padding: "32px 28px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "12px",
+            }}>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 900, color: "#111" }}>
+                Belum menemukan produk yang tepat?
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#555", lineHeight: 1.7 }}>
+                Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
+              </p>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", marginTop: "4px" }}>
+                <Link
+                  to="/register"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "#f97316",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    boxShadow: "0 2px 6px rgba(249,115,22,0.25)",
+                  }}
+                >
+                  Hubungi Tim Kami
+                </Link>
+                <Link
+                  to="/login"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "transparent",
+                    color: "#f97316",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "9px 20px",
+                    borderRadius: "4px",
+                    border: "1px solid #f97316",
+                  }}
+                >
+                  Masuk ke Akun
+                </Link>
+              </div>
+            </div>
+
+            {/* Vendor CTA */}
+            <div style={{
+              background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+              border: "1px solid #334155",
+              borderRadius: "8px",
+              padding: "32px 28px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "12px",
+            }}>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 900, color: "#fff" }}>
+                Punya produk serupa?
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#94a3b8", lineHeight: 1.7 }}>
+                Daftarkan bisnis Anda sebagai vendor dan jangkau ribuan pembeli korporat yang aktif mencari produk di platform kami.
+              </p>
               <Link
                 to="/register"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: "6px",
                   background: "#f97316",
                   color: "#fff",
                   textDecoration: "none",
                   fontWeight: 700,
                   fontSize: "13px",
-                  padding: "11px 24px",
+                  padding: "10px 20px",
                   borderRadius: "4px",
-                  boxShadow: "0 2px 6px rgba(249,115,22,0.25)",
+                  boxShadow: "0 2px 6px rgba(249,115,22,0.3)",
+                  marginTop: "4px",
                 }}
               >
-                Hubungi Tim Kami
-              </Link>
-              <Link
-                to="/login"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "transparent",
-                  color: "#f97316",
-                  textDecoration: "none",
-                  fontWeight: 700,
-                  fontSize: "13px",
-                  padding: "10px 24px",
-                  borderRadius: "4px",
-                  border: "1px solid #f97316",
-                }}
-              >
-                Masuk ke Akun
+                Daftar Jadi Vendor
               </Link>
             </div>
+
           </div>
         </div>
 

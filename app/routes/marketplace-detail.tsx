@@ -405,88 +405,47 @@ export default function MarketplaceDetail() {
 
               {/* Specifications */}
               {item.specifications && (
-                <>
-                  <div style={{ background: "#fff", borderRadius: 6, padding: 24, border: "1px solid #e5e5e5", marginTop: 4, position: "relative" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #eee" }}>
-                      Spesifikasi
-                    </div>
-                    <div style={{
-                      maxHeight: isSpecExpanded ? "none" : "120px",
-                      overflow: "hidden",
-                      position: "relative",
-                      transition: "max-height 0.3s ease"
-                    }}>
-                      <SpecificationsBlock text={item.specifications} isGuest={true} />
-                      {!isSpecExpanded && (
-                        <div style={{
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: "50px",
-                          background: "linear-gradient(transparent, #fff)",
-                          pointerEvents: "none"
-                        }} />
-                      )}
-                    </div>
-                    <div style={{ marginTop: 12, textAlign: "center" }}>
-                      <button
-                        onClick={() => setIsSpecExpanded(!isSpecExpanded)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#f97316",
-                          fontWeight: 700,
-                          fontSize: "13px",
-                          cursor: "pointer",
-                          outline: "none",
-                          padding: "4px 8px"
-                        }}
-                      >
-                        {isSpecExpanded ? "Lihat Lebih Sedikit" : "Lihat Selengkapnya"}
-                      </button>
-                    </div>
+                <div style={{ background: "#fff", borderRadius: 6, padding: 24, border: "1px solid #e5e5e5", marginTop: 4, position: "relative" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #eee" }}>
+                    Spesifikasi
                   </div>
-
-                  {/* CTA Block below Specifications */}
                   <div style={{
-                    background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
-                    border: "1px solid #f7d9b0",
-                    borderRadius: "8px",
-                    padding: "24px",
-                    marginTop: "20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    gap: "12px"
+                    maxHeight: isSpecExpanded ? "none" : "120px",
+                    overflow: "hidden",
+                    position: "relative",
+                    transition: "max-height 0.3s ease"
                   }}>
-                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: "#111" }}>
-                      Belum menemukan produk yang tepat?
-                    </h3>
-                    <p style={{ margin: 0, fontSize: "13px", color: "#555", lineHeight: 1.6, maxWidth: "520px" }}>
-                      Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
-                    </p>
-                    <Link
-                      to="/register"
+                    <SpecificationsBlock text={item.specifications} isGuest={true} />
+                    {!isSpecExpanded && (
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: "50px",
+                        background: "linear-gradient(transparent, #fff)",
+                        pointerEvents: "none"
+                      }} />
+                    )}
+                  </div>
+                  <div style={{ marginTop: 12, textAlign: "center" }}>
+                    <button
+                      onClick={() => setIsSpecExpanded(!isSpecExpanded)}
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        background: "#f97316",
-                        color: "#fff",
-                        textDecoration: "none",
+                        background: "none",
+                        border: "none",
+                        color: "#f97316",
                         fontWeight: 700,
                         fontSize: "13px",
-                        padding: "10px 20px",
-                        borderRadius: "4px",
-                        boxShadow: "0 2px 4px rgba(249,115,22,0.2)"
+                        cursor: "pointer",
+                        outline: "none",
+                        padding: "4px 8px"
                       }}
                     >
-                      Hubungi Tim Kami
-                    </Link>
+                      {isSpecExpanded ? "Lihat Lebih Sedikit" : "Lihat Selengkapnya"}
+                    </button>
                   </div>
-                </>
+                </div>
               )}
             </div>
           )}
@@ -497,6 +456,110 @@ export default function MarketplaceDetail() {
             </div>
           )}
         </main>
+
+        {/* ── CTA SECTION ── */}
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px 40px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+
+            {/* Buyer CTA */}
+            <div style={{
+              background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
+              border: "1px solid #f7d9b0",
+              borderRadius: "8px",
+              padding: "28px 24px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "12px",
+            }}>
+              <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 900, color: "#111" }}>
+                Belum menemukan produk yang tepat?
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#555", lineHeight: 1.7 }}>
+                Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
+              </p>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", marginTop: "4px" }}>
+                <Link
+                  to="/register"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "#f97316",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    boxShadow: "0 2px 6px rgba(249,115,22,0.25)",
+                  }}
+                >
+                  Hubungi Tim Kami
+                </Link>
+                <Link
+                  to="/login"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "transparent",
+                    color: "#f97316",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "9px 20px",
+                    borderRadius: "4px",
+                    border: "1px solid #f97316",
+                  }}
+                >
+                  Masuk ke Akun
+                </Link>
+              </div>
+            </div>
+
+            {/* Vendor CTA */}
+            <div style={{
+              background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+              border: "1px solid #334155",
+              borderRadius: "8px",
+              padding: "28px 24px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "12px",
+            }}>
+              <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 900, color: "#fff" }}>
+                Punya produk serupa?
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#94a3b8", lineHeight: 1.7 }}>
+                Daftarkan bisnis Anda sebagai vendor dan jangkau ribuan pembeli korporat yang aktif mencari produk di platform kami.
+              </p>
+              <Link
+                to="/register"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "#f97316",
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  fontSize: "13px",
+                  padding: "10px 20px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(249,115,22,0.3)",
+                  marginTop: "4px",
+                }}
+              >
+                Daftar Jadi Vendor
+              </Link>
+            </div>
+
+          </div>
+        </div>
 
         {/* Footer */}
         <footer style={{ borderTop: "1px solid #e5e5e5", background: "#fff", marginTop: 40, padding: "24px", textAlign: "center" }}>
