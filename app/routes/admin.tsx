@@ -533,6 +533,7 @@ function AdminCompaniesTab() {
 
 function AdminCatalogueTab() {
   const [catalogues, setCatalogues] = useState<any[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
@@ -549,6 +550,7 @@ function AdminCatalogueTab() {
       setCatalogues(res.data || []);
       setCurrentPage(res.current_page || 1);
       setTotalPages(res.last_page || 1);
+      setSelectedIds([]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -618,8 +620,8 @@ function AdminCatalogueTab() {
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 14, marginBottom: 20 }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: "10px 16px" }}>
+      <div style={{ display: "flex", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 260, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: "10px 16px" }}>
           <Search size={15} color="var(--ui-text-muted)" />
           <input
             value={search}
@@ -628,67 +630,190 @@ function AdminCatalogueTab() {
             style={{ background: "none", border: "none", outline: "none", color: "var(--ui-text-primary)", width: "100%" }}
           />
         </div>
+        {catalogues.length > 0 && (
+          <button
+            onClick={() => {
+              const allPageIds = catalogues.map(item => String(item.id));
+              const allSelected = allPageIds.every(id => selectedIds.includes(id));
+              if (allSelected) {
+                setSelectedIds(prev => prev.filter(id => !allPageIds.includes(id)));
+              } else {
+                setSelectedIds(prev => [...new Set([...prev, ...allPageIds])]);
+              }
+            }}
+            style={{
+              padding: "10px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
+              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
+              color: "var(--ui-text-primary)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={catalogues.length > 0 && catalogues.map(item => String(item.id)).every(id => selectedIds.includes(id))}
+              readOnly
+              style={{ cursor: "pointer" }}
+            />
+            Pilih Semua Halaman Ini
+          </button>
+        )}
       </div>
+
+      {/* Bulk Action Bar */}
+      {selectedIds.length > 0 && (
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "rgba(249,115,22,0.1)",
+          border: "1px solid rgba(249,115,22,0.2)",
+          borderRadius: 12,
+          padding: "12px 16px",
+          marginBottom: 20,
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>
+            Terpilih {selectedIds.length} produk
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              onClick={() => setSelectedIds([])}
+              style={{
+                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                background: "transparent", border: "1px solid var(--ui-border)",
+                color: "var(--ui-text-primary)", cursor: "pointer"
+              }}
+            >
+              Batal
+            </button>
+            <button
+              onClick={async () => {
+                const result = await Swal.fire({
+                  icon: 'question',
+                  title: 'Delete Selected Products?',
+                  text: `Apakah Anda yakin ingin menghapus ${selectedIds.length} produk terpilih?`,
+                  showCancelButton: true,
+                  confirmButtonText: 'Ya, Hapus Semua',
+                  cancelButtonText: 'Batal'
+                });
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                  title: 'Menghapus produk...',
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  }
+                });
+
+                try {
+                  await Promise.all(selectedIds.map(id => adminDeleteCatalogueItem(id)));
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Produk terpilih berhasil dihapus.'
+                  });
+                  fetchCatalogues();
+                } catch (err) {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Gagal menghapus beberapa produk.'
+                  });
+                }
+              }}
+              style={{
+                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                background: "#ef4444", color: "#fff", border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6
+              }}
+            >
+              <Trash2 size={13} /> Hapus Terpilih
+            </button>
+          </div>
+        </div>
+      )}
 
       {isLoading ? <Loader2 className="animate-spin" /> : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
-          {catalogues.map(item => (
-            <div key={item.id} style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
-              <div style={{ height: 140, flexShrink: 0, background: item.image_url ? `url(${item.image_url}) center/cover` : "rgba(249,115,22,0.1)" }} />
-              <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
-                <div style={{ fontWeight: 800, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</div>
-                <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
-                <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
-                  Rp {item.price?.toLocaleString()} / {item.uom}
+          {catalogues.map(item => {
+            const isSelected = selectedIds.includes(String(item.id));
+            return (
+              <div key={item.id} style={{ background: "var(--ui-bg-card)", border: isSelected ? "2px solid #f97316" : "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
+                {/* Checkbox Overlay */}
+                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => {
+                      setSelectedIds(prev =>
+                        prev.includes(String(item.id))
+                          ? prev.filter(id => id !== String(item.id))
+                          : [...prev, String(item.id)]
+                      );
+                    }}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      cursor: "pointer",
+                      accentColor: "#f97316"
+                    }}
+                  />
                 </div>
-                <div style={{ marginTop: "auto", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flexShrink: 0 }}>
-                  <button
-                    onClick={() => setEditingItem(item)}
-                    style={{
-                      width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
-                      fontWeight: 700, background: "rgba(59,130,246,0.1)", color: "#3b82f6",
-                      border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    }}
-                  >
-                    <Pencil size={13} /> Edit
-                  </button>
-                  <button
-                    onClick={async () => {
-                      const result = await Swal.fire({
-                        icon: 'question',
-                        title: 'Delete Product?',
-                        text: `Delete product "${item.name}"?`,
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, Delete',
-                        cancelButtonText: 'Cancel'
-                      });
-                      if (!result.isConfirmed) return;
-                      
-                      try {
-                        await adminDeleteCatalogueItem(item.id);
-                        fetchCatalogues();
-                      } catch (err) {
-                        Swal.fire({
-                          icon: 'error',
-                          title: 'Error!',
-                          text: "Failed to delete product"
+                <div style={{ height: 140, flexShrink: 0, background: item.image_url ? `url(${item.image_url}) center/cover` : "rgba(249,115,22,0.1)" }} />
+                <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
+                  <div style={{ fontWeight: 800, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
+                  <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
+                    Rp {item.price?.toLocaleString()} / {item.uom}
+                  </div>
+                  <div style={{ marginTop: "auto", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flexShrink: 0 }}>
+                    <button
+                      onClick={() => setEditingItem(item)}
+                      style={{
+                        width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                        fontWeight: 700, background: "rgba(59,130,246,0.1)", color: "#3b82f6",
+                        border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                      }}
+                    >
+                      <Pencil size={13} /> Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const result = await Swal.fire({
+                          icon: 'question',
+                          title: 'Delete Product?',
+                          text: `Delete product "${item.name}"?`,
+                          showCancelButton: true,
+                          confirmButtonText: 'Yes, Delete',
+                          cancelButtonText: 'Cancel'
                         });
-                      }
-                    }}
-                    style={{
-                      width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
-                      fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
-                      border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    }}
-                  >
-                    <Trash2 size={13} /> Delete
-                  </button>
+                        if (!result.isConfirmed) return;
+                        
+                        try {
+                          await adminDeleteCatalogueItem(item.id);
+                          fetchCatalogues();
+                        } catch (err) {
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: "Failed to delete product"
+                          });
+                        }
+                      }}
+                      style={{
+                        width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
+                        fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
+                        border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                      }}
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {catalogues.length === 0 && <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 40, color: "var(--ui-text-muted)" }}>No products found</div>}
         </div>
       )}
