@@ -183,6 +183,7 @@ export default function MarketplaceDetail() {
   const [isGuest, setIsGuest] = useState(false);
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isSpecExpanded, setIsSpecExpanded] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -404,12 +405,88 @@ export default function MarketplaceDetail() {
 
               {/* Specifications */}
               {item.specifications && (
-                <div style={{ background: "#fff", borderRadius: 6, padding: 24, border: "1px solid #e5e5e5", marginTop: 4 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #eee" }}>
-                    Spesifikasi
+                <>
+                  <div style={{ background: "#fff", borderRadius: 6, padding: 24, border: "1px solid #e5e5e5", marginTop: 4, position: "relative" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #eee" }}>
+                      Spesifikasi
+                    </div>
+                    <div style={{
+                      maxHeight: isSpecExpanded ? "none" : "120px",
+                      overflow: "hidden",
+                      position: "relative",
+                      transition: "max-height 0.3s ease"
+                    }}>
+                      <SpecificationsBlock text={item.specifications} isGuest={true} />
+                      {!isSpecExpanded && (
+                        <div style={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: "50px",
+                          background: "linear-gradient(transparent, #fff)",
+                          pointerEvents: "none"
+                        }} />
+                      )}
+                    </div>
+                    <div style={{ marginTop: 12, textAlign: "center" }}>
+                      <button
+                        onClick={() => setIsSpecExpanded(!isSpecExpanded)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#f97316",
+                          fontWeight: 700,
+                          fontSize: "13px",
+                          cursor: "pointer",
+                          outline: "none",
+                          padding: "4px 8px"
+                        }}
+                      >
+                        {isSpecExpanded ? "Lihat Lebih Sedikit" : "Lihat Selengkapnya"}
+                      </button>
+                    </div>
                   </div>
-                  <SpecificationsBlock text={item.specifications} isGuest={true} />
-                </div>
+
+                  {/* CTA Block below Specifications */}
+                  <div style={{
+                    background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
+                    border: "1px solid #f7d9b0",
+                    borderRadius: "8px",
+                    padding: "24px",
+                    marginTop: "20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    gap: "12px"
+                  }}>
+                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: "#111" }}>
+                      Belum menemukan produk yang tepat?
+                    </h3>
+                    <p style={{ margin: 0, fontSize: "13px", color: "#555", lineHeight: 1.6, maxWidth: "520px" }}>
+                      Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
+                    </p>
+                    <Link
+                      to="/register"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        background: "#f97316",
+                        color: "#fff",
+                        textDecoration: "none",
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        padding: "10px 20px",
+                        borderRadius: "4px",
+                        boxShadow: "0 2px 4px rgba(249,115,22,0.2)"
+                      }}
+                    >
+                      Hubungi Tim Kami
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
           )}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X } from "lucide-react";
+import { Search, Package, Loader2, ChevronDown, ShieldCheck, Truck, ChevronLeft, ChevronRight as ChevronRightIcon, Menu, X, CreditCard, Briefcase, Tag, TrendingUp, Utensils } from "lucide-react";
 import { getCatalogues } from "../../lib/api";
 import { getAssetUrl } from "../../lib/assets";
 
@@ -12,10 +12,9 @@ const CATEGORIES = [
 ];
 
 const FEATURE_CARDS = [
-  { icon: "📦", title: "HuntrGrow", sub: "Kelola distribusi online dan offline" },
-  { icon: "💳", title: "HuntrPlus", sub: "Akses modal & pembayaran fleksibel" },
-  { icon: "🍲", title: "HuntrFood", sub: "Solusi F&B untuk kebutuhan kantor" },
-  { icon: "🤝", title: "Solusi MBG", sub: "Supplier resmi program Makan Bergizi" },
+  { icon: <TrendingUp size={20} />, title: "HuntrGrow", sub: "Kelola distribusi online dan offline" },
+  { icon: <CreditCard size={20} />, title: "Huntr Pay", sub: "Akses modal & pembayaran fleksibel" },
+  { icon: <Utensils size={20} />, title: "HuntrFood", sub: "Solusi F&B untuk kebutuhan kantor" },
 ];
 
 export function GuestMarketplaceView() {
@@ -246,7 +245,7 @@ export function GuestMarketplaceView() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
               <div className="bg-white border border-[#e5e5e5] rounded p-4 flex items-center gap-3.5">
                 <div className="bg-[#fff4eb] text-[#f97316] w-[38px] h-[38px] rounded flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg">💼</span>
+                  <Briefcase size={20} />
                 </div>
                 <div>
                   <div className="font-bold text-sm text-[#111]">E-Bidding</div>
@@ -255,7 +254,7 @@ export function GuestMarketplaceView() {
               </div>
               <div className="bg-white border border-[#e5e5e5] rounded p-4 flex items-center gap-3.5">
                 <div className="bg-[#fff4eb] text-[#f97316] w-[38px] h-[38px] rounded flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg">🛡️</span>
+                  <ShieldCheck size={20} />
                 </div>
                 <div>
                   <div className="font-bold text-sm text-[#111]">Verified Vendors</div>
@@ -268,10 +267,10 @@ export function GuestMarketplaceView() {
 
         {/* ── FEATURE CARDS ROW ─────────────────────────────────────────── */}
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {FEATURE_CARDS.map(c => (
               <div key={c.title} className="bg-[#1e293b] text-white rounded p-4 flex items-start gap-3 cursor-pointer hover:bg-[#334155] transition-colors">
-                <span className="text-xl sm:text-2xl flex-shrink-0">{c.icon}</span>
+                <span className="text-[#f97316] flex-shrink-0 mt-0.5">{c.icon}</span>
                 <div>
                   <div className="font-bold text-xs sm:text-sm">{c.title}</div>
                   <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">{c.sub}</div>
@@ -288,9 +287,19 @@ export function GuestMarketplaceView() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                style={s.catChip(activeCategory === cat)}
+                style={{
+                  ...s.catChip(activeCategory === cat),
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
               >
-                {cat === "All" ? "🏷 Semua" : cat}
+                {cat === "All" ? (
+                  <>
+                    <Tag size={14} className={activeCategory === cat ? "text-[#f97316]" : "text-gray-500"} />
+                    <span>Semua</span>
+                  </>
+                ) : cat}
               </button>
             ))}
           </div>
@@ -398,6 +407,66 @@ export function GuestMarketplaceView() {
               </div>
             );
           })()}
+        </div>
+
+        {/* ── CTA SECTION ───────────────────────────────────────────────── */}
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+          <div style={{
+            background: "linear-gradient(135deg, #fff4eb 0%, #fde8cc 100%)",
+            border: "1px solid #f7d9b0",
+            borderRadius: "8px",
+            padding: "36px 32px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            gap: "14px",
+          }}>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900, color: "#111" }}>
+              Belum menemukan produk yang tepat?
+            </h2>
+            <p style={{ margin: 0, fontSize: "14px", color: "#555", lineHeight: 1.7, maxWidth: "520px" }}>
+              Tim kami siap membantu Anda menemukan produk atau kategori yang paling sesuai dengan kebutuhan bisnis Anda.
+            </p>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginTop: "4px" }}>
+              <Link
+                to="/register"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "#f97316",
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  fontSize: "13px",
+                  padding: "11px 24px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(249,115,22,0.25)",
+                }}
+              >
+                Hubungi Tim Kami
+              </Link>
+              <Link
+                to="/login"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "transparent",
+                  color: "#f97316",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  fontSize: "13px",
+                  padding: "10px 24px",
+                  borderRadius: "4px",
+                  border: "1px solid #f97316",
+                }}
+              >
+                Masuk ke Akun
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* ── FOOTER ──────────────────────────────────────────────────────── */}
