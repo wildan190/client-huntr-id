@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Building2, ShieldCheck, LogOut, CheckCircle2, XCircle,
   Clock, Eye, FileText, ChevronDown, ChevronUp, Search,
-  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink, Trash2, Pencil,
+  Loader2, AlertCircle, Users, TrendingUp, X, ExternalLink, Trash2, Pencil, Package,
 } from "lucide-react";
 import {
   adminLogin,
@@ -538,18 +538,20 @@ function AdminCatalogueTab() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [search, setSearch] = useState("");
+  const [total, setTotal] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [perPage] = useState(12);
+  const [perPage, setPerPage] = useState(10);
 
-  const fetchCatalogues = async (page = currentPage, s = search) => {
+  const fetchCatalogues = async (page = currentPage, s = search, pp = perPage) => {
     setIsLoading(true);
     try {
-      const res = await adminGetCatalogue({ page, per_page: perPage, search: s });
+      const res = await adminGetCatalogue({ page, per_page: pp, search: s });
       setCatalogues(res.data || []);
       setCurrentPage(res.current_page || 1);
       setTotalPages(res.last_page || 1);
+      setTotal(res.total || 0);
       setSelectedIds([]);
     } catch (err) {
       console.error(err);
@@ -560,310 +562,330 @@ function AdminCatalogueTab() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchCatalogues(1, search);
+      fetchCatalogues(1, search, perPage);
     }, 400);
     return () => clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    fetchCatalogues(1, search, perPage);
+  }, [perPage]);
+
+  const allPageSelected = catalogues.length > 0 && catalogues.every(item => selectedIds.includes(String(item.id)));
+  const toggleSelectAll = () => {
+    const allPageIds = catalogues.map(item => String(item.id));
+    if (allPageSelected) {
+      setSelectedIds(prev => prev.filter(id => !allPageIds.includes(id)));
+    } else {
+      setSelectedIds(prev => [...new Set([...prev, ...allPageIds])]);
+    }
+  };
+  const thStyle: React.CSSProperties = {
+    padding: "11px 16px", textAlign: "left", fontSize: 11,
+    fontWeight: 700, color: "var(--ui-text-muted)", borderBottom: "1px solid var(--ui-border)",
+    background: "rgba(0,0,0,0.03)", whiteSpace: "nowrap",
+  };
+  const tdStyle: React.CSSProperties = {
+    padding: "12px 16px", fontSize: 13, borderBottom: "1px solid var(--ui-border)",
+    color: "var(--ui-text-primary)", verticalAlign: "middle",
+  };
+  const buildPages = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | "…")[] = [1];
+    if (currentPage > 3) pages.push("…");
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push("…");
+    pages.push(totalPages);
+    return pages;
+  };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fd = new FormData(e.target as HTMLFormElement);
     const image = fd.get("image");
     if (image instanceof File && image.size === 0) fd.delete("image");
-
     try {
       await adminCreateCatalogueItem(fd);
       setShowAddModal(false);
       fetchCatalogues();
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: "Failed to create product"
-      });
-    }
+    } catch { Swal.fire({ icon: 'error', title: 'Error!', text: "Failed to create product" }); }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItem) return;
-
     const fd = new FormData(e.target as HTMLFormElement);
     const image = fd.get("image");
     if (image instanceof File && image.size === 0) fd.delete("image");
-
     try {
       await adminUpdateCatalogueItem(editingItem.id, fd);
       setEditingItem(null);
       fetchCatalogues();
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: "Failed to update product"
-      });
-    }
+    } catch { Swal.fire({ icon: 'error', title: 'Error!', text: "Failed to update product" }); }
   };
 
   return (
     <div>
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: 18, fontWeight: 800 }}>Global Catalogue</div>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>Global Catalogue</div>
+          <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 2 }}>{total.toLocaleString()} produk total</div>
+        </div>
         <button
           onClick={() => setShowAddModal(true)}
-          style={{
-            padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-            background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer"
-          }}
+          style={{ padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "var(--ui-primary)", color: "#fff", border: "none", cursor: "pointer" }}
         >
           Add Product
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
-        <div style={{ flex: 1, minWidth: 260, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 12, padding: "10px 16px" }}>
+      {/* Toolbar */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ flex: 1, minWidth: 260, display: "flex", alignItems: "center", gap: 10, background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)", borderRadius: 10, padding: "9px 14px" }}>
           <Search size={15} color="var(--ui-text-muted)" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Cari katalog (nama produk, item code, nama perusahaan)…"
-            style={{ background: "none", border: "none", outline: "none", color: "var(--ui-text-primary)", width: "100%" }}
+            style={{ background: "none", border: "none", outline: "none", color: "var(--ui-text-primary)", width: "100%", fontSize: 13 }}
           />
         </div>
-        {catalogues.length > 0 && (
-          <button
-            onClick={() => {
-              const allPageIds = catalogues.map(item => String(item.id));
-              const allSelected = allPageIds.every(id => selectedIds.includes(id));
-              if (allSelected) {
-                setSelectedIds(prev => prev.filter(id => !allPageIds.includes(id)));
-              } else {
-                setSelectedIds(prev => [...new Set([...prev, ...allPageIds])]);
-              }
-            }}
-            style={{
-              padding: "10px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
-              background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)",
-              color: "var(--ui-text-primary)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={catalogues.length > 0 && catalogues.map(item => String(item.id)).every(id => selectedIds.includes(id))}
-              readOnly
-              style={{ cursor: "pointer" }}
-            />
-            Pilih Semua Halaman Ini
-          </button>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, color: "var(--ui-text-muted)", whiteSpace: "nowrap" }}>Tampilkan</span>
+          <div style={{ display: "flex", gap: 4 }}>
+            {[10, 20, 30, 50].map(n => (
+              <button
+                key={n}
+                onClick={() => setPerPage(n)}
+                style={{
+                  padding: "6px 11px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                  cursor: "pointer", transition: "all 0.15s",
+                  background: perPage === n ? "var(--ui-primary)" : "var(--ui-bg-card)",
+                  color: perPage === n ? "#fff" : "var(--ui-text-muted)",
+                  border: perPage === n ? "none" : "1px solid var(--ui-border)",
+                }}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Bulk Action Bar */}
       {selectedIds.length > 0 && (
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: "rgba(249,115,22,0.1)",
-          border: "1px solid rgba(249,115,22,0.2)",
-          borderRadius: 12,
-          padding: "12px 16px",
-          marginBottom: 20,
-        }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>
-            Terpilih {selectedIds.length} produk
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              onClick={() => setSelectedIds([])}
-              style={{
-                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
-                background: "transparent", border: "1px solid var(--ui-border)",
-                color: "var(--ui-text-primary)", cursor: "pointer"
-              }}
-            >
-              Batal
-            </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 10, padding: "10px 16px", marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-primary)" }}>{selectedIds.length} produk terpilih</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => setSelectedIds([])} style={{ padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 700, background: "transparent", border: "1px solid var(--ui-border)", color: "var(--ui-text-primary)", cursor: "pointer" }}>Batal</button>
             <button
               onClick={async () => {
-                const result = await Swal.fire({
-                  icon: 'question',
-                  title: 'Delete Selected Products?',
-                  text: `Apakah Anda yakin ingin menghapus ${selectedIds.length} produk terpilih?`,
-                  showCancelButton: true,
-                  confirmButtonText: 'Ya, Hapus Semua',
-                  cancelButtonText: 'Batal'
-                });
+                const result = await Swal.fire({ icon: 'question', title: 'Hapus Produk Terpilih?', text: `Yakin ingin menghapus ${selectedIds.length} produk?`, showCancelButton: true, confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' });
                 if (!result.isConfirmed) return;
-
-                Swal.fire({
-                  title: 'Menghapus produk...',
-                  allowOutsideClick: false,
-                  didOpen: () => {
-                    Swal.showLoading();
-                  }
-                });
-
+                Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 try {
                   await Promise.all(selectedIds.map(id => adminDeleteCatalogueItem(id)));
-                  Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Produk terpilih berhasil dihapus.'
-                  });
+                  Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Produk berhasil dihapus.' });
                   fetchCatalogues();
-                } catch (err) {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Gagal menghapus beberapa produk.'
-                  });
-                }
+                } catch { Swal.fire({ icon: 'error', title: 'Error!', text: 'Gagal menghapus beberapa produk.' }); }
               }}
-              style={{
-                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
-                background: "#ef4444", color: "#fff", border: "none", cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 6
-              }}
+              style={{ padding: "5px 12px", borderRadius: 7, fontSize: 12, fontWeight: 700, background: "#ef4444", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
             >
-              <Trash2 size={13} /> Hapus Terpilih
+              <Trash2 size={12} /> Hapus Terpilih
             </button>
           </div>
         </div>
       )}
 
-      {isLoading ? <Loader2 className="animate-spin" /> : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
-          {catalogues.map(item => {
-            const isSelected = selectedIds.includes(String(item.id));
-            return (
-              <div key={item.id} style={{ background: "var(--ui-bg-card)", border: isSelected ? "2px solid #f97316" : "1px solid var(--ui-border)", borderRadius: 16, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
-                {/* Checkbox Overlay */}
-                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => {
-                      setSelectedIds(prev =>
-                        prev.includes(String(item.id))
-                          ? prev.filter(id => id !== String(item.id))
-                          : [...prev, String(item.id)]
-                      );
-                    }}
-                    style={{
-                      width: 18,
-                      height: 18,
-                      cursor: "pointer",
-                      accentColor: "#f97316"
-                    }}
-                  />
-                </div>
-                <div style={{ height: 140, flexShrink: 0, background: item.image_url ? `url(${item.image_url}) center/cover` : "rgba(249,115,22,0.1)" }} />
-                <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
-                  <div style={{ fontWeight: 800, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>{item.item_code} • {item.company?.name || "Global"}</div>
-                  <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "var(--ui-primary)" }}>
-                    Rp {item.price?.toLocaleString()} / {item.uom}
-                  </div>
-                  <div style={{ marginTop: "auto", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flexShrink: 0 }}>
-                    <button
-                      onClick={() => setEditingItem(item)}
-                      style={{
-                        width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
-                        fontWeight: 700, background: "rgba(59,130,246,0.1)", color: "#3b82f6",
-                        border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                      }}
+      <div style={{ background: "var(--ui-bg-card)", border: "1px solid var(--ui-border)", borderRadius: 14, overflow: "hidden" }}>
+        {isLoading ? (
+          <div style={{ padding: 60, textAlign: "center" }}>
+            <Loader2 className="animate-spin" style={{ margin: "0 auto", color: "#f97316" }} size={32} />
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={{ ...thStyle, width: 40, textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={allPageSelected}
+                      onChange={toggleSelectAll}
+                      style={{ cursor: "pointer", accentColor: "#f97316" }}
+                    />
+                  </th>
+                  <th style={{ ...thStyle, width: 52 }}>IMG</th>
+                  <th style={thStyle}>NAMA PRODUK</th>
+                  <th style={thStyle}>ITEM CODE</th>
+                  <th style={thStyle}>KATEGORI</th>
+                  <th style={thStyle}>VENDOR</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>HARGA</th>
+                  <th style={thStyle}>UOM</th>
+                  <th style={{ ...thStyle, textAlign: "center", width: 110 }}>AKSI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {catalogues.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} style={{ ...tdStyle, textAlign: "center", padding: 48, color: "var(--ui-text-muted)" }}>
+                      Tidak ada produk ditemukan
+                    </td>
+                  </tr>
+                ) : catalogues.map(item => {
+                  const isSelected = selectedIds.includes(String(item.id));
+                  return (
+                    <tr
+                      key={item.id}
+                      style={{ background: isSelected ? "rgba(249,115,22,0.05)" : "transparent", transition: "background 0.1s" }}
                     >
-                      <Pencil size={13} /> Edit
-                    </button>
-                    <button
-                      onClick={async () => {
-                        const result = await Swal.fire({
-                          icon: 'question',
-                          title: 'Delete Product?',
-                          text: `Delete product "${item.name}"?`,
-                          showCancelButton: true,
-                          confirmButtonText: 'Yes, Delete',
-                          cancelButtonText: 'Cancel'
-                        });
-                        if (!result.isConfirmed) return;
-                        
-                        try {
-                          await adminDeleteCatalogueItem(item.id);
-                          fetchCatalogues();
-                        } catch (err) {
-                          Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: "Failed to delete product"
-                          });
-                        }
-                      }}
-                      style={{
-                        width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12,
-                        fontWeight: 700, background: "rgba(239,68,68,0.1)", color: "#ef4444",
-                        border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                      }}
-                    >
-                      <Trash2 size={13} /> Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {catalogues.length === 0 && <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 40, color: "var(--ui-text-muted)" }}>No products found</div>}
-        </div>
-      )}
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => setSelectedIds(prev =>
+                            prev.includes(String(item.id)) ? prev.filter(id => id !== String(item.id)) : [...prev, String(item.id)]
+                          )}
+                          style={{ cursor: "pointer", accentColor: "#f97316" }}
+                        />
+                      </td>
+                      <td style={{ ...tdStyle, padding: "8px 10px" }}>
+                        <div style={{
+                          width: 40, height: 40, borderRadius: 8, overflow: "hidden", flexShrink: 0,
+                          background: item.image_url ? `url(${item.image_url}) center/cover` : "rgba(249,115,22,0.1)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          {!item.image_url && <Package size={16} color="rgba(249,115,22,0.5)" />}
+                        </div>
+                      </td>
+                      <td style={{ ...tdStyle, maxWidth: 220 }}>
+                        <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>
+                          {item.name}
+                        </div>
+                      </td>
+                      <td style={{ ...tdStyle, color: "var(--ui-text-muted)", fontFamily: "monospace", fontSize: 12 }}>
+                        {item.item_code || "—"}
+                      </td>
+                      <td style={tdStyle}>
+                        {item.category ? (
+                          <span style={{ background: "rgba(249,115,22,0.1)", color: "#f97316", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
+                            {item.category}
+                          </span>
+                        ) : "—"}
+                      </td>
+                      <td style={{ ...tdStyle, color: "var(--ui-text-muted)", fontSize: 12 }}>
+                        {item.company?.name || <span style={{ color: "var(--ui-text-muted)", fontStyle: "italic" }}>Global</span>}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "var(--ui-primary)", whiteSpace: "nowrap" }}>
+                        Rp {item.price?.toLocaleString() ?? "—"}
+                      </td>
+                      <td style={{ ...tdStyle, fontSize: 12, color: "var(--ui-text-muted)" }}>{item.uom}</td>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                          <button
+                            onClick={() => setEditingItem(item)}
+                            style={{
+                              padding: "5px 10px", borderRadius: 7, fontSize: 12, fontWeight: 700,
+                              background: "rgba(59,130,246,0.1)", color: "#3b82f6",
+                              border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer",
+                              display: "flex", alignItems: "center", gap: 4,
+                            }}
+                          >
+                            <Pencil size={11} /> Edit
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const result = await Swal.fire({
+                                icon: 'question', title: 'Hapus Produk?',
+                                text: `Hapus "${item.name}"?`,
+                                showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal'
+                              });
+                              if (!result.isConfirmed) return;
+                              try {
+                                await adminDeleteCatalogueItem(item.id);
+                                fetchCatalogues();
+                              } catch {
+                                Swal.fire({ icon: 'error', title: 'Error!', text: "Gagal menghapus produk" });
+                              }
+                            }}
+                            style={{
+                              padding: "5px 10px", borderRadius: 7, fontSize: 12, fontWeight: 700,
+                              background: "rgba(239,68,68,0.1)", color: "#ef4444",
+                              border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
+                              display: "flex", alignItems: "center", gap: 4,
+                            }}
+                          >
+                            <Trash2 size={11} /> Del
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 32 }}>
-          <button
-            onClick={() => {
-              const prev = Math.max(1, currentPage - 1);
-              fetchCatalogues(prev);
-            }}
-            disabled={currentPage === 1}
-            style={{
-              padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-              background: currentPage === 1 ? "var(--ui-bg-input)" : "rgba(249,115,22,0.15)",
-              color: currentPage === 1 ? "var(--ui-text-muted)" : "#f97316",
-              border: "none", cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            Previous
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ui-text-muted)" }}>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => {
-              const next = Math.min(totalPages, currentPage + 1);
-              fetchCatalogues(next);
-            }}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-              background: currentPage === totalPages ? "var(--ui-bg-input)" : "rgba(249,115,22,0.15)",
-              color: currentPage === totalPages ? "var(--ui-text-muted)" : "#f97316",
-              border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            Next
-          </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, flexWrap: "wrap", gap: 12 }}>
+          <div style={{ fontSize: 12, color: "var(--ui-text-muted)" }}>
+            Halaman {currentPage} dari {totalPages} · {total.toLocaleString()} produk
+          </div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <button
+              onClick={() => fetchCatalogues(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                background: currentPage === 1 ? "var(--ui-bg-input)" : "rgba(249,115,22,0.12)",
+                color: currentPage === 1 ? "var(--ui-text-muted)" : "#f97316",
+                border: "none", cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              }}
+            >
+              ← Prev
+            </button>
+
+            {buildPages().map((p, i) =>
+              p === "…"
+                ? <span key={`dots-${i}`} style={{ padding: "0 4px", color: "var(--ui-text-muted)", fontSize: 12 }}>…</span>
+                : (
+                  <button
+                    key={p}
+                    onClick={() => fetchCatalogues(p as number)}
+                    style={{
+                      width: 32, height: 32, borderRadius: 8, fontSize: 12, fontWeight: 700,
+                      background: currentPage === p ? "var(--ui-primary)" : "var(--ui-bg-card)",
+                      color: currentPage === p ? "#fff" : "var(--ui-text-muted)",
+                      border: currentPage === p ? "none" : "1px solid var(--ui-border)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {p}
+                  </button>
+                )
+            )}
+
+            <button
+              onClick={() => fetchCatalogues(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                background: currentPage === totalPages ? "var(--ui-bg-input)" : "rgba(249,115,22,0.12)",
+                color: currentPage === totalPages ? "var(--ui-text-muted)" : "#f97316",
+                border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+              }}
+            >
+              Next →
+            </button>
+          </div>
         </div>
       )}
 
       {showAddModal && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.5)", zIndex: 1000,
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "var(--ui-bg-card)", padding: 32, borderRadius: 20, width: "100%", maxWidth: 500 }}>
             <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Add Global Product</div>
             <form onSubmit={handleAddSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -935,11 +957,7 @@ function AdminCatalogueTab() {
       )}
 
       {editingItem && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.5)", zIndex: 1000,
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "var(--ui-bg-card)", padding: 32, borderRadius: 20, width: "100%", maxWidth: 500 }}>
             <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Edit Product</div>
             <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
