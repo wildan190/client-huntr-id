@@ -132,34 +132,52 @@ export default function PaymentModal({ invoice, onClose, onSuccess }: PaymentMod
 
                 {/* Base amount */}
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-[var(--ui-text-secondary)]">Nilai Transaksi</span>
+                  <span className="text-[var(--ui-text-secondary)]">Total Pembelian Barang</span>
                   <span className="font-bold text-[var(--ui-text-primary)]">IDR {Number(invoice.base_amount || invoice.amount).toLocaleString()}</span>
                 </div>
 
-                {/* Platform fee */}
-                {Number(invoice.platform_fee) > 0 && (
+                {/* Platform Fee + PPN */}
+                {(Number(invoice.platform_fee) > 0 || Number(invoice.ppn_platform) > 0) && (
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-400"></span>
-                      Biaya Layanan Platform
-                      <span className="text-[10px] text-orange-400 font-black bg-orange-500/10 px-1.5 py-0.5 rounded-md">
-                        {Number(invoice.base_amount) <= 50000000 ? '2.5%' : Number(invoice.base_amount) <= 250000000 ? '2%' : '1%'}
-                      </span>
+                      Platform Fee + PPN
                     </span>
-                    <span className="font-bold text-orange-400">+ IDR {Number(invoice.platform_fee).toLocaleString()}</span>
+                    <span className="font-bold text-orange-400">+ IDR {(Number(invoice.platform_fee) + Number(invoice.ppn_platform)).toLocaleString()}</span>
                   </div>
                 )}
 
-                {/* Midtrans fee */}
+                {/* Midtrans fee / Admin Bank */}
                 {Number(invoice.midtrans_fee) > 0 && (
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                      Biaya Transaksi Midtrans
+                      Admin Bank
                     </span>
                     <span className="font-bold text-blue-400">+ IDR {Number(invoice.midtrans_fee).toLocaleString()}</span>
                   </div>
                 )}
+
+                {/* PPH 23 */}
+                {Number(invoice.pph23) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--ui-text-secondary)] flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      PPH 23 (2%)
+                    </span>
+                    <span className="font-bold text-red-400">- IDR {Number(invoice.pph23).toLocaleString()}</span>
+                  </div>
+                )}
+
+                {/* Biaya Layanan */}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-orange-500 font-bold flex items-center gap-1.5">
+                    Biaya Layanan
+                  </span>
+                  <span className="font-bold text-orange-500">
+                    + IDR {((Number(invoice.platform_fee) + Number(invoice.ppn_platform)) + Number(invoice.midtrans_fee) - Number(invoice.pph23)).toLocaleString()}
+                  </span>
+                </div>
 
                 {/* PPN */}
                 {Number(invoice.ppn_fee) > 0 && (

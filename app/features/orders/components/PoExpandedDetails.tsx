@@ -9,14 +9,22 @@ import { QRCodeDisplay } from "./QRCodeDisplay";
 import { SignatureButtons } from "./SignatureButtons";
 
 // ─── Fee Calculator (mirrors CalculateInvoiceFeesAction.php) ──────────────────
+const getPlatFeeRate = (base: number) => {
+  if (base <= 100_000_000) return 0.05;
+  if (base <= 250_000_000) return 0.03;
+  return 0.02;
+};
+
 const calcFees = (base: number) => {
-  const platFee      = base * 0.03;
+  const platFeeRate  = getPlatFeeRate(base);
+  const platFee      = base * platFeeRate;
+  const ppnPlatform  = platFee * 0.11;
   const adminBank    = 4400;
-  const ppnEcomm     = (platFee + adminBank) * 0.08;
-  const biayaLayanan = platFee + adminBank + ppnEcomm;
+  const pph23        = platFee * 0.02;
+  const biayaLayanan = (platFee + ppnPlatform) + adminBank - pph23;
   const ppn          = base * 0.11;
   const grandTotal   = base + biayaLayanan + ppn;
-  return { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal };
+  return { platFeeRate, platFee, ppnPlatform, adminBank, pph23, biayaLayanan, ppn, grandTotal };
 };
 
 interface PoExpandedDetailsProps {
@@ -279,45 +287,45 @@ export const PoExpandedDetails = ({
               </>
             ) : (() => {
               const base = Number(po.total_amount || 0);
-              const { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal } = calcFees(base);
+              const { platFeeRate, platFee, ppnPlatform, adminBank, pph23, biayaLayanan, ppn, grandTotal } = calcFees(base);
               return (
                 <>
                   {/* Grand Total */}
-                  <div style={{ fontSize: 26, fontWeight: 700, color: "#4ade80", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
-                    <span style={{ fontSize: 13, color: "#fb923c", marginRight: 6, fontWeight: 600 }}>{po.currency || "IDR"}</span>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: "#b45309", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
+                    <span style={{ fontSize: 13, color: "#92400e", marginRight: 6, fontWeight: 600 }}>{po.currency || "IDR"}</span>
                     {Math.round(grandTotal).toLocaleString('id-ID')}
                   </div>
 
                   {/* Breakdown rows */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, borderTop: "1px solid var(--ui-border-input)", paddingTop: 8, marginTop: 2 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-secondary)" }}>
-                      <span>DPP</span>
-                      <span style={{ fontWeight: 600 }}>{base.toLocaleString('id-ID')}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, borderTop: "1px solid rgba(234,179,8,0.3)", paddingTop: 8, marginTop: 2 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#78350f", fontWeight: 600 }}>
+                      <span>Total Pembelian Barang (DPP)</span>
+                      <span>{base.toLocaleString('id-ID')}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
-                      <span>↳ Platform Fee (3%)</span>
-                      <span style={{ color: "#fb923c" }}>+{Math.round(platFee).toLocaleString('id-ID')}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#b45309", fontWeight: 600 }}>
+                      <span>↳ Platform Fee + PPN ({(platFeeRate*100).toFixed(0)}%+11%)</span>
+                      <span>+{Math.round(platFee + ppnPlatform).toLocaleString('id-ID')}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#b45309", fontWeight: 600 }}>
                       <span>↳ Admin Bank</span>
-                      <span style={{ color: "#60a5fa" }}>+{adminBank.toLocaleString('id-ID')}</span>
+                      <span>+{adminBank.toLocaleString('id-ID')}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ui-text-muted)", paddingLeft: 8 }}>
-                      <span>↳ PPN eComm (8%)</span>
-                      <span style={{ color: "#a78bfa" }}>+{Math.round(ppnEcomm).toLocaleString('id-ID')}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#b45309", fontWeight: 600 }}>
+                      <span>↳ PPH 23 (2%)</span>
+                      <span>-{Math.round(pph23).toLocaleString('id-ID')}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "#fb923c", fontWeight: 600 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#92400e", fontWeight: 700 }}>
                       <span>Biaya Layanan</span>
                       <span>+{Math.round(biayaLayanan).toLocaleString('id-ID')}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "#c084fc", fontWeight: 600 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#92400e", fontWeight: 700 }}>
                       <span>PPN 11% (dari DPP)</span>
                       <span>+{Math.round(ppn).toLocaleString('id-ID')}</span>
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 11, color: "#4ade80", display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
+                  <div style={{ fontSize: 11, color: "#b45309", display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
                     Sudah termasuk semua pajak & biaya layanan
                   </div>
                 </>

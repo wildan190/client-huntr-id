@@ -437,7 +437,7 @@ export default function AppShell() {
   const handleLogout = () => {
     localStorage.removeItem("user_session");
     localStorage.removeItem("active_company");
-    navigate("/login");
+    window.location.href = "/";
   };
 
   const handleSwitchCompany = () => {
@@ -511,10 +511,10 @@ export default function AppShell() {
       {/* Logo */}
       <div style={{ padding: "0 20px 24px", width: "100%", boxSizing: "border-box" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%" }}>
+          <Link to="/" onClick={handleNavClick} style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%", textDecoration: "none" }}>
             <img src="/assets/img/logo/sidebar.png" alt="Huntr Logo"
-              style={{ width: 260, height: 64, objectFit: "contain", flexShrink: 0, marginLeft: 0, display: "block" }} />
-          </div>
+              style={{ width: 260, height: 64, objectFit: "contain", flexShrink: 0, marginLeft: 0, display: "block", cursor: "pointer" }} />
+          </Link>
         </div>
       </div>
 

@@ -31,14 +31,22 @@ const getStatusBadge = (status: string) => {
 };
 
 // ─── Fee Calculator ───────────────────────────────────────────────────────────
+const getPlatFeeRate = (base: number) => {
+  if (base <= 100_000_000) return 0.05;
+  if (base <= 250_000_000) return 0.03;
+  return 0.02;
+};
+
 const calcFees = (base: number) => {
-  const platFee     = base * 0.03;
-  const adminBank   = 4400;
-  const ppnEcomm    = (platFee + adminBank) * 0.08;
-  const biayaLayanan = platFee + adminBank + ppnEcomm;
-  const ppn         = base * 0.11;
-  const grandTotal  = base + biayaLayanan + ppn;
-  return { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal };
+  const platFeeRate  = getPlatFeeRate(base);
+  const platFee      = base * platFeeRate;
+  const ppnPlatform  = platFee * 0.11;
+  const adminBank    = 4400;
+  const pph23        = platFee * 0.02;
+  const biayaLayanan = (platFee + ppnPlatform) + adminBank - pph23;
+  const ppn          = base * 0.11;
+  const grandTotal   = base + biayaLayanan + ppn;
+  return { platFeeRate, platFee, ppnPlatform, adminBank, pph23, biayaLayanan, ppn, grandTotal };
 };
 
 const fmt = (n: number) => n.toLocaleString('id-ID');
@@ -442,39 +450,39 @@ export default function Orders() {
                   {/* Fee Breakdown Strip */}
                   {!po.is_historical && Number(po.total_amount) > 0 && (() => {
                     const base = Number(po.total_amount);
-                    const { platFee, adminBank, ppnEcomm, biayaLayanan, ppn, grandTotal } = calcFees(base);
+                    const { platFeeRate, platFee, ppnPlatform, adminBank, pph23, biayaLayanan, ppn, grandTotal } = calcFees(base);
                     return (
                       <div style={{
-                        background: "rgba(249,115,22,0.05)",
-                        border: "1px solid rgba(249,115,22,0.15)",
+                        background: "rgba(253,246,191,0.15)",
+                        border: "1px solid rgba(234,179,8,0.3)",
                         borderRadius: 10,
                         padding: "10px 14px",
                         display: "flex",
                         flexWrap: "wrap",
-                        gap: "0 24px",
+                        gap: "0 20px",
                         alignItems: "center",
                       }}>
                         {/* Label */}
-                        <span style={{ fontSize: 11, fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", flexBasis: "100%", marginBottom: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", flexBasis: "100%", marginBottom: 6 }}>
                           💰 Rincian Biaya
                         </span>
 
                         {/* Items */}
                         {([
-                          { label: "Total Pembelian (DPP)",         value: base,          color: "var(--ui-text-primary)",  bold: true },
-                          { label: "Platform Fee (3%)",              value: platFee,       color: "#fb923c",                 bold: false },
-                          { label: "Admin Bank",                     value: adminBank,     color: "#60a5fa",                 bold: false },
-                          { label: "PPN eComm (8%)",                 value: ppnEcomm,      color: "#a78bfa",                 bold: false },
-                          { label: "Biaya Layanan",                  value: biayaLayanan,  color: "#fb923c",                 bold: true  },
-                          { label: "PPN (11%)",                      value: ppn,           color: "#c084fc",                 bold: true  },
-                          { label: "TOTAL",                          value: grandTotal,    color: "#4ade80",                 bold: true  },
+                          { label: "Total Pembelian Barang",                                       value: base,                    color: "#78350f",  bold: true  },
+                          { label: `Platform Fee + PPN (${(platFeeRate*100).toFixed(0)}%+11%)`,    value: platFee + ppnPlatform,   color: "#b45309",  bold: true  },
+                          { label: "Admin Bank",                                                    value: adminBank,               color: "#b45309",  bold: true  },
+                          { label: "PPH 23 (2%)",                                                   value: pph23,                   color: "#b45309",  bold: true  },
+                          { label: "Biaya Layanan",                                                 value: biayaLayanan,            color: "#b45309",  bold: true  },
+                          { label: "PPN (11%)",                                                     value: ppn,                     color: "#b45309",  bold: true  },
+                          { label: "TOTAL",                                                         value: grandTotal,              color: "#92400e",  bold: true  },
                         ] as Array<{ label: string; value: number; color: string; bold: boolean }>).map((item) => (
                           <div key={item.label} style={{
                             display: "flex", flexDirection: "column", gap: 2,
                             minWidth: 100, paddingRight: 4,
-                            borderRight: item.label === "TOTAL" ? "none" : "1px solid rgba(249,115,22,0.12)",
+                            borderRight: item.label === "TOTAL" ? "none" : "1px solid rgba(234,179,8,0.2)",
                           }}>
-                            <span style={{ fontSize: 10, color: "var(--ui-text-muted)", fontWeight: 600 }}>{item.label}</span>
+                            <span style={{ fontSize: 10, color: "#92400e", fontWeight: 600 }}>{item.label}</span>
                             <span style={{ fontSize: 13, fontWeight: item.bold ? 700 : 500, color: item.color }}>
                               {item.label === "TOTAL" ? "IDR " : ""}{fmt(Math.round(item.value))}
                             </span>

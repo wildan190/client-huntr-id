@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Loader2, Eye, EyeOff, MessageSquareCode } from "lucide-react";
+import { Loader2, Eye, EyeOff, MessageSquareCode, ArrowLeft } from "lucide-react";
 import { register, sendOtp, verifyOtp, loadOtpSession, clearOtpSession, getCsrfCookie } from "../lib/api";
 import { isValidWhatsapp } from "../lib/whatsapp";
 import AuthLayout from "../components/AuthLayout";
@@ -161,6 +161,9 @@ export default function Register() {
       featureVariant="amber"
     >
       <form className="auth-form">
+        <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "var(--ui-text-muted)", marginBottom: 24, textDecoration: "none" }}>
+          <ArrowLeft size={16} /> Back to Home
+        </Link>
         <div className="auth-form__header">
           <h1 className="auth-heading">Create Account</h1>
           <p className="auth-subheading">Register and verify your workspace identity</p>
