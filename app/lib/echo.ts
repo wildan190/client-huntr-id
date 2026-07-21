@@ -24,14 +24,14 @@ function getConfig() {
 
   if (!key || !host) return null;
 
+  const apiUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
   return {
     key,
     host,
     port: port ? parseInt(port) : 8080,
     scheme,
-    // Gunakan relative path agar auth request melewati Vite proxy
-    // Vite proxy akan forward /api/broadcasting/auth → backend
-    authEndpoint: '/api/broadcasting/auth',
+    authEndpoint: apiUrl ? `${apiUrl}/api/broadcasting/auth` : '/api/broadcasting/auth',
   };
 }
 

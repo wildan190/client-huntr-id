@@ -51,8 +51,8 @@ export const getAuthenticatedUser = () => apiGet("/api/user");
 
 export const getCsrfCookie = async () => {
   try {
-    // Gunakan relative path agar melewati Vite proxy
-    const response = await fetch(`/sanctum/csrf-cookie`, {
+    const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+    const response = await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
       credentials: 'include',
     });
     console.log("[API] CSRF cookie initialized");

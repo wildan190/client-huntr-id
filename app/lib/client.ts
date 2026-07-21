@@ -7,9 +7,12 @@ import { clearAuthSession, getAuthHeaders } from "./session";
  * Semua request menggunakan relative path (/api/...) agar melewati Vite proxy.
  */
 
-// Gunakan relative path agar request melewati Vite dev proxy ke backend
-// Pada production, Nginx/reverse proxy yang akan handle routing
-const BASE_URL = "";
+function resolveBaseUrl(): string {
+  const url = import.meta.env.VITE_API_URL || "";
+  return url.replace(/\/$/, "");
+}
+
+const BASE_URL = resolveBaseUrl();
 
 async function handleResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
