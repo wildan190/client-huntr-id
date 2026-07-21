@@ -120,8 +120,8 @@ export function ensureEcho(): Echo<any> | null {
     Pusher.logToConsole = false;
     
     // Disable stats collection
-    if (window.Pusher) {
-      window.Pusher.Runtime.enableStats = false;
+    if (window.Pusher && (window.Pusher as any).Runtime) {
+      (window.Pusher as any).Runtime.enableStats = false;
     }
 
     // Always use Reverb configuration if host is provided
