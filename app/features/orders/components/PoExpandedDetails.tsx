@@ -346,6 +346,7 @@ export const PoExpandedDetails = ({
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
             <thead>
               <tr style={{ background: "var(--ui-bg-card)", borderBottom: "1px solid var(--ui-border-input)" }}>
+                <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11, width: 36, textAlign: "center" }}>NO</th>
                 <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11 }}>ITEM NAME & CODE</th>
                 <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11 }}>QTY</th>
                 <th style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontWeight: 700, fontSize: 11 }}>UNIT PRICE</th>
@@ -356,6 +357,7 @@ export const PoExpandedDetails = ({
             <tbody>
               {po.items?.map((item: any, idx: number) => (
                 <tr key={idx} style={{ borderBottom: idx === (po.items?.length - 1) ? "none" : "1px solid var(--ui-border-input)" }}>
+                  <td style={{ padding: "10px 12px", color: "var(--ui-text-muted)", fontSize: 12, textAlign: "center" }}>{idx + 1}</td>
                   <td style={{ padding: "10px 12px" }}>
                     <div style={{ color: "var(--ui-text-primary)", fontWeight: 700, marginBottom: 4 }}>{item.inventory_name}</div>
                     <div style={{ fontSize: 11, color: "var(--ui-text-muted)", fontFamily: "monospace" }}>{item.inventory_code || "NO-CODE"} • {item.pr_reference_number || "NO-PR"}</div>

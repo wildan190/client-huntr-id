@@ -21,8 +21,9 @@ export const uploadCompanyDocument = (fd: FormData) =>
 export const uploadCompanyLogo = (formData: FormData) =>
   apiPostForm("/api/companies/logo/upload", formData);
 
-export const getMyCompanies = (userId: number | string) => 
-  apiGet(`/api/companies/my?user_id=${userId}`);
+export const getMyCompanies = () => 
+  apiGet(`/api/companies/my`);
+
 
 export const getHistoricalPos = (companyId: string | number) =>
   apiGet(`/api/orders/historical?company_id=${companyId}`);

@@ -29,7 +29,9 @@ function getConfig() {
     host,
     port: port ? parseInt(port) : 8080,
     scheme,
-    apiUrl: import.meta.env.VITE_API_URL || 'https://api.huntr.id',
+    // Gunakan relative path agar auth request melewati Vite proxy
+    // Vite proxy akan forward /api/broadcasting/auth → backend
+    authEndpoint: '/api/broadcasting/auth',
   };
 }
 
@@ -139,7 +141,8 @@ export function ensureEcho(): Echo<any> | null {
         enabledTransports: ['ws', 'wss'],
         enableStats: false,
         enableLogging: false,
-        authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+        // Relative path → melewati Vite proxy → tidak ada CORS/SSL issue
+        authEndpoint: config.authEndpoint,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -164,7 +167,8 @@ export function ensureEcho(): Echo<any> | null {
         forceTLS: true,
         enableStats: false,
         enableLogging: false,
-        authEndpoint: `${config.apiUrl}/api/broadcasting/auth`,
+        // Relative path → melewati Vite proxy
+        authEndpoint: config.authEndpoint,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,

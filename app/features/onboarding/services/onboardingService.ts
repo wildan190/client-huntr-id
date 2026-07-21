@@ -46,7 +46,8 @@ export const OnboardingRepository = {
   /**
    * Mengambil daftar perusahaan milik user yang sedang login
    */
-  async getMyCompanies(userId: number | string): Promise<{ companies: any[] }> {
-    return apiGet(`/api/companies/my?user_id=${userId}`);
+  async getMyCompanies(): Promise<{ companies: any[] }> {
+    return apiGet(`/api/companies/my`);
   },
+
 };

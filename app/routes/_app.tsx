@@ -622,9 +622,6 @@ export default function AppShell() {
               </div>
             </div>
           )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <ThemeToggle />
-          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#ea580c,#f97316)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
               {user.name?.[0]?.toUpperCase() || "U"}
@@ -728,8 +725,12 @@ export default function AppShell() {
                 )}
               </button>
             )}
+            {/* Theme Toggle */}
+            {!isMobile && <ThemeToggle />}
+
             {/* Notification Bell */}
             <div style={{ position: "relative" }}>
+
               <button 
                 ref={notifButtonRef} 
                 onClick={handleNotificationToggle}

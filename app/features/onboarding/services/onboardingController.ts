@@ -126,7 +126,8 @@ export const OnboardingController = {
     }
 
     // 4. Ambil data terbaru untuk sinkronisasi state
-    const data = await OnboardingRepository.getMyCompanies(user.id);
+    const data = await OnboardingRepository.getMyCompanies();
+
     return {
       company,
       allCompanies: data.companies || [company]

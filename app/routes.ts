@@ -9,6 +9,7 @@ export default [
   // ── Public / standalone routes (no persistent shell) ──────────────────────
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
+  route("forgot-password", "routes/forgot-password.tsx"),
   route("onboarding", "routes/onboarding.tsx"),
   route("select-company", "routes/select-company.tsx"),
   route("admin", "routes/admin.tsx"),

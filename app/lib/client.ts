@@ -4,20 +4,12 @@ import { clearAuthSession, getAuthHeaders } from "./session";
  * API Client Core
  * 
  * Tanggung jawab: Wrapper dasar untuk fetch API dengan penanganan error global.
+ * Semua request menggunakan relative path (/api/...) agar melewati Vite proxy.
  */
 
-function resolveBaseUrl(): string {
-  let url = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  
-  // Handle HTTPS upgrade for ports like 8443
-  if (url.includes(":8443") && url.startsWith("http://")) {
-    url = url.replace("http://", "https://");
-  }
-  
-  return url.replace(/\/$/, "");
-}
-
-const BASE_URL = resolveBaseUrl();
+// Gunakan relative path agar request melewati Vite dev proxy ke backend
+// Pada production, Nginx/reverse proxy yang akan handle routing
+const BASE_URL = "";
 
 async function handleResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
@@ -65,7 +57,9 @@ export async function apiGet<T = any>(path: string): Promise<T> {
 }
 
 export function getFullApiUrl(path: string): string {
-  return `${BASE_URL}${path}`;
+  // Kembalikan URL absolut untuk kebutuhan eksternal (misalnya share link)
+  const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  return `${base.replace(/\/$/, "")}${path}`;
 }
 
 export async function apiPost<T = any>(path: string, body: Record<string, any>): Promise<T> {

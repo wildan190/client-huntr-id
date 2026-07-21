@@ -166,27 +166,36 @@ export default function Login() {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <input
-              id="remember-me"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={e => setRememberMe(e.target.checked)}
-              style={{
-                width: 18,
-                height: 18,
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, position: "relative", zIndex: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input
+                id="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                style={{
+                  width: 18,
+                  height: 18,
+                  cursor: "pointer",
+                  accentColor: "#f97316",
+                  position: "relative",
+                  zIndex: 10
+                }}
+              />
+              <label htmlFor="remember-me" style={{
+                fontSize: 13,
+                color: "var(--ui-text-secondary)",
                 cursor: "pointer",
-                accentColor: "#f97316",
-              }}
-            />
-            <label htmlFor="remember-me" style={{
-              fontSize: 13,
-              color: "var(--ui-text-secondary)",
-              cursor: "pointer",
-              userSelect: "none",
-            }}>
-              Remember me for 30 days
-            </label>
+                userSelect: "none",
+                position: "relative",
+                zIndex: 10
+              }}>
+                Remember me for 30 days
+              </label>
+            </div>
+            <Link to="/forgot-password" style={{ fontSize: 13, fontWeight: 700, color: "#f97316", textDecoration: "none", position: "relative", zIndex: 10, cursor: "pointer" }}>
+              Forgot password?
+            </Link>
           </div>
 
           {error && <div className="auth-alert auth-alert--error">⚠ {error}</div>}

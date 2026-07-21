@@ -1,61 +1,85 @@
 import React, { useEffect, useState } from "react";
-import { Sun, Moon, Settings } from "lucide-react";
+import { Sun, Moon, SunMoon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
+/**
+ * ThemeToggle — pill-style 3-state toggle: Light | Auto | Dark
+ * Designed for the top bar.
+ */
 export default function ThemeToggle() {
-  const { theme, toggleTheme, resetToAuto, isAuto, isDark } = useTheme();
+  const { isDark, isAuto, setThemeMode } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   if (!mounted) {
-    // Render placeholder/empty structure with same dimensions to avoid shifting layout
-    return (
-      <div style={{ display: "flex", gap: 4, alignItems: "center", minHeight: 32 }}>
-        <div style={{ width: 68, height: 32, borderRadius: 8, background: "rgba(0,0,0,0.03)" }} />
-        <div style={{ width: 68, height: 32, borderRadius: 8, background: "rgba(0,0,0,0.03)" }} />
-      </div>
-    );
+    return <div style={{ width: 108, height: 32, borderRadius: 10, background: "var(--ui-toggle-bg)" }} />;
   }
 
+  // Derive current active mode
+  const mode: "light" | "auto" | "dark" = isAuto ? "auto" : isDark ? "dark" : "light";
+
+  const handleClick = (next: "light" | "auto" | "dark") => {
+    setThemeMode(next);
+  };
+
+  const segments: { key: "light" | "auto" | "dark"; icon: React.ReactNode; label: string }[] = [
+    { key: "light", icon: <Sun size={12} />, label: "Light" },
+    { key: "auto",  icon: <SunMoon size={12} />, label: "Auto"  },
+    { key: "dark",  icon: <Moon size={12} />, label: "Dark"  },
+  ];
+
   return (
-    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-      <button
-        onClick={toggleTheme}
-        title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        style={{
-          padding: "8px 12px", borderRadius: 8,
-          fontSize: 12, fontWeight: 600,
-          background: !isAuto ? "rgba(249,115,22,0.2)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-          border: !isAuto ? "1px solid rgba(249,115,22,0.4)" : isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(0,0,0,0.15)",
-          color: !isAuto ? "#f97316" : isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
-          cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          transition: "all 0.2s",
-        }}
-      >
-        {isDark ? <Sun size={13} /> : <Moon size={13} />}
-        {isDark ? "Light" : "Dark"}
-      </button>
-      <button
-        onClick={resetToAuto}
-        title="Follow system theme preference"
-        style={{
-          padding: "8px 12px", borderRadius: 8,
-          fontSize: 12, fontWeight: 600,
-          background: isAuto ? "rgba(249,115,22,0.2)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-          border: isAuto ? "1px solid rgba(249,115,22,0.4)" : isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(0,0,0,0.15)",
-          color: isAuto ? "#f97316" : isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
-          cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          transition: "all 0.2s",
-        }}
-      >
-        <Settings size={13} />
-        Auto
-      </button>
+    <div
+      role="group"
+      aria-label="Theme selection"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        padding: 3,
+        borderRadius: 10,
+        background: "var(--ui-toggle-bg)",
+        border: "1px solid var(--ui-toggle-border)",
+      }}
+    >
+      {segments.map(({ key, icon, label }) => {
+        const isActive = mode === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => handleClick(key)}
+            aria-pressed={isActive}
+            title={`${label} mode`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "4px 8px",
+              borderRadius: 7,
+              border: "none",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.18s ease",
+              background: isActive
+                ? "linear-gradient(135deg, rgba(249,115,22,0.25), rgba(249,115,22,0.15))"
+                : "transparent",
+              color: isActive
+                ? "#f97316"
+                : "var(--ui-text-muted)",
+              boxShadow: isActive
+                ? "inset 0 0 0 1px rgba(249,115,22,0.35)"
+                : "none",
+              lineHeight: 1,
+            }}
+          >
+            {icon}
+            <span>{label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

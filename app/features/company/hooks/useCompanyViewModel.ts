@@ -61,10 +61,10 @@ export const useCompanyViewModel = () => {
     });
   }, []);
 
-  const fetchCompanyList = async (userId: number, activeId?: number) => {
+  const fetchCompanyList = async (userId?: number, activeId?: number) => {
     setCompanyListLoading(true);
     try {
-      const data = await getMyCompanies(userId);
+      const data = await getMyCompanies();
       const list = data.companies || [];
       setCompanies(list);
       if (activeId) {

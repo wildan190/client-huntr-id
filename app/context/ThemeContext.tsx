@@ -5,6 +5,7 @@ type Theme = "dark" | "light";
 interface ThemeContextValue {
   theme: Theme;
   toggleTheme: () => void;
+  setThemeMode: (mode: "light" | "dark" | "auto") => void;
   isDark: boolean;
   isAuto: boolean;
   resetToAuto: () => void;
@@ -13,6 +14,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "dark",
   toggleTheme: () => {},
+  setThemeMode: () => {},
   isDark: true,
   isAuto: true,
   resetToAuto: () => {},
@@ -64,10 +66,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setThemeMode = (mode: "light" | "dark" | "auto") => {
+    if (mode === "auto") {
+      setManual(null);
+    } else {
+      setManual(mode);
+    }
+  };
+
   const resetToAuto = () => setManual(null);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === "dark", isAuto, resetToAuto }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode, isDark: theme === "dark", isAuto, resetToAuto }}>
       {children}
     </ThemeContext.Provider>
   );

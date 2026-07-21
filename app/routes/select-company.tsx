@@ -19,7 +19,7 @@ export default function SelectCompany() {
     if (!session) { navigate("/login"); return; }
     const u = JSON.parse(session);
     setUser(u);
-    getMyCompanies(u.id)
+    getMyCompanies()
       .then(data => {
         const list = data.companies || [];
         setCompanies(list);
@@ -28,6 +28,7 @@ export default function SelectCompany() {
       .catch(() => setCompanies([]))
       .finally(() => setIsLoading(false));
   }, [navigate]);
+
 
   const handleLogin = () => {
     if (!selected) return;

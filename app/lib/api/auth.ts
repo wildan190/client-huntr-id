@@ -51,7 +51,8 @@ export const getAuthenticatedUser = () => apiGet("/api/user");
 
 export const getCsrfCookie = async () => {
   try {
-    const response = await fetch(`${resolveBaseUrl()}/sanctum/csrf-cookie`, {
+    // Gunakan relative path agar melewati Vite proxy
+    const response = await fetch(`/sanctum/csrf-cookie`, {
       credentials: 'include',
     });
     console.log("[API] CSRF cookie initialized");
@@ -60,14 +61,6 @@ export const getCsrfCookie = async () => {
     console.warn("[API] Failed to fetch CSRF cookie:", err);
   }
 };
-
-function resolveBaseUrl(): string {
-  let url = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  if (url.includes(":8443") && url.startsWith("http://")) {
-    url = url.replace("http://", "https://");
-  }
-  return url.replace(/\/$/, "");
-}
 
 export const sendOtp = async (payload: { whatsapp: string }) => {
   const whatsapp = normalizeWhatsapp(payload.whatsapp);
@@ -108,7 +101,13 @@ export const verifyOtp = async (payload: { whatsapp?: string; otp: string; otp_t
   }
 
   const whatsapp = normalizeWhatsapp(payload.whatsapp || session?.whatsapp || "");
+  if (!whatsapp) throw new Error("Nomor WhatsApp tidak ditemukan untuk verifikasi.");
+  
   return apiPost("/api/auth/otp/verify", { whatsapp, otp });
+};
+
+export const resetPasswordWhatsapp = async (payload: { whatsapp: string; password: string; password_confirmation: string }) => {
+  return apiPost<{ message: string }>("/api/auth/password/reset-whatsapp", payload);
 };
 
 export const switchRole = async (role: string) => {
