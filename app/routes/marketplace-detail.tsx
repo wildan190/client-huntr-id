@@ -619,6 +619,13 @@ export default function MarketplaceDetail() {
       )}
 
       <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+        {/* Back Link */}
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", display: "inline-flex", alignItems: "center", gap: 6, color: "#f97316", fontSize: 13, fontWeight: 700, cursor: "pointer", padding: 0 }}>
+            <ArrowLeft size={15} /> Kembali ke Katalog
+          </button>
+        </div>
+
         {loading && (
           <div style={{ textAlign: "center", padding: 80, color: "var(--ui-text-muted)" }}>Loading product details...</div>
         )}
@@ -669,6 +676,8 @@ export default function MarketplaceDetail() {
                     { label: "SKU / Item Code", value: item.item_code },
                     { label: "Category", value: item.category || "General" },
                     { label: "Unit of Measure", value: item.uom },
+                    ...(item.company?.name ? [{ label: "Vendor / Perusahaan", value: item.company.name }] : []),
+                    ...((item as any).brand ? [{ label: "Brand / Merek", value: (item as any).brand }] : []),
                   ].map(({ label, value }) => (
                     <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 16, fontSize: 14, padding: "6px 0" }}>
                       <span style={{ color: "var(--ui-text-muted)", flexShrink: 0 }}>{label}</span>
@@ -687,12 +696,48 @@ export default function MarketplaceDetail() {
               </div>
             </div>
 
-            <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 28, border: "1px solid var(--ui-border)", marginTop: 16, boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20, paddingBottom: 12, borderBottom: "1px solid var(--ui-border)" }}>Specifications</div>
-              <div style={{ padding: "8px 0" }}>
-                <SpecificationsBlock text={item.specifications} isGuest={false} />
+            {item.specifications && (
+              <div style={{ background: "var(--ui-bg-card)", borderRadius: 20, padding: 28, border: "1px solid var(--ui-border)", marginTop: 16, boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)", position: "relative" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ui-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20, paddingBottom: 12, borderBottom: "1px solid var(--ui-border)" }}>Specifications</div>
+                <div style={{
+                  maxHeight: isSpecExpanded ? "none" : "140px",
+                  overflow: "hidden",
+                  position: "relative",
+                  transition: "max-height 0.3s ease",
+                  padding: "8px 0"
+                }}>
+                  <SpecificationsBlock text={item.specifications} isGuest={false} />
+                  {!isSpecExpanded && (
+                    <div style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "60px",
+                      background: "linear-gradient(transparent, var(--ui-bg-card))",
+                      pointerEvents: "none"
+                    }} />
+                  )}
+                </div>
+                <div style={{ marginTop: 12, textAlign: "center" }}>
+                  <button
+                    onClick={() => setIsSpecExpanded(!isSpecExpanded)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#f97316",
+                      fontWeight: 700,
+                      fontSize: "13px",
+                      cursor: "pointer",
+                      outline: "none",
+                      padding: "4px 8px"
+                    }}
+                  >
+                    {isSpecExpanded ? "Lihat Lebih Sedikit" : "Lihat Selengkapnya"}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

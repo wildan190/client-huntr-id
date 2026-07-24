@@ -25,7 +25,14 @@ const PRODUCT_CATEGORIES = [
   "Other"
 ];
 
+import { useSearchParams } from "react-router";
+
 export default function Catalogue() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("search") || "";
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const [localSearch, setLocalSearch] = useState(searchTerm);
   const [company, setCompany] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,7 +42,7 @@ export default function Catalogue() {
   // Catalogue list state
   const [items, setItems] = useState<any[]>([]);
   const [itemsLoading, setItemsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Manual Entry Form State
@@ -57,7 +64,6 @@ export default function Catalogue() {
     if (activeComp) {
       const ac = JSON.parse(activeComp);
       setCompany(ac);
-      fetchItems(ac.id);
     }
     
     // Initialize CSRF cookie
@@ -66,16 +72,57 @@ export default function Catalogue() {
     });
   }, []);
 
-  const fetchItems = async (cid: number) => {
+  useEffect(() => {
+    setLocalSearch(searchTerm);
+  }, [searchTerm]);
+
+  // Sync debounced localSearch to URL searchParams
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchTerm) {
+        setSearchParams(prev => {
+          if (localSearch) prev.set("search", localSearch);
+          else prev.delete("search");
+          prev.set("page", "1");
+          return prev;
+        });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchTerm]);
+
+  // Main data fetching effect reacting to URL changes (page, search, company)
+  useEffect(() => {
+    if (company?.id) {
+      fetchItems(company.id, currentPage, searchTerm);
+    }
+  }, [company, currentPage, searchTerm]);
+
+  const fetchItems = async (cid: number, page = currentPage, query = searchTerm) => {
     setItemsLoading(true);
     try {
-      const res = await getCatalogues({ company_id: cid });
-      setItems(res.data || []);
+      const res = await getCatalogues({ company_id: cid, page, search: query });
+      if (res && res.data && Array.isArray(res.data)) {
+        setItems(res.data);
+        setTotalPages(res.last_page || 1);
+      } else {
+        const d = res?.data || res || [];
+        setItems(Array.isArray(d) ? d : []);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to fetch items", err);
     } finally {
       setItemsLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setSearchParams(prev => {
+      prev.set("page", String(newPage));
+      return prev;
+    });
   };
 
   const handleManualSubmit = async (e: React.FormEvent) => {
@@ -138,6 +185,7 @@ export default function Catalogue() {
   };
 
   const filteredItems = items.filter(item => 
+    !searchTerm ||
     item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.item_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.category?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -182,8 +230,8 @@ export default function Catalogue() {
               <input 
                 type="text" 
                 placeholder="Search your catalogue..." 
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                value={localSearch}
+                onChange={e => setLocalSearch(e.target.value)}
                 style={{
                   width: "100%", padding: "12px 16px 12px 48px", borderRadius: 16,
                   background: "var(--ui-bg-input)", border: "1px solid var(--ui-border-input)",
@@ -441,6 +489,51 @@ export default function Catalogue() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 32, flexWrap: "wrap" }}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{
+                  padding: "8px 16px", borderRadius: 10, border: "1px solid var(--ui-border)",
+                  background: "var(--ui-bg-card)", color: "var(--ui-text-primary)",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1,
+                  fontSize: 13, fontWeight: 600
+                }}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    border: currentPage === page ? "none" : "1px solid var(--ui-border)",
+                    background: currentPage === page ? "var(--huntr-gradient)" : "var(--ui-bg-card)",
+                    color: currentPage === page ? "#fff" : "var(--ui-text-primary)",
+                    cursor: "pointer", fontSize: 13, fontWeight: 700
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: "8px 16px", borderRadius: 10, border: "1px solid var(--ui-border)",
+                  background: "var(--ui-bg-card)", color: "var(--ui-text-primary)",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1,
+                  fontSize: 13, fontWeight: 600
+                }}
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

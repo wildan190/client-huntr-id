@@ -28,7 +28,7 @@ import {
   CheckCircle2, Loader2, Package, X, Sparkles, GitCompare, ArrowRight,
 } from "lucide-react";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../hooks/useMediaQuery";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { getAssetUrl } from "../lib/assets";
 import {
   loadCart,
@@ -41,18 +41,22 @@ import {
 
 export default function Marketplace() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const searchTerm = searchParams.get("search") || "";
+  const activeCategory = searchParams.get("category") || "All";
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const [localSearch, setLocalSearch] = useState(searchTerm);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState<any[]>(() => loadCart());
   const skipCartPersist = useRef(true);
   const [activeCompany, setActiveCompany] = useState<any>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
   
   // Pagination & Category states
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [activeCategory, setActiveCategory] = useState("All");
 
   // AI state
   const [aiMode, setAiMode] = useState(false);
@@ -136,8 +140,11 @@ export default function Marketplace() {
       setActiveCompany(comp);
       if (comp.type === "vendor") navigate("/");
     }
-    fetchItems(true, 1, activeCategory);
-  }, [activeCategory]);
+  }, []);
+
+  useEffect(() => {
+    setLocalSearch(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (skipCartPersist.current) {
@@ -157,22 +164,20 @@ export default function Marketplace() {
     return () => window.removeEventListener("huntr-cart-updated", onCartUpdate);
   }, []);
 
-  const fetchItems = async (showLoader = true, pageNum = 1, categoryName = "All") => {
+  const fetchItems = async (showLoader = true, pageNum = currentPage, categoryName = activeCategory, query = searchTerm) => {
     try {
       if (showLoader) setLoading(true);
       const res = await getCatalogues({ 
-        search: searchTerm, 
+        search: query, 
         page: pageNum,
         category: categoryName === "All" ? undefined : categoryName
       });
       const data = res.data || res || [];
       if (res && res.data && Array.isArray(res.data)) {
         setItems(res.data);
-        setCurrentPage(res.current_page || 1);
         setTotalPages(res.last_page || 1);
       } else {
         setItems(Array.isArray(data) ? data : []);
-        setCurrentPage(1);
         setTotalPages(1);
       }
     } catch (err) {
@@ -184,8 +189,19 @@ export default function Marketplace() {
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
-    setCurrentPage(newPage);
-    fetchItems(true, newPage, activeCategory);
+    setSearchParams(prev => {
+      prev.set("page", String(newPage));
+      return prev;
+    });
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSearchParams(prev => {
+      if (category && category !== "All") prev.set("category", category);
+      else prev.delete("category");
+      prev.set("page", "1");
+      return prev;
+    });
   };
 
   const fetchItemsAi = async (query: string) => {
@@ -216,7 +232,6 @@ export default function Marketplace() {
             .finally(() => setIsLoadingComparison(false));
         }
       } else {
-        // AI gagal, fallback ke normal search
         setAiMode(false);
         setAiSummary(null);
         setAiIntent(null);
@@ -232,7 +247,22 @@ export default function Marketplace() {
     }
   };
 
-  // Debounced search effect
+  // Sync debounced search input with URL search params
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchTerm) {
+        setSearchParams(prev => {
+          if (localSearch) prev.set("search", localSearch);
+          else prev.delete("search");
+          prev.set("page", "1");
+          return prev;
+        });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchTerm]);
+
+  // Main data fetching effect reacting to URL changes (page, category, search)
   useEffect(() => {
     if (!searchTerm) {
       setAiMode(false);
@@ -240,24 +270,21 @@ export default function Marketplace() {
       setAiIntent(null);
       setComparisonText(null);
       setIsLoadingComparison(false);
-      const timer = setTimeout(() => fetchItems(true, 1, activeCategory), 300);
-      return () => clearTimeout(timer);
+      fetchItems(true, currentPage, activeCategory, "");
+      return;
     }
 
-    const timer = setTimeout(() => {
-      if (isAiQuery(searchTerm)) {
-        fetchItemsAi(searchTerm);
-      } else {
-        setAiMode(false);
-        setAiSummary(null);
-        setAiIntent(null);
-        setComparisonText(null);
-        setIsLoadingComparison(false);
-        fetchItems(true, 1, activeCategory);
-      }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [searchTerm, activeCategory]);
+    if (isAiQuery(searchTerm)) {
+      fetchItemsAi(searchTerm);
+    } else {
+      setAiMode(false);
+      setAiSummary(null);
+      setAiIntent(null);
+      setComparisonText(null);
+      setIsLoadingComparison(false);
+      fetchItems(true, currentPage, activeCategory, searchTerm);
+    }
+  }, [searchTerm, activeCategory, currentPage]);
 
   const handleGeneratePr = async () => {
     setIsGeneratingPr(true);
@@ -336,8 +363,8 @@ export default function Marketplace() {
               <input
                 type="text"
                 placeholder="Cari produk atau deskripsikan kebutuhan Anda... (AI akan membantu)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
                 style={{
                   width: "100%", padding: "12px 12px 12px 42px", borderRadius: 14,
                   background: "var(--ui-bg-input)",
@@ -372,10 +399,7 @@ export default function Marketplace() {
             {PRODUCT_CATEGORIES.map(cat => (
               <button 
                 key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setCurrentPage(1);
-                }}
+                onClick={() => handleCategoryChange(cat)}
                 style={{
                   padding: "8px 16px", 
                   borderRadius: 12, 
