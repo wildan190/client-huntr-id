@@ -1,5 +1,6 @@
 import React from "react";
-import { Package, Calendar } from "lucide-react";
+import { Link } from "react-router";
+import { Package, Calendar, ExternalLink } from "lucide-react";
 import { getAssetUrl } from "../../lib/assets";
 import { useMediaQuery, MOBILE_BREAKPOINT } from "../../hooks/useMediaQuery";
 
@@ -52,6 +53,7 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
           <tbody>
             {items.map((item: any, idx: number) => {
               const hasImage = Boolean(item.catalogue?.image_url || item.catalogue?.image_path);
+              const catalogueId = item.catalogue_id || item.catalogue?.id;
               
               return (
                 <tr 
@@ -59,71 +61,98 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
                   style={{ 
                     borderBottom: idx === (items.length - 1) ? "none" : "1px solid var(--ui-border)", 
                     transition: "background 0.2s",
-                    // Subtle visual enhancement for items with images
                     background: hasImage ? "rgba(249,115,22,0.02)" : "transparent"
                   }}
                 >
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      {/* Product Image - Enhanced with fallback handling */}
-                      <div style={{ 
-                        width: 48, 
-                        height: 48, 
-                        borderRadius: 8, 
-                        flexShrink: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: hasImage ? "transparent" : "var(--ui-bg-input)",
-                        border: hasImage ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border-subtle)",
-                        position: "relative"
-                      }}>
-                        {hasImage ? (
-                          <>
+                      {/* Product Image - Clickable Link to Product Details if catalogueId exists */}
+                      {catalogueId ? (
+                        <Link
+                          to={`/marketplace/${catalogueId}`}
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 8,
+                            flexShrink: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: hasImage ? "transparent" : "var(--ui-bg-input)",
+                            border: hasImage ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border-subtle)",
+                            position: "relative",
+                            textDecoration: "none",
+                            cursor: "pointer"
+                          }}
+                        >
+                          {hasImage ? (
+                            <>
+                              <img 
+                                src={getAssetUrl(item.catalogue.image_url || item.catalogue.image_path)} 
+                                alt={item.catalogue?.name || "Product"}
+                                style={{ 
+                                  width: "100%", 
+                                  height: "100%", 
+                                  borderRadius: 8, 
+                                  objectFit: "cover"
+                                }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent && !parent.querySelector('.fallback-icon')) {
+                                    const fallbackIcon = document.createElement('div');
+                                    fallbackIcon.className = 'fallback-icon';
+                                    fallbackIcon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h9"></path><path d="M22 17a2 2 0 0 1-2 2H9.5a2 2 0 0 1 0-4H20a2 2 0 0 1 2 2Z"></path></svg>';
+                                    fallbackIcon.style.color = 'var(--ui-text-muted)';
+                                    parent.appendChild(fallbackIcon);
+                                  }
+                                }}
+                              />
+                              <div style={{
+                                position: "absolute",
+                                top: -4,
+                                right: -4,
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                background: "#22c55e",
+                                border: "2px solid var(--ui-bg-card)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}>
+                                <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#fff" }} />
+                              </div>
+                            </>
+                          ) : (
+                            <Package size={20} style={{ color: "var(--ui-text-muted)" }} />
+                          )}
+                        </Link>
+                      ) : (
+                        <div style={{ 
+                          width: 48, 
+                          height: 48, 
+                          borderRadius: 8, 
+                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: hasImage ? "transparent" : "var(--ui-bg-input)",
+                          border: hasImage ? "1px solid rgba(249,115,22,0.2)" : "1px solid var(--ui-border-subtle)",
+                          position: "relative"
+                        }}>
+                          {hasImage ? (
                             <img 
                               src={getAssetUrl(item.catalogue.image_url || item.catalogue.image_path)} 
                               alt={item.catalogue?.name || "Product"}
-                              style={{ 
-                                width: "100%", 
-                                height: "100%", 
-                                borderRadius: 8, 
-                                objectFit: "cover"
-                              }}
-                              onError={(e) => {
-                                // Hide image if failed to load and show Package icon instead
-                                e.currentTarget.style.display = 'none';
-                                const parent = e.currentTarget.parentElement;
-                                if (parent && !parent.querySelector('.fallback-icon')) {
-                                  const fallbackIcon = document.createElement('div');
-                                  fallbackIcon.className = 'fallback-icon';
-                                  fallbackIcon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h9"></path><path d="M22 17a2 2 0 0 1-2 2H9.5a2 2 0 0 1 0-4H20a2 2 0 0 1 2 2Z"></path></svg>';
-                                  fallbackIcon.style.color = 'var(--ui-text-muted)';
-                                  parent.appendChild(fallbackIcon);
-                                }
-                              }}
+                              style={{ width: "100%", height: "100%", borderRadius: 8, objectFit: "cover" }}
                             />
-                            {/* Priority badge for items with images */}
-                            <div style={{
-                              position: "absolute",
-                              top: -4,
-                              right: -4,
-                              width: 12,
-                              height: 12,
-                              borderRadius: "50%",
-                              background: "#22c55e",
-                              border: "2px solid var(--ui-bg-card)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}>
-                              <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#fff" }} />
-                            </div>
-                          </>
-                        ) : (
-                          // No image available - show Package icon
-                          <Package size={20} style={{ color: "var(--ui-text-muted)" }} />
-                        )}
-                      </div>
+                          ) : (
+                            <Package size={20} style={{ color: "var(--ui-text-muted)" }} />
+                          )}
+                        </div>
+                      )}
+
                       <div style={{ flex: 1 }}>
                         <div style={{ 
                           fontWeight: 600, 
@@ -133,7 +162,26 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
                           alignItems: "center",
                           gap: 8
                         }}>
-                          {item.catalogue?.name || "Unknown Item"}
+                          {catalogueId ? (
+                            <Link 
+                              to={`/marketplace/${catalogueId}`}
+                              style={{
+                                color: "var(--ui-text-primary)",
+                                textDecoration: "none",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 6,
+                                transition: "color 0.2s"
+                              }}
+                              className="hover:text-[#f97316]"
+                            >
+                              <span>{item.catalogue?.name || item.item_name || item.name || "Unknown Item"}</span>
+                              <ExternalLink size={13} style={{ color: "var(--ui-text-muted)", opacity: 0.7 }} />
+                            </Link>
+                          ) : (
+                            <span>{item.catalogue?.name || item.item_name || item.name || "Unknown Item"}</span>
+                          )}
+
                           {hasImage && (
                             <span style={{
                               fontSize: 9,
@@ -150,12 +198,11 @@ export function RFQItemsTable({ rfq }: RFQItemsTableProps) {
                           )}
                         </div>
                         <div style={{ fontSize: 12, color: "var(--ui-text-muted)", marginTop: 4 }}>
-                          Code: <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>{item.catalogue?.item_code || "N/A"}</span>
-                          {/* Debug info - remove in production */}
-                          {process.env.NODE_ENV === 'development' && (
-                            <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>
-                              img: {hasImage ? '✓' : '✗'} | pos: {idx + 1}
-                            </span>
+                          Code: <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>{item.catalogue?.item_code || item.item_code || "N/A"}</span>
+                          {(item.specifications || item.catalogue?.specifications) && (
+                            <div style={{ fontSize: 12, color: "var(--ui-text-secondary)", marginTop: 4, fontStyle: "italic", lineHeight: 1.4 }}>
+                              {item.specifications || item.catalogue?.specifications}
+                            </div>
                           )}
                         </div>
                       </div>
