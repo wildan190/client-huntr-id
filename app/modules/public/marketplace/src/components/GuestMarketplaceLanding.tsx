@@ -30,7 +30,7 @@ type Product = {
   image_path?: string;
 };
 
-function Brand() { return <Link className="guest-brand" to="/" aria-label="Huntr home"><span>H</span><strong>HUNTR</strong></Link>; }
+function Brand() { return <Link className="guest-brand" to="/" aria-label="Huntr home"><img src="/assets/img/logo/sidebar.png" alt="HUNTR" className="h-9 w-32 object-cover object-center sm:h-10 sm:w-36" /></Link>; }
 
 export function GuestMarketplaceLanding() {
   const navigate = useNavigate();

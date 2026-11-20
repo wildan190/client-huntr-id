@@ -152,7 +152,9 @@ export function buildNavItems({
             label: "Dashboard",
             labelKey: "nav.items.dashboard",
             Icon: LayoutDashboard,
-            section: "main",
+            // Buyer: Dashboard digabung ke grup Procurement agar tidak tampil
+            // sebagai tile terpisah di Main Menu.
+            section: showBuyerProcurement ? "procurement" : "main",
             exact: true,
           },
           {

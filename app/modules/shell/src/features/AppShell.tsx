@@ -805,7 +805,9 @@ export default function AppShell() {
     `${companyPrefix}/budgeting`,
   ]);
   const dashboardNavItems = NAV.filter(
-    (item) => item.section === "main" && !dashboardAppRoutes.has(item.to),
+    (item) =>
+      item.to === (companyPrefix || "/") ||
+      (item.section === "main" && !dashboardAppRoutes.has(item.to)),
   );
   const contextualNavItems = isCompanyDashboard
     ? dashboardNavItems
